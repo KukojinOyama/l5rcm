@@ -1,0 +1,2 @@
+#!/bin/bash
+LIBOVERLAY_SCROLLBAR=0 ./l5rcm.py
