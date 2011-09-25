@@ -6,17 +6,17 @@ from PySide import QtCore, QtGui
 def find(f, seq):
   """Return first item in sequence where f(item) == True."""
   for item in seq:
-    if f(item): 
+    if f(item):
       return item
-      
+
 class CkNumWidget(QtGui.QWidget):
     def __init__(self, parent = None):
         super(CkNumWidget, self).__init__(parent)
-        
+
         self.checks = []
         self.value = 0
         hbox = QtGui.QHBoxLayout(self)
-        #hbox.setSpacing(1)
+        hbox.setSpacing(0)
         hbox.setContentsMargins(0,0,0,0)
         for i in xrange(0, 10):
             ck = QtGui.QCheckBox(self)
@@ -24,7 +24,7 @@ class CkNumWidget(QtGui.QWidget):
             hbox.addWidget( ck )
             ck.clicked.connect(self.on_ck_toggled)
             ck.setObjectName( str(i) )
-            
+
     def on_ck_toggled(self):
         fred = find(lambda ck: ck == self.sender(), self.checks)
         flag = fred.isChecked()
@@ -45,7 +45,7 @@ class CkNumWidget(QtGui.QWidget):
                 else:
                     self.checks[i].setChecked(flag)
         #print 'value is %d' % self.value
-    
+
     def set_value(self, value):
         if value == self.value:
             return
@@ -56,10 +56,10 @@ class CkNumWidget(QtGui.QWidget):
             else:
                 self.checks[i].setChecked(False)
         self.value = value
-    
+
     def get_value(self):
         return self.value
-        
+
 ### MAIN ###
 def main():
     app = QtGui.QApplication(sys.argv)
@@ -69,6 +69,6 @@ def main():
     vbox.addWidget( CkNumWidget(dlg) )
     dlg.show()
     sys.exit(app.exec_())
-    
+
 if __name__ == '__main__':
     main()

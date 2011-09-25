@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import advances as adv
+
 # RINGS
 class RINGS:
     EARTH = 0
@@ -9,17 +11,17 @@ class RINGS:
     VOID  = 4
 
     _names = dict(earth=0, air=1, water=2, fire=3, void=4)
-    
+
 def ring_from_name(name):
     if name in RINGS._names:
         return RINGS._names[name]
-    return 0   
+    return -1
 
 class ATTRIBS:
     # earth ring
     STAMINA      = 0
     WILLPOWER    = 1
-    
+
     # air ring
     REFLEXES     = 2
     AWARENESS    = 3
@@ -38,72 +40,82 @@ class ATTRIBS:
 def attrib_from_name(name):
     if name in ATTRIBS._names:
         return ATTRIBS._names[name]
-    return 0            
+    return -1
 
 class BasePcModel(object):
     def __init__(self):
-        self.name      = ''
-        self.clan      = 0
-        self.school    = 0
-        self.insight   = 0
-        self.rank      = 0
-        self.tag       = ''
-        self.tags      = []
-        self.void      = 2
-        self.attribs   = [2, 2, 2, 2, 2, 2, 2, 2]
+        self.void      = 0
+        self.attribs   = [0, 0, 0, 0, 0, 0, 0, 0]
         self.skills    = []
         self.honor     = 0.0
         self.glory     = 0.0
         self.status    = 0.0
         self.taint     = 0.0
-        self.attrib_costs = [4, 4, 4, 4, 4, 4, 4, 4]
-        self.void_cost    = 6
-        
+
     def load_default(self):
         self.void    = 2
         self.attribs = [2, 2, 2, 2, 2, 2, 2, 2]
         self.rank    = 1
+        self.glory   = 2.0
 
 class AdvancedPcModel(BasePcModel):
     def __init__(self):
         super(AdvancedPcModel, self).__init__()
-    
+
         self.step_0 = BasePcModel()
         self.step_1 = BasePcModel()
-        
-        self.advans = []
+        self.step_2 = BasePcModel()
+
+        self.name      = ''
+        self.clan      = 0
+        self.school    = 0
+        self.family    = 0
+        self.tag       = ''
+
+        self.insight   = 0
+        self.tags      = []
+        self.advans    = []
+
+        self.armor_tn  = 0
+        self.armor_tag = ''
+        self.armor_rd  = 0
+
+        self.attrib_costs = [4, 4, 4, 4, 4, 4, 4, 4]
+        self.void_cost    = 6
+        self.health_multiplier = 2
+        self.wounds = []
 
         self.void_points = self.get_void_rank()
 
     def load_default(self):
         self.step_0.load_default()
-        self.step_1.load_default()
 
     def get_ring_rank(self, idx):
         if idx == RINGS.VOID:
             return self.get_void_rank()
-        
+
         idx_1 = idx*2
         idx_2 = idx_1 + 1
         a, b   = self.get_attrib_rank(idx_1), self.get_attrib_rank(idx_2)
 
         return min(a, b)
-    
+
     def get_attrib_rank(self, attrib):
         a = self.step_0.attribs[attrib]
         b = self.step_1.attribs[attrib]
+        c = self.step_2.attribs[attrib]
 
-        c = max(a,b)
+        d = a+b+c
 
         for adv in self.advans:
             if adv.type != 'attrib':
                 continue
-            if adv.attrib == attrib: c += 1
+            if adv.attrib == attrib: d += 1
 
-        return c
+        return d
 
     def get_void_rank(self):
-        v = max(self.step_0.void, self.step_1.void)
+        v = self.step_0.void + self.step_1.void + self.step_2.void
 
         for adv in self.advans:
             if adv.type != 'void':
@@ -115,6 +127,18 @@ class AdvancedPcModel(BasePcModel):
     def get_skill_rank(self, idx):
         return 0
 
+    def get_honor(self):
+        return self.step_2.honor + self.honor
+
+    def get_glory(self):
+        return self.step_0.glory + self.glory
+
+    def get_status(self):
+        return self.status
+
+    def get_taint(self):
+        return self.taint
+
     def get_insight(self):
         n = 0
         for i in xrange(0, 5):
@@ -122,3 +146,107 @@ class AdvancedPcModel(BasePcModel):
         for i in xrange(0, len(self.skills)):
             n += self.get_skill_rank(i)
         return n
+
+    def get_insight_rank(self):
+        value = self.get_insight()
+
+        if value > 299: return 8
+        if value > 274: return 7
+        if value > 249: return 6
+        if value > 224: return 5
+        if value > 199: return 4
+        if value > 174: return 3
+        if value > 149: return 2
+        return 1
+
+    def get_base_tn(self):
+        # reflexes * 5 + 5
+        return self.get_attrib_rank(ATTRIBS.REFLEXES)*5+5
+
+    def get_armor_tn(self):
+        return self.armor_tn
+
+    def get_armor_rd(self):
+        return self.armor_rd
+
+    def get_cur_tn(self):
+        return self.get_base_tn() + self.get_armor_tn()
+
+    def get_health_rank(self, idx):
+        if idx == 0:
+            return self.get_ring_rank(RINGS.EARTH) * 5
+        return  self.get_ring_rank(RINGS.EARTH) * self.health_multiplier
+
+    def get_base_initiative(self):
+        return ( self.get_insight_rank() +
+                 self.get_attrib_rank(ATTRIBS.REFLEXES),
+                 self.get_attrib_rank(ATTRIBS.REFLEXES))
+
+    def get_px(self):
+        count = 0
+        for a in self.advans:
+            count += a.cost
+        return count
+
+    def set_family(self, family_id = 0, perk = None, perkval = 1):
+        self.step_1 = BasePcModel()
+        self.family = family_id
+        if family_id == 0:
+            return
+        # void ?
+        if perk == 'void':
+            self.step_1.void += perkval
+            return True
+        else:
+            a = attrib_from_name(perk)
+            if a >= 0:
+                self.step_1.attribs[a] += perkval
+                return True
+        return False
+
+    def set_school(self, school_id = 0, perk = None, perkval = 1,
+                         honor = 0.0):
+        self.step_2 = BasePcModel()
+        self.school = school_id
+        if school_id == 0:
+            return
+
+        print 'set honor %f' % honor
+        self.step_2.honor = honor
+
+        # void ?
+        if perk == 'void':
+            self.step_2.void += perkval
+            return True
+        else:
+            a = attrib_from_name(perk)
+            if a >= 0:
+                self.step_2.attribs[a] += perkval
+                return True
+        return False
+
+    def _remove_one_adv(self, func):
+        for i in xrange(0, len(self.advans)):
+            if func(self.advans[i]):
+                del self.advans[i]
+                return
+        print 'advancements: %d' % len(self.advans)
+
+    def advance_attrib(self, attrib):
+        self.advans.append(adv.AttribAdv(attrib))
+        print 'advancements: %d' % len(self.advans)
+
+    def degrade_attrib(self, attrib):
+        self._remove_one_adv( lambda x: x.type == 'attrib' and x.attrib == attrib )
+        print 'advancements: %d' % len(self.advans)
+
+    def advance_void(self):
+        self.advans.append(adv.VoidAdv())
+        print 'advancements: %d' % len(self.advans)
+
+    def degrade_void(self):
+        self._remove_one_adv( lambda x: x.type == 'void' )
+
+    def get_attrib_cost(self, idx):
+        return self.attrib_costs[idx]
+
