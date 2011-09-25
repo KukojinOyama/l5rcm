@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, sqlite3
+import sys, sqlite3, os
 from PySide import QtGui, QtCore
 from cknumwidget import CkNumWidget
 from chmodel import AdvancedPcModel, ATTRIBS, RINGS
@@ -34,14 +34,21 @@ def split_decimal(value):
 class L5RMain(QtGui.QMainWindow):
     def __init__(self, parent = None):
         super(L5RMain, self).__init__(parent)
+
+        # Main interface widgets
         self.widgets = QtGui.QWidget(self)
         self.tabs = QtGui.QTabWidget(self)
         self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
         self.setCentralWidget(self.widgets)
 
+        self.save_path = ''
+
+        # Build interface and menus
         self.build_ui()
         self.build_menu()
         self.connect_signals()
+
+        # Connect to database
         self.db_conn = sqlite3.connect('l5rdb.sqlite')
 
     def build_ui(self):
@@ -504,6 +511,50 @@ class L5RMain(QtGui.QMainWindow):
         for i in xrange(0, 8):
             h = self.pc.get_health_rank(i)
             self.wounds[i][1].setText( str(h) )
+
+    def ask_to_save(self):
+         msgBox = QtGui.QMessageBox()
+         msgBox.setText("The character has been modified.")
+         msgBox.setInformativeText("Do you want to save your changes?")
+         #msgBox.setStandardButtons(QtGui.QMessageBox.Save or \
+         #                          QtGui.QMessageBox.Discard or \
+         #                          QtGui.QMessageBox.Cancel)
+         msgBox.addButton( QtGui.QMessageBox.Save )
+         msgBox.addButton( QtGui.QMessageBox.Discard )
+         msgBox.addButton( QtGui.QMessageBox.Cancel )
+         msgBox.setDefaultButton(QtGui.QMessageBox.Save)
+         return msgBox.exec_()
+
+    def closeEvent(self, ev):
+        if self.pc.is_dirty():
+            resp = self.ask_to_save()
+            if resp == QtGui.QMessageBox.Save:
+                self.save_pc()
+                pass
+            elif resp == QtGui.QMessageBox.Cancel:
+                ev.ignore()
+            else:
+                super(L5RMain, self).closeEvent(ev)
+        else:
+            super(L5RMain, self).closeEvent(ev)
+
+    def select_save_path(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self, "Save Character",
+                                QtCore.QDir.homePath(),
+                                "Character files (*.pc)")
+        if len(fileName) != 2:
+            return ''
+        if fileName[0].endswith('.pc'):
+            return fileName[0]
+        return fileName[0] + '.pc'
+
+    def save_pc(self):
+        if self.save_path == '' or not os.exists(self.save_path):
+            self.save_path = self.select_save_path()
+
+        if self.save_path is not None and len(self.save_path) > 0:
+            self.pc.save_to(self.save_path)
+
 
 ### MAIN ###
 def main():

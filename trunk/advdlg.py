@@ -110,7 +110,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv = advances.AttribAdv(attrib, cost)
 
     def buy_advancement(self):
-        self.pc.advans.append( self.adv )
+        self.pc.add_advancement( self.adv )
         if self.tag == 'attrib':
             self.on_attrib_select()
         elif self.tag == 'void':

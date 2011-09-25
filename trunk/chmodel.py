@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import advances as adv
+import json
 
 # RINGS
 class RINGS:
@@ -42,6 +43,19 @@ def attrib_from_name(name):
         return ATTRIBS._names[name]
     return -1
 
+class MyJsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, BasePcModel) or \
+           isinstance(obj, AdvancedPcModel):
+            return obj.__dict__
+        return json.JSONEncoder.default(self, obj)
+
+def encode_pc_model(obj):
+    if isinstance(obj, BasePcModel) or \
+       isinstance(obj, AdvancedPcModel):
+        return obj.__dict__
+    return json.JSONEncoder.default(self, obj)
+
 class BasePcModel(object):
     def __init__(self):
         self.void      = 0
@@ -51,6 +65,7 @@ class BasePcModel(object):
         self.glory     = 0.0
         self.status    = 0.0
         self.taint     = 0.0
+        self.unsaved   = False
 
     def load_default(self):
         self.void    = 2
@@ -89,6 +104,12 @@ class AdvancedPcModel(BasePcModel):
 
     def load_default(self):
         self.step_0.load_default()
+
+    def is_dirty(self):
+        return self.step_0.unsaved or \
+               self.step_1.unsaved or \
+               self.step_2.unsaved or \
+               self.unsaved
 
     def get_ring_rank(self, idx):
         if idx == RINGS.VOID:
@@ -188,9 +209,15 @@ class AdvancedPcModel(BasePcModel):
             count += a.cost
         return count
 
+    def get_attrib_cost(self, idx):
+        return self.attrib_costs[idx]
+
     def set_family(self, family_id = 0, perk = None, perkval = 1):
-        self.step_1 = BasePcModel()
-        self.family = family_id
+        if self.family == family_id:
+            return
+        self.step_1  = BasePcModel()
+        self.unsaved = True
+        self.family  = family_id
         if family_id == 0:
             return
         # void ?
@@ -206,8 +233,11 @@ class AdvancedPcModel(BasePcModel):
 
     def set_school(self, school_id = 0, perk = None, perkval = 1,
                          honor = 0.0):
-        self.step_2 = BasePcModel()
-        self.school = school_id
+        if self.school == school_id:
+            return
+        self.step_2  = BasePcModel()
+        self.unsaved = True
+        self.school  = school_id
         if school_id == 0:
             return
 
@@ -225,28 +255,25 @@ class AdvancedPcModel(BasePcModel):
                 return True
         return False
 
-    def _remove_one_adv(self, func):
-        for i in xrange(0, len(self.advans)):
-            if func(self.advans[i]):
-                del self.advans[i]
-                return
-        print 'advancements: %d' % len(self.advans)
+    def add_advancement(self, adv):
+        self.advans.append(adv)
+        self.unsaved = True
 
-    def advance_attrib(self, attrib):
-        self.advans.append(adv.AttribAdv(attrib))
-        print 'advancements: %d' % len(self.advans)
+    def pop_advancement(self):
+        self.advans.pop()
+        self.unsaved = True
 
-    def degrade_attrib(self, attrib):
-        self._remove_one_adv( lambda x: x.type == 'attrib' and x.attrib == attrib )
-        print 'advancements: %d' % len(self.advans)
+    def save_to(self, file):
+        self.step_0.unsaved = \
+        self.step_1.unsaved = \
+        self.step_2.unsaved = \
+        self.unsaved = False
 
-    def advance_void(self):
-        self.advans.append(adv.VoidAdv())
-        print 'advancements: %d' % len(self.advans)
+        print 'saving to %s' % file
 
-    def degrade_void(self):
-        self._remove_one_adv( lambda x: x.type == 'void' )
-
-    def get_attrib_cost(self, idx):
-        return self.attrib_costs[idx]
-
+        fp = open(file, 'wt')
+        if fp:
+            json.dump( self, fp, cls=MyJsonEncoder, indent=2 )
+            fp.close()
+            return True
+        return False
