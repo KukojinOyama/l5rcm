@@ -58,13 +58,14 @@ def encode_pc_model(obj):
 
 class BasePcModel(object):
     def __init__(self):
-        self.void      = 0
-        self.attribs   = [0, 0, 0, 0, 0, 0, 0, 0]
-        self.skills    = []
-        self.honor     = 0.0
-        self.glory     = 0.0
-        self.status    = 0.0
-        self.taint     = 0.0
+        self.void       = 0
+        self.attribs    = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.skills     = {}
+        self.pending_wc = []
+        self.honor      = 0.0
+        self.glory      = 0.0
+        self.status     = 0.0
+        self.taint      = 0.0
 
     def load_default(self):
         self.void    = 2
@@ -76,9 +77,14 @@ class AdvancedPcModel(BasePcModel):
     def __init__(self):
         super(AdvancedPcModel, self).__init__()
 
+        # clan selection
         self.step_0 = BasePcModel()
+        # family selection
         self.step_1 = BasePcModel()
+        # school selection
         self.step_2 = BasePcModel()
+        
+        self.unsaved = False
 
         self.name      = ''
         self.clan      = 0
@@ -143,8 +149,16 @@ class AdvancedPcModel(BasePcModel):
 
         return v
 
-    def get_skill_rank(self, idx):
-        return 0
+    def get_skill_rank(self, uuid):
+        if uuid in self.step_2.skills:
+            rank = self.step_2.skills[uuid]
+        else:
+            rank = 0
+        for adv in self.advans:
+            if adv.type != 'skill' or adv.skill != uuid:
+                continue
+            rank += 1
+        return rank
 
     def get_honor(self):
         return self.step_2.honor + self.honor
@@ -209,6 +223,9 @@ class AdvancedPcModel(BasePcModel):
 
     def get_attrib_cost(self, idx):
         return self.attrib_costs[idx]
+        
+    def get_pending_wc_skills(self):
+        return self.step_2.pending_wc
 
     def set_family(self, family_id = 0, perk = None, perkval = 1):
         if self.family == family_id:
@@ -228,6 +245,21 @@ class AdvancedPcModel(BasePcModel):
                 self.step_1.attribs[a] += perkval
                 return True
         return False
+        
+    def add_school_skill(self, skill_uid, skill_rank):
+        if skill_uid in self.step_2.skills:
+            self.step_2.skills[skill_uid] += skill_rank
+        else:
+            self.step_2.skills[skill_uid] = skill_rank
+        self.unsaved = True
+        
+    def add_pending_wc_skill(self, wc, skill_rank):
+        self.step_2.pending_wc.append( (wc, skill_rank) )
+        self.unsaved = True
+        
+    def clear_pending_wc_skills(self):
+        self.step_2.pending_wc = []
+        self.unsaved = True
 
     def set_school(self, school_id = 0, perk = None, perkval = 1,
                          honor = 0.0):
@@ -262,9 +294,6 @@ class AdvancedPcModel(BasePcModel):
         self.unsaved = True
 
     def save_to(self, file):
-        self.step_0.unsaved = \
-        self.step_1.unsaved = \
-        self.step_2.unsaved = \
         self.unsaved = False
 
         print 'saving to %s' % file
