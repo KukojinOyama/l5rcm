@@ -5,7 +5,7 @@ import rules
 from PySide import QtGui, QtCore
 from cknumwidget import CkNumWidget
 from chmodel import AdvancedPcModel, ATTRIBS, RINGS
-from advdlg import BuyAdvDialog
+from advdlg import BuyAdvDialog, SelWcSkills
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
@@ -36,23 +36,66 @@ class L5RMain(QtGui.QMainWindow):
     def __init__(self, parent = None):
         super(L5RMain, self).__init__(parent)
 
+        self.save_path = ''
+        
+        # Build interface and menus
+        self.build_ui()
+        self.build_menu()
+        
+        # Build page 1
+        self.build_ui_page_1()
+        
+        self.connect_signals()
+
+        # Connect to database
+        self.db_conn = sqlite3.connect('l5rdb.sqlite')
+    
+    def build_ui(self):
         # Main interface widgets
         self.widgets = QtGui.QWidget(self)
         self.tabs = QtGui.QTabWidget(self)
         self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
         self.setCentralWidget(self.widgets)
-
-        self.save_path = ''
-
-        # Build interface and menus
-        self.build_ui()
-        self.build_menu()
-        self.connect_signals()
-
-        # Connect to database
-        self.db_conn = sqlite3.connect('l5rdb.sqlite')
-
-    def build_ui(self):
+        
+        self.nicebar = QtGui.QFrame(self)
+        self.nicebar.setStyleSheet('''
+        QWidget { background: beige;}
+        QPushButton {
+            color: #333;
+            border: 2px solid rgb(200,200,200);
+            border-radius: 7px;
+            padding: 5px;
+            background: qradialgradient(cx: 0.3, cy: -0.4,
+            fx: 0.3, fy: -0.4, radius: 1.35, stop: 0 #fff,
+            stop: 1 rgb(255,170,0));
+            min-width: 80px;
+            }
+            
+        QPushButton:hover {
+            background: qradialgradient(cx: 0.3, cy: -0.4,
+            fx: 0.3, fy: -0.4, radius: 1.35, stop: 0 #fff,
+            stop: 1 rgb(255,100,30));            
+        }
+        
+        QPushButton:pressed {
+            background: qradialgradient(cx: 0.4, cy: -0.1,
+            fx: 0.4, fy: -0.1, radius: 1.35, stop: 0 #fff,
+            stop: 1 rgb(255,200,50));            
+        }        
+        ''')
+        self.nicebar.setMinimumSize(0, 32)
+        self.nicebar.setVisible(False)
+       
+        mvbox = QtGui.QVBoxLayout(self.centralWidget())
+        logo = QtGui.QLabel(self)
+        logo.setScaledContents(True)
+        logo.setPixmap( QtGui.QPixmap('banner_s.png') )
+        mvbox.addWidget(logo)
+        mvbox.addWidget(self.nicebar)
+        mvbox.addWidget(self.tabs)
+        
+        
+    def build_ui_page_1(self):
 
         mfr = QtGui.QFrame(self)
         self.tabs.addTab(mfr, u"First Page")
@@ -281,14 +324,6 @@ class L5RMain(QtGui.QMainWindow):
         mgrid.addWidget(new_horiz_line(self), 3, 0, 1, 3)
         add_pc_quantities(4, 0)
 
-        mvbox = QtGui.QVBoxLayout(self.centralWidget())
-        logo = QtGui.QLabel(self)
-        logo.setScaledContents(True)
-        logo.setPixmap( QtGui.QPixmap('banner_s.png') )
-        mvbox.addWidget(logo)
-        mvbox.addWidget(self.tabs)
-        #self.centralWidget().setLayout(mgrid)
-
     def build_menu(self):
         # File Menu
         m_file = self.menuBar().addMenu("&File");
@@ -351,12 +386,27 @@ class L5RMain(QtGui.QMainWindow):
         buyspell_act.triggered.connect( self.act_buy_advancement )
 
     def connect_signals(self):
-        # always ( programmatically, user )
-        self.cb_pc_clan.currentIndexChanged.connect( self.on_clan_change )
+        # always notify change ( programmatically, user )
+        self.cb_pc_clan  .currentIndexChanged.connect( self.on_clan_change   )
         self.cb_pc_family.currentIndexChanged.connect( self.on_family_change )
         self.cb_pc_school.currentIndexChanged.connect( self.on_school_change )
         
+        # notify only user edit
         self.tx_mod_init.editingFinished.connect( self.update_from_model )
+        
+    def show_nicebar(self, widgets):        
+        # nicebar layout
+        hbox = QtGui.QHBoxLayout()
+        hbox.setContentsMargins(9,1,9,1)        
+       
+        for w in widgets:
+            hbox.addWidget(w)
+        
+        self.nicebar.setLayout(hbox)    
+        self.nicebar.setVisible(True)
+        
+    def hide_nicebar(self):
+        self.nicebar.setVisible(False)
 
     def reset_adv(self):
         self.pc.advans = []
@@ -414,13 +464,29 @@ class L5RMain(QtGui.QMainWindow):
                      where uuid=?''', [uuid])
         perk, perkval, honor = c.fetchone()
         self.pc.set_school( uuid, perk, perkval, honor )
+        
+        # TODO: disable advancments until pending skills
+        c.execute('''select skill_uuid, skill_rank, wildcard
+                     from school_skills
+                     where school_uuid=?''', [uuid])
+        for sk_uuid, sk_rank, wc in c.fetchall():
+            if sk_uuid is not None:
+                self.pc.add_school_skill(sk_uuid, sk_rank)
+            else:
+                self.pc.add_pending_wc_skill(wc, sk_rank)
         self.update_from_model()
 
     def act_buy_advancement(self):
-        dlg = BuyAdvDialog(self.pc, self.sender().property('tag'), self)
+        dlg = BuyAdvDialog(self.pc, self.sender().property('tag'), self.db_conn, self)
         dlg.exec_()
         self.update_from_model()
-
+        
+    def act_choose_skills(self):
+        dlg = SelWcSkills(self.pc, self.db_conn, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.pc.clear_pending_wc_skills()
+            self.update_from_model()
+        
     def new_character(self):
         self.pc = AdvancedPcModel()
         self.pc.load_default()
@@ -466,10 +532,24 @@ class L5RMain(QtGui.QMainWindow):
             self.cb_pc_family.addItem( f[1], f[0] )
 
     def set_clan(self, clan_id):
-        pass
+        idx = self.cb_pc_clan.currentIndex()
+        c_uuid = self.cb_pc_clan.itemData(idx)
+        if c_uuid == clan_id:
+            return
+        for i in xrange(0, self.cb_pc_clan.count()):
+            if self.cb_pc_clan.itemData(idx) == clan_id:
+                self.cb_pc_clan.setCurrentIndex(i)
+                return
 
     def set_school(self, school_id):
-        pass
+        idx = self.cb_pc_school.currentIndex()
+        s_uuid = self.cb_pc_school.itemData(idx)
+        if s_uuid == school_id:
+            return
+        for i in xrange(0, self.cb_pc_school.count()):
+            if self.cb_pc_school.itemData(idx) == school_id:
+                self.cb_pc_school.setCurrentIndex(i)
+                return
 
     def set_flag(self, flag, value):
         rank, points = split_decimal(value)
@@ -530,6 +610,18 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.mod_init = (r1, k1)
         else:
             self.tx_cur_init.setText( self.tx_base_init.text() )
+            
+        # Show nicebar if pending wildcard skills
+        wcs = self.pc.get_pending_wc_skills()
+        if len(wcs) > 0:
+            lb = QtGui.QLabel('Your school gives you the choice of certain skills', self)
+            bt = QtGui.QPushButton('Choose Skills', self)
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.act_choose_skills )                  
+            self.show_nicebar([lb, bt])
+        else:
+            self.hide_nicebar()
 
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)

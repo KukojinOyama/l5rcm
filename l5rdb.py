@@ -31,11 +31,12 @@ def create(dbfile):
         # school skills       
         c.execute('''create table school_skills
         (school_uuid INTEGER, skill_uuid INTEGER, skill_rank INTEGER,
-        PRIMARY KEY(school_uuid, skill_uuid))''')
+         wildcard TEXT,
+         PRIMARY KEY(school_uuid, skill_uuid, wildcard))''')
 
         # tags
         c.execute('''create table tags
-        (uuid integer PRIMARY KEY, tag TEXT)''')       
+        (uuid INTEGER, tag VARCHAR, PRIMARY KEY(uuid, tag))''')
         
         # cnt
         c.execute('''create table cnt
@@ -83,6 +84,19 @@ def non_query(conn, query, data = None, print_error = True):
         c.close()
     return recs
 
+def parse_skill_line(sl):
+    tk = sl.strip().split()
+    sk_name = tk[0].replace('_', ' ')
+    sk_rank = 1
+    sk_emph = None
+    if len(tk) > 1:
+        for i in xrange(1, len(tk)):
+            if tk[i].startswith('?'):
+                sk_rank = int(tk[i][1])
+            elif tk[i].startswith('('):
+                sk_emph = tk[i].strip('()')
+    return sk_name, sk_rank, sk_emph
+
 def get_cnt(conn, cnt):
     # increment value in cnt
     if non_query(conn, '''insert into cnt values(?,1)''', [cnt], False) == 0:
@@ -97,11 +111,11 @@ def get_cnt(conn, cnt):
         return int(val[0][0])
     return 0
     
-def add_tag(uuid, tag):    
+def add_tag(dbconn, uuid, tag):    
     if non_query(dbconn, '''insert into tags values (?,?)''', [uuid,tag]):
         print 'add tag %s to %d' % (tag, uuid)
     else:
-        print 'tag %s already exists for uuid %d' % uuid
+        print 'tag %s already exists for uuid %d' % (tag, uuid)
 
 def import_clans(dbconn, path):
     f = open( os.path.join(path, 'names'), 'rt' )
@@ -127,7 +141,6 @@ def import_clan_families(dbconn, clan, path):
         name = f.readline().strip()
         perk = f.readline().strip()
         perkval = f.readline().strip()
-        
         uuid = get_cnt(dbconn, 'uuid')
         if non_query(dbconn, '''insert into families values(?,?,?,?,?)''',
                              [uuid,name,clanuid,perk,perkval]):
@@ -164,48 +177,112 @@ def import_clan_schools(dbconn, clan, path):
     f.close()
 
 def import_categ_skills(dbconn, categ, path):
-    print 'import %s skills' % categ
-   
+    #print 'import %s skills' % categ    
+    print 'import skills from file %s' % path
     f = open( path, 'rt' )
     for line in f:
         tokens = line.split()
         if len(tokens) < 2:
+            print 'ignoring line %s' % line
             continue
         name = tokens[0].replace('_', ' ')
         attrib = tokens[1]
-        tags = tokens[2: len(tokens)-2]
+        tags = tokens[2: len(tokens)] 
 
         uuid = get_cnt(dbconn, 'uuid')
         if non_query(dbconn, '''insert into skills values(?,?,?,?)''',
                              [uuid,name,categ,attrib]):
-            print 'imported school %s with uuid %s' % (name, uuid)
+            print 'imported skill %s with uuid %s, tags=%s' % (name, uuid, repr(tags))
             
             for t in tags:
-                add_tag(uuid, t)
+                add_tag(dbconn, uuid, t)
         else:
             print 'cannot import skill %s' % name
     f.close()
+    
+def import_clan_school_skills(dbconn, clan, path):
+    print 'import school skills from %s' % path
+   
+    f = open( path, 'rt' )
+    while True:
+        if not f.readline().startswith('#'): break
+        s_name = f.readline().strip()
+        skill_line = f.readline().strip()
+        skills = skill_line.split(',')
+        
+        # get school uid  
+        print 'search uuid for school %s' % s_name
+        s_uuid = query(dbconn, '''select uuid from schools where name=?''', [s_name])
+        if s_uuid is not None and len(s_uuid) > 0:
+            s_uuid = s_uuid[0][0]
+
+        for s in skills:
+            
+            sk_name, sk_rank, sk_emph = parse_skill_line(s)
+            if sk_name.startswith('*'):
+                # add wildcard
+                non_query(dbconn, '''insert into school_skills
+                                     (school_uuid, skill_rank, wildcard)
+                                     values(?,?,?)''',
+                                  [s_uuid, 1, sk_name[1:]])
+            else:
+                # get skill uid
+                print 'search uuid for skill %s' % s
+                sk_uuid = query(dbconn, '''select uuid from skills where name=?''', [sk_name])
+                if sk_uuid is not None and len(sk_uuid) > 0:
+                    sk_uuid = sk_uuid[0][0] 
+                    non_query(dbconn, '''insert into school_skills
+                                         (school_uuid, skill_uuid, skill_rank)
+                                         values(?,?,?)''',                                         
+                                         [s_uuid, sk_uuid, sk_rank])                
+    f.close()                    
 
 def import_families(conn, path):
     for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break               
         for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue           
             import_clan_families(conn, file_, os.path.join(path, file_))
 
 def import_schools(conn, path):
     for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break                
         for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue             
             import_clan_schools(conn, file_, os.path.join(path, file_))
             
 def import_skills(conn, path):
     for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break        
         for file_ in files:
-            import_categ_skills(conn, file_.lower(), os.path.join(path, file_))            
+            if file_.startswith('.') or file_.endswith('~'):
+                continue
+            import_categ_skills(conn, file_.lower(), os.path.join(path, file_))
+            
+def import_school_skills(conn, path):
+    for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break        
+        for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue
+            import_clan_school_skills(conn, file_.lower(), os.path.join(path, file_))            
 
 def importdb(conn, path):
     import_clans(conn, os.path.join(path, 'clans'))
     import_families(conn, os.path.join(path, 'families'))
     import_schools(conn, os.path.join(path, 'schools'))
     import_skills(conn, os.path.join(path, 'skills'))
+    import_school_skills(conn, os.path.join(path, 'school_skills'))
     conn.commit()
 
 ### MAIN ###
