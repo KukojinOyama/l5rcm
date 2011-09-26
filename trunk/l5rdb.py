@@ -26,13 +26,17 @@ def create(dbfile):
         # skills
         c.execute('''create table skills
         (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, type TEXT,
-        wildcard TEXT)''')
+        attribute TEXT)''')
 
         # school skills       
         c.execute('''create table school_skills
         (school_uuid INTEGER, skill_uuid INTEGER, skill_rank INTEGER,
         PRIMARY KEY(school_uuid, skill_uuid))''')
 
+        # tags
+        c.execute('''create table tags
+        (uuid integer PRIMARY KEY, tag TEXT)''')       
+        
         # cnt
         c.execute('''create table cnt
         (name varchar PRIMARY KEY, value INTEGER)''')
@@ -92,6 +96,12 @@ def get_cnt(conn, cnt):
         #conn.commit()
         return int(val[0][0])
     return 0
+    
+def add_tag(uuid, tag):    
+    if non_query(dbconn, '''insert into tags values (?,?)''', [uuid,tag]):
+        print 'add tag %s to %d' % (tag, uuid)
+    else:
+        print 'tag %s already exists for uuid %d' % uuid
 
 def import_clans(dbconn, path):
     f = open( os.path.join(path, 'names'), 'rt' )
@@ -153,6 +163,29 @@ def import_clan_schools(dbconn, clan, path):
             print 'cannot import school %s' % name
     f.close()
 
+def import_categ_skills(dbconn, categ, path):
+    print 'import %s skills' % categ
+   
+    f = open( path, 'rt' )
+    for line in f:
+        tokens = line.split()
+        if len(tokens) < 2:
+            continue
+        name = tokens[0].replace('_', ' ')
+        attrib = tokens[1]
+        tags = tokens[2: len(tokens)-2]
+
+        uuid = get_cnt(dbconn, 'uuid')
+        if non_query(dbconn, '''insert into skills values(?,?,?,?)''',
+                             [uuid,name,categ,attrib]):
+            print 'imported school %s with uuid %s' % (name, uuid)
+            
+            for t in tags:
+                add_tag(uuid, t)
+        else:
+            print 'cannot import skill %s' % name
+    f.close()
+
 def import_families(conn, path):
     for path, dirs, files in os.walk(path):
         for file_ in files:
@@ -162,11 +195,17 @@ def import_schools(conn, path):
     for path, dirs, files in os.walk(path):
         for file_ in files:
             import_clan_schools(conn, file_, os.path.join(path, file_))
+            
+def import_skills(conn, path):
+    for path, dirs, files in os.walk(path):
+        for file_ in files:
+            import_categ_skills(conn, file_.lower(), os.path.join(path, file_))            
 
 def importdb(conn, path):
     import_clans(conn, os.path.join(path, 'clans'))
     import_families(conn, os.path.join(path, 'families'))
     import_schools(conn, os.path.join(path, 'schools'))
+    import_skills(conn, os.path.join(path, 'skills'))
     conn.commit()
 
 ### MAIN ###
