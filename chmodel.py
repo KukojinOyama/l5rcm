@@ -65,7 +65,6 @@ class BasePcModel(object):
         self.glory     = 0.0
         self.status    = 0.0
         self.taint     = 0.0
-        self.unsaved   = False
 
     def load_default(self):
         self.void    = 2
@@ -106,10 +105,7 @@ class AdvancedPcModel(BasePcModel):
         self.step_0.load_default()
 
     def is_dirty(self):
-        return self.step_0.unsaved or \
-               self.step_1.unsaved or \
-               self.step_2.unsaved or \
-               self.unsaved
+        return self.unsaved
 
     def get_ring_rank(self, idx):
         if idx == RINGS.VOID:
