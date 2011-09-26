@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys, sqlite3, os
+import rules
 from PySide import QtGui, QtCore
 from cknumwidget import CkNumWidget
 from chmodel import AdvancedPcModel, ATTRIBS, RINGS
@@ -74,30 +75,34 @@ class L5RMain(QtGui.QMainWindow):
             self.tx_pc_exp    = QtGui.QLineEdit(self)
             self.tx_pc_ins    = QtGui.QLineEdit(self)
 
-            grid.addWidget( QtGui.QLabel("Name", self), 0, 0 )
-            grid.addWidget( QtGui.QLabel("Clan", self), 1, 0 )
-            grid.addWidget( QtGui.QLabel("Family", self), 1, 2 )
-            grid.addWidget( QtGui.QLabel("School", self), 2, 0 )
-            grid.addWidget( QtGui.QLabel("Rank", self), 0, 3,
-                            QtCore.Qt.AlignRight)
-            grid.addWidget( QtGui.QLabel("Exp. Points", self), 1, 4 )
-            grid.addWidget( QtGui.QLabel("Insight", self), 2, 3,
-                            QtCore.Qt.AlignRight)
-
-            grid.addWidget( self.tx_pc_name, 0, 1, 1, 2)
-            grid.addWidget( self.cb_pc_clan, 1, 1 , 1, 1)
-            grid.addWidget( self.cb_pc_family, 1, 3, 1, 1)
-            grid.addWidget( self.cb_pc_school, 2, 1, 1, 2 )
-            grid.addWidget( self.tx_pc_rank, 0, 4, 1, 2 )
-            grid.addWidget( self.tx_pc_exp, 1, 5 )
+            # 1st column
+            grid.addWidget( QtGui.QLabel("Name", self), 0, 0   )
+            grid.addWidget( QtGui.QLabel("Clan", self), 1, 0   )
+            grid.addWidget( QtGui.QLabel("Family", self), 2, 0 )
+            grid.addWidget( QtGui.QLabel("School", self), 3, 0 )
+            
+            # 3rd column
+            grid.addWidget( QtGui.QLabel("Rank", self), 0, 3        )
+            grid.addWidget( QtGui.QLabel("Exp. Points", self), 1, 3 )
+            grid.addWidget( QtGui.QLabel("Insight", self), 2, 3     )
+                            
+            # 2nd column
+            grid.addWidget( self.tx_pc_name, 0, 1, 1, 2  )
+            grid.addWidget( self.cb_pc_clan, 1, 1 , 1, 2 )
+            grid.addWidget( self.cb_pc_family, 2, 1, 1, 2)
+            grid.addWidget( self.cb_pc_school, 3, 1, 1, 2)
+            
+            # 4th column
+            grid.addWidget( self.tx_pc_rank, 0, 4, 1, 2)
+            grid.addWidget( self.tx_pc_exp, 1, 4, 1, 2 )
             grid.addWidget( self.tx_pc_ins, 2, 4, 1, 2 )
 
-            grid.setColumnStretch(0, 1)
-            grid.setColumnStretch(1, 2)
-            grid.setColumnStretch(2, 1)
-            grid.setColumnStretch(3, 2)
-            grid.setColumnStretch(4, 1)
-            grid.setColumnStretch(5, 1)
+            #grid.setColumnStretch(0, 1)
+            #grid.setColumnStretch(1, 2)
+            #grid.setColumnStretch(2, 1)
+            #grid.setColumnStretch(3, 2)
+            #grid.setColumnStretch(4, 1)
+            #grid.setColumnStretch(5, 1)
 
             self.tx_pc_rank.setReadOnly(True)
             self.tx_pc_exp.setReadOnly(True)
@@ -350,6 +355,8 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_clan.currentIndexChanged.connect( self.on_clan_change )
         self.cb_pc_family.currentIndexChanged.connect( self.on_family_change )
         self.cb_pc_school.currentIndexChanged.connect( self.on_school_change )
+        
+        self.tx_mod_init.editingFinished.connect( self.update_from_model )
 
     def reset_adv(self):
         self.pc.advans = []
@@ -501,7 +508,7 @@ class L5RMain(QtGui.QMainWindow):
         self.set_status( self.pc.get_status() )
         self.set_taint ( self.pc.get_taint()  )
 
-        # quantities
+        # armor tn
         self.tx_base_tn.setText ( str(self.pc.get_base_tn())  )
         self.tx_armor_tn.setText( str(self.pc.get_armor_tn()) )
         self.tx_armor_rd.setText( str(self.pc.get_armor_rd()) )
@@ -511,14 +518,23 @@ class L5RMain(QtGui.QMainWindow):
         for i in xrange(0, 8):
             h = self.pc.get_health_rank(i)
             self.wounds[i][1].setText( str(h) )
+            
+        # initiative        
+        # TODO: temporary implementation
+        r, k = self.pc.get_base_initiative()
+        self.tx_base_init.setText( rules.format_rtk(r, k) )
+        rtk = self.tx_mod_init.text()
+        r1, k1 = rules.parse_rtk(rtk)
+        if r1 and k1:
+            self.tx_cur_init.setText( rules.format_rtk(r+r1, k+k1) )
+            self.pc.mod_init = (r1, k1)
+        else:
+            self.tx_cur_init.setText( self.tx_base_init.text() )
 
     def ask_to_save(self):
-         msgBox = QtGui.QMessageBox()
+         msgBox = QtGui.QMessageBox(self)
          msgBox.setText("The character has been modified.")
          msgBox.setInformativeText("Do you want to save your changes?")
-         #msgBox.setStandardButtons(QtGui.QMessageBox.Save or \
-         #                          QtGui.QMessageBox.Discard or \
-         #                          QtGui.QMessageBox.Cancel)
          msgBox.addButton( QtGui.QMessageBox.Save )
          msgBox.addButton( QtGui.QMessageBox.Discard )
          msgBox.addButton( QtGui.QMessageBox.Cancel )

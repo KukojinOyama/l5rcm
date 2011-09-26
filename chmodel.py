@@ -98,7 +98,9 @@ class AdvancedPcModel(BasePcModel):
         self.void_cost    = 6
         self.health_multiplier = 2
         self.wounds = []
-
+        
+        self.mod_init = (0, 0)
+ 
         self.void_points = self.get_void_rank()
 
     def load_default(self):
