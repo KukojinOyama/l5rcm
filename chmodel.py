@@ -226,6 +226,19 @@ class AdvancedPcModel(BasePcModel):
         
     def get_pending_wc_skills(self):
         return self.step_2.pending_wc
+        
+    def get_school_skills(self):
+        return self.step_2.skills.keys()
+        
+    def get_skills(self, school = True):
+        l = []
+        if school:
+            l = self.get_school_skills()
+        for adv in self.advans:
+            if adv.type != 'skill' or adv.skill in self.step_2.skills.keys():
+                continue
+            l.append(adv.skill)
+        return l            
 
     def set_family(self, family_id = 0, perk = None, perkval = 1):
         if self.family == family_id:
