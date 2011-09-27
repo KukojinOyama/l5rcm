@@ -6,6 +6,7 @@ from PySide import QtGui, QtCore
 from cknumwidget import CkNumWidget
 from chmodel import AdvancedPcModel, ATTRIBS, RINGS
 from advdlg import BuyAdvDialog, SelWcSkills
+from skillmodel import SkillTableViewModel
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
@@ -42,13 +43,14 @@ class L5RMain(QtGui.QMainWindow):
         self.build_ui()
         self.build_menu()
         
-        # Build page 1
-        self.build_ui_page_1()
-        
-        self.connect_signals()
-
         # Connect to database
         self.db_conn = sqlite3.connect('l5rdb.sqlite')
+        
+        # Build page 1
+        self.build_ui_page_1()
+        self.build_ui_page_2()
+        
+        self.connect_signals()
     
     def build_ui(self):
         # Main interface widgets
@@ -140,13 +142,6 @@ class L5RMain(QtGui.QMainWindow):
             grid.addWidget( self.tx_pc_exp, 1, 4, 1, 2 )
             grid.addWidget( self.tx_pc_ins, 2, 4, 1, 2 )
 
-            #grid.setColumnStretch(0, 1)
-            #grid.setColumnStretch(1, 2)
-            #grid.setColumnStretch(2, 1)
-            #grid.setColumnStretch(3, 2)
-            #grid.setColumnStretch(4, 1)
-            #grid.setColumnStretch(5, 1)
-
             self.tx_pc_rank.setReadOnly(True)
             self.tx_pc_exp.setReadOnly(True)
             self.tx_pc_ins.setReadOnly(True)
@@ -159,7 +154,6 @@ class L5RMain(QtGui.QMainWindow):
             fr.setSizePolicy(QtGui.QSizePolicy.Preferred,
                             QtGui.QSizePolicy.Maximum)
             hbox = QtGui.QHBoxLayout(fr)
-            #hbox.setContentsMargins(0,0,0,0)
             grp = QtGui.QGroupBox("Rings and Attributes", self)
             grid = QtGui.QGridLayout(grp)
             grid.setSpacing(1)
@@ -323,6 +317,18 @@ class L5RMain(QtGui.QMainWindow):
         add_pc_flags(2, 1)
         mgrid.addWidget(new_horiz_line(self), 3, 0, 1, 3)
         add_pc_quantities(4, 0)
+        
+    def build_ui_page_2(self):
+        self.sk_view_model = SkillTableViewModel(self.db_conn, self)        
+        
+        mfr    = QtGui.QFrame(self)        
+        mgrid  = QtGui.QGridLayout(mfr)
+        tview  = QtGui.QTableView(self)
+        tview.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);  
+        mgrid.addWidget(tview, 0, 0)
+        tview.setModel(self.sk_view_model)
+        
+        self.tabs.addTab(mfr, u"Skills")
 
     def build_menu(self):
         # File Menu
@@ -338,6 +344,8 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addAction(save_act)
         m_file.addSeparator()
         m_file.addAction(exit_act)
+        
+        self.m_file = m_file
 
         # signals
         exit_act.triggered.connect( self.close )
@@ -375,6 +383,9 @@ class L5RMain(QtGui.QMainWindow):
         m_buy_adv.addAction(buyspell_act)
         m_adv.addSeparator()
         m_adv.addAction(resetadv_act)
+        
+        self.m_adv = m_adv
+        self.m_buy = m_buy_adv
 
         resetadv_act.triggered.connect( self.reset_adv           )
         buyattr_act .triggered.connect( self.act_buy_advancement )
@@ -401,6 +412,8 @@ class L5RMain(QtGui.QMainWindow):
 
         m_namegen.addAction(gen_male_act)
         m_namegen.addAction(gen_female_act)
+        
+        self.m_namegen = m_namegen
         
         gen_male_act  .triggered.connect( self.generate_name )
         gen_female_act.triggered.connect( self.generate_name )                    
@@ -649,9 +662,14 @@ class L5RMain(QtGui.QMainWindow):
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.act_choose_skills )                  
-            self.show_nicebar([lb, bt])
+            self.show_nicebar([lb, bt])           
         else:
             self.hide_nicebar()
+            
+        enable_adv = self.pc.school > 0 and self.pc.family > 0 and len(wcs) == 0
+        self.m_buy.setEnabled(enable_adv)
+        
+        self.sk_view_model.update_from_model(self.pc)
 
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
