@@ -385,6 +385,26 @@ class L5RMain(QtGui.QMainWindow):
         buykiho_act .triggered.connect( self.act_buy_advancement )
         buyspell_act.triggered.connect( self.act_buy_advancement )
 
+        # Tools menu
+        #m_tools = self.menuBar().addMenu(u'&Tools')
+        
+        # Name generator submenu
+        m_namegen = self.menuBar().addMenu(u'&Generate Name')
+
+        # actions generate female, male names
+        gen_male_act   = QtGui.QAction(u'Male', self)
+        gen_female_act = QtGui.QAction(u'Female', self)
+        
+        # gender tag
+        gen_male_act.setProperty  ('gender', 'male')
+        gen_female_act.setProperty('gender', 'female')
+
+        m_namegen.addAction(gen_male_act)
+        m_namegen.addAction(gen_female_act)
+        
+        gen_male_act  .triggered.connect( self.generate_name )
+        gen_female_act.triggered.connect( self.generate_name )                    
+
     def connect_signals(self):
         # always notify change ( programmatically, user )
         self.cb_pc_clan  .currentIndexChanged.connect( self.on_clan_change   )
@@ -410,6 +430,16 @@ class L5RMain(QtGui.QMainWindow):
 
     def reset_adv(self):
         self.pc.advans = []
+        self.update_from_model()
+        
+    def generate_name(self):
+        gender = self.sender().property('sender')
+        name = ''
+        if gender == 'male':
+            name = rules.get_random_name('data/male.txt')
+        else:
+            name = rules.get_random_name('data/female.txt')
+        self.pc.name = name
         self.update_from_model()
 
     def on_clan_change(self, text):
@@ -564,9 +594,9 @@ class L5RMain(QtGui.QMainWindow):
     def set_taint (self, value): self.set_flag(3, value)
 
     def update_from_model(self):
-        self.tx_pc_name   = self.pc.name
-        self.set_clan     ( self.pc.clan   )
-        self.set_school   ( self.pc.school )
+        self.tx_pc_name.setText( self.pc.name )
+        self.set_clan          ( self.pc.clan   )
+        self.set_school        ( self.pc.school )
 
         self.tx_pc_exp.setText( str( self.pc.get_px() ) )
 
