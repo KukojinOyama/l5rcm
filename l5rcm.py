@@ -458,13 +458,17 @@ class L5RMain(QtGui.QMainWindow):
         gen_female_act.triggered.connect( self.generate_name )
 
     def connect_signals(self):
-        # always notify change ( programmatically, user )
-        self.cb_pc_clan  .currentIndexChanged.connect( self.on_clan_change   )
-        self.cb_pc_family.currentIndexChanged.connect( self.on_family_change )
-        self.cb_pc_school.currentIndexChanged.connect( self.on_school_change )
+
+        # only user change
+        self.cb_pc_clan  .activated.connect( self.on_clan_change   )
+        self.cb_pc_family.activated.connect( self.on_family_change )
+        self.cb_pc_school.activated.connect( self.on_school_change )
 
         # notify only user edit
         self.tx_mod_init.editingFinished.connect( self.update_from_model )
+
+        # update model name
+        self.tx_pc_name.editingFinished.connect( self.on_pc_name_change )
 
     def switch_to_page_3(self):
         self.tabs.setCurrentIndex(2)
@@ -503,12 +507,18 @@ class L5RMain(QtGui.QMainWindow):
         self.update_from_model()
 
     def on_clan_change(self, text):
+        print 'on_clan_change %s' % text
         self.cb_pc_family.clear()
         index = self.cb_pc_clan.currentIndex()
+        print 'current index = %d' % index
         if index < 1:
             self.cb_pc_family.setCurrentIndex(-1)
+            self.pc.clan = 0
         else:
             clan_id = self.cb_pc_clan.itemData(index)
+
+            print 'set new clan. cur: %d new %d' % ( self.pc.clan, clan_id )
+            self.pc.clan = clan_id
 
             self.load_families(clan_id)
             self.load_schools(clan_id)
@@ -566,6 +576,9 @@ class L5RMain(QtGui.QMainWindow):
                 self.pc.add_pending_wc_skill(wc, sk_rank)
         self.update_from_model()
 
+    def on_pc_name_change(self):
+        self.pc.name = self.tx_pc_name.text()
+
     def act_buy_advancement(self):
         dlg = BuyAdvDialog(self.pc, self.sender().property('tag'), self.db_conn, self)
         dlg.exec_()
@@ -578,15 +591,19 @@ class L5RMain(QtGui.QMainWindow):
             self.update_from_model()
 
     def new_character(self):
+        self.save_path = ''
         self.pc = AdvancedPcModel()
         self.pc.load_default()
         self.load_clans()
-        self.load_schools(0)
+        #self.load_schools(0)
+        #self.load_families(0)
         self.update_from_model()
 
     def load_character(self):
         self.save_path = self.select_load_path()
         if self.pc.load_from(self.save_path):
+            self.load_schools (self.pc.clan)
+            self.load_families(self.pc.clan)
             self.update_from_model()
 
     def save_character(self):
@@ -599,12 +616,14 @@ class L5RMain(QtGui.QMainWindow):
     def load_clans(self):
         c = self.db_conn.cursor()
         # clans
+        self.cb_pc_clan.clear()
         self.cb_pc_clan.addItem( 'No Clan', 0 )
         c.execute('''select uuid, name from clans order by name asc''')
         for f in c.fetchall():
             self.cb_pc_clan.addItem( f[1], f[0] )
 
     def load_schools(self, clan_id):
+        print 'load schools for clan_id %d' % clan_id
         c = self.db_conn.cursor()
         self.cb_pc_school.clear()
         if clan_id <= 0:
@@ -620,11 +639,12 @@ class L5RMain(QtGui.QMainWindow):
             self.cb_pc_school.addItem( f[1], f[0] )
 
     def load_families(self, clan_id):
+        print 'load families for clan_id %d' % clan_id
+
         c = self.db_conn.cursor()
         self.cb_pc_family.clear()
         if clan_id <= 0:
-            c.execute('''select uuid, name from families
-                         order by name asc''')
+            return
         else:
             c.execute('''select uuid, name from families where clan_id=?
                          order by name asc''',
@@ -636,11 +656,24 @@ class L5RMain(QtGui.QMainWindow):
     def set_clan(self, clan_id):
         idx = self.cb_pc_clan.currentIndex()
         c_uuid = self.cb_pc_clan.itemData(idx)
+
+        print 'set clan. cur: %d new: %d' % (c_uuid, clan_id)
+
         if c_uuid == clan_id:
             return
         for i in xrange(0, self.cb_pc_clan.count()):
-            if self.cb_pc_clan.itemData(idx) == clan_id:
+            if self.cb_pc_clan.itemData(i) == clan_id:
                 self.cb_pc_clan.setCurrentIndex(i)
+                return
+
+    def set_family(self, family_id):
+        idx = self.cb_pc_family.currentIndex()
+        f_uuid = self.cb_pc_family.itemData(idx)
+        if f_uuid == family_id:
+            return
+        for i in xrange(0, self.cb_pc_family.count()):
+            if self.cb_pc_family.itemData(i) == family_id:
+                self.cb_pc_family.setCurrentIndex(i)
                 return
 
     def set_school(self, school_id):
@@ -649,7 +682,7 @@ class L5RMain(QtGui.QMainWindow):
         if s_uuid == school_id:
             return
         for i in xrange(0, self.cb_pc_school.count()):
-            if self.cb_pc_school.itemData(idx) == school_id:
+            if self.cb_pc_school.itemData(i) == school_id:
                 self.cb_pc_school.setCurrentIndex(i)
                 return
 
@@ -666,8 +699,9 @@ class L5RMain(QtGui.QMainWindow):
     def set_taint (self, value): self.set_flag(3, value)
 
     def update_from_model(self):
-        self.tx_pc_name.setText( self.pc.name )
+        self.tx_pc_name.setText( self.pc.name   )
         self.set_clan          ( self.pc.clan   )
+        self.set_family        ( self.pc.family )
         self.set_school        ( self.pc.school )
 
         pc_xp = self.pc.get_px()
