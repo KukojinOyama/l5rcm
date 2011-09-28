@@ -378,10 +378,12 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addSeparator()
         m_file.addAction(exit_act)
 
-        self.m_file = m_file
-
-        # signals
+        new_act .triggered.connect( self.new_character  )
+        open_act.triggered.connect( self.load_character )
+        save_act.triggered.connect( self.save_character )
         exit_act.triggered.connect( self.close )
+
+        self.m_file = m_file
 
         # Advancement menu
         m_adv = self.menuBar().addMenu("A&dvancement")
@@ -582,6 +584,18 @@ class L5RMain(QtGui.QMainWindow):
         self.load_schools(0)
         self.update_from_model()
 
+    def load_character(self):
+        self.save_path = self.select_load_path()
+        if self.pc.load_from(self.save_path):
+            self.update_from_model()
+
+    def save_character(self):
+        if self.save_path == '' or not os.path.exists(self.save_path):
+            self.save_path = self.select_save_path()
+
+        if self.save_path is not None and len(self.save_path) > 0:
+            self.pc.save_to(self.save_path)
+
     def load_clans(self):
         c = self.db_conn.cursor()
         # clans
@@ -735,7 +749,7 @@ class L5RMain(QtGui.QMainWindow):
         if self.pc.is_dirty():
             resp = self.ask_to_save()
             if resp == QtGui.QMessageBox.Save:
-                self.save_pc()
+                self.save_character()
                 pass
             elif resp == QtGui.QMessageBox.Cancel:
                 ev.ignore()
@@ -754,12 +768,13 @@ class L5RMain(QtGui.QMainWindow):
             return fileName[0]
         return fileName[0] + '.pc'
 
-    def save_pc(self):
-        if self.save_path == '' or not os.exists(self.save_path):
-            self.save_path = self.select_save_path()
-
-        if self.save_path is not None and len(self.save_path) > 0:
-            self.pc.save_to(self.save_path)
+    def select_load_path(self):
+        fileName = QtGui.QFileDialog.getOpenFileName(self, "Load Character",
+                                QtCore.QDir.homePath(),
+                                "Character files (*.pc)")
+        if len(fileName) != 2:
+            return ''
+        return fileName[0]
 
 
 ### MAIN ###

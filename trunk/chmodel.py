@@ -319,3 +319,16 @@ class AdvancedPcModel(BasePcModel):
             fp.close()
             return True
         return False
+
+    def load_from(self, file):
+        print "loading from %s" % file
+
+        fp = open(file, 'rt')
+        if fp:
+            obj = json.load(fp)
+            print obj
+            self.__dict__ = obj
+            self.unsaved  = False
+            fp.close()
+            return True
+        return False
