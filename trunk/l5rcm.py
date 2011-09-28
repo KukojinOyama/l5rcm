@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys, sqlite3, os
-import rules
+import rules, advances
 from PySide import QtGui, QtCore
 from cknumwidget import CkNumWidget
 from chmodel import AdvancedPcModel, ATTRIBS, RINGS
@@ -38,27 +38,28 @@ class L5RMain(QtGui.QMainWindow):
         super(L5RMain, self).__init__(parent)
 
         self.save_path = ''
-        
+
         # Build interface and menus
         self.build_ui()
         self.build_menu()
-        
+
         # Connect to database
         self.db_conn = sqlite3.connect('l5rdb.sqlite')
-        
+
         # Build page 1
         self.build_ui_page_1()
         self.build_ui_page_2()
-        
+        self.build_ui_page_3()
+
         self.connect_signals()
-    
+
     def build_ui(self):
         # Main interface widgets
         self.widgets = QtGui.QWidget(self)
         self.tabs = QtGui.QTabWidget(self)
         self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
         self.setCentralWidget(self.widgets)
-        
+
         self.nicebar = QtGui.QFrame(self)
         self.nicebar.setStyleSheet('''
         QWidget { background: beige;}
@@ -72,22 +73,22 @@ class L5RMain(QtGui.QMainWindow):
             stop: 1 rgb(255,170,0));
             min-width: 80px;
             }
-            
+
         QPushButton:hover {
             background: qradialgradient(cx: 0.3, cy: -0.4,
             fx: 0.3, fy: -0.4, radius: 1.35, stop: 0 #fff,
-            stop: 1 rgb(255,100,30));            
+            stop: 1 rgb(255,100,30));
         }
-        
+
         QPushButton:pressed {
             background: qradialgradient(cx: 0.4, cy: -0.1,
             fx: 0.4, fy: -0.1, radius: 1.35, stop: 0 #fff,
-            stop: 1 rgb(255,200,50));            
-        }        
+            stop: 1 rgb(255,200,50));
+        }
         ''')
         self.nicebar.setMinimumSize(0, 32)
         self.nicebar.setVisible(False)
-       
+
         mvbox = QtGui.QVBoxLayout(self.centralWidget())
         logo = QtGui.QLabel(self)
         logo.setScaledContents(True)
@@ -95,8 +96,8 @@ class L5RMain(QtGui.QMainWindow):
         mvbox.addWidget(logo)
         mvbox.addWidget(self.nicebar)
         mvbox.addWidget(self.tabs)
-        
-        
+
+
     def build_ui_page_1(self):
 
         mfr = QtGui.QFrame(self)
@@ -125,18 +126,18 @@ class L5RMain(QtGui.QMainWindow):
             grid.addWidget( QtGui.QLabel("Clan", self), 1, 0   )
             grid.addWidget( QtGui.QLabel("Family", self), 2, 0 )
             grid.addWidget( QtGui.QLabel("School", self), 3, 0 )
-            
+
             # 3rd column
             grid.addWidget( QtGui.QLabel("Rank", self), 0, 3        )
             grid.addWidget( QtGui.QLabel("Exp. Points", self), 1, 3 )
             grid.addWidget( QtGui.QLabel("Insight", self), 2, 3     )
-                            
+
             # 2nd column
             grid.addWidget( self.tx_pc_name, 0, 1, 1, 2  )
             grid.addWidget( self.cb_pc_clan, 1, 1 , 1, 2 )
             grid.addWidget( self.cb_pc_family, 2, 1, 1, 2)
             grid.addWidget( self.cb_pc_school, 3, 1, 1, 2)
-            
+
             # 4th column
             grid.addWidget( self.tx_pc_rank, 0, 4, 1, 2)
             grid.addWidget( self.tx_pc_exp, 1, 4, 1, 2 )
@@ -317,18 +318,50 @@ class L5RMain(QtGui.QMainWindow):
         add_pc_flags(2, 1)
         mgrid.addWidget(new_horiz_line(self), 3, 0, 1, 3)
         add_pc_quantities(4, 0)
-        
+
     def build_ui_page_2(self):
-        self.sk_view_model = SkillTableViewModel(self.db_conn, self)        
-        
-        mfr    = QtGui.QFrame(self)        
-        mgrid  = QtGui.QGridLayout(mfr)
-        tview  = QtGui.QTableView(self)
-        tview.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);  
-        mgrid.addWidget(tview, 0, 0)
-        tview.setModel(self.sk_view_model)
-        
-        self.tabs.addTab(mfr, u"Skills")
+        self.sk_view_model = SkillTableViewModel(self.db_conn, self)
+
+        mfr    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(mfr)
+
+        models = [ ("Skills", self.sk_view_model), ("Weapons", None) ]
+        # Skill View, Weapon View
+        for k, m in models:
+            grp    = QtGui.QGroupBox(k, self)
+            tview  = QtGui.QTableView(self)
+            tview.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);
+            tview.setModel(m)
+            tmp    = QtGui.QVBoxLayout(grp)
+            tmp.addWidget(tview)
+            vbox.addWidget(grp)
+
+        self.tabs.addTab(mfr, u"Skills and Weapons")
+
+    def build_ui_page_3(self):
+        mfr    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(mfr)
+
+        fr_    = QtGui.QFrame(self)
+        fr_h   = QtGui.QHBoxLayout(fr_)
+        fr_h.setContentsMargins(0, 0, 0, 0)
+        fr_h.addWidget(QtGui.QLabel("""<p><i>Click the button to refund
+                                             the last advancement</i></p>""",
+                                                                      self))
+        bt_refund_adv = QtGui.QPushButton("Refund", self)
+        bt_refund_adv.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                                     QtGui.QSizePolicy.Preferred )
+        bt_refund_adv.clicked.connect(self.refund_last_adv)
+        fr_h.addWidget(bt_refund_adv)
+        vbox.addWidget(fr_)
+
+        self.adv_view_model = advances.AdvancementViewModel(self)
+        lview = QtGui.QListView(self)
+        lview.setModel(self.adv_view_model)
+        lview.setItemDelegate(advances.AdvancementItemDelegate(self))
+        vbox.addWidget(lview)
+
+        self.tabs.addTab(mfr, u"Advancements")
 
     def build_menu(self):
         # File Menu
@@ -344,7 +377,7 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addAction(save_act)
         m_file.addSeparator()
         m_file.addAction(exit_act)
-        
+
         self.m_file = m_file
 
         # signals
@@ -358,6 +391,7 @@ class L5RMain(QtGui.QMainWindow):
         # actions buy advancement, view advancements
         viewadv_act  = QtGui.QAction(u'&View advancements...', self)
         resetadv_act = QtGui.QAction(u'&Reset advancements', self)
+        refund_act   = QtGui.QAction(u'Refund last advancement', self)
         buyattr_act  = QtGui.QAction(u'Attribute rank...', self)
         buyvoid_act  = QtGui.QAction(u'Void ring...', self)
         buyskill_act = QtGui.QAction(u'Skill rank...', self)
@@ -382,12 +416,15 @@ class L5RMain(QtGui.QMainWindow):
         m_buy_adv.addAction(buykata_act)
         m_buy_adv.addAction(buyspell_act)
         m_adv.addSeparator()
+        m_adv.addAction(refund_act)
         m_adv.addAction(resetadv_act)
-        
+
         self.m_adv = m_adv
         self.m_buy = m_buy_adv
 
+        viewadv_act .triggered.connect( self.switch_to_page_3    )
         resetadv_act.triggered.connect( self.reset_adv           )
+        refund_act  .triggered.connect( self.refund_last_adv     )
         buyattr_act .triggered.connect( self.act_buy_advancement )
         buyvoid_act .triggered.connect( self.act_buy_advancement )
         buyskill_act.triggered.connect( self.act_buy_advancement )
@@ -398,53 +435,61 @@ class L5RMain(QtGui.QMainWindow):
 
         # Tools menu
         #m_tools = self.menuBar().addMenu(u'&Tools')
-        
+
         # Name generator submenu
         m_namegen = self.menuBar().addMenu(u'&Generate Name')
 
         # actions generate female, male names
         gen_male_act   = QtGui.QAction(u'Male', self)
         gen_female_act = QtGui.QAction(u'Female', self)
-        
+
         # gender tag
         gen_male_act.setProperty  ('gender', 'male')
         gen_female_act.setProperty('gender', 'female')
 
         m_namegen.addAction(gen_male_act)
         m_namegen.addAction(gen_female_act)
-        
+
         self.m_namegen = m_namegen
-        
+
         gen_male_act  .triggered.connect( self.generate_name )
-        gen_female_act.triggered.connect( self.generate_name )                    
+        gen_female_act.triggered.connect( self.generate_name )
 
     def connect_signals(self):
         # always notify change ( programmatically, user )
         self.cb_pc_clan  .currentIndexChanged.connect( self.on_clan_change   )
         self.cb_pc_family.currentIndexChanged.connect( self.on_family_change )
         self.cb_pc_school.currentIndexChanged.connect( self.on_school_change )
-        
+
         # notify only user edit
         self.tx_mod_init.editingFinished.connect( self.update_from_model )
-        
-    def show_nicebar(self, widgets):        
+
+    def switch_to_page_3(self):
+        self.tabs.setCurrentIndex(2)
+
+    def show_nicebar(self, widgets):
         # nicebar layout
         hbox = QtGui.QHBoxLayout()
-        hbox.setContentsMargins(9,1,9,1)        
-       
+        hbox.setContentsMargins(9,1,9,1)
+
         for w in widgets:
             hbox.addWidget(w)
-        
-        self.nicebar.setLayout(hbox)    
+
+        self.nicebar.setLayout(hbox)
         self.nicebar.setVisible(True)
-        
+
     def hide_nicebar(self):
         self.nicebar.setVisible(False)
 
     def reset_adv(self):
         self.pc.advans = []
         self.update_from_model()
-        
+
+    def refund_last_adv(self):
+        if len(self.pc.advans) > 0:
+            adv = self.pc.advans.pop()
+            self.update_from_model()
+
     def generate_name(self):
         gender = self.sender().property('sender')
         name = ''
@@ -507,7 +552,7 @@ class L5RMain(QtGui.QMainWindow):
                      where uuid=?''', [uuid])
         perk, perkval, honor = c.fetchone()
         self.pc.set_school( uuid, perk, perkval, honor )
-        
+
         # TODO: disable advancments until pending skills
         c.execute('''select skill_uuid, skill_rank, wildcard
                      from school_skills
@@ -523,13 +568,13 @@ class L5RMain(QtGui.QMainWindow):
         dlg = BuyAdvDialog(self.pc, self.sender().property('tag'), self.db_conn, self)
         dlg.exec_()
         self.update_from_model()
-        
+
     def act_choose_skills(self):
         dlg = SelWcSkills(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_skills()
             self.update_from_model()
-        
+
     def new_character(self):
         self.pc = AdvancedPcModel()
         self.pc.load_default()
@@ -611,7 +656,8 @@ class L5RMain(QtGui.QMainWindow):
         self.set_clan          ( self.pc.clan   )
         self.set_school        ( self.pc.school )
 
-        self.tx_pc_exp.setText( str( self.pc.get_px() ) )
+        pc_xp = self.pc.get_px()
+        self.tx_pc_exp.setText( str( pc_xp ) )
 
         # rings
         for i in xrange(0, 5):
@@ -641,8 +687,8 @@ class L5RMain(QtGui.QMainWindow):
         for i in xrange(0, 8):
             h = self.pc.get_health_rank(i)
             self.wounds[i][1].setText( str(h) )
-            
-        # initiative        
+
+        # initiative
         # TODO: temporary implementation
         r, k = self.pc.get_base_initiative()
         self.tx_base_init.setText( rules.format_rtk(r, k) )
@@ -653,7 +699,7 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.mod_init = (r1, k1)
         else:
             self.tx_cur_init.setText( self.tx_base_init.text() )
-            
+
         # Show nicebar if pending wildcard skills
         wcs = self.pc.get_pending_wc_skills()
         if len(wcs) > 0:
@@ -661,15 +707,19 @@ class L5RMain(QtGui.QMainWindow):
             bt = QtGui.QPushButton('Choose Skills', self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
-            bt.clicked.connect( self.act_choose_skills )                  
-            self.show_nicebar([lb, bt])           
+            bt.clicked.connect( self.act_choose_skills )
+            self.show_nicebar([lb, bt])
         else:
             self.hide_nicebar()
-            
-        enable_adv = self.pc.school > 0 and self.pc.family > 0 and len(wcs) == 0
-        self.m_buy.setEnabled(enable_adv)
-        
-        self.sk_view_model.update_from_model(self.pc)
+
+        # disable step 0-1-2 if any xp are spent
+        self.cb_pc_clan  .setEnabled( pc_xp == 0 )
+        self.cb_pc_school.setEnabled( pc_xp == 0 )
+        self.cb_pc_family.setEnabled( pc_xp == 0 )
+
+        # Update view-models
+        self.sk_view_model .update_from_model(self.pc)
+        self.adv_view_model.update_from_model(self.pc)
 
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)

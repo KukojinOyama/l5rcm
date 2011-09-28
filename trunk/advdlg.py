@@ -70,7 +70,7 @@ class BuyAdvDialog(QtGui.QDialog):
         grid.addWidget(self.lb_cost, 3, 0, 1, 3)
         grid.addWidget(self.bt_buy,  4, 2, 1, 1)
         grid.addWidget(self.bt_close,  4, 3, 1, 1)
-        
+
     def load_data(self):
         if self.tag == 'attrib':
             self.cb1.addItem('Stamina', ATTRIBS.STAMINA)
@@ -110,10 +110,12 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText('Cost: %d exp' % cost)
 
         self.adv = advances.VoidAdv(cost)
+        self.adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
 
     def on_attrib_select(self, text = ''):
         idx = self.cb1.currentIndex()
         attrib = self.cb1.itemData(idx)
+        text   = self.cb1.itemText(idx)
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1
 
@@ -123,22 +125,24 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText('Cost: %d exp' % cost)
 
         self.adv = advances.AttribAdv(attrib, cost)
-        
+        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+
     def on_skill_type_select(self, text = ''):
         idx = self.cb1.currentIndex()
         type_ = self.cb1.itemData(idx)
         c = self.dbconn.cursor()
-        c.execute('''select uuid, name from skills 
+        c.execute('''select uuid, name from skills
                      where type=? order by name''', [type_])
         self.cb2.clear()
         for u, s in c.fetchall():
             self.cb2.addItem( s, u )
         c.close()
-    
+
     def on_skill_select(self, text = ''):
         idx = self.cb2.currentIndex()
         uuid = self.cb2.itemData(idx)
-        
+        text   = self.cb2.itemText(idx)
+
         cur_value = self.pc.get_skill_rank( uuid )
         new_value = cur_value + 1
 
@@ -147,8 +151,9 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_from.setText('From %d to %d' % (cur_value, new_value))
         self.lb_cost.setText('Cost: %d exp' % cost)
 
-        self.adv = advances.SkillAdv(uuid, cost)        
-    
+        self.adv = advances.SkillAdv(uuid, cost)
+        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+
     def buy_advancement(self):
         self.pc.add_advancement( self.adv )
         if self.tag == 'attrib':
@@ -157,8 +162,8 @@ class BuyAdvDialog(QtGui.QDialog):
             self.on_void_select()
         elif self.tag == 'skill':
             self.on_skill_select()
-            
-class SelWcSkills(QtGui.QDialog):            
+
+class SelWcSkills(QtGui.QDialog):
     def __init__(self, pc, conn, parent = None):
         super(SelWcSkills, self).__init__(parent)
         self.pc  = pc
@@ -168,20 +173,20 @@ class SelWcSkills(QtGui.QDialog):
         self.build_ui()
         self.connect_signals()
         self.load_data()
-        
+
     def build_ui(self):
         self.setWindowTitle('Choose School Skills')
-        
+
         grid = QtGui.QGridLayout(self)
         grid.addWidget( QtGui.QLabel('<i>Your school has granted you ' +
                                      'the right to choose some skills.</i> ' +
                                      '<br/><b>Choose with care.</b>', self),
                                       0, 0, 1, 3)
         grid.setRowStretch(0,2)
-        
+
         self.bt_ok     = QtGui.QPushButton('Ok', self)
         self.bt_cancel = QtGui.QPushButton('Cancel', self)
-        
+
         row_ = 2
         for w, r in self.pc.get_pending_wc_skills():
             lb = ''
@@ -189,25 +194,25 @@ class SelWcSkills(QtGui.QDialog):
                 lb = 'Any one skill (rank %d):' % r
             else:
                 lb = 'Any %s skill (rank %d):' % (w.capitalize(), r)
-                
+
             grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
-            
+
             cb = QtGui.QComboBox(self)
             self.cbs.append(cb)
             grid.addWidget( cb, row_, 1, 1, 2)
-            
+
             row_ += 1
 
         self.error_bar = QtGui.QLabel(self)
         self.error_bar.setVisible(False)
         grid.addWidget(self.error_bar, row_, 0, 1, 3)
-            
+
         grid.addWidget( self.bt_ok,     row_+1, 1)
         grid.addWidget( self.bt_cancel, row_+1, 2)
-        
+
     def load_data(self):
         c = self.dbconn.cursor()
-        
+
         c.execute('''DROP TABLE IF EXISTS tmp_sc_sk_skills''')
         c.execute('''CREATE TEMP TABLE tmp_sc_sk_skills
            AS SELECT skills.uuid,
@@ -216,32 +221,32 @@ class SelWcSkills(QtGui.QDialog):
            UNION SELECT uuid, name, type, type FROM skills''')
         i = 0
         for w, r in self.pc.get_pending_wc_skills():
-            
+
             if w == 'any':
-                c.execute('''SELECT uuid, name FROM skills order by type, name''')                             
+                c.execute('''SELECT uuid, name FROM skills order by type, name''')
             else:
                 c.execute('''SELECT uuid, name FROM tmp_sc_sk_skills
                              WHERE tag=? group by uuid order by name''', [w])
-            
+
             for uuid, name in c.fetchall():
                 self.cbs[i].addItem( name, (uuid, r) )
             i += 1
         c.close()
-            
-        
+
+
     def connect_signals(self):
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )
-        
+
     def on_accept(self):
         done = True
-        
+
         # check that all the choice have been made
         for cb in self.cbs:
             if cb.currentIndex() < 0:
                 done = False;
                 break
-        
+
         if not done:
             self.error_bar.setText('''<span color:#FF0000>
                                       <b>
@@ -252,10 +257,10 @@ class SelWcSkills(QtGui.QDialog):
             self.error_bar.setVisible(True)
             return
         self.error_bar.setVisible(False)
-        
+
         for cb in self.cbs:
             idx = cb.currentIndex()
-            uuid, rank = cb.itemData(idx)            
+            uuid, rank = cb.itemData(idx)
             self.pc.add_school_skill(uuid, rank)
         self.accept()
 
