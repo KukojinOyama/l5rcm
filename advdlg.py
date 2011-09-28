@@ -26,39 +26,34 @@ class BuyAdvDialog(QtGui.QDialog):
                       kiho=  'Buy Kiho',
                       spell= 'Buy Spell')
 
-        labels = dict(attrib=('Choose Attribute', None, None),
-                      skill= ('Choose Skill Type', 'Choose Skill', None),
-                      emph=  ('Choose Skill Type', 'Choose Skill', 'Choose Emphasys'),
-                      kata=  ('Choose Kata', None, None),
-                      kiho=  ('Choose Kiho', None, None),
-                      spell= ('Choose Spell', None, None))
+        labels = dict(attrib=('Choose Attribute' ,  None),
+                      skill= ('Choose Skill Type', 'Choose Skill'),
+                      emph=  ('Choose Skill'     , 'Choose Emphasis'),
+                      kata=  ('Choose Kata'      , None),
+                      kiho=  ('Choose Kiho'      , None),
+                      spell= ('Choose Spell'     , None))
 
         self.setWindowTitle( titles[self.tag] )
 
-        lb1 = None
-        lb2 = None
-        lb3 = None
+        self.widgets = dict(attrib=(QtGui.QComboBox(self), None),
+                            skill =(QtGui.QComboBox(self), QtGui.QComboBox(self)),
+                            emph  =(QtGui.QComboBox(self), QtGui.QLineEdit(self)),
+                            kata  =(None, None),
+                            kiho  =(None, None),
+                            spell =(None, None))
 
-        self.cb1 = None
-        self.cb2 = None
-        self.cb3 = None
+        for t in self.widgets.itervalues():
+            if t[0]: t[0].setVisible(False)
+            if t[1]: t[1].setVisible(False)
 
-        if self.tag in labels:
-            if labels[self.tag][0] is not None:
-                lb1 = QtGui.QLabel(labels[self.tag][0], self)
-                self.cb1 = QtGui.QComboBox(self)
-                grid.addWidget(lb1, 0, 0)
-                grid.addWidget(self.cb1, 0, 1, 1, 3)
-            if labels[self.tag][1] is not None:
-                lb2 = QtGui.QLabel(labels[self.tag][1], self)
-                self.cb2 = QtGui.QComboBox(self)
-                grid.addWidget(lb2, 1, 0)
-                grid.addWidget(self.cb2, 1, 1, 1, 3)
-            if labels[self.tag][2] is not None:
-                lb3 = QtGui.QLabel(labels[self.tag][2], self)
-                self.cb3 = QtGui.QComboBox(self)
-                grid.addWidget(lb2, 2, 0)
-                grid.addWidget(self.cb3, 2, 1, 1, 3)
+        if self.tag in self.widgets:
+            for i in xrange(0, 2):
+                if labels[self.tag][i] is not None:
+                    lb = QtGui.QLabel(labels[self.tag][i], self)
+                    wd = self.widgets[self.tag][i]
+                    wd.setVisible(True)
+                    grid.addWidget(lb, i, 0)
+                    grid.addWidget(wd, i, 1, 1, 3)
 
         self.lb_from = QtGui.QLabel('Make your choice', self)
         self.lb_cost = QtGui.QLabel('Cost: 0', self)
@@ -66,36 +61,51 @@ class BuyAdvDialog(QtGui.QDialog):
         self.bt_buy   = QtGui.QPushButton('Buy', self)
         self.bt_close = QtGui.QPushButton('Close', self)
 
-        grid.addWidget(self.lb_from, 2, 0, 1, 3)
-        grid.addWidget(self.lb_cost, 3, 0, 1, 3)
-        grid.addWidget(self.bt_buy,  4, 2, 1, 1)
-        grid.addWidget(self.bt_close,  4, 3, 1, 1)
+        grid.addWidget(self.lb_from, 3, 0, 1, 3)
+        grid.addWidget(self.lb_cost, 4, 0, 1, 3)
+        grid.addWidget(self.bt_buy,  5, 2, 1, 1)
+        grid.addWidget(self.bt_close,  5, 3, 1, 1)
 
     def load_data(self):
         if self.tag == 'attrib':
-            self.cb1.addItem('Stamina', ATTRIBS.STAMINA)
-            self.cb1.addItem('Willpower', ATTRIBS.WILLPOWER)
-            self.cb1.addItem('Reflexes', ATTRIBS.REFLEXES)
-            self.cb1.addItem('Awareness', ATTRIBS.AWARENESS)
-            self.cb1.addItem('Strength', ATTRIBS.STRENGTH)
-            self.cb1.addItem('Perception', ATTRIBS.PERCEPTION)
-            self.cb1.addItem('Agility', ATTRIBS.AGILITY)
-            self.cb1.addItem('Intelligence', ATTRIBS.INTELLIGENCE)
+            cb = self.widgets[self.tag][0]
+            cb.addItem('Stamina',      ATTRIBS.STAMINA     )
+            cb.addItem('Willpower',    ATTRIBS.WILLPOWER   )
+            cb.addItem('Reflexes',     ATTRIBS.REFLEXES    )
+            cb.addItem('Awareness',    ATTRIBS.AWARENESS   )
+            cb.addItem('Strength',     ATTRIBS.STRENGTH    )
+            cb.addItem('Perception',   ATTRIBS.PERCEPTION  )
+            cb.addItem('Agility',      ATTRIBS.AGILITY     )
+            cb.addItem('Intelligence', ATTRIBS.INTELLIGENCE)
         elif self.tag == 'void':
             self.on_void_select()
         elif self.tag == 'skill':
+            cb = self.widgets[self.tag][0]
             c = self.dbconn.cursor()
             c.execute('''select distinct type from skills order by type''')
             for t in c.fetchall():
-                self.cb1.addItem( t[0].capitalize(), t[0] )
+                cb.addItem( t[0].capitalize(), t[0] )
             c.close()
+        elif self.tag == 'emph':
+            cb = self.widgets[self.tag][0]
+            c = self.dbconn.cursor()
+            for id in self.pc.get_skills():
+                c.execute('''select uuid, name from skills
+                             where uuid=? order by name''', [id])
+                for u, s in c.fetchall():
+                    cb.addItem(s, u)
+            self.lb_cost.setText('Cost: 2 exp')
+            self.lb_from.setVisible(False)
 
     def connect_signals(self):
         if self.tag == 'attrib':
-            self.cb1.currentIndexChanged.connect( self.on_attrib_select )
-        if self.tag == 'skill':
-            self.cb1.currentIndexChanged.connect( self.on_skill_type_select )
-            self.cb2.currentIndexChanged.connect( self.on_skill_select )
+            cb = self.widgets[self.tag][0]
+            cb.currentIndexChanged.connect( self.on_attrib_select )
+        elif self.tag == 'skill':
+            cb1 = self.widgets[self.tag][0]
+            cb2 = self.widgets[self.tag][1]
+            cb1.currentIndexChanged.connect( self.on_skill_type_select )
+            cb2.currentIndexChanged.connect( self.on_skill_select )
 
         self.bt_buy.clicked.connect  ( self.buy_advancement )
         self.bt_close.clicked.connect( self.close           )
@@ -113,9 +123,10 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
 
     def on_attrib_select(self, text = ''):
-        idx = self.cb1.currentIndex()
-        attrib = self.cb1.itemData(idx)
-        text   = self.cb1.itemText(idx)
+        cb = self.widgets['attrib'][0]
+        idx = cb.currentIndex()
+        attrib = cb.itemData(idx)
+        text   = cb.itemText(idx)
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1
 
@@ -128,20 +139,24 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
 
     def on_skill_type_select(self, text = ''):
-        idx = self.cb1.currentIndex()
-        type_ = self.cb1.itemData(idx)
-        c = self.dbconn.cursor()
+        cb1   = self.widgets['skill'][0]
+        cb2   = self.widgets['skill'][1]
+        idx   = cb1.currentIndex()
+        type_ = cb1.itemData(idx)
+        c     = self.dbconn.cursor()
         c.execute('''select uuid, name from skills
                      where type=? order by name''', [type_])
-        self.cb2.clear()
+        cb2.clear()
         for u, s in c.fetchall():
-            self.cb2.addItem( s, u )
+            cb2.addItem( s, u )
         c.close()
 
     def on_skill_select(self, text = ''):
-        idx = self.cb2.currentIndex()
-        uuid = self.cb2.itemData(idx)
-        text   = self.cb2.itemText(idx)
+        cb1  = self.widgets['skill'][0]
+        cb2  = self.widgets['skill'][1]
+        idx  = cb2.currentIndex()
+        uuid = cb2.itemData(idx)
+        text = cb2.itemText(idx)
 
         cur_value = self.pc.get_skill_rank( uuid )
         new_value = cur_value + 1
@@ -155,13 +170,24 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
 
     def buy_advancement(self):
-        self.pc.add_advancement( self.adv )
         if self.tag == 'attrib':
+            self.pc.add_advancement( self.adv )
             self.on_attrib_select()
         elif self.tag == 'void':
+            self.pc.add_advancement( self.adv )
             self.on_void_select()
         elif self.tag == 'skill':
+            self.pc.add_advancement( self.adv )
             self.on_skill_select()
+        elif self.tag == 'emph':
+            cb = self.widgets[self.tag][0]
+            tx = self.widgets[self.tag][1]
+            sk_name = cb.itemText( cb.currentIndex() )
+            sk_uuid = cb.itemData( cb.currentIndex() )
+            self.adv = advances.SkillEmph(sk_uuid, tx.text(), 2)
+            self.adv.desc = '%s, Skill %s. Cost: 2 xp' % ( tx.text(), sk_name )
+            self.pc.add_advancement( self.adv )
+            tx.setText('')
 
 class SelWcSkills(QtGui.QDialog):
     def __init__(self, pc, conn, parent = None):
@@ -193,7 +219,9 @@ class SelWcSkills(QtGui.QDialog):
             if w == 'any':
                 lb = 'Any one skill (rank %d):' % r
             else:
-                lb = 'Any %s skill (rank %d):' % (w.capitalize(), r)
+                wildcards = w.split(';')
+                w = ' or '.join(wildcards)
+                lb = 'Any %s skill (rank %d):' % (w, r)
 
             grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
 
@@ -224,12 +252,16 @@ class SelWcSkills(QtGui.QDialog):
 
             if w == 'any':
                 c.execute('''SELECT uuid, name FROM skills order by type, name''')
+                for uuid, name in c.fetchall():
+                    self.cbs[i].addItem( name, (uuid, r) )
             else:
-                c.execute('''SELECT uuid, name FROM tmp_sc_sk_skills
-                             WHERE tag=? group by uuid order by name''', [w])
+                wildcards = w.split(';')
+                for w_ in wildcards:
+                    c.execute('''SELECT uuid, name FROM tmp_sc_sk_skills
+                                 WHERE tag=? group by uuid order by name''', [w_])
 
-            for uuid, name in c.fetchall():
-                self.cbs[i].addItem( name, (uuid, r) )
+                    for uuid, name in c.fetchall():
+                        self.cbs[i].addItem( name, (uuid, r) )
             i += 1
         c.close()
 

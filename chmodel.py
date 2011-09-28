@@ -62,6 +62,7 @@ class BasePcModel(object):
         self.void       = 0
         self.attribs    = [0, 0, 0, 0, 0, 0, 0, 0]
         self.skills     = {}
+        self.emph       = {}
         self.pending_wc = []
         self.honor      = 0.0
         self.glory      = 0.0
@@ -243,6 +244,18 @@ class AdvancedPcModel(BasePcModel):
             l.append(adv.skill)
         return l
 
+    def get_skill_emphases(self, school_id):
+        emph = []
+        # search school skills
+        if school_id in self.step_2.emph:
+            emph += self.step_2.emph[school_id]
+        for adv in self.advans:
+            if adv.type != 'emph' or adv.text in emph:
+                continue
+            if adv.skill == school_id:
+                emph.append(adv.text)
+        return emph
+
     def set_family(self, family_id = 0, perk = None, perkval = 1):
         if self.family == family_id:
             return
@@ -262,11 +275,16 @@ class AdvancedPcModel(BasePcModel):
                 return True
         return False
 
-    def add_school_skill(self, skill_uid, skill_rank):
+    def add_school_skill(self, skill_uid, skill_rank, emph = None):
         if skill_uid in self.step_2.skills:
             self.step_2.skills[skill_uid] += skill_rank
         else:
             self.step_2.skills[skill_uid] = skill_rank
+        if emph is not None:
+            if skill_uid not in self.step_2.emph:
+                self.step_2.emph[skill_uid] = []
+            self.step_2.emph[skill_uid].append(emph)
+
         self.unsaved = True
 
     def add_pending_wc_skill(self, wc, skill_rank):
@@ -288,7 +306,6 @@ class AdvancedPcModel(BasePcModel):
         if school_id == 0:
             return
 
-        print 'set honor %f' % honor
         self.step_2.honor = honor
 
         # void ?

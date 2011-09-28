@@ -25,6 +25,12 @@ class SkillAdv(Advancement):
         super(SkillAdv, self).__init__('skill', cost)
         self.skill = skill
 
+class SkillEmph(Advancement):
+    def __init__(self, skill, text, cost):
+        super(SkillEmph, self).__init__('emph', cost)
+        self.skill = skill
+        self.text  = text
+
 class AdvancementViewModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):
         super(AdvancementViewModel, self).__init__(parent)
@@ -122,12 +128,16 @@ class AdvancementItemDelegate(QtGui.QStyledItemDelegate):
         tmp         = str(item).split(',')
         adv_nm      = tmp[0]
         adv_nm_rect = font_metric.boundingRect(adv_nm)
-        painter.drawText(left_margin + option.rect.left(), option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(), adv_nm)
+        painter.drawText(left_margin + option.rect.left(),
+                         option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
+                         adv_nm)
 
         main_font.setBold(False)
         painter.setFont(main_font)
         adv_nm      = tmp[1]
         adv_nm_rect = font_metric.boundingRect(adv_nm)
-        painter.drawText(option.rect.right()-150, option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(), adv_nm)
+        painter.drawText(option.rect.right()-adv_nm_rect.width()-left_margin,
+                         option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
+                         adv_nm)
 
         painter.restore()

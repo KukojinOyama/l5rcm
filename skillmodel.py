@@ -25,7 +25,7 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
     def __init__(self, dbconn, parent = None):
         super(SkillTableViewModel, self).__init__(parent)
         self.items = []
-        self.headers = ['Name', 'Rank', 'Trait', 'Emphasis']
+        self.headers = ['Name', 'Rank', 'Trait', 'Emphases']
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.item_size = QtCore.QSize(28, 28)
         if parent:
@@ -115,11 +115,13 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
         for s in skills_id_s:
             itm = self.build_item_model(s)
             itm.rank = model.get_skill_rank(s)
+            itm.emph = model.get_skill_emphases(s)
             itm.is_school = True
             self.add_item(itm)
         for s in skills_id_a:
             itm = self.build_item_model(s)
             itm.rank = model.get_skill_rank(s)
+            itm.emph = model.get_skill_emphases(s)
             self.add_item(itm)
 
 
