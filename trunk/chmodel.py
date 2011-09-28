@@ -3,6 +3,8 @@
 import advances as adv
 import json
 
+from copy import deepcopy
+
 # RINGS
 class RINGS:
     EARTH = 0
@@ -45,8 +47,7 @@ def attrib_from_name(name):
 
 class MyJsonEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, BasePcModel) or \
-           isinstance(obj, AdvancedPcModel):
+        if hasattr(obj, '__dict__'):
             return obj.__dict__
         return json.JSONEncoder.default(self, obj)
 
@@ -283,6 +284,7 @@ class AdvancedPcModel(BasePcModel):
         self.step_2  = BasePcModel()
         self.unsaved = True
         self.school  = school_id
+        self.clear_pending_wc_skills()
         if school_id == 0:
             return
 
@@ -326,9 +328,27 @@ class AdvancedPcModel(BasePcModel):
         fp = open(file, 'rt')
         if fp:
             obj = json.load(fp)
-            print obj
-            self.__dict__ = obj
-            self.unsaved  = False
             fp.close()
+
+            self.__dict__ = deepcopy(obj)
+
+            self.step_0 = BasePcModel()
+            self.step_1 = BasePcModel()
+            self.step_2 = BasePcModel()
+
+            print obj
+            print obj['step_0']
+
+            self.step_0.__dict__ = deepcopy(obj['step_0'])
+            self.step_1.__dict__ = deepcopy(obj['step_1'])
+            self.step_2.__dict__ = deepcopy(obj['step_2'])
+
+            self.advans = []
+            for ad in obj['advans']:
+                a = adv.Advancement(None, None)
+                a.__dict__ = deepcopy(ad)
+                self.advans.append(a)
+
+            self.unsaved  = False
             return True
         return False
