@@ -565,13 +565,12 @@ class L5RMain(QtGui.QMainWindow):
         perk, perkval, honor = c.fetchone()
         self.pc.set_school( uuid, perk, perkval, honor )
 
-        # TODO: disable advancments until pending skills
-        c.execute('''select skill_uuid, skill_rank, wildcard
+        c.execute('''select skill_uuid, skill_rank, wildcard, emphases
                      from school_skills
                      where school_uuid=?''', [uuid])
-        for sk_uuid, sk_rank, wc in c.fetchall():
+        for sk_uuid, sk_rank, wc, emph in c.fetchall():
             if sk_uuid is not None:
-                self.pc.add_school_skill(sk_uuid, sk_rank)
+                self.pc.add_school_skill(sk_uuid, sk_rank, emph)
             else:
                 self.pc.add_pending_wc_skill(wc, sk_rank)
         self.update_from_model()

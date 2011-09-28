@@ -1,60 +1,59 @@
 Acting awareness social
-Artisan_(Bonsai) awareness
-Artisan_(Gardening) awareness
-Artisan_(Ikebana) awareness
-Artisan_(Origami) awareness 
-Artisan_(Painting) awareness
-Artisan_(Poetry) awareness 
-Artisan_(Sculpture) awareness
-Artisan_(Tattoing) awareness
+Artisan_(Bonsai) awareness artisan
+Artisan_(Gardening) awareness artisan
+Artisan_(Ikebana) awareness artisan
+Artisan_(Origami) awareness artisan
+Artisan_(Painting) awareness artisan
+Artisan_(Poetry) awareness artisan 
+Artisan_(Sculpture) awareness artisan
+Artisan_(Tattoing) awareness artisan
 Calligraphy intelligence artisan
 Courtier awareness social
 Divination intelligence
 Etiquette awareness social
-Games_(Fortunes_&_Winds) awareness
-Games_(Go) intelligence
-Games_(Kemari) agility
-Games_(Letters) awareness
-Games_(Sadane) awareness
-Games_(Shogi) intelligence
+Games_(Fortunes_&_Winds) awareness games
+Games_(Go) intelligence games
+Games_(Kemari) agility games
+Games_(Letters) awareness games
+Games_(Sadane) awareness games
+Games_(Shogi) intelligence games
 Investigation perception
-Lore_(Architecture) intelligence
-Lore_(Bushido) intelligence
-Lore_(Crab) intelligence
-Lore_(Crane) intelligence
-Lore_(Dragon) intelligence
-Lore_(Scorpion) intelligence
-Lore_(Phoenix) intelligence
-Lore_(Unicorn) intelligence
-Lore_(Lion) intelligence
-Lore_(Elements) intelligence
-Lore_(Gaijin_Culture) intelligence
-Lore_(Ghosts) intelligence
-Lore_(Heraldry) intelligence
-Lore_(History) intelligence
-Lore_(Nature) intelligence
-Lore_(Nonhuman_Culture) intelligence
-Lore_(Omens) intelligence
-Lore_(Shugenja) intelligence
-Lore_(Spirit_Realms) intelligence
-Lore_(Theology) intelligence
-Lore_(War) intelligence
+Lore_(Architecture) intelligence lore
+Lore_(Bushido) intelligence lore
+Lore_(Crab) intelligence lore
+Lore_(Crane) intelligence lore
+Lore_(Dragon) intelligence lore
+Lore_(Scorpion) intelligence lore
+Lore_(Phoenix) intelligence lore
+Lore_(Unicorn) intelligence lore
+Lore_(Lion) intelligence lore
+Lore_(Elements) intelligence lore
+Lore_(Gaijin_Culture) intelligence lore
+Lore_(Ghosts) intelligence lore
+Lore_(Heraldry) intelligence lore
+Lore_(History) intelligence lore
+Lore_(Nature) intelligence lore
+Lore_(Nonhuman_Culture) intelligence lore
+Lore_(Omens) intelligence lore
+Lore_(Shugenja) intelligence lore
+Lore_(Spirit_Realms) intelligence lore
+Lore_(Theology) intelligence lore
+Lore_(War) intelligence lore
 Medicine intelligence
 Meditation void
-Perform_(Biwa) agility social
-Perform_(Dance) agility social
-Perform_(Drums) agility social
-Perform_(Flute) agility social
-Perform_(Oratory) awareness social
-Perform_(Puppeteer) agility social
-Perform_(Samisen) agility social
-Perform_(Song) awareness social
-Perform_(Storytelling) awareness social
+Perform_(Biwa) agility social perform
+Perform_(Dance) agility social perform
+Perform_(Drums) agility social perform
+Perform_(Flute) agility social perform
+Perform_(Oratory) awareness social perform
+Perform_(Puppeteer) agility social perform
+Perform_(Samisen) agility social perform
+Perform_(Song) awareness social perform
+Perform_(Storytelling) awareness social perform
 Sincerity awareness social
 Spellcraft intelligence
 Tea_Ceremony void
-Craft_(Armorsmithing) varies
-Craft_(Bowyer) varies
-Craft_(Weaponsmithing) varies
-
+Craft_(Armorsmithing) varies craft
+Craft_(Bowyer) varies craft
+Craft_(Weaponsmithing) varies craft
 
