@@ -83,7 +83,7 @@ class AdvancedPcModel(BasePcModel):
         self.step_1 = BasePcModel()
         # school selection
         self.step_2 = BasePcModel()
-        
+
         self.unsaved = False
 
         self.name      = ''
@@ -104,9 +104,9 @@ class AdvancedPcModel(BasePcModel):
         self.void_cost    = 6
         self.health_multiplier = 2
         self.wounds = []
-        
+
         self.mod_init = (0, 0)
- 
+
         self.void_points = self.get_void_rank()
 
     def load_default(self):
@@ -223,22 +223,24 @@ class AdvancedPcModel(BasePcModel):
 
     def get_attrib_cost(self, idx):
         return self.attrib_costs[idx]
-        
+
     def get_pending_wc_skills(self):
         return self.step_2.pending_wc
-        
+
     def get_school_skills(self):
         return self.step_2.skills.keys()
-        
+
     def get_skills(self, school = True):
         l = []
         if school:
             l = self.get_school_skills()
         for adv in self.advans:
-            if adv.type != 'skill' or adv.skill in self.step_2.skills.keys():
+            if adv.type != 'skill' or \
+              adv.skill in self.step_2.skills.keys() or \
+              adv.skill in l:
                 continue
             l.append(adv.skill)
-        return l            
+        return l
 
     def set_family(self, family_id = 0, perk = None, perkval = 1):
         if self.family == family_id:
@@ -258,18 +260,18 @@ class AdvancedPcModel(BasePcModel):
                 self.step_1.attribs[a] += perkval
                 return True
         return False
-        
+
     def add_school_skill(self, skill_uid, skill_rank):
         if skill_uid in self.step_2.skills:
             self.step_2.skills[skill_uid] += skill_rank
         else:
             self.step_2.skills[skill_uid] = skill_rank
         self.unsaved = True
-        
+
     def add_pending_wc_skill(self, wc, skill_rank):
         self.step_2.pending_wc.append( (wc, skill_rank) )
         self.unsaved = True
-        
+
     def clear_pending_wc_skills(self):
         self.step_2.pending_wc = []
         self.unsaved = True
