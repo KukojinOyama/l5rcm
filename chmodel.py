@@ -178,8 +178,8 @@ class AdvancedPcModel(BasePcModel):
         n = 0
         for i in xrange(0, 5):
             n += self.get_ring_rank(i)*10
-        for i in xrange(0, len(self.skills)):
-            n += self.get_skill_rank(i)
+        for s in self.get_skills():
+            n += self.get_skill_rank(s)
         return n
 
     def get_insight_rank(self):
@@ -318,6 +318,18 @@ class AdvancedPcModel(BasePcModel):
                 self.step_2.attribs[a] += perkval
                 return True
         return False
+
+    def set_honor(self, value):
+        self.honor = value - self.step_2.honor
+
+    def set_glory(self, value):
+        self.glory = value - self.step_0.glory
+
+    def set_status(self, value):
+        self.status = value
+
+    def set_taint(self, value):
+        self.taint = value
 
     def add_advancement(self, adv):
         self.advans.append(adv)

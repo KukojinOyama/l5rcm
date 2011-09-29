@@ -94,7 +94,7 @@ def parse_skill_line(sl):
             if tk[i].startswith('?'):
                 sk_rank = int(tk[i][1])
             elif tk[i].startswith('('):
-                sk_emph = tk[i].strip('()')
+                sk_emph = tk[i].strip('()').replace('_', ' ')
     return sk_name, sk_rank, sk_emph
 
 def get_cnt(conn, cnt):

@@ -10,6 +10,9 @@ def find(f, seq):
       return item
 
 class CkNumWidget(QtGui.QWidget):
+
+    valueChanged = QtCore.Signal(int, int)
+
     def __init__(self, parent = None):
         super(CkNumWidget, self).__init__(parent)
 
@@ -26,6 +29,7 @@ class CkNumWidget(QtGui.QWidget):
             ck.setObjectName( str(i) )
 
     def on_ck_toggled(self):
+        old_v = self.value
         fred = find(lambda ck: ck == self.sender(), self.checks)
         flag = fred.isChecked()
         if flag:
@@ -44,6 +48,8 @@ class CkNumWidget(QtGui.QWidget):
                     self.checks[i].setChecked(not flag)
                 else:
                     self.checks[i].setChecked(flag)
+        if self.value != old_v:
+            self.valueChanged.emit(old_v, self.value)
         #print 'value is %d' % self.value
 
     def set_value(self, value):
@@ -55,7 +61,10 @@ class CkNumWidget(QtGui.QWidget):
                 self.checks[i].setChecked(True)
             else:
                 self.checks[i].setChecked(False)
+        old_v = self.value
         self.value = value
+
+        self.valueChanged.emit(old_v, value)
 
     def get_value(self):
         return self.value
