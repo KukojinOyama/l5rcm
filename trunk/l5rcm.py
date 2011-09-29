@@ -33,6 +33,13 @@ def split_decimal(value):
     d = int(value)
     return (d, value-d)
 
+def pause_signals(widgets):
+    for w in widgets: w.blockSignals(True)
+
+def resume_signals(widgets):
+    for w in widgets: w.blockSignals(False)
+
+
 class L5RMain(QtGui.QMainWindow):
     def __init__(self, parent = None):
         super(L5RMain, self).__init__(parent)
@@ -461,14 +468,21 @@ class L5RMain(QtGui.QMainWindow):
 
         # only user change
         self.cb_pc_clan  .activated.connect( self.on_clan_change   )
-        self.cb_pc_family.activated.connect( self.on_family_change )
-        self.cb_pc_school.activated.connect( self.on_school_change )
+
+        # user and programmatically change
+        self.cb_pc_family.currentIndexChanged.connect( self.on_family_change )
+        self.cb_pc_school.currentIndexChanged.connect( self.on_school_change )
 
         # notify only user edit
         self.tx_mod_init.editingFinished.connect( self.update_from_model )
 
         # update model name
         self.tx_pc_name.editingFinished.connect( self.on_pc_name_change )
+
+        for widget in self.pc_flags_points:
+            widget.valueChanged.connect( self.on_flag_points_change )
+        for tx in self.pc_flags_rank:
+            tx.editingFinished.connect( self.on_flag_rank_change )
 
     def switch_to_page_3(self):
         self.tabs.setCurrentIndex(2)
@@ -508,11 +522,10 @@ class L5RMain(QtGui.QMainWindow):
 
     def on_clan_change(self, text):
         print 'on_clan_change %s' % text
-        self.cb_pc_family.clear()
+        #self.cb_pc_family.clear()
         index = self.cb_pc_clan.currentIndex()
         print 'current index = %d' % index
-        if index < 1:
-            self.cb_pc_family.setCurrentIndex(-1)
+        if index < 0:
             self.pc.clan = 0
         else:
             clan_id = self.cb_pc_clan.itemData(index)
@@ -520,14 +533,16 @@ class L5RMain(QtGui.QMainWindow):
             print 'set new clan. cur: %d new %d' % ( self.pc.clan, clan_id )
             self.pc.clan = clan_id
 
-            self.load_families(clan_id)
-            self.load_schools(clan_id)
-            self.cb_pc_family.setCurrentIndex(0)
-            self.cb_pc_school.setCurrentIndex(0)
+        self.load_families(self.pc.clan)
+        self.load_schools(self.pc.clan)
+        self.cb_pc_family.setCurrentIndex(0)
+        self.cb_pc_school.setCurrentIndex(0)
 
     def on_family_change(self, text):
         index = self.cb_pc_family.currentIndex()
-        if index < 0:
+        print 'on family changed %s %d' % (text, index)
+        if index <= 0:
+            print 'clear pc family'
             self.pc.set_family()
             self.update_from_model()
             return
@@ -541,13 +556,14 @@ class L5RMain(QtGui.QMainWindow):
         c = self.db_conn.cursor()
         c.execute('''select perk, perkval from families
                      where uuid=?''', [uuid])
-        perk, perkval = c.fetchone()
-        self.pc.set_family( uuid, perk, perkval )
-        self.update_from_model()
+        for perk, perkval in c.fetchall():
+            self.pc.set_family( uuid, perk, perkval )
+            self.update_from_model()
 
     def on_school_change(self, text):
         index = self.cb_pc_school.currentIndex()
         if index <= 0:
+            print 'clear pc school'
             self.pc.set_school()
             self.update_from_model()
             return
@@ -578,6 +594,38 @@ class L5RMain(QtGui.QMainWindow):
     def on_pc_name_change(self):
         self.pc.name = self.tx_pc_name.text()
 
+    def on_flag_points_change(self):
+        fl  = self.sender()
+        pt = fl.value
+        if fl == self.pc_flags_points[0]:
+            val = int(self.pc_flags_rank[0].text())
+            self.pc.set_honor( float(val + float(pt)/10 ) )
+        elif fl == self.pc_flags_points[1]:
+            val = int(self.pc_flags_rank[1].text())
+            self.pc.set_glory( float(val + float(pt)/10 ) )
+        elif fl == self.pc_flags_points[2]:
+            val = int(self.pc_flags_rank[2].text())
+            self.pc.set_status( float(val + float(pt)/10 ) )
+        else:
+            val = int(self.pc_flags_rank[3].text())
+            self.pc.set_taint( float(val + float(pt)/10 ) )
+
+    def on_flag_rank_change(self):
+        fl  = self.sender()
+        val = int(fl.text())
+        if fl == self.pc_flags_rank[0]:
+            pt = self.pc_flags_points[0].value
+            self.pc.set_honor( float(val + float(pt)/10 ) )
+        elif fl == self.pc_flags_rank[1]:
+            pt = self.pc_flags_points[1].value
+            self.pc.set_glory( float(val + float(pt)/10 ) )
+        elif fl == self.pc_flags_rank[2]:
+            pt = self.pc_flags_points[2].value
+            self.pc.set_status( float(val + float(pt)/10 ) )
+        else:
+            pt = self.pc_flags_points[3].value
+            self.pc.set_taint( float(val + float(pt)/10 ) )
+
     def act_buy_advancement(self):
         dlg = BuyAdvDialog(self.pc, self.sender().property('tag'), self.db_conn, self)
         dlg.exec_()
@@ -599,11 +647,19 @@ class L5RMain(QtGui.QMainWindow):
         self.update_from_model()
 
     def load_character(self):
+        pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
+                        self.cb_pc_school] )
+
         self.save_path = self.select_load_path()
         if self.pc.load_from(self.save_path):
-            self.load_schools (self.pc.clan)
+            print 'pc school is %d' % self.pc.school
+            print 'pc family is %d' % self.pc.family
             self.load_families(self.pc.clan)
+            self.load_schools (self.pc.clan)
             self.update_from_model()
+
+        resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
+                        self.cb_pc_school] )
 
     def save_character(self):
         if self.save_path == '' or not os.path.exists(self.save_path):
@@ -649,6 +705,7 @@ class L5RMain(QtGui.QMainWindow):
                          order by name asc''',
                          [clan_id])
 
+        self.cb_pc_family.addItem( 'No Family', 0 )
         for f in c.fetchall():
             self.cb_pc_family.addItem( f[1], f[0] )
 
@@ -678,6 +735,8 @@ class L5RMain(QtGui.QMainWindow):
     def set_school(self, school_id):
         idx = self.cb_pc_school.currentIndex()
         s_uuid = self.cb_pc_school.itemData(idx)
+
+        print 'set school to %s, current school is %s' % (school_id, s_uuid)
         if s_uuid == school_id:
             return
         for i in xrange(0, self.cb_pc_school.count()):
@@ -698,10 +757,17 @@ class L5RMain(QtGui.QMainWindow):
     def set_taint (self, value): self.set_flag(3, value)
 
     def update_from_model(self):
+
+        pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
+                        self.cb_pc_school] )
+
         self.tx_pc_name.setText( self.pc.name   )
         self.set_clan          ( self.pc.clan   )
         self.set_family        ( self.pc.family )
         self.set_school        ( self.pc.school )
+
+        resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
+                        self.cb_pc_school] )
 
         pc_xp = self.pc.get_px()
         self.tx_pc_exp.setText( str( pc_xp ) )
