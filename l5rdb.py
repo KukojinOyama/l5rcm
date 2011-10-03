@@ -34,9 +34,24 @@ def create(dbfile):
          wildcard TEXT, emphases TEXT,
          PRIMARY KEY(school_uuid, skill_uuid, wildcard))''')
 
+        # weapons
+        c.execute('''create table weapons
+        (uuid INTEGER PRIMARY KEY, name TEXT, skill_uuid INTEGER,
+         dr TEXT, dr_alt TEXT, range INTEGER, strength INTEGER,
+         min_strength INTEGER, effect_id INTEGER, cost TEXT)''')
+
+        # armors
+        c.execute('''create table armors
+        (uuid INTEGER PRIMARY KEY, name TEXT, tn INTEGER,
+         rd INTEGER, special TEXT, cost TEXT)''')
+
         # tags
         c.execute('''create table tags
         (uuid INTEGER, tag VARCHAR, PRIMARY KEY(uuid, tag))''')
+
+        # effects
+        c.execute('''create table effects
+        (uuid INTEGER PRIMARY KEY, tag VARCHAR UNIQUE, desc TEXT)''')
 
         # cnt
         c.execute('''create table cnt
@@ -84,6 +99,11 @@ def non_query(conn, query, data = None, print_error = True):
         c.close()
     return recs
 
+def value_or_null(value):
+    if value is None or value.startswith('-'):
+        return None
+    return value.strip()
+
 def parse_skill_line(sl):
     tk = sl.strip().split()
     sk_name = tk[0].replace('_', ' ')
@@ -124,6 +144,36 @@ def import_clans(dbconn, path):
         name = name.strip()
         if non_query(dbconn, '''insert into clans values (?,?)''', [uuid,name]) == 1:
             print 'imported clan %s with uuid %s' % (name, uuid)
+    f.close()
+
+def import_weapon_specials(dbconn, path):
+    f = open( os.path.join(path, 'data'), 'rt' )
+    for line in f:
+        uuid = get_cnt(dbconn, 'uuid')
+        tokens = line.split('"')
+        if len(tokens) >= 2:
+            tag    = tokens[0].strip()
+            effect = tokens[1].strip()
+            if non_query(dbconn, '''insert into effects values (?,?,?)''',
+                        [uuid,tag,effect]):
+                print 'imported effect %s with uuid %s' % (tag, uuid)
+    f.close()
+
+
+def import_armors(dbconn, path):
+    f = open( os.path.join(path, 'data'), 'rt' )
+    while True:
+        if not f.readline().startswith('#'): break
+        name    = value_or_null(f.readline())
+        tn      = value_or_null(f.readline())
+        rd      = value_or_null(f.readline())
+        special = value_or_null(f.readline())
+        cost    = value_or_null(f.readline())
+
+        uuid = get_cnt(dbconn, 'uuid')
+        if non_query(dbconn, '''insert into armors values(?,?,?,?,?,?)''',
+                             [uuid,name,tn,rd,special,cost]):
+            print 'imported armor %s with uuid %s' % (name, uuid)
     f.close()
 
 def import_clan_families(dbconn, clan, path):
@@ -237,6 +287,64 @@ def import_clan_school_skills(dbconn, clan, path):
                                          [s_uuid, sk_uuid, sk_rank, sk_emph])
     f.close()
 
+def import_categ_weapons(dbconn, categ, path):
+    print 'import weapons from %s' % path
+
+    f = open( path, 'rt' )
+    sk_name = f.readline().strip()
+
+    # get skill uid
+    print 'search uuid for skill %s' % sk_name
+    sk_uuid = query(dbconn, '''select uuid from skills where name=?''', [sk_name])
+    if sk_uuid is not None and len(sk_uuid) > 0:
+        sk_uuid = sk_uuid[0][0]
+
+    while True:
+        if not f.readline().startswith('#'): break
+        name    = f.readline().strip()
+        tags    = value_or_null(f.readline()).split(',')
+        drs     = value_or_null(f.readline()).split(';')
+        str_    = None
+        min_str = None
+        dr      = None
+        dr_alt  = None
+        range   = None
+        special = None
+        cost    = None
+        if 'w' not in drs[0] and 'k' not in drs[0]:
+            str_ = drs[0]
+        elif 'k' in drs[0] or 'w' in drs[0]:
+            dr = drs[0]
+            if len(drs) > 1:
+                dr_alt = drs[1]
+        min_str  = value_or_null(f.readline())
+        range    = value_or_null(f.readline())
+        special  = value_or_null(f.readline())
+        cost     = value_or_null(f.readline())
+
+        if special is not None:
+            # get special uid
+            print 'search uuid for effect %s' % special
+            special = query(dbconn, '''select uuid from effects where tag=?''', [special])
+            if special is not None and len(special) > 0:
+                special = special[0][0]
+            else:
+                special = None
+
+        uuid = get_cnt(dbconn, 'uuid')
+        if non_query(dbconn, '''insert into weapons
+                                values(?,?,?,?,?,?,?,?,?,?)''',
+                             [uuid,name,sk_uuid,dr,dr_alt,range,str_,
+                             min_str, special, cost]):
+            print 'imported weapon %s with uuid %s, tags=%s' % (name, uuid, repr(tags))
+
+            for t in tags:
+                add_tag(dbconn, uuid, t)
+        else:
+            print 'cannot import weapon %s' % name
+
+    f.close()
+
 def import_families(conn, path):
     for path, dirs, files in os.walk(path):
         dirn = os.path.basename(path)
@@ -277,12 +385,25 @@ def import_school_skills(conn, path):
                 continue
             import_clan_school_skills(conn, file_.lower(), os.path.join(path, file_))
 
+def import_weapons(conn, path):
+    for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break
+        for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue
+            import_categ_weapons(conn, file_.lower(), os.path.join(path, file_))
+
 def importdb(conn, path):
     import_clans(conn, os.path.join(path, 'clans'))
     import_families(conn, os.path.join(path, 'families'))
     import_schools(conn, os.path.join(path, 'schools'))
     import_skills(conn, os.path.join(path, 'skills'))
     import_school_skills(conn, os.path.join(path, 'school_skills'))
+    import_weapon_specials(conn, os.path.join(path, 'weapon_specials'))
+    import_weapons(conn, os.path.join(path, 'weapons'))
+    import_armors(conn, os.path.join(path, 'armors'))
     conn.commit()
 
 ### MAIN ###
