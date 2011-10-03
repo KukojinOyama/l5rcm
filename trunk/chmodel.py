@@ -321,15 +321,19 @@ class AdvancedPcModel(BasePcModel):
 
     def set_honor(self, value):
         self.honor = value - self.step_2.honor
+        self.unsaved = True
 
     def set_glory(self, value):
         self.glory = value - self.step_0.glory
+        self.unsaved = True
 
     def set_status(self, value):
         self.status = value
+        self.unsaved = True
 
     def set_taint(self, value):
         self.taint = value
+        self.unsaved = True
 
     def add_advancement(self, adv):
         self.advans.append(adv)

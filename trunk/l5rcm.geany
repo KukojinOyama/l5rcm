@@ -16,13 +16,14 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=0
+current_page=4
 FILE_NAME_0=4733;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/advances.py;0;4
-FILE_NAME_1=6350;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/chmodel.py;0;4
-FILE_NAME_2=540;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/cknumwidget.py;0;4
+FILE_NAME_1=3957;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/chmodel.py;0;4
+FILE_NAME_2=1594;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/cknumwidget.py;0;4
 FILE_NAME_3=0;Sh;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/l5rcm;0;4
-FILE_NAME_4=21351;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/l5rcm.py;0;4
-FILE_NAME_5=7882;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/l5rdb.py;0;4
+FILE_NAME_4=23935;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/l5rcm.py;0;4
+FILE_NAME_5=2240;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/l5rdb.py;0;4
 FILE_NAME_6=3307;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/advdlg.py;0;4
 FILE_NAME_7=1136;None;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/snippets;0;4
 FILE_NAME_8=718;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/skillmodel.py;0;4
+FILE_NAME_9=0;Python;0;16;0;1;0;/home/daniele/Apps/l5rcm/l5rcm/rules.py;0;4
