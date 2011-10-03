@@ -597,6 +597,8 @@ class L5RMain(QtGui.QMainWindow):
     def on_flag_points_change(self):
         fl  = self.sender()
         pt = fl.value
+        print fl
+        print pt
         if fl == self.pc_flags_points[0]:
             val = int(self.pc_flags_rank[0].text())
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -613,6 +615,8 @@ class L5RMain(QtGui.QMainWindow):
     def on_flag_rank_change(self):
         fl  = self.sender()
         val = int(fl.text())
+        print fl
+        print val
         if fl == self.pc_flags_rank[0]:
             pt = self.pc_flags_points[0].value
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -652,8 +656,6 @@ class L5RMain(QtGui.QMainWindow):
 
         self.save_path = self.select_load_path()
         if self.pc.load_from(self.save_path):
-            print 'pc school is %d' % self.pc.school
-            print 'pc family is %d' % self.pc.family
             self.load_families(self.pc.clan)
             self.load_schools (self.pc.clan)
             self.update_from_model()
@@ -785,10 +787,16 @@ class L5RMain(QtGui.QMainWindow):
         self.tx_pc_ins .setText( str(self.pc.get_insight()) )
 
         # pc flags
+        pause_signals( self.pc_flags_points )
+        pause_signals( self.pc_flags_rank   )
+
         self.set_honor ( self.pc.get_honor()  )
         self.set_glory ( self.pc.get_glory()  )
         self.set_status( self.pc.get_status() )
         self.set_taint ( self.pc.get_taint()  )
+
+        resume_signals( self.pc_flags_points )
+        resume_signals( self.pc_flags_rank   )
 
         # armor tn
         self.tx_base_tn.setText ( str(self.pc.get_base_tn())  )
