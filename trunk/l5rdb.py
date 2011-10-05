@@ -44,7 +44,7 @@ def create(dbfile):
         c.execute('''create table armors
         (uuid INTEGER PRIMARY KEY, name TEXT, tn INTEGER,
          rd INTEGER, special TEXT, cost TEXT)''')
-
+        
         # tags
         c.execute('''create table tags
         (uuid INTEGER, tag VARCHAR, PRIMARY KEY(uuid, tag))''')

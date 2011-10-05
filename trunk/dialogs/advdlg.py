@@ -1,8 +1,10 @@
 #!/usr/bin/python
 
-import advances
+import models.advances
+
+from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
-from chmodel import ATTRIBS, RINGS
+
 
 class BuyAdvDialog(QtGui.QDialog):
     def __init__(self, pc, tag, conn, parent = None):
@@ -302,16 +304,3 @@ class SelWcSkills(QtGui.QDialog):
             self.pc.add_school_skill(uuid, rank)
         self.accept()
 
-### MAIN ###
-import sys
-from chmodel import AdvancedPcModel
-def main():
-    app = QtGui.QApplication(sys.argv)
-
-    pc = AdvancedPcModel()
-    dlg = BuyAdvDialog(pc, 'attrib')
-    dlg.show()
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    main()
