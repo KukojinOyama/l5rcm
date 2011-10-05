@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import models.advances
+import models.advances as advances
 
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
