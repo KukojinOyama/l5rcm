@@ -22,22 +22,28 @@ class BuyAdvDialog(QtGui.QDialog):
                       skill= 'Buy Skill rank',
                       void=  'Buy Void rank',
                       emph=  'Buy Skill emphasys',
+                      merit= 'Buy Advantages',
+                      flaw=  'Buy Disadvantages',
                       kata=  'Buy Kata',
                       kiho=  'Buy Kiho',
                       spell= 'Buy Spell')
 
-        labels = dict(attrib=('Choose Attribute' ,  None),
-                      skill= ('Choose Skill Type', 'Choose Skill'),
-                      emph=  ('Choose Skill'     , 'Choose Emphasis'),
-                      kata=  ('Choose Kata'      , None),
-                      kiho=  ('Choose Kiho'      , None),
-                      spell= ('Choose Spell'     , None))
+        labels = dict(attrib=('Choose Attribute'   ,  None),
+                      skill= ('Choose Skill Type'  , 'Choose Skill'),
+                      emph=  ('Choose Skill'       , 'Choose Emphasis'),
+                      merit= ('Choose Advantage'   , None),
+                      flaw=  ('Choose Disadvantage', None),
+                      kata=  ('Choose Kata'        , None),
+                      kiho=  ('Choose Kiho'        , None),
+                      spell= ('Choose Spell'       , None))
 
         self.setWindowTitle( titles[self.tag] )
 
         self.widgets = dict(attrib=(QtGui.QComboBox(self), None),
                             skill =(QtGui.QComboBox(self), QtGui.QComboBox(self)),
                             emph  =(QtGui.QComboBox(self), QtGui.QLineEdit(self)),
+                            merit =(QtGui.QComboBox(self), None),
+                            flaw  =(QtGui.QComboBox(self), None),
                             kata  =(None, None),
                             kiho  =(None, None),
                             spell =(None, None))
