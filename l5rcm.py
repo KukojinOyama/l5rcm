@@ -29,6 +29,12 @@ def new_horiz_line(parent = None):
     line.setFrameShadow(QtGui.QFrame.Sunken)
     return line
 
+def new_item_groupbox(name, widget):
+    grp  = QtGui.QGroupBox(name, widget.parent())
+    vbox = QtGui.QVBoxLayout(grp)
+    vbox.addWidget(widget)
+    return grp
+
 def split_decimal(value):
     d = int(value)
     return (d, value-d)
@@ -57,6 +63,7 @@ class L5RMain(QtGui.QMainWindow):
         self.build_ui_page_1()
         self.build_ui_page_2()
         self.build_ui_page_3()
+        self.build_ui_page_4()
 
         self.connect_signals()
 
@@ -369,6 +376,26 @@ class L5RMain(QtGui.QMainWindow):
         vbox.addWidget(lview)
 
         self.tabs.addTab(mfr, u"Advancements")
+        
+    def build_ui_page_4(self):
+        mfr    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(mfr)
+
+        #self.merit_view_model = advances.AdvancementViewModel(self)
+        self.merits_view_model = None
+        self.flaws_view_model  = None
+                
+        merit_view = QtGui.QListView(self)
+        merit_view.setModel(self.merits_view_model)
+        #merit_view.setItemDelegate(advances.AdvancementItemDelegate(self))
+        vbox.addWidget(new_item_groupbox('Advantages', merit_view))
+ 
+        flaw_view = QtGui.QListView(self)
+        flaw_view.setModel(self.flaws_view_model)
+        #flaw_view.setItemDelegate(advances.AdvancementItemDelegate(self))                
+        vbox.addWidget(new_item_groupbox('Disadvantages', flaw_view))
+
+        self.tabs.addTab(mfr, u"Merits/Flaws")
 
     def build_menu(self):
         # File Menu
@@ -405,6 +432,8 @@ class L5RMain(QtGui.QMainWindow):
         buyvoid_act  = QtGui.QAction(u'Void ring...', self)
         buyskill_act = QtGui.QAction(u'Skill rank...', self)
         buyemph_act  = QtGui.QAction(u'Skill emphasis...', self)
+        buymerit_act = QtGui.QAction(u'Advantages...', self)
+        buyflaw_act  = QtGui.QAction(u'Disadvantages...', self)
         buykata_act  = QtGui.QAction(u'Kata...', self)
         buykiho_act  = QtGui.QAction(u'Kiho...', self)
         buyspell_act = QtGui.QAction(u'Spell...', self)
@@ -416,12 +445,16 @@ class L5RMain(QtGui.QMainWindow):
         buykata_act .setProperty('tag', 'kata'  )
         buykiho_act .setProperty('tag', 'kiho'  )
         buyspell_act.setProperty('tag', 'spell' )
+        buymerit_act.setProperty('tag', 'merit' )
+        buyflaw_act .setProperty('tag', 'flaw'  )
 
         m_adv.addAction(viewadv_act)
         m_buy_adv.addAction(buyattr_act)
         m_buy_adv.addAction(buyvoid_act)
         m_buy_adv.addAction(buyskill_act)
         m_buy_adv.addAction(buyemph_act)
+        m_buy_adv.addAction(buymerit_act)
+        m_buy_adv.addAction(buyflaw_act)
         m_buy_adv.addAction(buykata_act)
         m_buy_adv.addAction(buyspell_act)
         m_adv.addSeparator()
@@ -438,6 +471,8 @@ class L5RMain(QtGui.QMainWindow):
         buyvoid_act .triggered.connect( self.act_buy_advancement )
         buyskill_act.triggered.connect( self.act_buy_advancement )
         buyemph_act .triggered.connect( self.act_buy_advancement )
+        buymerit_act.triggered.connect( self.act_buy_advancement )
+        buyflaw_act .triggered.connect( self.act_buy_advancement )
         buykata_act .triggered.connect( self.act_buy_advancement )
         buykiho_act .triggered.connect( self.act_buy_advancement )
         buyspell_act.triggered.connect( self.act_buy_advancement )
