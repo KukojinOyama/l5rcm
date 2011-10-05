@@ -13,3 +13,7 @@ void_rise_dr_rule "A character may spend one Void Point to increase a damage rol
 ninjato_special_rule "The ninja-to is a medium weapon, but is considered a small weapon for the purposes of concealment. If a ninja-to inflicts more than 40 Wounds in a single attack, its blade breaks."
 keep_grapple_rule "May be used to initiate and maintain a grapple."
 no_shoot_horseback_rule "Increase the TN of all attack rolls by +10 if used from horseback."
+light_armor_rule "Wearing light armor increases the TN of all Athletics and Stealth rolls by 5."
+heavy_armor_rule "Wearing heavy armor increases the TN of all Skill Rolls using Agility or Reflexes by 5"
+riding_armor_rule "+12 TN while on horseback. Riding armor is considered heavy armor for the purposes of mechanical effects that specify armor type. Wearing riding armor increases the TN of all Agility and Reflexes rolls by +5 unless the wearer is on horseback."
+

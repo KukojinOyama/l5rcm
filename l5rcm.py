@@ -707,13 +707,18 @@ class L5RMain(QtGui.QMainWindow):
             self.update_from_model()                   
 
     def show_wear_armor(self):
-        pass
+        dlg = dialogs.ChooseItemDialog(self.pc, 'armor', self.db_conn, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.update_from_model()   
         
     def show_wear_cust_armor(self):
         pass
         
     def show_add_weapon(self):
-        pass
+        dlg = dialogs.ChooseItemDialog(self.pc, 'weapon', self.db_conn, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.update_from_model()   
+
         
     def show_add_cust_weapon(self):
         pass
