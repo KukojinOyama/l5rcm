@@ -1,12 +1,19 @@
 #!/usr/bin/python
 
 import sys, sqlite3, os
-import rules, advances
+import rules
+import models
+import widgets
+import dialogs
+
 from PySide import QtGui, QtCore
-from cknumwidget import CkNumWidget
-from chmodel import AdvancedPcModel, ATTRIBS, RINGS
-from advdlg import BuyAdvDialog, SelWcSkills
-from skillmodel import SkillTableViewModel
+from models.chmodel import ATTRIBS, RINGS
+
+#from dialogs.advdlg import BuyAdvDialog, SelWcSkills
+#from cknumwidget import CkNumWidget
+#from chmodel import AdvancedPcModel, ATTRIBS, RINGS
+#from advdlg import BuyAdvDialog, SelWcSkills
+#from skillmodel import SkillTableViewModel
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
@@ -224,7 +231,7 @@ class L5RMain(QtGui.QMainWindow):
                                 QtCore.Qt.AlignLeft )
             grid.addWidget( QtGui.QLabel("<b>Void Points</b>"), 4, 2, 1, 3,
                             QtCore.Qt.AlignHCenter )
-            grid.addWidget( CkNumWidget(self), 5, 2, 1, 3,
+            grid.addWidget( widgets.CkNumWidget(self), 5, 2, 1, 3,
                             QtCore.Qt.AlignHCenter)
 
             hbox.addWidget(grp)
@@ -249,7 +256,7 @@ class L5RMain(QtGui.QMainWindow):
                 lay.addWidget(QtGui.QLabel('<b>%s</b>' %f), row, 0)
                 l = new_small_le(self, False)
                 lay.addWidget(l, row, 1)
-                w = CkNumWidget(self)
+                w = widgets.CkNumWidget(self)
                 lay.addWidget(w, row+1, 0, 1, 2, QtCore.Qt.AlignHCenter)
                 ob_flags_p.append(w)
                 ob_flags_r.append(l)
@@ -334,14 +341,14 @@ class L5RMain(QtGui.QMainWindow):
         add_pc_quantities(4, 0)
 
     def build_ui_page_2(self):
-        self.sk_view_model = SkillTableViewModel(self.db_conn, self)
+        self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
 
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
-        models = [ ("Skills", self.sk_view_model), ("Weapons", None) ]
+        models_ = [ ("Skills", self.sk_view_model), ("Weapons", None) ]
         # Skill View, Weapon View
-        for k, m in models:
+        for k, m in models_:
             grp    = QtGui.QGroupBox(k, self)
             tview  = QtGui.QTableView(self)
             tview.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);
@@ -369,10 +376,10 @@ class L5RMain(QtGui.QMainWindow):
         fr_h.addWidget(bt_refund_adv)
         vbox.addWidget(fr_)
 
-        self.adv_view_model = advances.AdvancementViewModel(self)
+        self.adv_view_model = models.AdvancementViewModel(self)
         lview = QtGui.QListView(self)
         lview.setModel(self.adv_view_model)
-        lview.setItemDelegate(advances.AdvancementItemDelegate(self))
+        lview.setItemDelegate(models.AdvancementItemDelegate(self))
         vbox.addWidget(lview)
 
         self.tabs.addTab(mfr, u"Advancements")
@@ -381,18 +388,18 @@ class L5RMain(QtGui.QMainWindow):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
-        #self.merit_view_model = advances.AdvancementViewModel(self)
+        #self.merit_view_model = models.AdvancementViewModel(self)
         self.merits_view_model = None
         self.flaws_view_model  = None
                 
         merit_view = QtGui.QListView(self)
         merit_view.setModel(self.merits_view_model)
-        #merit_view.setItemDelegate(advances.AdvancementItemDelegate(self))
+        #merit_view.setItemDelegate(models.AdvancementItemDelegate(self))
         vbox.addWidget(new_item_groupbox('Advantages', merit_view))
  
         flaw_view = QtGui.QListView(self)
         flaw_view.setModel(self.flaws_view_model)
-        #flaw_view.setItemDelegate(advances.AdvancementItemDelegate(self))                
+        #flaw_view.setItemDelegate(models.AdvancementItemDelegate(self))                
         vbox.addWidget(new_item_groupbox('Disadvantages', flaw_view))
 
         self.tabs.addTab(mfr, u"Merits/Flaws")
@@ -498,7 +505,29 @@ class L5RMain(QtGui.QMainWindow):
 
         gen_male_act  .triggered.connect( self.generate_name )
         gen_female_act.triggered.connect( self.generate_name )
-
+        
+        # Outfit menu
+        m_outfit = self.menuBar().addMenu(u'Out&fit')
+        
+        # actions, select armor, add weapon, add misc item
+        sel_armor_act      = QtGui.QAction(u'Wear Armor...'     , self)
+        sel_cust_armor_act = QtGui.QAction(u'Wear Custom Armor...', self)
+        add_weap_act       = QtGui.QAction(u'Add Base Weapon...'  , self)
+        add_cust_weap_act  = QtGui.QAction(u'Add Custom Weapon...', self)
+        add_misc_item_act  = QtGui.QAction(u'Add Misc Item...'    , self)
+        
+        m_outfit.addAction(sel_armor_act     )
+        m_outfit.addAction(sel_cust_armor_act)
+        m_outfit.addAction(add_weap_act      )
+        m_outfit.addAction(add_cust_weap_act )
+        m_outfit.addAction(add_misc_item_act )
+        
+        sel_armor_act     .triggered.connect( self.show_wear_armor      )
+        sel_cust_armor_act.triggered.connect( self.show_wear_cust_armor )
+        add_weap_act      .triggered.connect( self.show_add_weapon      )
+        add_cust_weap_act .triggered.connect( self.show_add_cust_weapon )
+        add_misc_item_act .triggered.connect( self.show_add_misc_item   )
+        
     def connect_signals(self):
 
         # only user change
@@ -666,19 +695,35 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.set_taint( float(val + float(pt)/10 ) )
 
     def act_buy_advancement(self):
-        dlg = BuyAdvDialog(self.pc, self.sender().property('tag'), self.db_conn, self)
+        dlg = dialogs.BuyAdvDialog(self.pc, self.sender().property('tag'), 
+                                   self.db_conn, self)
         dlg.exec_()
         self.update_from_model()
 
     def act_choose_skills(self):
-        dlg = SelWcSkills(self.pc, self.db_conn, self)
+        dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_skills()
-            self.update_from_model()
+            self.update_from_model()                   
+
+    def show_wear_armor(self):
+        pass
+        
+    def show_wear_cust_armor(self):
+        pass
+        
+    def show_add_weapon(self):
+        pass
+        
+    def show_add_cust_weapon(self):
+        pass
+        
+    def show_add_misc_item(self):
+        pass
 
     def new_character(self):
         self.save_path = ''
-        self.pc = AdvancedPcModel()
+        self.pc = models.AdvancedPcModel()
         self.pc.load_default()
         self.load_clans()
         #self.load_schools(0)
