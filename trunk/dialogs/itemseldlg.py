@@ -34,14 +34,14 @@ class ChooseItemDialog(QtGui.QDialog):
             
             grp     = QtGui.QGroupBox("Stats", self)
             vbox    = QtGui.QVBoxLayout(grp)
-            self.stats = []
-            for i in xrange(0, 4):
-                self.stats.append( QtGui.QLabel(self) )
-
-            for s in self.stats:
-                s.setWordWrap(True)
-                vbox.addWidget(s)
-                
+            #self.stats = []
+            #for i in xrange(0, 4):
+            #    self.stats.append( QtGui.QLabel(self) )               
+            self.stats = QtGui.QLabel(self)
+            self.stats.setWordWrap(True)
+            vbox.addWidget(self.stats)
+                                
+            grid.setRowStretch(1, 2)    
             grid.addWidget(grp, 1, 0, 1, 4)
             grid.addWidget(self.bt_accept, 2, 2)
             grid.addWidget(self.bt_cancel, 2, 3)
@@ -70,7 +70,8 @@ class ChooseItemDialog(QtGui.QDialog):
             for s in self.stats:
                 s.setWordWrap(True)
                 vbox.addWidget(s)
-                
+            
+            grid.setRowStretch(2, 2)
             grid.addWidget(grp, 2, 0, 1, 4)
             grid.addWidget(self.bt_accept, 3, 2)
             grid.addWidget(self.bt_cancel, 3, 3)
@@ -106,18 +107,23 @@ class ChooseItemDialog(QtGui.QDialog):
                          where tag=?''', [special])
             rule_text = ''
             for desc in c.fetchall():
-                rule_text = desc
+                rule_text = str(desc)
                 break
-            
-            self.stats[0].setText( '<pre>%-20s %s</pre>' % ('Armor TN ',tn) )
-            self.stats[1].setText( '<pre>%-20s %s</pre>' % ('Reduction',rd) )
-            self.stats[2].setText( '<pre>%-20s %s</pre>' % ('Cost     ',cost) )
-            self.stats[3].setText( '<i>%s</i>' % rule_text )
+                
+            stats_text = '''<p><pre>%-20s %s</pre></p>
+                            <p><pre>%-20s %s</pre></p>
+                            <p><pre>%-20s %s</pre></p>
+                            <p><i>%s</i></p>''' % \
+                            ( 'Armor TN ',tn,
+                              'Reduction',rd,
+                              'Cost     ',cost,
+                              rule_text )
+            self.stats.setText(stats_text)            
             break
         
-        self.stats[3].setIndent(10)
-        self.stats[3].setSizePolicy( QtGui.QSizePolicy.Minimum,            
-                                     QtGui.QSizePolicy.Minimum )
+        #self.stats[3].setIndent(10)
+        self.stats.setSizePolicy( QtGui.QSizePolicy.Minimum,            
+                                  QtGui.QSizePolicy.Minimum )
     
     def on_weap_skill_select(self, text = ''):
         self.cb2.clear()
