@@ -425,9 +425,9 @@ def main():
             run = False
             break
         if c == 'c':
-            print 'insert db file: [l5rdb.sqlite]'
+            print 'insert db file: [share/l5rcm/l5rdb.sqlite]'
             path = raw_input()
-            if len(path) == 0: path = 'l5rdb.sqlite'
+            if len(path) == 0: path = 'share/l5rcm/l5rdb.sqlite'
             dbconn = connect(path)
         elif c == 'i':
             print 'insert import path: [./import/]'
@@ -435,9 +435,9 @@ def main():
             if len(path) == 0: path = './import/'
             importdb(dbconn, path)
         elif c == '1':
-            print 'insert db file: [l5rdb.sqlite]'
+            print 'insert db file: [share/l5rcm/l5rdb.sqlite]'
             path = raw_input()
-            if len(path) == 0: path = 'l5rdb.sqlite'
+            if len(path) == 0: path = 'share/l5rcm/l5rdb.sqlite'
             if create(path): print 'ok'
             else: print 'ko'
         elif c == '2':
