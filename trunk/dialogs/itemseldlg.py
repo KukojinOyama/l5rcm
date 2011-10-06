@@ -34,9 +34,6 @@ class ChooseItemDialog(QtGui.QDialog):
             
             grp     = QtGui.QGroupBox("Stats", self)
             vbox    = QtGui.QVBoxLayout(grp)
-            #self.stats = []
-            #for i in xrange(0, 4):
-            #    self.stats.append( QtGui.QLabel(self) )               
             self.stats = QtGui.QLabel(self)
             self.stats.setWordWrap(True)
             vbox.addWidget(self.stats)
@@ -63,20 +60,14 @@ class ChooseItemDialog(QtGui.QDialog):
             
             grp     = QtGui.QGroupBox("Stats", self)
             vbox    = QtGui.QVBoxLayout(grp)
-            self.stats = []
-            for i in xrange(0, 7):
-                self.stats.append( QtGui.QLabel(self) )
-            
-            for s in self.stats:
-                s.setWordWrap(True)
-                vbox.addWidget(s)
+            self.stats = QtGui.QLabel(self)
+            self.stats.setWordWrap(True)
+            vbox.addWidget(self.stats)
             
             grid.setRowStretch(2, 2)
             grid.addWidget(grp, 2, 0, 1, 4)
             grid.addWidget(self.bt_accept, 3, 2)
-            grid.addWidget(self.bt_cancel, 3, 3)
-            
-        self.grid = grid
+            grid.addWidget(self.bt_cancel, 3, 3)            
         
     def load_data(self):
         c = self.dbconn.cursor()
@@ -107,7 +98,7 @@ class ChooseItemDialog(QtGui.QDialog):
                          where tag=?''', [special])
             rule_text = ''
             for desc in c.fetchall():
-                rule_text = str(desc)
+                rule_text = desc[0]
                 break
                 
             stats_text = '''<p><pre>%-20s %s</pre></p>
@@ -141,16 +132,13 @@ class ChooseItemDialog(QtGui.QDialog):
         
     def on_weap_select(self, text = ''):
         # list stats
+        self.stats.setText('')
+        
         selected = self.cb2.currentIndex()
         if selected < 0:
             return
         weap_uuid = self.cb2.itemData(selected)
-        
-        for s in self.stats:
-            s.setText('')
-            s.setSizePolicy( QtGui.QSizePolicy.Preferred, 
-                             QtGui.QSizePolicy.Ignored )
-                    
+                            
         c = self.dbconn.cursor()
         c.execute('''select dr, dr_alt, range, strength,
                      min_strength, effect_id, cost
@@ -162,37 +150,31 @@ class ChooseItemDialog(QtGui.QDialog):
                          where uuid=?''', [eff])
             rule_text = ''
             for desc in c.fetchall():
-                rule_text = desc
+                rule_text = desc[0]
                 break
-            r = 0            
+           
+            lines = []
+                        
             if dr is not None:
-                self.stats[r].setText( '<pre>%-24s %s</pre>' % ('Primary DR  ',dr) )                
-                r += 1
+                lines.append( '<pre>%-24s %s</pre>' % ('Primary DR  ',dr) )
             if dr_alt is not None:
-                self.stats[r].setText( '<pre>%-24s %s</pre>' % ('Secondary DR',dr_alt) )
-                r += 1
+                lines.append( '<pre>%-24s %s</pre>' % ('Secondary DR',dr_alt) )
             if rng is not None:               
-               self.stats[r].setText( '<pre>%-24s %s</pre>' % ('Range        ',rng) )
-               r += 1
+               lines.append( '<pre>%-24s %s</pre>' % ('Range        ',rng) )
             if str_ is not None:
-               self.stats[r].setText( '<pre>%-24s %s</pre>' % ('Strength     ',str_) )
-               r += 1
+               lines.append( '<pre>%-24s %s</pre>' % ('Strength     ',str_) )
             if mstr_ is not None:
-               self.stats[r].setText( '<pre>%-24s %s</pre>' % ('Min. Strength',mstr_) )
-               r += 1
+               lines.append( '<pre>%-24s %s</pre>' % ('Min. Strength',mstr_) )
             if cost is not None:
-               self.stats[r].setText( '<pre>%-24s %s</pre>' % ('Cost         ',cost) )
-               r += 1
+               lines.append( '<pre>%-24s %s</pre>' % ('Cost         ',cost) )
             if eff is not None:
-               self.stats[r].setText( '<i>%s</i>' % rule_text )
-               self.stats[r].setIndent(10)
-               self.stats[r].setSizePolicy( QtGui.QSizePolicy.Minimum,            
-                                            QtGui.QSizePolicy.Minimum )                       
-               r += 1
-
+               lines.append( '<i>%s</i>' % rule_text )
+                
+            self.stats.setText( '<p>' + '\n'.join(lines) + '</p>' )
             break
-      
-        #for i in xrange(0,r):
-        #    self.stats[i].setVisible(True)
-        self.grid.update()        
+            
+        self.stats.setSizePolicy( QtGui.QSizePolicy.Minimum,            
+                                  QtGui.QSizePolicy.Minimum )                       
+
+  
 
