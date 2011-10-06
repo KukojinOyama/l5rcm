@@ -17,7 +17,7 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.0'
+APP_VERSION = '1.1'
 APP_ORG = 'openningia'
 
 def new_small_le(parent = None, ro = True):
@@ -64,7 +64,7 @@ class L5RMain(QtGui.QMainWindow):
         self.build_menu()
 
         # Connect to database
-        self.db_conn = sqlite3.connect('l5rdb.sqlite')
+        self.db_conn = sqlite3.connect('share/l5rcm/l5rdb.sqlite')
 
         # Build page 1
         self.build_ui_page_1()
@@ -113,7 +113,7 @@ class L5RMain(QtGui.QMainWindow):
         mvbox = QtGui.QVBoxLayout(self.centralWidget())
         logo = QtGui.QLabel(self)
         logo.setScaledContents(True)
-        logo.setPixmap( QtGui.QPixmap('banner_s.png') )
+        logo.setPixmap( QtGui.QPixmap('share/l5rcm/banner_s.png') )
         mvbox.addWidget(logo)
         mvbox.addWidget(self.nicebar)
         mvbox.addWidget(self.tabs)
@@ -575,12 +575,12 @@ class L5RMain(QtGui.QMainWindow):
             self.update_from_model()
 
     def generate_name(self):
-        gender = self.sender().property('sender')
+        gender = self.sender().property('gender')
         name = ''
         if gender == 'male':
-            name = rules.get_random_name('data/male.txt')
+            name = rules.get_random_name('share/l5rcm/male.txt')
         else:
-            name = rules.get_random_name('data/female.txt')
+            name = rules.get_random_name('share/l5rcm/female.txt')
         self.pc.name = name
         self.update_from_model()
 
