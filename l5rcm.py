@@ -301,6 +301,9 @@ class L5RMain(QtGui.QMainWindow):
             self.tx_base_init = QtGui.QLineEdit(self)
             self.tx_mod_init  = QtGui.QLineEdit(self)
             self.tx_cur_init  = QtGui.QLineEdit(self)
+            
+            self.tx_base_init.setReadOnly(True)
+            self.tx_cur_init .setReadOnly(True)
 
             grd.addRow( 'Base', self.tx_base_init)
             grd.addRow( 'Modifier', self.tx_mod_init)
@@ -312,11 +315,19 @@ class L5RMain(QtGui.QMainWindow):
             grp = QtGui.QGroupBox('Armor TN', self)
             grd  = QtGui.QFormLayout(grp)
 
+            self.tx_armor_nm = QtGui.QLineEdit(self)
             self.tx_base_tn  = QtGui.QLineEdit(self)
             self.tx_armor_tn = QtGui.QLineEdit(self)
             self.tx_armor_rd = QtGui.QLineEdit(self)
             self.tx_cur_tn   = QtGui.QLineEdit(self)
-
+           
+            self.tx_armor_nm.setReadOnly(True)
+            self.tx_base_tn .setReadOnly(True)
+            self.tx_armor_tn.setReadOnly(True)
+            self.tx_armor_rd.setReadOnly(True)
+            self.tx_cur_tn  .setReadOnly(True)
+            
+            grd.addRow( 'Name', self.tx_armor_nm)
             grd.addRow( 'Base', self.tx_base_tn)
             grd.addRow( 'Armor', self.tx_armor_tn)
             grd.addRow( 'Reduction', self.tx_armor_rd)
@@ -364,22 +375,30 @@ class L5RMain(QtGui.QMainWindow):
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
+        self.th_view_model = models.TechViewModel      (self.db_conn, self)
 
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
-        models_ = [ ("Skills", self.sk_view_model), ("Weapons", None) ]
+        models_ = [ ("Skills", 'table', self.sk_view_model, None), 
+                    ("Techs",  'list',  self.th_view_model,  models.TechItemDelegate(self)) ]
         # Skill View, Weapon View
-        for k, m in models_:
+        for k, t, m, d in models_:
             grp    = QtGui.QGroupBox(k, self)
-            tview  = QtGui.QTableView(self)
-            tview.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);
-            tview.setModel(m)
+            view   = None
+            if t == 'table':
+                view  = QtGui.QTableView(self)
+                view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);
+            elif t == 'list':
+                view = QtGui.QListView(self)
+            view.setModel(m)
+            if d is not None:
+                view.setItemDelegate(d)
             tmp    = QtGui.QVBoxLayout(grp)
-            tmp.addWidget(tview)
+            tmp.addWidget(view)
             vbox.addWidget(grp)
 
-        self.tabs.addTab(mfr, u"Skills and Weapons")
+        self.tabs.addTab(mfr, u"Skills and Techs")
 
     def build_ui_page_3(self):
         mfr    = QtGui.QFrame(self)
@@ -432,7 +451,7 @@ class L5RMain(QtGui.QMainWindow):
         # actions: new, open, save
         new_act  = QtGui.QAction(u'&New PC', self)
         open_act = QtGui.QAction(u'&Open PC...', self)
-        save_act = QtGui.QAction(u'&Save PC', self)
+        save_act = QtGui.QAction(u'&Save PC...', self)
         exit_act = QtGui.QAction(u'E&xit', self)
 
         m_file.addAction(new_act)
@@ -532,9 +551,9 @@ class L5RMain(QtGui.QMainWindow):
         m_outfit = self.menuBar().addMenu(u'Out&fit')
         
         # actions, select armor, add weapon, add misc item
-        sel_armor_act      = QtGui.QAction(u'Wear Armor...'     , self)
+        sel_armor_act      = QtGui.QAction(u'Wear Armor...'       , self)
         sel_cust_armor_act = QtGui.QAction(u'Wear Custom Armor...', self)
-        add_weap_act       = QtGui.QAction(u'Add Base Weapon...'  , self)
+        add_weap_act       = QtGui.QAction(u'Add Weapon...'       , self)
         add_cust_weap_act  = QtGui.QAction(u'Add Custom Weapon...', self)
         add_misc_item_act  = QtGui.QAction(u'Add Misc Item...'    , self)
         
@@ -675,6 +694,16 @@ class L5RMain(QtGui.QMainWindow):
                 self.pc.add_school_skill(sk_uuid, sk_rank, emph)
             else:
                 self.pc.add_pending_wc_skill(wc, sk_rank)
+                
+        # get school tech rank 1
+        c.execute('''select uuid from school_techs
+                     where school_uuid=? and rank=1''', [uuid])
+                     
+        tmp = c.fetchone()
+        if tmp is not None:
+            self.pc.set_free_school_tech( tmp[0] )            
+        
+        c.close()
         self.update_from_model()
 
     def on_pc_name_change(self):
@@ -906,10 +935,11 @@ class L5RMain(QtGui.QMainWindow):
         resume_signals( self.pc_flags_rank   )
 
         # armor tn
-        self.tx_base_tn.setText ( str(self.pc.get_base_tn())  )
-        self.tx_armor_tn.setText( str(self.pc.get_armor_tn()) )
-        self.tx_armor_rd.setText( str(self.pc.get_armor_rd()) )
-        self.tx_cur_tn.setText  ( str(self.pc.get_cur_tn())   )
+        self.tx_armor_nm .setText( str(self.pc.get_armor_name())  )
+        self.tx_base_tn  .setText( str(self.pc.get_base_tn())     )
+        self.tx_armor_tn .setText( str(self.pc.get_armor_tn())    )
+        self.tx_armor_rd .setText( str(self.pc.get_armor_rd())    )
+        self.tx_cur_tn   .setText( str(self.pc.get_cur_tn())      )
 
         # health
         for i in xrange(0, 8):
@@ -927,7 +957,7 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.mod_init = (r1, k1)
         else:
             self.tx_cur_init.setText( self.tx_base_init.text() )
-
+            
         # Show nicebar if pending wildcard skills
         wcs = self.pc.get_pending_wc_skills()
         if len(wcs) > 0:
@@ -948,6 +978,7 @@ class L5RMain(QtGui.QMainWindow):
         # Update view-models
         self.sk_view_model .update_from_model(self.pc)
         self.adv_view_model.update_from_model(self.pc)
+        self.th_view_model .update_from_model(self.pc)
 
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
