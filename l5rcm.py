@@ -9,16 +9,31 @@ import dialogs
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
 
-#from dialogs.advdlg import BuyAdvDialog, SelWcSkills
-#from cknumwidget import CkNumWidget
-#from chmodel import AdvancedPcModel, ATTRIBS, RINGS
-#from advdlg import BuyAdvDialog, SelWcSkills
-#from skillmodel import SkillTableViewModel
-
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
 APP_VERSION = '1.1'
 APP_ORG = 'openningia'
+
+MY_CWD        = os.getcwd()
+
+def get_app_file(rel_path):
+    if os.name == 'nt':
+        return os.path.join( MY_CWD, 'share/l5rcm', rel_path )
+    else:        
+        sys_path = '/usr/share/l5rcm'
+        if os.path.exists( sys_path ):
+            return os.path.join( sys_path, rel_path )
+        return os.path.join( MY_CWD, 'share/l5rcm', rel_path )
+        
+def get_app_icon_path():
+    if os.name == 'nt':
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/48x48', APP_NAME + '.png' )
+    else:        
+        sys_path = '/usr/share/icons/l5rcm/48x48'
+        if os.path.exists( sys_path ):
+            return os.path.join( sys_path, APP_NAME + '.png' )
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/48x48', APP_NAME + '.png' )
+        
 
 def new_small_le(parent = None, ro = True):
     le = QtGui.QLineEdit(parent)
@@ -64,7 +79,7 @@ class L5RMain(QtGui.QMainWindow):
         self.build_menu()
 
         # Connect to database
-        self.db_conn = sqlite3.connect('share/l5rcm/l5rdb.sqlite')
+        self.db_conn = sqlite3.connect( get_app_file('l5rdb.sqlite') )
 
         # Build page 1
         self.build_ui_page_1()
@@ -113,11 +128,18 @@ class L5RMain(QtGui.QMainWindow):
         mvbox = QtGui.QVBoxLayout(self.centralWidget())
         logo = QtGui.QLabel(self)
         logo.setScaledContents(True)
-        logo.setPixmap( QtGui.QPixmap('share/l5rcm/banner_s.png') )
+        logo.setPixmap( QtGui.QPixmap( get_app_file('banner_s.png') ) )
         mvbox.addWidget(logo)
         mvbox.addWidget(self.nicebar)
         mvbox.addWidget(self.tabs)
 
+        # LOAD SETTINGS
+        settings = QtCore.QSettings()
+        geo = settings.value('geometry')
+        if geo is not None:
+            self.restoreGeometry(geo)
+        #else:
+        #    self.setGeometry(QtCore.QRect(100,100,680,800))        
 
     def build_ui_page_1(self):
 
@@ -578,9 +600,9 @@ class L5RMain(QtGui.QMainWindow):
         gender = self.sender().property('gender')
         name = ''
         if gender == 'male':
-            name = rules.get_random_name('share/l5rcm/male.txt')
+            name = rules.get_random_name( get_app_file('male.txt') )
         else:
-            name = rules.get_random_name('share/l5rcm/female.txt')
+            name = rules.get_random_name( get_app_file('female.txt') )
         self.pc.name = name
         self.update_from_model()
 
@@ -938,6 +960,10 @@ class L5RMain(QtGui.QMainWindow):
          return msgBox.exec_()
 
     def closeEvent(self, ev):
+        # SAVE GEOMETRY
+        settings = QtCore.QSettings()
+        settings.setValue('geometry', self.saveGeometry())
+        
         if self.pc.is_dirty():
             resp = self.ask_to_save()
             if resp == QtGui.QMessageBox.Save:
@@ -953,17 +979,17 @@ class L5RMain(QtGui.QMainWindow):
     def select_save_path(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save Character",
                                 QtCore.QDir.homePath(),
-                                "Character files (*.pc)")
+                                "L5R Character files (*.l5r)")
         if len(fileName) != 2:
             return ''
-        if fileName[0].endswith('.pc'):
+        if fileName[0].endswith('.l5r'):
             return fileName[0]
-        return fileName[0] + '.pc'
+        return fileName[0] + '.l5r'
 
     def select_load_path(self):
         fileName = QtGui.QFileDialog.getOpenFileName(self, "Load Character",
                                 QtCore.QDir.homePath(),
-                                "Character files (*.pc)")
+                                "L5R Character files (*.l5r)")
         if len(fileName) != 2:
             return ''
         return fileName[0]
@@ -977,6 +1003,8 @@ def main():
     QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
     QtCore.QCoreApplication.setOrganizationName(APP_ORG)
 
+    app.setWindowIcon( QtGui.QIcon( get_app_icon_path() ) )
+    
     l5rcm = L5RMain()
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
