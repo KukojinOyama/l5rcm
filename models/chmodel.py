@@ -65,6 +65,7 @@ class BasePcModel(object):
         self.skills      = {}
         self.emph        = {}
         self.pending_wc  = []
+        self.tags        = []
         self.honor       = 0.0
         self.glory       = 0.0
         self.status      = 0.0
@@ -76,6 +77,20 @@ class BasePcModel(object):
         self.attribs = [2, 2, 2, 2, 2, 2, 2, 2]
         self.rank    = 1
         self.glory   = 2.0
+        
+    def add_tag(self, tag):
+        if tag not in self.tags:
+            self.tags.append(tag)
+    
+    def has_tag(self, tag):
+        return tag in self.tags
+        
+    def del_tag(self, tag):
+        if tag in self.tags:
+            self.tags.removeone(tag)
+            
+    def clear_tags(self):
+        self.tags = []
 
 class AdvancedPcModel(BasePcModel):
     def __init__(self):
@@ -94,10 +109,8 @@ class AdvancedPcModel(BasePcModel):
         self.clan      = 0
         self.school    = 0
         self.family    = 0
-        self.tag       = ''
 
         self.insight   = 0
-        self.tags      = []
         self.advans    = []
 
         self.armor     = None
@@ -276,25 +289,31 @@ class AdvancedPcModel(BasePcModel):
             ls.append( self.step_2.school_tech )
         ls += self.techs
         return ls
-
-    def set_family(self, family_id = 0, perk = None, perkval = 1):
-        if self.family == family_id:
+        
+    def get_spells(self):
+        return []
+       
+    def has_tag(self, tag):
+        return tag in self.tags or \
+               self.step_1.has_tag(tag) or \
+               self.step_2.has_tag(tag)
+        
+    def can_get_other_techs(self):
+        if not self.has_tag('bushi') and \
+           not self.has_tag('monk') and \
+           not self.has_tag('courtier') and \
+           not self.has_tag('ninja'):
+           return False
+           
+        return len(self.get_techs()) < self.get_insight_rank()
+        
+        
+    def can_get_other_spells(self):
+        if not self.has_tag('shugenja'):
             return
-        self.step_1  = BasePcModel()
-        self.unsaved = True
-        self.family  = family_id
-        if family_id == 0:
-            return
-        # void ?
-        if perk == 'void':
-            self.step_1.void += perkval
-            return True
-        else:
-            a = attrib_from_name(perk)
-            if a >= 0:
-                self.step_1.attribs[a] += perkval
-                return True
-        return False
+            
+        target_spells = self.get_insight_rank() * 3
+        return len(self.get_spells()) < target_spells
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
         if skill_uid in self.step_2.skills:
@@ -318,20 +337,47 @@ class AdvancedPcModel(BasePcModel):
         
     def add_weapon(self, item):
         self.weapons.append( item )
+        
+    def set_family(self, family_id = 0, perk = None, perkval = 1, tags = []):
+        if self.family == family_id:
+            return
+        self.step_1  = BasePcModel()
+        self.unsaved = True
+        self.family  = family_id
+        if family_id == 0:
+            return
+
+        for t in tags:       
+            self.step_1.add_tag(t)            
+            
+        # void ?
+        if perk == 'void':
+            self.step_1.void += perkval
+            return True
+        else:
+            a = attrib_from_name(perk)
+            if a >= 0:
+                self.step_1.attribs[a] += perkval
+                return True
+        return False        
 
     def set_school(self, school_id = 0, perk = None, perkval = 1,
-                         honor = 0.0):
+                         honor = 0.0, tags = []):
         if self.school == school_id:
             return
         self.step_2  = BasePcModel()
         self.unsaved = True
         self.school  = school_id
         self.clear_pending_wc_skills()
-        self.set_free_school_tech(None)
+        # also reset tech
+        self.techs = []
         if school_id == 0:
             return
 
         self.step_2.honor = honor
+
+        for t in tags:       
+            self.step_2.add_tag(t)
 
         # void ?
         if perk == 'void':
@@ -346,6 +392,10 @@ class AdvancedPcModel(BasePcModel):
         
     def set_free_school_tech(self, tech_uuid):
         self.step_2.school_tech = tech_uuid
+        
+    def add_tech(self, tech_uuid):
+        if tech_uuid not in self.techs:
+            self.techs.append(tech_uuid)
                 
     def set_honor(self, value):
         self.honor = value - self.step_2.honor
@@ -383,10 +433,11 @@ class AdvancedPcModel(BasePcModel):
             return True
         return False
 
-    def load_from(self, file):
-        print "loading from %s" % file
-
-        fp = open(file, 'rt')
+    def load_from(self, file_):
+        if len(file_) == 0 or not os.path.exists(file_):
+            return False
+            
+        fp = open(file_, 'rt')
         if fp:
             obj = json.load(fp)
             fp.close()
