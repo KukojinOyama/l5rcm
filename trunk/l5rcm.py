@@ -95,43 +95,17 @@ class L5RMain(QtGui.QMainWindow):
         self.tabs = QtGui.QTabWidget(self)
         self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
         self.setCentralWidget(self.widgets)
-
-        self.nicebar = QtGui.QFrame(self)
-        self.nicebar.setStyleSheet('''
-        QWidget { background: beige;}
-        QPushButton {
-            color: #333;
-            border: 2px solid rgb(200,200,200);
-            border-radius: 7px;
-            padding: 5px;
-            background: qradialgradient(cx: 0.3, cy: -0.4,
-            fx: 0.3, fy: -0.4, radius: 1.35, stop: 0 #fff,
-            stop: 1 rgb(255,170,0));
-            min-width: 80px;
-            }
-
-        QPushButton:hover {
-            background: qradialgradient(cx: 0.3, cy: -0.4,
-            fx: 0.3, fy: -0.4, radius: 1.35, stop: 0 #fff,
-            stop: 1 rgb(255,100,30));
-        }
-
-        QPushButton:pressed {
-            background: qradialgradient(cx: 0.4, cy: -0.1,
-            fx: 0.4, fy: -0.1, radius: 1.35, stop: 0 #fff,
-            stop: 1 rgb(255,200,50));
-        }
-        ''')
-        self.nicebar.setMinimumSize(0, 32)
-        self.nicebar.setVisible(False)
+        
+        self.nicebar = None
 
         mvbox = QtGui.QVBoxLayout(self.centralWidget())
         logo = QtGui.QLabel(self)
         logo.setScaledContents(True)
         logo.setPixmap( QtGui.QPixmap( get_app_file('banner_s.png') ) )
         mvbox.addWidget(logo)
-        mvbox.addWidget(self.nicebar)
         mvbox.addWidget(self.tabs)
+        
+        self.mvbox = mvbox
 
         # LOAD SETTINGS
         settings = QtCore.QSettings()
@@ -589,22 +563,61 @@ class L5RMain(QtGui.QMainWindow):
         for tx in self.pc_flags_rank:
             tx.editingFinished.connect( self.on_flag_rank_change )
 
+    def switch_to_page_1(self):
+        self.tabs.setCurrentIndex(0)
+
+    def switch_to_page_2(self):
+        self.tabs.setCurrentIndex(1)
+
     def switch_to_page_3(self):
         self.tabs.setCurrentIndex(2)
 
     def show_nicebar(self, widgets):
+        self.nicebar = QtGui.QFrame(self)
+        self.nicebar.setStyleSheet('''
+        QWidget { background: beige;}
+        QPushButton {
+            color: #333;
+            border: 2px solid rgb(200,200,200);
+            border-radius: 7px;
+            padding: 5px;
+            background: qradialgradient(cx: 0.3, cy: -0.4,
+            fx: 0.3, fy: -0.4, radius: 1.35, stop: 0 #fff,
+            stop: 1 rgb(255,170,0));
+            min-width: 80px;
+            }
+
+        QPushButton:hover {
+            background: qradialgradient(cx: 0.3, cy: -0.4,
+            fx: 0.3, fy: -0.4, radius: 1.35, stop: 0 #fff,
+            stop: 1 rgb(255,100,30));
+        }
+
+        QPushButton:pressed {
+            background: qradialgradient(cx: 0.4, cy: -0.1,
+            fx: 0.4, fy: -0.1, radius: 1.35, stop: 0 #fff,
+            stop: 1 rgb(255,200,50));
+        }
+        ''')
+        self.nicebar.setMinimumSize(0, 32)           
+    
         # nicebar layout
-        hbox = QtGui.QHBoxLayout()
+        hbox = QtGui.QHBoxLayout(self.nicebar)
         hbox.setContentsMargins(9,1,9,1)
 
         for w in widgets:
             hbox.addWidget(w)
 
-        self.nicebar.setLayout(hbox)
+        self.mvbox.insertWidget(1, self.nicebar)
+
         self.nicebar.setVisible(True)
 
-    def hide_nicebar(self):
+    def hide_nicebar(self):        
+        if not self.nicebar:
+            return
         self.nicebar.setVisible(False)
+        del self.nicebar
+        self.nicebar = None
 
     def reset_adv(self):
         self.pc.advans = []
@@ -659,11 +672,17 @@ class L5RMain(QtGui.QMainWindow):
         # get family perk
 
         c = self.db_conn.cursor()
-        c.execute('''select perk, perkval from families
+        c.execute('''select uuid, name from clans where uuid=?''', [self.pc.clan])
+        clan_uuid, clan_name = c.fetchone()
+
+        c.execute('''select name, perk, perkval from families
                      where uuid=?''', [uuid])
-        for perk, perkval in c.fetchall():
-            self.pc.set_family( uuid, perk, perkval )
+        for name, perk, perkval in c.fetchall():
+            self.pc.set_family( uuid, perk, perkval, [name.lower(), clan_name.lower()] )
             self.update_from_model()
+            break
+            
+        c.close()
 
     def on_school_change(self, text):
         index = self.cb_pc_school.currentIndex()
@@ -681,10 +700,10 @@ class L5RMain(QtGui.QMainWindow):
         # get school perk
 
         c = self.db_conn.cursor()
-        c.execute('''select perk, perkval, honor from schools
+        c.execute('''select name, perk, perkval, honor, tag from schools
                      where uuid=?''', [uuid])
-        perk, perkval, honor = c.fetchone()
-        self.pc.set_school( uuid, perk, perkval, honor )
+        name, perk, perkval, honor, tag = c.fetchone()
+        self.pc.set_school( uuid, perk, perkval, honor, [name.lower(), tag] )
 
         c.execute('''select skill_uuid, skill_rank, wildcard, emphases
                      from school_skills
@@ -755,7 +774,25 @@ class L5RMain(QtGui.QMainWindow):
         dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_skills()
-            self.update_from_model()                   
+            self.update_from_model() 
+            
+    def learn_next_school_tech(self):
+        # for now do not support multiple school advantage
+        # learn next technique for your school
+        
+        next_rank = len(self.pc.get_techs()) + 1
+        
+        c = self.db_conn.cursor()
+        c.execute('''select uuid, name from school_techs
+                     where school_uuid=? and rank=?''', [self.pc.school, next_rank])
+        for uuid, name in c.fetchall():
+            self.pc.add_tech(uuid)                          
+        
+        c.close()
+        
+        self.switch_to_page_2 ()
+        self.update_from_model()
+        
 
     def show_wear_armor(self):
         dlg = dialogs.ChooseItemDialog(self.pc, 'armor', self.db_conn, self)
@@ -814,6 +851,7 @@ class L5RMain(QtGui.QMainWindow):
         c.execute('''select uuid, name from clans order by name asc''')
         for f in c.fetchall():
             self.cb_pc_clan.addItem( f[1], f[0] )
+        c.close()
 
     def load_schools(self, clan_id):
         print 'load schools for clan_id %d' % clan_id
@@ -830,6 +868,7 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_school.addItem( 'No School', 0 )
         for f in c.fetchall():
             self.cb_pc_school.addItem( f[1], f[0] )
+        c.close()
 
     def load_families(self, clan_id):
         print 'load families for clan_id %d' % clan_id
@@ -846,6 +885,7 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_family.addItem( 'No Family', 0 )
         for f in c.fetchall():
             self.cb_pc_family.addItem( f[1], f[0] )
+        c.close()
 
     def set_clan(self, clan_id):
         idx = self.cb_pc_clan.currentIndex()
@@ -957,19 +997,39 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.mod_init = (r1, k1)
         else:
             self.tx_cur_init.setText( self.tx_base_init.text() )
+         
+        self.hide_nicebar() 
             
         # Show nicebar if pending wildcard skills
         wcs = self.pc.get_pending_wc_skills()
         if len(wcs) > 0:
-            lb = QtGui.QLabel('Your school gives you the choice of certain skills', self)
-            bt = QtGui.QPushButton('Choose Skills', self)
+            lb = QtGui.QLabel('Your school gives you the choice of certain skills')
+            bt = QtGui.QPushButton('Choose Skills')
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.act_choose_skills )
             self.show_nicebar([lb, bt])
-        else:
-            self.hide_nicebar()
-
+        #else:
+        #    self.hide_nicebar()
+            
+        if not self.nicebar:
+            # Show nicebar if can get another school tech
+            if self.pc.can_get_other_techs():
+                print 'can get more techniques'
+                lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
+                bt = QtGui.QPushButton('Learn Technique')
+                bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                                  QtGui.QSizePolicy.Preferred)
+                bt.clicked.connect( self.learn_next_school_tech )
+                self.show_nicebar([lb, bt])
+            elif self.pc.can_get_other_spells():
+                lb = QtGui.QLabel("You reached enough insight Rank to learn other Spells")
+                bt = QtGui.QPushButton('Learn Spells')
+                bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                                  QtGui.QSizePolicy.Preferred)
+                #bt.clicked.connect( self.act_choose_skills )
+                self.show_nicebar([lb, bt])
+                
         # disable step 0-1-2 if any xp are spent
         self.cb_pc_clan  .setEnabled( pc_xp == 0 )
         self.cb_pc_school.setEnabled( pc_xp == 0 )
