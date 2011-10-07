@@ -110,7 +110,8 @@ class TechItemDelegate(QtGui.QStyledItemDelegate):
         else:
             painter.fillRect(option.rect, bg_color)
 
-        painter.setPen(QtCore.Qt.DashLine)
+        grid_pen = QtGui.QPen( QtCore.Qt.lightGray, 1 )
+        painter.setPen(grid_pen)
         painter.drawLine(option.rect.bottomLeft(), option.rect.bottomRight())
 
         main_font = painter.font()
