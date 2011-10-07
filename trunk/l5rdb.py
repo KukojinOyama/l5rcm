@@ -4,6 +4,10 @@ import sys, os
 import sqlite3
 import argparse
 
+def trace_error(msg):
+    sys.stderr.write(repr(msg))
+    sys.stderr.write('\n')
+
 def create(dbfile):
     try:
         dbconn = sqlite3.connect(dbfile)
@@ -34,6 +38,11 @@ def create(dbfile):
         (school_uuid INTEGER, skill_uuid INTEGER, skill_rank INTEGER,
          wildcard TEXT, emphases TEXT,
          PRIMARY KEY(school_uuid, skill_uuid, wildcard))''')
+         
+        # school techs
+        c.execute('''create table school_techs
+        (uuid INTEGER PRIMARY KEY, school_uuid INTEGER, rank INTEGER,
+         name TEXT, effect TEXT, desc TEXT)''')
 
         # weapons
         c.execute('''create table weapons
@@ -80,7 +89,7 @@ def query(conn, query, data = None, print_error = True):
         result = c.fetchall()
     except Exception as e:
         if print_error:
-            print e
+            trace_error(e)
     finally:
         c.close()
     return result
@@ -95,7 +104,7 @@ def non_query(conn, query, data = None, print_error = True):
             recs = c.execute(query)
     except Exception as e:
         if print_error:
-            print e
+            trace_error(e)
     finally:
         c.close()
     return recs
@@ -224,7 +233,7 @@ def import_clan_schools(dbconn, clan, path):
                              [uuid,name,tag,clanuid,perk,perkval,honor_val,affin,defic]):
             print 'imported school %s with uuid %s' % (name, uuid)
         else:
-            print 'cannot import school %s' % name
+            trace_error('cannot import school %s' % name)
     f.close()
 
 def import_categ_skills(dbconn, categ, path):
@@ -248,7 +257,7 @@ def import_categ_skills(dbconn, categ, path):
             for t in tags:
                 add_tag(dbconn, uuid, t)
         else:
-            print 'cannot import skill %s' % name
+            trace_error('cannot import skill %s' % name)
     f.close()
 
 def import_clan_school_skills(dbconn, clan, path):
@@ -288,6 +297,53 @@ def import_clan_school_skills(dbconn, clan, path):
                                          [s_uuid, sk_uuid, sk_rank, sk_emph])
     f.close()
 
+def import_clan_school_techs(dbconn, clan, path):
+    print 'import school techs from %s' % path
+
+    f = open( path, 'rt' )
+    line = f.readline()
+    rank = 0
+    while True:        
+        line = f.readline()
+        if len(line) == 0:
+            break # EOF
+        
+        s_name = line.strip()
+        
+        # get school uid
+        print 'search uuid for school %s' % s_name
+        s_uuid = query(dbconn, '''select uuid from schools where name=?''', [s_name])        
+        if s_uuid is not None and len(s_uuid) > 0:
+            s_uuid = s_uuid[0][0]        
+        else:
+            trace_error('cannot found uuid for school %s' % s_name)
+               
+        rank = 0
+        
+        # reach next record
+        while True:
+            line = f.readline()
+            #print line
+            if len(line) == 0 or line.startswith('#'):
+                break # EOF            
+            rank   += 1
+            tmp    = line.split(';')
+            tech   = tmp[1].strip()
+            uuid   = get_cnt(dbconn, 'uuid')
+                                    
+            if non_query(dbconn, '''insert into school_techs
+                                 (uuid, school_uuid, rank, name)
+                                 values(?,?,?,?)''',
+                                 [uuid, s_uuid, rank, tech]):
+                print 'imported school tech %s with uuid %d' % (tech, uuid)
+            else:
+                trace_error('''cannot import school tech with parameters: %s, %s, %s, %s. Line was: %s''' % ( repr(uuid), repr(s_uuid),
+                                            repr(rank), repr(tech), line ) )
+                                
+        
+    f.close()
+    
+    
 def import_categ_weapons(dbconn, categ, path):
     print 'import weapons from %s' % path
 
@@ -342,7 +398,7 @@ def import_categ_weapons(dbconn, categ, path):
             for t in tags:
                 add_tag(dbconn, uuid, t)
         else:
-            print 'cannot import weapon %s' % name
+            trace_error('cannot import weapon %s' % name)
 
     f.close()
 
@@ -385,6 +441,17 @@ def import_school_skills(conn, path):
             if file_.startswith('.') or file_.endswith('~'):
                 continue
             import_clan_school_skills(conn, file_.lower(), os.path.join(path, file_))
+            
+def import_school_techs(conn, path):
+    for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break
+        for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue
+            import_clan_school_techs(conn, file_.lower(), os.path.join(path, file_))
+            
 
 def import_weapons(conn, path):
     for path, dirs, files in os.walk(path):
@@ -402,6 +469,7 @@ def importdb(conn, path):
     import_schools(conn, os.path.join(path, 'schools'))
     import_skills(conn, os.path.join(path, 'skills'))
     import_school_skills(conn, os.path.join(path, 'school_skills'))
+    import_school_techs(conn, os.path.join(path, 'school_techs'))
     import_weapon_specials(conn, os.path.join(path, 'weapon_specials'))
     import_weapons(conn, os.path.join(path, 'weapons'))
     import_armors(conn, os.path.join(path, 'armors'))
@@ -438,71 +506,8 @@ def main(args):
             
         dbconn = connect(args.db_file)
         path = './import/'
-        importdb(dbconn, path)
+        importdb(dbconn, path)    
     return 0
-
-def _main():
-    run = True
-    dbconn = None
-    while run:
-        print '''Choose:
-                  1. create db
-                  2. list clans
-                  3. list families
-                  4. list schools
-                  c. connect db
-                  i. import db
-               '''
-        c = raw_input()
-        if c == 'q':
-            run = False
-            break
-        if c == 'c':
-            print 'insert db file: [share/l5rcm/l5rdb.sqlite]'
-            path = raw_input()
-            if len(path) == 0: path = 'share/l5rcm/l5rdb.sqlite'
-            dbconn = connect(path)
-        elif c == 'i':
-            print 'insert import path: [./import/]'
-            path = raw_input()
-            if len(path) == 0: path = './import/'
-            importdb(dbconn, path)
-        elif c == '1':
-            print 'insert db file: [share/l5rcm/l5rdb.sqlite]'
-            path = raw_input()
-            if len(path) == 0: path = 'share/l5rcm/l5rdb.sqlite'
-            if create(path): print 'ok'
-            else: print 'ko'
-        elif c == '2':
-            if dbconn is None:
-                print 'not connected'
-            else:
-                clans = query(dbconn, '''select * from clans''')
-                if clans is None or len(clans) == 0: print 'no clans'; continue
-                print 'clans:'
-                for clan in clans:
-                    print clan
-        elif c == '3':
-            if dbconn is None:
-                print 'not connected'
-            else:
-                fams = query(dbconn, '''select uuid,name from families''')
-                if fams is None or len(fams) == 0: print 'no families'; continue
-                print 'families:'
-                for fam in fams:
-                    print fam
-        elif c == '4':
-            if dbconn is None:
-                print 'not connected'
-            else:
-                fams = query(dbconn, '''select * from schools''')
-                if fams is None or len(fams) == 0: print 'no schools'; continue
-                print 'schools:'
-                for fam in fams:
-                    print fam
-
-        if dbconn is not None:
-            dbconn.commit()
 
 if __name__ == '__main__':
     main(parseargs())

@@ -2,6 +2,7 @@
 
 from PySide import QtCore, QtGui
 import rules
+import models
 
 class ChooseItemDialog(QtGui.QDialog):
     def __init__(self, pc, tag, conn, parent = None):
@@ -10,6 +11,7 @@ class ChooseItemDialog(QtGui.QDialog):
         self.adv = None
         self.pc  = pc
         self.dbconn = conn
+        self.item = None
         self.build_ui()
         self.load_data()
 
@@ -19,6 +21,9 @@ class ChooseItemDialog(QtGui.QDialog):
         
         self.bt_accept = QtGui.QPushButton('Ok'    , self)
         self.bt_cancel = QtGui.QPushButton('Cancel', self)
+        
+        self.bt_cancel.clicked.connect( self.close     )
+        self.bt_accept.clicked.connect( self.on_accept )       
         
         grid = QtGui.QGridLayout(self)
         grid.setColumnStretch(0, 2)
@@ -88,31 +93,18 @@ class ChooseItemDialog(QtGui.QDialog):
         if selected < 0:
             return
         armor_uuid = self.cb.itemData(selected)
+        self.item  = models.armor_outfit_from_db(self.dbconn, armor_uuid)
         
-        c = self.dbconn.cursor()
-        c.execute('''select tn, rd, special, cost from armors
-                     where uuid=?''', [armor_uuid])
+        stats_text = '''<p><pre>%-20s %s</pre></p>
+                        <p><pre>%-20s %s</pre></p>
+                        <p><pre>%-20s %s</pre></p>
+                        <p><i>%s</i></p>''' % \
+                        ( 'Armor TN ', self.item.tn,
+                          'Reduction', self.item.rd,
+                          'Cost     ', self.item.cost,
+                          self.item.rule )
+        self.stats.setText(stats_text)            
         
-        for tn, rd, special, cost in c.fetchall():
-            c.execute('''select desc from effects
-                         where tag=?''', [special])
-            rule_text = ''
-            for desc in c.fetchall():
-                rule_text = desc[0]
-                break
-                
-            stats_text = '''<p><pre>%-20s %s</pre></p>
-                            <p><pre>%-20s %s</pre></p>
-                            <p><pre>%-20s %s</pre></p>
-                            <p><i>%s</i></p>''' % \
-                            ( 'Armor TN ',tn,
-                              'Reduction',rd,
-                              'Cost     ',cost,
-                              rule_text )
-            self.stats.setText(stats_text)            
-            break
-        
-        #self.stats[3].setIndent(10)
         self.stats.setSizePolicy( QtGui.QSizePolicy.Minimum,            
                                   QtGui.QSizePolicy.Minimum )
     
@@ -138,43 +130,36 @@ class ChooseItemDialog(QtGui.QDialog):
         if selected < 0:
             return
         weap_uuid = self.cb2.itemData(selected)
-                            
-        c = self.dbconn.cursor()
-        c.execute('''select dr, dr_alt, range, strength,
-                     min_strength, effect_id, cost
-                     from weapons
-                     where uuid=?''', [weap_uuid])
-        
-        for dr, dr_alt, rng, str_, mstr_, eff, cost in c.fetchall():
-            c.execute('''select desc from effects
-                         where uuid=?''', [eff])
-            rule_text = ''
-            for desc in c.fetchall():
-                rule_text = desc[0]
-                break
-           
-            lines = []
-                        
-            if dr is not None:
-                lines.append( '<pre>%-24s %s</pre>' % ('Primary DR  ',dr) )
-            if dr_alt is not None:
-                lines.append( '<pre>%-24s %s</pre>' % ('Secondary DR',dr_alt) )
-            if rng is not None:               
-               lines.append( '<pre>%-24s %s</pre>' % ('Range        ',rng) )
-            if str_ is not None:
-               lines.append( '<pre>%-24s %s</pre>' % ('Strength     ',str_) )
-            if mstr_ is not None:
-               lines.append( '<pre>%-24s %s</pre>' % ('Min. Strength',mstr_) )
-            if cost is not None:
-               lines.append( '<pre>%-24s %s</pre>' % ('Cost         ',cost) )
-            if eff is not None:
-               lines.append( '<i>%s</i>' % rule_text )
-                
-            self.stats.setText( '<p>' + '\n'.join(lines) + '</p>' )
-            break
+        self.item = models.weapon_outfit_from_db(self.dbconn, weap_uuid)
+        lines = []
+                    
+        if self.item.dr is not None:
+            lines.append( '<pre>%-24s %s</pre>' % ('Primary DR  ',self.item.dr) )
+        if self.item.dr_alt is not None:
+            lines.append( '<pre>%-24s %s</pre>' % ('Secondary DR',self.item.dr_alt) )
+        if self.item.range is not None:               
+           lines.append( '<pre>%-24s %s</pre>' % ('Range        ',self.item.range) )
+        if self.item.strength is not None:
+           lines.append( '<pre>%-24s %s</pre>' % ('Strength     ',self.item.strength) )
+        if self.item.min_str is not None:
+           lines.append( '<pre>%-24s %s</pre>' % ('Min. Strength',self.item.min_str) )
+        if self.item.cost is not None:
+           lines.append( '<pre>%-24s %s</pre>' % ('Cost         ',self.item.cost) )
+        if self.item.rule is not None:
+           lines.append( '<i>%s</i>' % self.item.rule )
+            
+        self.stats.setText( '<p>' + '\n'.join(lines) + '</p>' )
             
         self.stats.setSizePolicy( QtGui.QSizePolicy.Minimum,            
                                   QtGui.QSizePolicy.Minimum )                       
 
   
+    def on_accept(self):
+        done = True
 
+        if self.tag == 'armor' and self.item is not None:
+            self.pc.armor = self.item
+        elif self.tag == 'weapon' and self.item is not None:
+            self.pc.add_weapon( self.item )
+
+        self.accept()

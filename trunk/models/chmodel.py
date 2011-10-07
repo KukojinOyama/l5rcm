@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import advances as adv
+import outfit
 import json
 
 from copy import deepcopy
@@ -59,15 +60,16 @@ def encode_pc_model(obj):
 
 class BasePcModel(object):
     def __init__(self):
-        self.void       = 0
-        self.attribs    = [0, 0, 0, 0, 0, 0, 0, 0]
-        self.skills     = {}
-        self.emph       = {}
-        self.pending_wc = []
-        self.honor      = 0.0
-        self.glory      = 0.0
-        self.status     = 0.0
-        self.taint      = 0.0
+        self.void        = 0
+        self.attribs     = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.skills      = {}
+        self.emph        = {}
+        self.pending_wc  = []
+        self.honor       = 0.0
+        self.glory       = 0.0
+        self.status      = 0.0
+        self.taint       = 0.0
+        self.school_tech = None
 
     def load_default(self):
         self.void    = 2
@@ -98,9 +100,9 @@ class AdvancedPcModel(BasePcModel):
         self.tags      = []
         self.advans    = []
 
-        self.armor_tn  = 0
-        self.armor_tag = ''
-        self.armor_rd  = 0
+        self.armor     = None
+        self.weapons   = []
+        self.techs     = []
 
         self.attrib_costs = [4, 4, 4, 4, 4, 4, 4, 4]
         self.void_cost    = 6
@@ -199,10 +201,22 @@ class AdvancedPcModel(BasePcModel):
         return self.get_attrib_rank(ATTRIBS.REFLEXES)*5+5
 
     def get_armor_tn(self):
-        return self.armor_tn
+        if self.armor is not None:
+            return self.armor.tn
+        else:
+            return 0
 
     def get_armor_rd(self):
-        return self.armor_rd
+        if self.armor is not None:
+            return self.armor.rd
+        else:
+            return 0
+            
+    def get_armor_name(self):
+        if self.armor is not None:
+            return self.armor.name
+        else:
+            return 'No Armor'
 
     def get_cur_tn(self):
         return self.get_base_tn() + self.get_armor_tn()
@@ -255,6 +269,13 @@ class AdvancedPcModel(BasePcModel):
             if adv.skill == school_id:
                 emph.append(adv.text)
         return emph
+        
+    def get_techs(self):
+        ls = []
+        if self.step_2.school_tech is not None:
+            ls.append( self.step_2.school_tech )
+        ls += self.techs
+        return ls
 
     def set_family(self, family_id = 0, perk = None, perkval = 1):
         if self.family == family_id:
@@ -294,6 +315,9 @@ class AdvancedPcModel(BasePcModel):
     def clear_pending_wc_skills(self):
         self.step_2.pending_wc = []
         self.unsaved = True
+        
+    def add_weapon(self, item):
+        self.weapons.append( item )
 
     def set_school(self, school_id = 0, perk = None, perkval = 1,
                          honor = 0.0):
@@ -303,6 +327,7 @@ class AdvancedPcModel(BasePcModel):
         self.unsaved = True
         self.school  = school_id
         self.clear_pending_wc_skills()
+        self.set_free_school_tech(None)
         if school_id == 0:
             return
 
@@ -318,7 +343,10 @@ class AdvancedPcModel(BasePcModel):
                 self.step_2.attribs[a] += perkval
                 return True
         return False
-
+        
+    def set_free_school_tech(self, tech_uuid):
+        self.step_2.school_tech = tech_uuid
+                
     def set_honor(self, value):
         self.honor = value - self.step_2.honor
         self.unsaved = True
@@ -369,8 +397,8 @@ class AdvancedPcModel(BasePcModel):
             self.step_1 = BasePcModel()
             self.step_2 = BasePcModel()
 
-            print obj
-            print obj['step_0']
+            #print obj
+            #print obj['step_0']
 
             self.step_0.__dict__ = deepcopy(obj['step_0'])
             self.step_1.__dict__ = deepcopy(obj['step_1'])
@@ -381,7 +409,19 @@ class AdvancedPcModel(BasePcModel):
                 a = adv.Advancement(None, None)
                 a.__dict__ = deepcopy(ad)
                 self.advans.append(a)
+                
+            # armor
+            self.armor = outfit.ArmorOutfit()
+            if obj['armor'] is not None:
+                self.armor.__dict__ = deepcopy(obj['armor'])
+            
+            # weapons
+            for w in obj['weapons']:
+                item = outfit.WeaponOutfit()
+                item.__dict__ = deepcopy(w)
+                self.add_weapon(item)
 
-            self.unsaved  = False
+            self.unsaved  = False           
+            
             return True
         return False
