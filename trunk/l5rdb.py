@@ -2,6 +2,7 @@
 
 import sys, os
 import sqlite3
+import argparse
 
 def create(dbfile):
     try:
@@ -408,7 +409,39 @@ def importdb(conn, path):
 
 ### MAIN ###
 
-def main():
+def parseargs():
+    parser = argparse.ArgumentParser(description='L5RCM Database Utility.')
+    parser.add_argument('-c', action='store_true', help='Creates the database.')
+    parser.add_argument('-i', action='store_true', help='Import the database from import files')
+    parser.add_argument('db_file', type=str, default='share/l5rcm/l5rdb.sqlite', help='Database file path (e.g. share/l5rcm/l5rdb.sqlite)')
+    args = parser.parse_args()
+    return args
+    
+def main(args):
+    print args   
+    if args.c:
+        print 'create database file to %s' % args.db_file
+        if os.path.exists(args.db_file):
+            print 'remove old database'
+            os.remove(args.db_file)
+            
+        if create(args.db_file): 
+            print 'Database created successfully'
+        else:
+            return 1 # DATABASE_CANNOT_CREATE
+            
+    if args.i:
+        print 'import data files into database %s' % args.db_file
+        if not os.path.exists(args.db_file):
+            print "Database doesn't exists"
+            return 2 # DATABASE_DOES_NOT_EXISTS
+            
+        dbconn = connect(args.db_file)
+        path = './import/'
+        importdb(dbconn, path)
+    return 0
+
+def _main():
     run = True
     dbconn = None
     while run:
@@ -472,4 +505,4 @@ def main():
             dbconn.commit()
 
 if __name__ == '__main__':
-    main()
+    main(parseargs())
