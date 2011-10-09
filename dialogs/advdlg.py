@@ -104,6 +104,14 @@ class BuyAdvDialog(QtGui.QDialog):
                     cb.addItem(s, u)
             self.lb_cost.setText('Cost: 2 exp')
             self.lb_from.setVisible(False)
+            c.close()
+        elif self.tag == 'merit':
+            cb = self.widgets[self.tag][0]
+            c = self.dbconn.cursor()
+            c.execute('''select uuid, name from perks order by name''')
+            for uuid, name in c.fetchall():
+                cb.addItem( name, uuid )
+            c.close()            
 
     def connect_signals(self):
         if self.tag == 'attrib':
@@ -114,6 +122,9 @@ class BuyAdvDialog(QtGui.QDialog):
             cb2 = self.widgets[self.tag][1]
             cb1.currentIndexChanged.connect( self.on_skill_type_select )
             cb2.currentIndexChanged.connect( self.on_skill_select )
+        elif self.tag == 'merit':
+            cb = self.widgets[self.tag][0]
+            cb.currentIndexChanged.connect( self.on_merit_select )
 
         self.bt_buy.clicked.connect  ( self.buy_advancement )
         self.bt_close.clicked.connect( self.close           )
@@ -176,7 +187,44 @@ class BuyAdvDialog(QtGui.QDialog):
 
         self.adv = advances.SkillAdv(uuid, cost)
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+        
+    def on_merit_select(self, text = ''):
+        cb   = self.widgets['merit'][0]
+        idx  = cb.currentIndex()
+        perk = cb.itemData(idx)
+        text = cb.itemText(idx)
 
+        c     = self.dbconn.cursor()
+        c.execute('''select uuid, cost from perks
+                     where uuid=? order by name''', [perk])
+        cost = 0
+        tag  = None
+        for u, c_ in c.fetchall():
+            cost = c_
+            break
+
+        c.execute('''select tag, cost from perk_except
+                     where perk_uuid=? order by cost asc''', [perk])
+                     
+        for t, c_ in c.fetchall():
+            if self.pc.has_tag(t):
+                cost = c_
+                tag  = t
+                break
+                
+        c.close()
+
+        if tag is None:
+            self.lb_cost.setText('Cost: %d exp' % cost)
+        else:
+            self.lb_cost.setText('Cost: %d exp (%s)' % (cost, tag))
+
+        self.adv = advances.MeritAdv(perk, cost, tag)
+        if tag is None:
+            self.adv.desc = '%s, Cost: %d xp' % ( text, cost )
+        else:
+            self.adv.desc = '%s, Cost: %d xp (%s)' % ( text, cost, tag )
+        
     def buy_advancement(self):
         if self.tag == 'attrib':
             self.pc.add_advancement( self.adv )
@@ -196,6 +244,9 @@ class BuyAdvDialog(QtGui.QDialog):
             self.adv.desc = '%s, Skill %s. Cost: 2 xp' % ( tx.text(), sk_name )
             self.pc.add_advancement( self.adv )
             tx.setText('')
+        elif self.tag == 'merit':
+            self.pc.add_advancement( self.adv )
+            self.accept()
 
 class SelWcSkills(QtGui.QDialog):
     def __init__(self, pc, conn, parent = None):

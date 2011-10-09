@@ -30,6 +30,12 @@ class SkillEmph(Advancement):
         super(SkillEmph, self).__init__('emph', cost)
         self.skill = skill
         self.text  = text
+        
+class MeritAdv(Advancement):        
+    def __init__(self, perk, cost, tag = None):
+        super(MeritAdv, self).__init__('merit', cost)
+        self.perk  = perk
+        self.tag   = tag
 
 class AdvancementViewModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):
