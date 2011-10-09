@@ -42,18 +42,28 @@ def create(dbfile):
         # school techs
         c.execute('''create table school_techs
         (uuid INTEGER PRIMARY KEY, school_uuid INTEGER, rank INTEGER,
-         name TEXT, effect TEXT, desc TEXT)''')
+         name TEXT UNIQUE, effect TEXT, desc TEXT)''')
 
         # weapons
         c.execute('''create table weapons
-        (uuid INTEGER PRIMARY KEY, name TEXT, skill_uuid INTEGER,
+        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, skill_uuid INTEGER,
          dr TEXT, dr_alt TEXT, range INTEGER, strength INTEGER,
          min_strength INTEGER, effect_id INTEGER, cost TEXT)''')
 
         # armors
         c.execute('''create table armors
-        (uuid INTEGER PRIMARY KEY, name TEXT, tn INTEGER,
+        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, tn INTEGER,
          rd INTEGER, special TEXT, cost TEXT)''')
+         
+        # perks
+        c.execute('''create table perks
+        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, tag TEXT,
+         subtag TEXT, cost INTEGER, rule TEXT)''')
+         
+        # perk_excepts
+        c.execute('''create table perk_except
+        (perk_uuid INTEGER, tag TEXT, cost INTEGER,
+         PRIMARY KEY(perk_uuid, tag))''')
         
         # tags
         c.execute('''create table tags
@@ -401,6 +411,32 @@ def import_categ_weapons(dbconn, categ, path):
             trace_error('cannot import weapon %s' % name)
 
     f.close()
+    
+def import_perks(dbconn, path, ttype):
+    f = open( os.path.join(path, 'data'), 'rt' )
+    while True:
+        if not f.readline().startswith('#'): break
+        name    = value_or_null(f.readline())
+        tag     = value_or_null(f.readline())
+        cost    = value_or_null(f.readline())
+        rule    = value_or_null(f.readline())
+        disc    = value_or_null(f.readline())
+        
+        discounts = []
+        if disc:
+            for l in disc.split(','):
+                t, v = l.split()
+                discounts.append( (t, v) )
+
+        uuid = get_cnt(dbconn, 'uuid')
+        if non_query(dbconn, '''insert into perks values(?,?,?,?,?,?)''',
+                             [uuid,name,ttype,tag,cost,rule]):
+            
+            for t,v in discounts:
+                non_query(dbconn, '''insert into perk_except values(?,?,?)''',
+                         [uuid,t,v])                
+            print 'imported %s %s with uuid %s' % (ttype, name, uuid)
+    f.close()    
 
 def import_families(conn, path):
     for path, dirs, files in os.walk(path):
@@ -473,6 +509,7 @@ def importdb(conn, path):
     import_weapon_specials(conn, os.path.join(path, 'weapon_specials'))
     import_weapons(conn, os.path.join(path, 'weapons'))
     import_armors(conn, os.path.join(path, 'armors'))
+    import_perks(conn, os.path.join(path, 'merits'), 'merit')
     conn.commit()
 
 ### MAIN ###
