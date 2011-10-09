@@ -324,6 +324,7 @@ class L5RMain(QtGui.QMainWindow):
             wnd.append( ("Out",      new_small_le(self), new_small_le(self)) )
 
             self.wounds = wnd
+            self.wnd_lb = grp
 
             row_ = 0
             col_ = 0
@@ -543,6 +544,19 @@ class L5RMain(QtGui.QMainWindow):
         add_cust_weap_act .triggered.connect( self.show_add_cust_weapon )
         add_misc_item_act .triggered.connect( self.show_add_misc_item   )
         
+        # Rules menu
+        m_rules = self.menuBar().addMenu(u'&Rules')
+        
+        # rules actions
+        set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self )
+        set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
+        
+        m_rules.addAction(set_exp_limit_act )
+        m_rules.addAction(set_wound_mult_act)
+        
+        set_exp_limit_act .triggered.connect( self.on_set_exp_limit )
+        set_wound_mult_act.triggered.connect( self.on_set_wnd_mult  )
+        
     def connect_signals(self):
 
         # only user change
@@ -637,6 +651,24 @@ class L5RMain(QtGui.QMainWindow):
             name = rules.get_random_name( get_app_file('female.txt') )
         self.pc.name = name
         self.update_from_model()
+        
+    def on_set_exp_limit(self):
+        ok = False
+        val, ok = QtGui.QInputDialog.getInt(self, 'Set Experience Limit',
+                                       "XP Limit:", self.pc.exp_limit, 
+                                        0, 10000, 1)
+        if ok:
+            self.pc.exp_limit = val
+            self.update_from_model()
+         
+    def on_set_wnd_mult(self):
+        ok = False
+        val, ok = QtGui.QInputDialog.getInt(self, 'Set Health Multiplier',
+                                       "Multiplier:", self.pc.health_multiplier,
+                                        2, 5, 1)
+        if ok:
+            self.pc.health_multiplier = val
+            self.update_from_model()
 
     def on_clan_change(self, text):
         print 'on_clan_change %s' % text
@@ -948,7 +980,7 @@ class L5RMain(QtGui.QMainWindow):
                         self.cb_pc_school] )
 
         pc_xp = self.pc.get_px()
-        self.tx_pc_exp.setText( str( pc_xp ) )
+        self.tx_pc_exp.setText( '%d / %d' % ( pc_xp, self.pc.exp_limit ) )
 
         # rings
         for i in xrange(0, 5):
@@ -985,6 +1017,7 @@ class L5RMain(QtGui.QMainWindow):
         for i in xrange(0, 8):
             h = self.pc.get_health_rank(i)
             self.wounds[i][1].setText( str(h) )
+        self.wnd_lb.setTitle('Wounds (x%d)' % self.pc.health_multiplier)            
 
         # initiative
         # TODO: temporary implementation

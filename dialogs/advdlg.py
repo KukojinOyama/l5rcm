@@ -226,6 +226,14 @@ class BuyAdvDialog(QtGui.QDialog):
             self.adv.desc = '%s, Cost: %d xp (%s)' % ( text, cost, tag )
         
     def buy_advancement(self):
+        
+        if self.adv and (self.adv.cost + self.pc.get_px()) > \
+                         self.pc.exp_limit:
+            QtGui.QMessageBox.warning(self, "Not enough XP",
+            "Cannot purchase.\nYou've reached the XP Limit.")
+            self.close()
+            return
+        
         if self.tag == 'attrib':
             self.pc.add_advancement( self.adv )
             self.on_attrib_select()
