@@ -1,0 +1,16 @@
+#summary L5R Character Manager Screenshots
+
+= Take a closer look =
+
+L5RCM runs on multiple platforms, here are some screenshots
+taken from different ones.
+
+= L5RCM on Ubuntu ( Default Theme )=
+
+http://code.google.com/p/l5rcm/source/browse/trunk/shots/l5rcm_ambiance_1.png
+
+= L5RCM on Kubuntu ( Default Theme )=
+
+http://code.google.com/p/l5rcm/source/browse/trunk/shots/l5rcm_kde_1.png
+
+= L5RCM on Windows 7 =
