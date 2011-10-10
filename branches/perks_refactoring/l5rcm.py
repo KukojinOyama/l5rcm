@@ -494,11 +494,12 @@ class L5RMain(QtGui.QMainWindow):
         buyvoid_act .triggered.connect( self.act_buy_advancement )
         buyskill_act.triggered.connect( self.act_buy_advancement )
         buyemph_act .triggered.connect( self.act_buy_advancement )
-        buymerit_act.triggered.connect( self.act_buy_advancement )
-        buyflaw_act .triggered.connect( self.act_buy_advancement )
         buykata_act .triggered.connect( self.act_buy_advancement )
         buykiho_act .triggered.connect( self.act_buy_advancement )
         buyspell_act.triggered.connect( self.act_buy_advancement )
+        
+        buymerit_act.triggered.connect( self.act_buy_perk )
+        buyflaw_act .triggered.connect( self.act_buy_perk )       
 
         # Tools menu
         #m_tools = self.menuBar().addMenu(u'&Tools')
@@ -801,6 +802,12 @@ class L5RMain(QtGui.QMainWindow):
                                    self.db_conn, self)
         dlg.exec_()
         self.update_from_model()
+        
+    def act_buy_perk(self):
+        dlg = dialogs.BuyPerkDialog(self.pc, self.sender().property('tag'),
+                                    self.db_conn, self)
+        dlg.exec_()
+        self.update_from_model()                                    
 
     def act_choose_skills(self):
         dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)

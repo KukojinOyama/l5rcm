@@ -57,13 +57,18 @@ def create(dbfile):
          
         # perks
         c.execute('''create table perks
-        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, tag TEXT,
-         subtag TEXT, cost INTEGER, rule TEXT)''')
+        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, type TEXT, subtype TEXT,
+         rule TEXT)''')
+        
+        # perk_ranks
+        c.execute('''create table perk_ranks
+        (perk_uuid INTEGER, perk_rank INTEGER, cost INTEGER,
+         PRIMARY KEY(perk_uuid, perk_rank) )''')        
          
         # perk_excepts
-        c.execute('''create table perk_except
-        (perk_uuid INTEGER, tag TEXT, cost INTEGER,
-         PRIMARY KEY(perk_uuid, tag))''')
+        c.execute('''create table perk_excepts
+        (perk_uuid INTEGER, perk_rank INTEGER, tag TEXT, cost TEXT,
+         PRIMARY KEY(perk_uuid, perk_rank, tag))''')
         
         # tags
         c.execute('''create table tags
@@ -421,20 +426,34 @@ def import_perks(dbconn, path, ttype):
         cost    = value_or_null(f.readline())
         rule    = value_or_null(f.readline())
         disc    = value_or_null(f.readline())
-        
+               
         discounts = []
         if disc:
             for l in disc.split(','):
-                t, v = l.split()
-                discounts.append( (t, v) )
+                try:
+                    t, v = l.split()
+                    discounts.append( (t, v) )
+                except:
+                    print l
+                    sys.exit(1)
 
         uuid = get_cnt(dbconn, 'uuid')
-        if non_query(dbconn, '''insert into perks values(?,?,?,?,?,?)''',
-                             [uuid,name,ttype,tag,cost,rule]):
+        if non_query(dbconn, '''insert into perks values(?,?,?,?,?)''',
+                             [uuid,name,ttype,tag,rule]):
             
-            for t,v in discounts:
-                non_query(dbconn, '''insert into perk_except values(?,?,?)''',
-                         [uuid,t,v])                
+            # add perk ranks
+            rank = 1
+            for c in cost.split(';'):
+                non_query(dbconn, '''insert into perk_ranks values(?,?,?)''',
+                                  [uuid, rank, c])
+           
+                # add discounts
+                for t,v in discounts:
+                    non_query(dbconn, '''insert into perk_excepts values(?,?,?,?)''',
+                             [uuid,rank,t,v])
+                             
+                rank += 1
+                             
             print 'imported %s %s with uuid %s' % (ttype, name, uuid)
     f.close()    
 
