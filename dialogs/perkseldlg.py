@@ -21,6 +21,8 @@ class BuyPerkDialog(QtGui.QDialog):
             self.setWindowTitle("Add Advantage")
         else:
             self.setWindowTitle("Add Disdvantage")
+            
+        self.setMinimumSize(400, 0)
                         
         self.bt_accept = QtGui.QPushButton('Ok'    , self)
         self.bt_cancel = QtGui.QPushButton('Cancel', self)            
