@@ -7,6 +7,7 @@ class Advancement(object):
         self.type  = tag
         self.cost  = cost
         self.desc  = ''
+        self.rule  = None
 
     def __str__(self):
         return self.desc
@@ -31,11 +32,13 @@ class SkillEmph(Advancement):
         self.skill = skill
         self.text  = text
         
-class MeritAdv(Advancement):        
-    def __init__(self, perk, cost, tag = None):
-        super(MeritAdv, self).__init__('merit', cost)
+class PerkAdv(Advancement):        
+    def __init__(self, perk, rank, cost, tag = None):
+        super(PerkAdv, self).__init__('perk', cost)
         self.perk  = perk
+        self.rank  = rank
         self.tag   = tag
+        self.extra = ''
 
 class AdvancementViewModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):
