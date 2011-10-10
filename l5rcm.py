@@ -455,8 +455,8 @@ class L5RMain(QtGui.QMainWindow):
         buyvoid_act  = QtGui.QAction(u'Void ring...', self)
         buyskill_act = QtGui.QAction(u'Skill rank...', self)
         buyemph_act  = QtGui.QAction(u'Skill emphasis...', self)
-        buymerit_act = QtGui.QAction(u'Advantages...', self)
-        buyflaw_act  = QtGui.QAction(u'Disadvantages...', self)
+        buymerit_act = QtGui.QAction(u'Advantage...', self)
+        buyflaw_act  = QtGui.QAction(u'Disadvantage...', self)
         buykata_act  = QtGui.QAction(u'Kata...', self)
         buykiho_act  = QtGui.QAction(u'Kiho...', self)
         buyspell_act = QtGui.QAction(u'Spell...', self)
@@ -479,7 +479,7 @@ class L5RMain(QtGui.QMainWindow):
         m_buy_adv.addAction(buymerit_act)
         m_buy_adv.addAction(buyflaw_act)
         m_buy_adv.addAction(buykata_act)
-        m_buy_adv.addAction(buyspell_act)
+        #m_buy_adv.addAction(buyspell_act)
         m_adv.addSeparator()
         m_adv.addAction(refund_act)
         m_adv.addAction(resetadv_act)
@@ -549,7 +549,7 @@ class L5RMain(QtGui.QMainWindow):
         m_rules = self.menuBar().addMenu(u'&Rules')
         
         # rules actions
-        set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self )
+        set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self)
         set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
         
         m_rules.addAction(set_exp_limit_act )

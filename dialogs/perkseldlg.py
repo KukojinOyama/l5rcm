@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import models
 from PySide import QtCore, QtGui
 
 class BuyPerkDialog(QtGui.QDialog):
@@ -10,6 +11,7 @@ class BuyPerkDialog(QtGui.QDialog):
         self.pc  = pc
         self.dbconn = conn
         self.perk_id   = 0
+        self.perk_nm   = ''
         self.item = None
         self.build_ui()
         self.load_data()
@@ -70,6 +72,9 @@ class BuyPerkDialog(QtGui.QDialog):
         self.btbox.addButton(self.bt_accept, QtGui.QDialogButtonBox.AcceptRole)
         self.btbox.addButton(self.bt_cancel, QtGui.QDialogButtonBox.RejectRole)
         
+        self.btbox.accepted.connect(self.on_accept)
+        self.btbox.rejected.connect(self.close    )
+        
         lvbox.addWidget(self.btbox)
 
     def load_data(self):
@@ -104,6 +109,7 @@ class BuyPerkDialog(QtGui.QDialog):
             return
         perk = self.cb_perk.itemData(selected)
         self.perk_id = perk
+        self.perk_nm = text
         
         # populate ranks
         # populate perks
@@ -151,3 +157,19 @@ class BuyPerkDialog(QtGui.QDialog):
                 text += ' (%s)' % tag.capitalize()
             self.le_cost.setText(text)
             c.close()
+            
+        self.item = models.PerkAdv(self.perk_id, rank, cost, tag)
+        if self.tag == 'merit':
+            self.item.desc = "%s Rank %d, XP Cost: %d" % ( self.perk_nm, rank, cost )
+        else:
+            self.item.desc = "%s Rank %d, XP Gain: %d" % ( self.perk_nm, rank, abs(cost) )
+            
+    def on_accept(self):
+        self.item.extra = self.tx_notes.toPlainText()
+        if self.item.cost == 0:
+            QtGui.QMessageBox.warning(self, "Invalid XP Cost",
+                                      "Please specify the XP Cost.")
+            return
+            
+        self.pc.add_advancement(self.item)
+        self.accept()
