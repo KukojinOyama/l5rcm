@@ -1,0 +1,206 @@
+#
+Absolute Direction
+mental
+1
+You possess an almost supernatural sense of direction, and you always know what direction is north
+-
+#
+Allies (Influence 1)
+social
+1
+Minor (no land or appointments)
+-
+#
+Allies (Influence 2)
+social
+2
+Moderate (some land or political influence)
+crane 1
+#
+Allies (Influence 4)
+social
+4
+Major (vast lands or prestigious appointments)
+crane 3
+#
+Allies (Devotion 1)
+social
+1
+Your ally would go out of his way to help you, but not risk his honor
+crane 1
+#
+Allies (Devotion 2)
+social
+2
+Your ally would risk his honor to help you, but would do so secretly
+crane 1
+#
+Allies (Devotion 4)
+social
+4
+Your ally would do anything to aid you, regardless of the cost
+crane 3
+#
+Balance
+mental
+2
+When adding your Honor Rank to the total of any roll made to resist Intimidation or Temptation, you add an additional +1k0 to the roll as well.
+-
+#
+Blackmail 1
+social
+1
+You possess knowledge and proof of a dark secret held by another.
+-
+#
+Blackmail 2
+social
+2
+You possess knowledge and proof of a dark secret held by another.
+scorpion 1
+#
+Blackmail 3
+social
+3
+You possess knowledge and proof of a dark secret held by another.
+scorpion 2
+#
+Blackmail 4
+social
+4
+You possess knowledge and proof of a dark secret held by another.
+scorpion 3
+#
+Blackmail 4
+social
+4
+You possess knowledge and proof of a dark secret held by another.
+scorpion 3
+#
+Blackmail 5
+social
+5
+You possess knowledge and proof of a dark secret held by another.
+scorpion 4
+#
+Bland
+physical
+2
+You are extremely unremarkable in every regard. May increase TN to determine your identity or honor by 10.
+-
+#
+Blissful Betrothal
+social
+3
+Your marriage has been arranged and, much to your delight, you have come to truly love your intended spouse.
+-
+#
+Blood of Osano-Wo
+spiritual
+4
+You are immune to any penalties or damage from natural weather conditions.
+crab 3, mantis 3
+#
+Chosen by the Oracles ( Earth )
+spiritual
+6
+You gain a bonus of +1k1 to the total of all Ring Rolls using Earth ring.
+-
+#
+Chosen by the Oracles ( Fire )
+spiritual
+6
+You gain a bonus of +1k1 to the total of all Ring Rolls using Fire ring.
+-
+#
+Chosen by the Oracles ( Air )
+spiritual
+6
+You gain a bonus of +1k1 to the total of all Ring Rolls using Air ring.
+-
+#
+Chosen by the Oracles ( Water )
+spiritual
+6
+You gain a bonus of +1k1 to the total of all Ring Rolls using Water ring.
+-
+#
+Chosen by the Oracles ( Void )
+spiritual
+6
+You gain a bonus of +1k1 to the total of all Ring Rolls using Void ring.
+-
+#
+Clear Thinker
+mental
+3
+Gain a bonus of +1k0 to the total of your roll in contested rolls to confuse or manipulate.
+dragon 2
+#
+Crab Hands
+physical
+3
+Consider rank 1 in weapons skills even if unskilled.
+crab 2, bushi 2
+#
+Crafty
+mental
+3
+Consider rank 1 in low skills even if unskilled.
+scorpion 2, spider 2, ninja 2
+#
+Dangerous Beauty
+physical
+3
+Gain +1k0 to Temptation skill roll against opponent sex.
+scorpion 2
+#
+Daredevil
+mental
+3
+Gain +3k1 instead of +1k1 when spending Void points to enhance Athletics rolls.
+mantis 2
+#
+Dark Paragon (Control)
+mental
+5
+Spend honor or void points to influence Social Skill Rolls.
+spider 4
+#
+Dark Paragon (Determination)
+mental
+5
+Spend honor or void points to negate penalties on Skill or Spell Rolls.
+spider 4
+#
+Dark Paragon (Insight)
+mental
+5
+Spend honor or void points to influence any Awareness Roll.
+spider 4
+#
+Dark Paragon (Knowledge)
+mental
+5
+Spend honor or void points to influence any Intelligence Roll.
+spider 4
+#
+Dark Paragon (Perfection)
+mental
+5
+Spend honor points to explode a dice in any Skill Roll.
+spider 4
+#
+Dark Paragon (Strength)
+mental
+5
+Spend honor or void points to re-roll any damage Roll.
+spider 4
+#
+Dark Paragon (Will)
+mental
+5
+Spend honor to negate 10 Wounds at the moment they are suffered.
+spider 4
+
+
