@@ -1,0 +1,211 @@
+#
+Antisocial
+social
+2;4
+-
+crab +1
+#
+Ascetic
+mental
+2
+-
+dragon 3, monk 3
+#
+Bad Eyesight
+physical
+3
+bad_eyesight
+-
+#
+Bad Fortune
+spiritual
+3
+-
+-
+#
+Bad Health
+physical
+4
+bad_health
+-
+#
+Bitter Betrothal
+social
+2
+-
+imperial 3
+#
+Blackmailed
+social
+0
+-
+-
+#
+Black Sheep
+social
+3
+-
+-
+#
+Blind
+physical
+6
+blind
+-
+#
+Brash
+mental
+3
+-
+lion 4
+#
+Can't Lie
+mental
+2
+-
+-
+#
+Cast Out
+social
+1;3
+-
+-
+#
+Compulsion
+mental
+2;3;4
+-
+-
+#
+Consumed (Control)
+mental
+4
+-
+spider +1
+#
+Consumed (Determination)
+mental
+6
+-
+spider +1
+#
+Consumed (Insight)
+mental
+4
+-
+spider +1
+#
+Consumed (Knowledge)
+mental
+4
+-
+spider +1
+#
+Consumed (Perfection)
+mental
+5
+-
+spider +1, crane +1
+#
+Consumed (Strength)
+mental
+5
+-
+spider +1
+#
+Consumed (Will)
+mental
+4
+-
+spider +1
+#
+Contrary
+mental
+3
+-
+imperial 4, courtier 4
+#
+Cursed by the Realm (Chikushudo)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Gaki-do)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Jigoku)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Maigo no Musha)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Meido)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Sakkaku)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Tengoku)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Toshigoku)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Yomi)
+spiritual
+4
+-
+shugenja +1
+#
+Cursed by the Realm (Yume-do)
+spiritual
+4
+-
+shugenja +1
+#
+Dark Fate
+spiritual
+3
+-
+-
+#
+Dark Secret
+social
+4
+-
+ninja 5
+#
+Dependant
+social
+0
+-
+-
+#
+Dishonored
+social
+5
+-
+-
+

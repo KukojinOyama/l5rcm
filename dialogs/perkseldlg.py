@@ -104,6 +104,7 @@ class BuyPerkDialog(QtGui.QDialog):
         c.close()        
         
     def on_perk_select(self, text = ''):
+        print 'on_perk_select %s' % text
         self.cb_rank.clear()
     
         selected = self.cb_perk.currentIndex()
@@ -124,11 +125,13 @@ class BuyPerkDialog(QtGui.QDialog):
         c.close() 
         
     def on_rank_select(self, text = ''):
+        print 'on_rank_select %s' % text
+        
         selected = self.cb_rank.currentIndex()
         if selected < 0:
             return
         rank, cost = self.cb_rank.itemData(selected)        
-        
+        tag  = None
         self.le_cost.setReadOnly( cost != 0 )
         if cost == 0:
             self.le_cost.setPlaceholderText('Insert XP')
@@ -138,8 +141,7 @@ class BuyPerkDialog(QtGui.QDialog):
             c = self.dbconn.cursor() 
             c.execute('''select tag, cost from perk_excepts
                          where perk_uuid=? and perk_rank=?
-                         order by cost asc''', [self.perk_id, rank])
-            tag  = None
+                         order by cost asc''', [self.perk_id, rank])            
             cost = abs(cost)
             
             for t, discounted in c.fetchall():
@@ -159,19 +161,31 @@ class BuyPerkDialog(QtGui.QDialog):
                 text += ' (%s)' % tag.capitalize()
             self.le_cost.setText(text)
             c.close()
-            
+        
+        if self.tag == 'flaw':
+            cost = -cost
         self.item = models.PerkAdv(self.perk_id, rank, cost, tag)
-        if self.tag == 'merit':
-            self.item.desc = "%s Rank %d, XP Cost: %d" % ( self.perk_nm, rank, cost )
-        else:
-            self.item.desc = "%s Rank %d, XP Gain: %d" % ( self.perk_nm, rank, abs(cost) )
             
     def on_accept(self):
         self.item.extra = self.tx_notes.toPlainText()
         if self.item.cost == 0:
-            QtGui.QMessageBox.warning(self, "Invalid XP Cost",
-                                      "Please specify the XP Cost.")
-            return
+            if self.le_cost.text() != '':
+                try:
+                    self.item.cost = int(self.le_cost.text())
+                except:
+                    self.item.cost = 0
+            if self.item.cost == 0:
+                QtGui.QMessageBox.warning(self, "Invalid XP Cost",
+                                          "Please specify the XP Cost.")
+                return
+
+        if self.tag == 'merit':
+            self.item.desc = "%s Rank %d, XP Cost: %d" % \
+            ( self.perk_nm, self.item.rank, self.item.cost )
+        else:
+            self.item.desc = "%s Rank %d, XP Gain: %d" % \
+            ( self.perk_nm, self.item.rank, abs(self.item.cost) )
+            
             
         self.pc.add_advancement(self.item)
         self.accept()
