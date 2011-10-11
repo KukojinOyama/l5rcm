@@ -529,6 +529,7 @@ def importdb(conn, path):
     import_weapons(conn, os.path.join(path, 'weapons'))
     import_armors(conn, os.path.join(path, 'armors'))
     import_perks(conn, os.path.join(path, 'merits'), 'merit')
+    import_perks(conn, os.path.join(path, 'flaws'), 'flaw')
     conn.commit()
 
 ### MAIN ###

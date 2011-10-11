@@ -1071,9 +1071,10 @@ class L5RMain(QtGui.QMainWindow):
                 self.show_nicebar([lb, bt])
                 
         # disable step 0-1-2 if any xp are spent
-        self.cb_pc_clan  .setEnabled( pc_xp == 0 )
-        self.cb_pc_school.setEnabled( pc_xp == 0 )
-        self.cb_pc_family.setEnabled( pc_xp == 0 )
+        has_adv = len(self.pc.advans) > 0
+        self.cb_pc_clan  .setEnabled( not has_adv )
+        self.cb_pc_school.setEnabled( not has_adv )
+        self.cb_pc_family.setEnabled( not has_adv )
 
         # Update view-models
         self.sk_view_model .update_from_model(self.pc)
