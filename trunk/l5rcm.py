@@ -118,7 +118,7 @@ class L5RMain(QtGui.QMainWindow):
     def build_ui_page_1(self):
 
         mfr = QtGui.QFrame(self)
-        self.tabs.addTab(mfr, u"First Page")
+        self.tabs.addTab(mfr, u"Character")
 
         mgrid = QtGui.QGridLayout(mfr)
         mgrid.setColumnStretch(0, 2)
@@ -379,6 +379,26 @@ class L5RMain(QtGui.QMainWindow):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
+        #self.merit_view_model = models.AdvancementViewModel(self)
+        self.merits_view_model = models.PerkViewModel(self.db_conn, 'merit')
+        self.flaws_view_model  = models.PerkViewModel(self.db_conn, 'flaws')
+                
+        merit_view = QtGui.QListView(self)
+        merit_view.setModel(self.merits_view_model)
+        merit_view.setItemDelegate(models.PerkItemDelegate(self))
+        vbox.addWidget(new_item_groupbox('Advantages', merit_view))
+ 
+        flaw_view = QtGui.QListView(self)
+        flaw_view.setModel(self.flaws_view_model)
+        flaw_view.setItemDelegate(models.PerkItemDelegate(self))                
+        vbox.addWidget(new_item_groupbox('Disadvantages', flaw_view))
+
+        self.tabs.addTab(mfr, u"Perks")
+        
+    def build_ui_page_4(self):
+        mfr    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(mfr)
+
         fr_    = QtGui.QFrame(self)
         fr_h   = QtGui.QHBoxLayout(fr_)
         fr_h.setContentsMargins(0, 0, 0, 0)
@@ -399,26 +419,6 @@ class L5RMain(QtGui.QMainWindow):
         vbox.addWidget(lview)
 
         self.tabs.addTab(mfr, u"Advancements")
-        
-    def build_ui_page_4(self):
-        mfr    = QtGui.QFrame(self)
-        vbox   = QtGui.QVBoxLayout(mfr)
-
-        #self.merit_view_model = models.AdvancementViewModel(self)
-        self.merits_view_model = None
-        self.flaws_view_model  = None
-                
-        merit_view = QtGui.QListView(self)
-        merit_view.setModel(self.merits_view_model)
-        #merit_view.setItemDelegate(models.AdvancementItemDelegate(self))
-        vbox.addWidget(new_item_groupbox('Advantages', merit_view))
- 
-        flaw_view = QtGui.QListView(self)
-        flaw_view.setModel(self.flaws_view_model)
-        #flaw_view.setItemDelegate(models.AdvancementItemDelegate(self))                
-        vbox.addWidget(new_item_groupbox('Disadvantages', flaw_view))
-
-        self.tabs.addTab(mfr, u"Merits/Flaws")
 
     def build_menu(self):
         # File Menu
@@ -1077,10 +1077,12 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_family.setEnabled( not has_adv )
 
         # Update view-models
-        self.sk_view_model .update_from_model(self.pc)
-        self.adv_view_model.update_from_model(self.pc)
-        self.th_view_model .update_from_model(self.pc)
-
+        self.sk_view_model    .update_from_model(self.pc)
+        self.adv_view_model   .update_from_model(self.pc)
+        self.th_view_model    .update_from_model(self.pc)
+        self.merits_view_model.update_from_model(self.pc)
+        self.flaws_view_model .update_from_model(self.pc)
+        
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
          msgBox.setText("The character has been modified.")

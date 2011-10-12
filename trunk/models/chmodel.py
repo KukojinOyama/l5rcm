@@ -3,6 +3,7 @@
 import advances as adv
 import outfit
 import json
+import os
 
 from copy import deepcopy
 
@@ -177,6 +178,12 @@ class AdvancedPcModel(BasePcModel):
                 continue
             rank += 1
         return rank
+        
+    def get_perk_info(self, uuid):
+        for adv in self.advans:
+            if adv.type != 'perk' or adv.perk != uuid:
+                continue
+            return adv.rank, adv.cost, adv.tag
 
     def get_honor(self):
         return self.step_2.honor + self.honor
@@ -290,6 +297,24 @@ class AdvancedPcModel(BasePcModel):
             ls.append( self.step_2.school_tech )
         ls += self.techs
         return ls
+        
+    def get_perks(self):
+        for adv in self.advans:
+            if adv.type != 'perk':
+                continue
+            yield adv.perk
+            
+    def get_merits(self):
+        for adv in self.advans:
+            if adv.type != 'perk' or adv.cost < 0:
+                continue
+            yield adv.perk
+            
+    def get_flaws(self):
+        for adv in self.advans:
+            if adv.type != 'perk' or adv.cost > 0:
+                continue
+            yield adv.perk              
         
     def get_spells(self):
         return []
