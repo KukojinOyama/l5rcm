@@ -1111,21 +1111,36 @@ class L5RMain(QtGui.QMainWindow):
             super(L5RMain, self).closeEvent(ev)
 
     def select_save_path(self):
+        settings = QtCore.QSettings() 
+        last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
+        print last_dir
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save Character",
-                                QtCore.QDir.homePath(),
+                                last_dir,
                                 "L5R Character files (*.l5r)")
         if len(fileName) != 2:
             return ''
+        
+        last_dir = os.path.dirname(fileName[0])
+        if last_dir != '':
+            print 'save last_dir: %s' % last_dir
+            settings.setValue('last_open_dir', last_dir)
+                        
         if fileName[0].endswith('.l5r'):
             return fileName[0]
         return fileName[0] + '.l5r'
 
     def select_load_path(self):
+        settings = QtCore.QSettings()
+        last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())    
         fileName = QtGui.QFileDialog.getOpenFileName(self, "Load Character",
-                                QtCore.QDir.homePath(),
+                                last_dir,
                                 "L5R Character files (*.l5r)")
         if len(fileName) != 2:
             return ''
+        last_dir = os.path.dirname(fileName[0])
+        if last_dir != '':
+            print 'save last_dir: %s' % last_dir
+            settings.setValue('last_open_dir', last_dir)
         return fileName[0]
 
 
