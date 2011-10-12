@@ -25,12 +25,6 @@ class TechViewModel(QtCore.QAbstractListModel):
 
     def rowCount(self, parent = QtCore.QModelIndex()):
         return len(self.items)
-
-        # school techs
-        c.execute('''create table school_techs
-        (uuid INTEGER PRIMARY KEY, school_uuid INTEGER, rank INTEGER,
-         name TEXT, effect TEXT, desc TEXT)''')
-        
         
     def build_item_model(self, tech_id):
         c = self.dbconn.cursor()
