@@ -32,6 +32,11 @@ def create(dbfile):
         c.execute('''create table skills
         (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, type TEXT,
         attribute TEXT)''')
+        
+        # mastery abilities
+        c.execute('''create table mastery_abilities
+        (skill_uuid INTEGER, skill_rank INTEGER, rule TEXT, brief TEXT,
+        PRIMARY KEY(skill_uuid, skill_rank))''')        
 
         # school skills
         c.execute('''create table school_skills
@@ -457,6 +462,47 @@ def import_perks(dbconn, path, ttype):
             print 'imported %s %s with uuid %s' % (ttype, name, uuid)
     f.close()    
 
+def import_categ_mastery_abilities(dbconn, categ, path):
+    print 'import mastery abilities from %s' % path
+    
+    f = open( path, 'rt' )
+    line = f.readline()
+    rank = 0
+    while True:        
+        line = f.readline()
+        if len(line) == 0:
+            break # EOF
+        
+        s_name = line.strip()
+        
+        # get skill uid
+        print 'search uuid for skill %s' % s_name
+        s_uuid = query(dbconn, '''select uuid from skills where name=?''', [s_name])        
+        if s_uuid is not None and len(s_uuid) > 0:
+            s_uuid = s_uuid[0][0]        
+        else:
+            trace_error('cannot found uuid for skill %s' % s_name)
+                      
+        # reach next record
+        while True:
+            line = f.readline()
+            #print line
+            if len(line) == 0 or line.startswith('#'):
+                break # EOF            
+            rank, rule, brief = line.split(';')
+            rule  = None if rule == '-' else rule.strip()
+            rank  = int(rank)
+            brief = brief.strip()
+           
+            if non_query(dbconn, '''insert into mastery_abilities                                 
+                                 values(?,?,?,?)''',
+                                 [s_uuid, rank, rule, brief]):
+                print 'imported mastery ab. %s rank %d' % (categ, rank)
+            else:
+                trace_error('''cannot import mastery ab.with parameters: %s, %s, %s, %s. Line was: %s''' % ( repr(s_uuid), repr(rank),
+                                            repr(rule), repr(brief), line ) )
+    f.close()    
+    
 def import_families(conn, path):
     for path, dirs, files in os.walk(path):
         dirn = os.path.basename(path)
@@ -497,6 +543,16 @@ def import_school_skills(conn, path):
                 continue
             import_clan_school_skills(conn, file_.lower(), os.path.join(path, file_))
             
+def import_mastery_abilities(conn, path):
+    for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break
+        for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue
+            import_categ_mastery_abilities(conn, file_.lower(), os.path.join(path, file_))            
+            
 def import_school_techs(conn, path):
     for path, dirs, files in os.walk(path):
         dirn = os.path.basename(path)
@@ -530,6 +586,7 @@ def importdb(conn, path):
     import_armors(conn, os.path.join(path, 'armors'))
     import_perks(conn, os.path.join(path, 'merits'), 'merit')
     import_perks(conn, os.path.join(path, 'flaws'), 'flaw')
+    import_mastery_abilities(conn, os.path.join(path, 'mastery_abilities'))
     conn.commit()
 
 ### MAIN ###

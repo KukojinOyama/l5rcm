@@ -376,3 +376,208 @@ spiritual
 3;5;7
 -
 -
+#
+Lost Love
+mental
+3
+-
+-
+#
+Low Pain Threshold
+physical
+4
+-
+-
+#
+Missing Limb
+physical
+6
+-
+-
+#
+Momoku
+spiritual
+8
+-
+-
+#
+Obligation
+social
+3;6
+-
+-
+#
+Obtuse
+mental
+3
+-
+crab 4, bushi 4
+#
+Overconfident
+mental
+3
+-
+lion 4, mantis 4
+#
+Permanent Wound
+physical
+4
+-
+bushi 5
+#
+Phobia
+mental
+1;2;3
+-
+-
+#
+Rumormonger
+social
+4
+-
+courtier 5
+#
+Benten's Curse
+spiritual
+3
+-
+-
+#
+Bishamon's Curse
+spiritual
+3
+bishamon_curse
+-
+#
+Daikoku's Curse
+spiritual
+3
+-
+-
+#
+Ebisu's Curse
+spiritual
+3
+-
+-
+#
+Fukurokujin's Curse
+spiritual
+3
+-
+-
+#
+Hotei's Curse
+spiritual
+6
+-
+-
+#
+Jurojin's Curse
+spiritual
+3
+-
+-
+#
+Shadowlands Taint
+spiritual
+4
+shadowland_taint
+-
+#
+Small
+physical
+3
+small
+-
+#
+Social Disadvantage
+social
+3
+social_disadvantage
+-
+#
+Soft-Hearted
+mental
+2
+-
+phoenix 3
+#
+Sworn Enemy
+social
+3;0
+-
+-
+#
+Touch of the Void
+spiritual
+3
+-
+phoenix 4
+#
+True Love
+mental
+3
+-
+-
+#
+Unlucky
+spiritual
+2;4;6
+-
+-
+#
+Weakness (Stamina)
+physical
+6
+-
+-
+#
+Weakness (Willpower)
+physical
+6
+-
+-
+#
+Weakness (Strength)
+physical
+6
+-
+-
+#
+Weakness (Perception)
+physical
+6
+-
+-
+#
+Weakness (Reflexes)
+physical
+6
+-
+-
+#
+Weakness (Awareness)
+physical
+6
+-
+-
+#
+Weakness (Agility)
+physical
+6
+-
+-
+#
+Weakness (Intelligence)
+physical
+6
+-
+-
+#
+Wrath of the Kami
+spiritual
+3
+-
+shugenja 4
+

@@ -117,6 +117,8 @@ class AdvancedPcModel(BasePcModel):
         self.armor     = None
         self.weapons   = []
         self.techs     = []
+        
+        self.mastery_abilities = []
 
         self.attrib_costs = [4, 4, 4, 4, 4, 4, 4, 4]
         self.void_cost    = 6
@@ -332,8 +334,7 @@ class AdvancedPcModel(BasePcModel):
            return False
            
         return len(self.get_techs()) < self.get_insight_rank()
-        
-        
+                
     def can_get_other_spells(self):
         if not self.has_tag('shugenja'):
             return
