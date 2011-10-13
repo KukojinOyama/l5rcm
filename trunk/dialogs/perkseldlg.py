@@ -88,6 +88,7 @@ class BuyPerkDialog(QtGui.QDialog):
         c.close()
         
     def on_subtype_select(self, text = ''):
+        self.item = None
         self.cb_perk.clear()
         
         selected = self.cb_subtype.currentIndex()
@@ -104,7 +105,7 @@ class BuyPerkDialog(QtGui.QDialog):
         c.close()        
         
     def on_perk_select(self, text = ''):
-        print 'on_perk_select %s' % text
+        self.item = None
         self.cb_rank.clear()
     
         selected = self.cb_perk.currentIndex()
@@ -124,9 +125,7 @@ class BuyPerkDialog(QtGui.QDialog):
                                 (rank, cost))
         c.close() 
         
-    def on_rank_select(self, text = ''):
-        print 'on_rank_select %s' % text
-        
+    def on_rank_select(self, text = ''):       
         selected = self.cb_rank.currentIndex()
         if selected < 0:
             return
@@ -167,6 +166,11 @@ class BuyPerkDialog(QtGui.QDialog):
         self.item = models.PerkAdv(self.perk_id, rank, cost, tag)
             
     def on_accept(self):
+        if not self.item:
+            QtGui.QMessageBox.warning(self, "Perk not found",
+                                      "Please select a perk.")
+            return
+        
         self.item.extra = self.tx_notes.toPlainText()
         if self.item.cost == 0:
             if self.le_cost.text() != '':
@@ -182,6 +186,11 @@ class BuyPerkDialog(QtGui.QDialog):
         if self.tag == 'merit':
             self.item.desc = "%s Rank %d, XP Cost: %d" % \
             ( self.perk_nm, self.item.rank, self.item.cost )
+            
+            if (self.item.cost + self.pc.get_px()) > self.pc.exp_limit:
+                QtGui.QMessageBox.warning(self, "Not enough XP",
+                "Cannot purchase.\nYou've reached the XP Limit.")                
+                return
         else:
             self.item.desc = "%s Rank %d, XP Gain: %d" % \
             ( self.perk_nm, self.item.rank, abs(self.item.cost) )

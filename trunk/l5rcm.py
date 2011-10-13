@@ -86,6 +86,7 @@ class L5RMain(QtGui.QMainWindow):
         self.build_ui_page_2()
         self.build_ui_page_3()
         self.build_ui_page_4()
+        self.build_ui_page_5()
 
         self.connect_signals()
 
@@ -350,13 +351,13 @@ class L5RMain(QtGui.QMainWindow):
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
-        self.th_view_model = models.TechViewModel      (self.db_conn, self)
+        self.ma_view_model = models.MaViewModel        (self.db_conn, self)
 
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
         models_ = [ ("Skills", 'table', self.sk_view_model, None), 
-                    ("Techs",  'list',  self.th_view_model,  models.TechItemDelegate(self)) ]
+                    ("Mastery Abilities",  'list', self.ma_view_model, models.MaItemDelegate(self)) ]
         # Skill View, Weapon View
         for k, t, m, d in models_:
             grp    = QtGui.QGroupBox(k, self)
@@ -373,9 +374,37 @@ class L5RMain(QtGui.QMainWindow):
             tmp.addWidget(view)
             vbox.addWidget(grp)
 
-        self.tabs.addTab(mfr, u"Skills and Techs")
-
+        self.tabs.addTab(mfr, u"Skills")
+        
     def build_ui_page_3(self):
+        #self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)
+        self.sp_view_model = None
+        self.th_view_model = models.TechViewModel      (self.db_conn, self)
+
+        mfr    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(mfr)
+
+        models_ = [ ("Spells", 'table', self.sp_view_model, None), 
+                    ("Techs",  'list',  self.th_view_model, models.TechItemDelegate(self)) ]
+        # Skill View, Weapon View
+        for k, t, m, d in models_:
+            grp    = QtGui.QGroupBox(k, self)
+            view   = None
+            if t == 'table':
+                view  = QtGui.QTableView(self)
+                view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);
+            elif t == 'list':
+                view = QtGui.QListView(self)
+            view.setModel(m)
+            if d is not None:
+                view.setItemDelegate(d)
+            tmp    = QtGui.QVBoxLayout(grp)
+            tmp.addWidget(view)
+            vbox.addWidget(grp)
+
+        self.tabs.addTab(mfr, u"Techniques")        
+
+    def build_ui_page_4(self):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
@@ -395,7 +424,7 @@ class L5RMain(QtGui.QMainWindow):
 
         self.tabs.addTab(mfr, u"Perks")
         
-    def build_ui_page_4(self):
+    def build_ui_page_5(self):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
@@ -1078,6 +1107,7 @@ class L5RMain(QtGui.QMainWindow):
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
+        self.ma_view_model    .update_from_model(self.pc)
         self.adv_view_model   .update_from_model(self.pc)
         self.th_view_model    .update_from_model(self.pc)
         self.merits_view_model.update_from_model(self.pc)

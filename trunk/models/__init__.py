@@ -4,3 +4,4 @@ from models.skillmodel    import *
 from models.outfit        import *
 from models.techviewmodel import *
 from models.perkviewmodel import *
+from models.maviewmodel   import *
