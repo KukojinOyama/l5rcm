@@ -20,7 +20,7 @@ class BuyPerkDialog(QtGui.QDialog):
         if self.tag == 'merit':
             self.setWindowTitle("Add Advantage")
         else:
-            self.setWindowTitle("Add Disdvantage")
+            self.setWindowTitle("Add Disadvantage")
             
         self.setMinimumSize(400, 0)
                         
