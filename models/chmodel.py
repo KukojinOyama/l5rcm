@@ -124,7 +124,7 @@ class AdvancedPcModel(BasePcModel):
         self.void_cost    = 6
         self.health_multiplier = 2
         self.exp_limit = 40
-        self.wounds = []
+        self.wounds = 0
 
         self.mod_init = (0, 0)
 
@@ -145,7 +145,7 @@ class AdvancedPcModel(BasePcModel):
         a, b   = self.get_attrib_rank(idx_1), self.get_attrib_rank(idx_2)
 
         return min(a, b)
-
+           
     def get_attrib_rank(self, attrib):
         a = self.step_0.attribs[attrib]
         b = self.step_1.attribs[attrib]
@@ -248,6 +248,12 @@ class AdvancedPcModel(BasePcModel):
         if idx == 0:
             return self.get_ring_rank(RINGS.EARTH) * 5
         return  self.get_ring_rank(RINGS.EARTH) * self.health_multiplier
+        
+    def get_max_wounds(self):
+        max_ = 0
+        for i in xrange(0, 8):
+            max_ += self.get_health_rank(i)
+        return max_
 
     def get_base_initiative(self):
         return ( self.get_insight_rank() +
