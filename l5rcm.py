@@ -228,7 +228,9 @@ class L5RMain(QtGui.QMainWindow):
                                 QtCore.Qt.AlignLeft )
             grid.addWidget( QtGui.QLabel("<b>Void Points</b>"), 4, 2, 1, 3,
                             QtCore.Qt.AlignHCenter )
-            grid.addWidget( widgets.CkNumWidget(self), 5, 2, 1, 3,
+            
+            self.void_points = widgets.CkNumWidget(self) 
+            grid.addWidget( self.void_points, 5, 2, 1, 3,
                             QtCore.Qt.AlignHCenter)
 
             hbox.addWidget(grp)
@@ -606,6 +608,8 @@ class L5RMain(QtGui.QMainWindow):
             widget.valueChanged.connect( self.on_flag_points_change )
         for tx in self.pc_flags_rank:
             tx.editingFinished.connect( self.on_flag_rank_change )
+            
+        self.void_points.valueChanged.connect( self.on_void_points_change )
 
     def switch_to_page_1(self):
         self.tabs.setCurrentIndex(0)
@@ -793,8 +797,6 @@ class L5RMain(QtGui.QMainWindow):
     def on_flag_points_change(self):
         fl  = self.sender()
         pt = fl.value
-        print fl
-        print pt
         if fl == self.pc_flags_points[0]:
             val = int(self.pc_flags_rank[0].text())
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -811,8 +813,6 @@ class L5RMain(QtGui.QMainWindow):
     def on_flag_rank_change(self):
         fl  = self.sender()
         val = int(fl.text())
-        print fl
-        print val
         if fl == self.pc_flags_rank[0]:
             pt = self.pc_flags_points[0].value
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -825,6 +825,10 @@ class L5RMain(QtGui.QMainWindow):
         else:
             pt = self.pc_flags_points[3].value
             self.pc.set_taint( float(val + float(pt)/10 ) )
+            
+    def on_void_points_change(self):
+        val = self.void_points.value
+        self.pc.set_void_points(val)
 
     def act_buy_advancement(self):
         dlg = dialogs.BuyAdvDialog(self.pc, self.sender().property('tag'), 
@@ -868,7 +872,9 @@ class L5RMain(QtGui.QMainWindow):
             self.update_from_model()   
         
     def show_wear_cust_armor(self):
-        pass
+        dlg = dialogs.CustomArmorDialog(self.pc, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.update_from_model()   
         
     def show_add_weapon(self):
         dlg = dialogs.ChooseItemDialog(self.pc, 'weapon', self.db_conn, self)
@@ -906,8 +912,8 @@ class L5RMain(QtGui.QMainWindow):
 
     def save_character(self):
         if self.save_path == '' or not os.path.exists(self.save_path):
-            self.save_path = self.select_save_path()
-
+            self.save_path = self.select_save_path()            
+        
         if self.save_path is not None and len(self.save_path) > 0:
             self.pc.save_to(self.save_path)
 
@@ -989,6 +995,11 @@ class L5RMain(QtGui.QMainWindow):
             if self.cb_pc_school.itemData(i) == school_id:
                 self.cb_pc_school.setCurrentIndex(i)
                 return
+    
+    def set_void_points(self, value):
+        if self.void_points.value == value:
+            return
+        self.void_points.set_value(value)
 
     def set_flag(self, flag, value):
         rank, points = split_decimal(value)
@@ -1033,12 +1044,16 @@ class L5RMain(QtGui.QMainWindow):
         # pc flags
         pause_signals( self.pc_flags_points )
         pause_signals( self.pc_flags_rank   )
+        pause_signals( [self.void_points]   )
 
         self.set_honor ( self.pc.get_honor()  )
         self.set_glory ( self.pc.get_glory()  )
         self.set_status( self.pc.get_status() )
         self.set_taint ( self.pc.get_taint()  )
+        
+        self.set_void_points( self.pc.void_points )
 
+        resume_signals( [self.void_points]   )
         resume_signals( self.pc_flags_points )
         resume_signals( self.pc_flags_rank   )
 

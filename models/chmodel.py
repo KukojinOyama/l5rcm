@@ -423,6 +423,10 @@ class AdvancedPcModel(BasePcModel):
     def add_tech(self, tech_uuid):
         if tech_uuid not in self.techs:
             self.techs.append(tech_uuid)
+            
+    def set_void_points(self, value):
+        self.void_points = value
+        self.unsaved = True
                 
     def set_honor(self, value):
         self.honor = value - self.step_2.honor
