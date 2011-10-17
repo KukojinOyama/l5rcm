@@ -582,12 +582,16 @@ class L5RMain(QtGui.QMainWindow):
         # rules actions
         set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self)
         set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
+        damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
         
         m_rules.addAction(set_exp_limit_act )
         m_rules.addAction(set_wound_mult_act)
+        m_rules.addSeparator()
+        m_rules.addAction(damage_act)
         
         set_exp_limit_act .triggered.connect( self.on_set_exp_limit )
         set_wound_mult_act.triggered.connect( self.on_set_wnd_mult  )
+        damage_act        .triggered.connect( self.on_damage_act    )
         
     def connect_signals(self):
 
@@ -703,18 +707,30 @@ class L5RMain(QtGui.QMainWindow):
         if ok:
             self.pc.health_multiplier = val
             self.update_from_model()
+            
+    def on_damage_act(self):
+        ok = False
+        val, ok = QtGui.QInputDialog.getInt(self, 'Cure/Inflict Damage',
+                                       "Wounds:", 1,
+                                        -1000, 1000, 1)
+        if ok:
+            self.pc.wounds += val            
+            if self.pc.wounds < 0: self.pc.wounds = 0
+            if self.pc.wounds > self.pc.get_max_wounds(): 
+                self.pc.wounds = self.pc.get_max_wounds()
+            
+            self.update_from_model()        
 
     def on_clan_change(self, text):
-        print 'on_clan_change %s' % text
+        #print 'on_clan_change %s' % text
         #self.cb_pc_family.clear()
         index = self.cb_pc_clan.currentIndex()
-        print 'current index = %d' % index
         if index < 0:
             self.pc.clan = 0
         else:
             clan_id = self.cb_pc_clan.itemData(index)
 
-            print 'set new clan. cur: %d new %d' % ( self.pc.clan, clan_id )
+            #print 'set new clan. cur: %d new %d' % ( self.pc.clan, clan_id )
             self.pc.clan = clan_id
 
         self.load_families(self.pc.clan)
@@ -724,9 +740,8 @@ class L5RMain(QtGui.QMainWindow):
 
     def on_family_change(self, text):
         index = self.cb_pc_family.currentIndex()
-        print 'on family changed %s %d' % (text, index)
+        #print 'on family changed %s %d' % (text, index)
         if index <= 0:
-            print 'clear pc family'
             self.pc.set_family()
             self.update_from_model()
             return
@@ -753,7 +768,6 @@ class L5RMain(QtGui.QMainWindow):
     def on_school_change(self, text):
         index = self.cb_pc_school.currentIndex()
         if index <= 0:
-            print 'clear pc school'
             self.pc.set_school()
             self.update_from_model()
             return
@@ -928,7 +942,7 @@ class L5RMain(QtGui.QMainWindow):
         c.close()
 
     def load_schools(self, clan_id):
-        print 'load schools for clan_id %d' % clan_id
+        #print 'load schools for clan_id %d' % clan_id
         c = self.db_conn.cursor()
         self.cb_pc_school.clear()
         if clan_id <= 0:
@@ -945,7 +959,7 @@ class L5RMain(QtGui.QMainWindow):
         c.close()
 
     def load_families(self, clan_id):
-        print 'load families for clan_id %d' % clan_id
+        #print 'load families for clan_id %d' % clan_id
 
         c = self.db_conn.cursor()
         self.cb_pc_family.clear()
@@ -965,7 +979,7 @@ class L5RMain(QtGui.QMainWindow):
         idx = self.cb_pc_clan.currentIndex()
         c_uuid = self.cb_pc_clan.itemData(idx)
 
-        print 'set clan. cur: %d new: %d' % (c_uuid, clan_id)
+        #print 'set clan. cur: %d new: %d' % (c_uuid, clan_id)
 
         if c_uuid == clan_id:
             return
@@ -988,7 +1002,7 @@ class L5RMain(QtGui.QMainWindow):
         idx = self.cb_pc_school.currentIndex()
         s_uuid = self.cb_pc_school.itemData(idx)
 
-        print 'set school to %s, current school is %s' % (school_id, s_uuid)
+        #print 'set school to %s, current school is %s' % (school_id, s_uuid)
         if s_uuid == school_id:
             return
         for i in xrange(0, self.cb_pc_school.count()):
@@ -1068,7 +1082,17 @@ class L5RMain(QtGui.QMainWindow):
         for i in xrange(0, 8):
             h = self.pc.get_health_rank(i)
             self.wounds[i][1].setText( str(h) )
-        self.wnd_lb.setTitle('Wounds (x%d)' % self.pc.health_multiplier)            
+            self.wounds[i][2].setText( '' )
+        self.wnd_lb.setTitle('Health / Wounds (x%d)' % self.pc.health_multiplier)
+        
+        # wounds
+        pc_wounds = self.pc.wounds
+        hr        = 0
+        while pc_wounds and hr < 8:
+            w = min(pc_wounds, self.pc.get_health_rank(hr))
+            self.wounds[hr][2].setText( str(w) )
+            pc_wounds -= w
+            hr += 1
 
         # initiative
         # TODO: temporary implementation
@@ -1099,7 +1123,7 @@ class L5RMain(QtGui.QMainWindow):
         if not self.nicebar:
             # Show nicebar if can get another school tech
             if self.pc.can_get_other_techs():
-                print 'can get more techniques'
+                #print 'can get more techniques'
                 lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
                 bt = QtGui.QPushButton('Learn Technique')
                 bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
@@ -1158,7 +1182,6 @@ class L5RMain(QtGui.QMainWindow):
     def select_save_path(self):
         settings = QtCore.QSettings() 
         last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
-        print last_dir
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save Character",
                                 last_dir,
                                 "L5R Character files (*.l5r)")
@@ -1167,7 +1190,7 @@ class L5RMain(QtGui.QMainWindow):
         
         last_dir = os.path.dirname(fileName[0])
         if last_dir != '':
-            print 'save last_dir: %s' % last_dir
+            #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
                         
         if fileName[0].endswith('.l5r'):
@@ -1184,7 +1207,7 @@ class L5RMain(QtGui.QMainWindow):
             return ''
         last_dir = os.path.dirname(fileName[0])
         if last_dir != '':
-            print 'save last_dir: %s' % last_dir
+            #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
         return fileName[0]
 
