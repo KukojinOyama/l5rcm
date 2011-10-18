@@ -8,6 +8,7 @@ class PerkItemModel(object):
         self.cost        = ''
         self.rank        = ''
         self.tag         = ''
+        self.notes       = ''
 
     def __str__(self):
         return self.name
@@ -36,7 +37,7 @@ class PerkViewModel(QtCore.QAbstractListModel):
         
         for uuid, perk_nm in c.fetchall():
             itm.name        = perk_nm
-            itm.rank, itm.cost, itm.tag = model.get_perk_info( uuid )
+            itm.rank, itm.cost, itm.tag, itm.notes = model.get_perk_info( uuid )
             break
         c.close()
         return itm        
@@ -73,6 +74,8 @@ class PerkViewModel(QtCore.QAbstractListModel):
             return self.bg_color[ index.row() % 2 ]
         elif role == QtCore.Qt.SizeHintRole:
             return self.item_size
+        elif role == QtCore.Qt.ToolTipRole:
+            return item.notes
         elif role == QtCore.Qt.UserRole:
             return item
         return None
