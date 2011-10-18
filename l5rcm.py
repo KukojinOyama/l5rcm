@@ -11,8 +11,16 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.1'
+APP_VERSION = '1.2'
 APP_ORG = 'openningia'
+
+PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
+BUGTRAQ_LINK      = 'http://code.google.com/p/l5rcm/issues/list'
+PROJECT_PAGE_NAME = 'Project Page'
+AUTHOR_NAME       = 'Daniele Simonetti'
+L5R_RPG_HOME_PAGE = 'http://www.l5r.com/rpg/'
+ALDERAC_HOME_PAGE = 'http://www.alderac.com/'
+
 
 MY_CWD        = os.getcwd()
 
@@ -25,14 +33,15 @@ def get_app_file(rel_path):
             return os.path.join( sys_path, rel_path )
         return os.path.join( MY_CWD, 'share/l5rcm', rel_path )
         
-def get_app_icon_path():
+def get_app_icon_path(size = (48,48)):
+    size_str = '%dx%d' % size
     if os.name == 'nt':
-        return os.path.join( MY_CWD, 'share/icons/l5rcm/48x48', APP_NAME + '.png' )
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, APP_NAME + '.png' )
     else:        
-        sys_path = '/usr/share/icons/l5rcm/48x48'
+        sys_path = '/usr/share/icons/l5rcm/%s' % size_str
         if os.path.exists( sys_path ):
             return os.path.join( sys_path, APP_NAME + '.png' )
-        return os.path.join( MY_CWD, 'share/icons/l5rcm/48x48', APP_NAME + '.png' )
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, APP_NAME + '.png' )
         
 
 def new_small_le(parent = None, ro = True):
@@ -87,6 +96,7 @@ class L5RMain(QtGui.QMainWindow):
         self.build_ui_page_3()
         self.build_ui_page_4()
         self.build_ui_page_5()
+        self.build_ui_page_6()
 
         self.connect_signals()
 
@@ -450,6 +460,48 @@ class L5RMain(QtGui.QMainWindow):
         vbox.addWidget(lview)
 
         self.tabs.addTab(mfr, u"Advancements")
+        
+    def build_ui_page_6(self):
+        mfr    = QtGui.QFrame(self)
+        hbox   = QtGui.QHBoxLayout(mfr)
+        hbox.setAlignment(QtCore.Qt.AlignCenter)
+        #hbox.setMargin   (30)
+        hbox.setSpacing  (30)
+        
+        logo = QtGui.QLabel(self);
+        logo.setPixmap(QtGui.QPixmap(get_app_icon_path(( 64,64))))
+        hbox.addWidget(logo, 0, QtCore.Qt.AlignTop)      
+       
+        vbox = QtGui.QVBoxLayout()
+        vbox.setAlignment(QtCore.Qt.AlignCenter)
+        vbox.setSpacing  (30)        
+        hbox.addLayout   (vbox)
+        
+        info = """<html><style>a { color: palette(text); }</style><body><h1>%s</h1>                  
+                  <p>Version %s</p>
+                  <p><a href="%s">%s</a></p>
+                  <p>Report bugs and send in your ideas <a href="%s">here</a></p>
+                  <p>To know about Legend of the Five rings please visit 
+                  <a href="%s">L5R RPG Home Page</a>
+                  </p>
+                  <p>
+                  All right on Legend of The Five Rings RPG are possession of
+                  <p>
+                  <a href="%s">Alderac Entertainment Group (AEG)</a>
+                  </p>                                    
+                  </p>                   
+                  <p style='color:palette(mid)'>&copy; 2011 %s</p>
+                  </body></html>""" % ( APP_DESC,
+                                        QtGui.QApplication.applicationVersion(),
+                                        PROJECT_PAGE_LINK, PROJECT_PAGE_NAME,
+                                        BUGTRAQ_LINK, L5R_RPG_HOME_PAGE,
+                                        ALDERAC_HOME_PAGE, AUTHOR_NAME)
+        lb_info = QtGui.QLabel(info, self);
+        lb_info.setOpenExternalLinks(True);
+        lb_info.setWordWrap(True);
+        hbox.addWidget(lb_info);
+
+        self.tabs.addTab(mfr, u"About")        
 
     def build_menu(self):
         # File Menu
