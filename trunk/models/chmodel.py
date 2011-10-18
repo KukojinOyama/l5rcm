@@ -185,8 +185,8 @@ class AdvancedPcModel(BasePcModel):
         return v
 
     def get_skill_rank(self, uuid):
-        if uuid in self.step_2.skills:
-            rank = self.step_2.skills[uuid]
+        if uuid in self.get_school_skills():
+            rank = self.step_2.skills[str(uuid)]
         else:
             rank = 0
         for adv in self.advans:
@@ -287,7 +287,7 @@ class AdvancedPcModel(BasePcModel):
         return self.step_2.pending_wc
 
     def get_school_skills(self):
-        return self.step_2.skills.keys()
+        return [ int(x) for x in self.step_2.skills.keys() ]
 
     def get_skills(self, school = True):
         l = []
@@ -301,15 +301,15 @@ class AdvancedPcModel(BasePcModel):
             l.append(adv.skill)
         return l
 
-    def get_skill_emphases(self, school_id):
+    def get_skill_emphases(self, skill_id):
         emph = []
         # search school skills
-        if school_id in self.step_2.emph:
-            emph += self.step_2.emph[school_id]
+        if skill_id in self.step_2.emph:
+            emph += self.step_2.emph[skill_id]
         for adv in self.advans:
             if adv.type != 'emph' or adv.text in emph:
                 continue
-            if adv.skill == school_id:
+            if adv.skill == skill_id:
                 emph.append(adv.text)
         return emph
         
@@ -503,9 +503,6 @@ class AdvancedPcModel(BasePcModel):
             self.step_1 = BasePcModel()
             self.step_2 = BasePcModel()
 
-            #print obj
-            #print obj['step_0']
-
             self.step_0.__dict__ = deepcopy(obj['step_0'])
             self.step_1.__dict__ = deepcopy(obj['step_1'])
             self.step_2.__dict__ = deepcopy(obj['step_2'])
@@ -513,7 +510,7 @@ class AdvancedPcModel(BasePcModel):
             self.advans = []
             for ad in obj['advans']:
                 a = adv.Advancement(None, None)
-                a.__dict__ = deepcopy(ad)
+                a.__dict__ = deepcopy(ad)                
                 self.advans.append(a)
                 
             # armor
