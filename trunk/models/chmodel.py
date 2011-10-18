@@ -124,11 +124,10 @@ class AdvancedPcModel(BasePcModel):
         self.void_cost    = 6
         self.health_multiplier = 2
         self.exp_limit = 40
-        self.wounds = 0
-
+        self.wounds = 0        
         self.mod_init = (0, 0)
-
         self.void_points = self.get_void_rank()
+        self.unlock_schools = False
 
     def load_default(self):
         self.step_0.load_default()
@@ -185,7 +184,7 @@ class AdvancedPcModel(BasePcModel):
         for adv in self.advans:
             if adv.type != 'perk' or adv.perk != uuid:
                 continue
-            return adv.rank, adv.cost, adv.tag
+            return adv.rank, adv.cost, adv.tag, adv.extra
 
     def get_honor(self):
         return self.step_2.honor + self.honor
@@ -456,6 +455,10 @@ class AdvancedPcModel(BasePcModel):
 
     def pop_advancement(self):
         self.advans.pop()
+        self.unsaved = True
+        
+    def toggle_unlock_schools(self):
+        self.unlock_schools = not self.unlock_schools
         self.unsaved = True
 
     def save_to(self, file):

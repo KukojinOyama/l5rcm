@@ -168,11 +168,12 @@ def add_tag(dbconn, uuid, tag):
         print 'tag %s already exists for uuid %d' % (tag, uuid)
 
 def import_clans(dbconn, path):
+    print 'import clans from %s' % path
     f = open( os.path.join(path, 'names'), 'rt' )
     for name in f:
         uuid = get_cnt(dbconn, 'uuid')
         name = name.strip()
-        if non_query(dbconn, '''insert into clans values (?,?)''', [uuid,name]) == 1:
+        if non_query(dbconn, '''insert into clans values (?,?)''', [uuid,name]):
             print 'imported clan %s with uuid %s' % (name, uuid)
     f.close()
 
@@ -209,12 +210,13 @@ def import_armors(dbconn, path):
 def import_clan_families(dbconn, clan, path):
     print 'import %s clan families' % clan
 
-    # get clan uuid
-    print 'search uuid for clan %s' % clan
     clanuid = query(dbconn, '''select uuid from clans where name=?''', [clan])
     if clanuid is not None and len(clanuid) > 0:
         clanuid = clanuid[0][0]
 
+    # get clan uuid
+    print 'found uuid for clan %s: %d' % (clan, clanuid)
+        
     f = open( path, 'rt' )
     while True:
         if not f.readline().startswith('#'): break

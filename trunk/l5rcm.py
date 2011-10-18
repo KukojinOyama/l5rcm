@@ -455,10 +455,15 @@ class L5RMain(QtGui.QMainWindow):
         # File Menu
         m_file = self.menuBar().addMenu("&File");
         # actions: new, open, save
-        new_act  = QtGui.QAction(u'&New PC', self)
-        open_act = QtGui.QAction(u'&Open PC...', self)
-        save_act = QtGui.QAction(u'&Save PC...', self)
+        new_act  = QtGui.QAction(u'&New Character', self)
+        open_act = QtGui.QAction(u'&Open Character...', self)
+        save_act = QtGui.QAction(u'&Save Character...', self)
         exit_act = QtGui.QAction(u'E&xit', self)
+        
+        new_act .setShortcut( QtGui.QKeySequence.New  )
+        open_act.setShortcut( QtGui.QKeySequence.Open )
+        save_act.setShortcut( QtGui.QKeySequence.Save )
+        exit_act.setShortcut( QtGui.QKeySequence.Quit )
 
         m_file.addAction(new_act)
         m_file.addAction(open_act)
@@ -502,14 +507,14 @@ class L5RMain(QtGui.QMainWindow):
         buymerit_act.setProperty('tag', 'merit' )
         buyflaw_act .setProperty('tag', 'flaw'  )
 
-        m_adv.addAction(viewadv_act)
-        m_buy_adv.addAction(buyattr_act)
-        m_buy_adv.addAction(buyvoid_act)
+        m_adv    .addAction(viewadv_act )
+        m_buy_adv.addAction(buyattr_act )
+        m_buy_adv.addAction(buyvoid_act )
         m_buy_adv.addAction(buyskill_act)
-        m_buy_adv.addAction(buyemph_act)
+        m_buy_adv.addAction(buyemph_act )
         m_buy_adv.addAction(buymerit_act)
-        m_buy_adv.addAction(buyflaw_act)
-        m_buy_adv.addAction(buykata_act)
+        m_buy_adv.addAction(buyflaw_act )
+        m_buy_adv.addAction(buykata_act )
         #m_buy_adv.addAction(buyspell_act)
         m_adv.addSeparator()
         m_adv.addAction(refund_act)
@@ -518,7 +523,7 @@ class L5RMain(QtGui.QMainWindow):
         self.m_adv = m_adv
         self.m_buy = m_buy_adv
 
-        viewadv_act .triggered.connect( self.switch_to_page_3    )
+        viewadv_act .triggered.connect( self.switch_to_page_5    )
         resetadv_act.triggered.connect( self.reset_adv           )
         refund_act  .triggered.connect( self.refund_last_adv     )
         buyattr_act .triggered.connect( self.act_buy_advancement )
@@ -582,16 +587,19 @@ class L5RMain(QtGui.QMainWindow):
         # rules actions
         set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self)
         set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
+        unlock_school_act  = QtGui.QAction(u'Lock/Unlock Schools...'  , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
         
         m_rules.addAction(set_exp_limit_act )
         m_rules.addAction(set_wound_mult_act)
+        m_rules.addAction(unlock_school_act )
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
         
-        set_exp_limit_act .triggered.connect( self.on_set_exp_limit )
-        set_wound_mult_act.triggered.connect( self.on_set_wnd_mult  )
-        damage_act        .triggered.connect( self.on_damage_act    )
+        set_exp_limit_act .triggered.connect( self.on_set_exp_limit      )
+        set_wound_mult_act.triggered.connect( self.on_set_wnd_mult       )
+        damage_act        .triggered.connect( self.on_damage_act         )
+        unlock_school_act .triggered.connect( self.on_unlock_school_act  )
         
     def connect_signals(self):
 
@@ -624,6 +632,12 @@ class L5RMain(QtGui.QMainWindow):
     def switch_to_page_3(self):
         self.tabs.setCurrentIndex(2)
 
+    def switch_to_page_4(self):
+        self.tabs.setCurrentIndex(3)
+
+    def switch_to_page_5(self):
+        self.tabs.setCurrentIndex(4)
+        
     def show_nicebar(self, widgets):
         self.nicebar = QtGui.QFrame(self)
         self.nicebar.setStyleSheet('''
@@ -720,6 +734,14 @@ class L5RMain(QtGui.QMainWindow):
                 self.pc.wounds = self.pc.get_max_wounds()
             
             self.update_from_model()        
+            
+    def on_unlock_school_act(self):
+        self.pc.toggle_unlock_schools()
+        if self.pc.unlock_schools:
+            self.load_schools ()
+        else:
+            self.load_schools(self.pc.clan)
+        self.cb_pc_school.setCurrentIndex(0)
 
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
@@ -734,7 +756,10 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.clan = clan_id
 
         self.load_families(self.pc.clan)
-        self.load_schools(self.pc.clan)
+        if self.pc.unlock_schools:
+            self.load_schools ()
+        else:
+            self.load_schools(self.pc.clan)
         self.cb_pc_family.setCurrentIndex(0)
         self.cb_pc_school.setCurrentIndex(0)
 
@@ -876,7 +901,7 @@ class L5RMain(QtGui.QMainWindow):
         
         c.close()
         
-        self.switch_to_page_2 ()
+        self.switch_to_page_3 ()
         self.update_from_model()
         
 
@@ -918,7 +943,10 @@ class L5RMain(QtGui.QMainWindow):
         self.save_path = self.select_load_path()
         if self.pc.load_from(self.save_path):
             self.load_families(self.pc.clan)
-            self.load_schools (self.pc.clan)
+            if self.pc.unlock_schools:
+                self.load_schools ()
+            else:
+                self.load_schools (self.pc.clan)
             self.update_from_model()
 
         resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
@@ -941,7 +969,7 @@ class L5RMain(QtGui.QMainWindow):
             self.cb_pc_clan.addItem( f[1], f[0] )
         c.close()
 
-    def load_schools(self, clan_id):
+    def load_schools(self, clan_id = -1):
         #print 'load schools for clan_id %d' % clan_id
         c = self.db_conn.cursor()
         self.cb_pc_school.clear()
