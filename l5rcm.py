@@ -559,7 +559,6 @@ class L5RMain(QtGui.QMainWindow):
         buymerit_act.setProperty('tag', 'merit' )
         buyflaw_act .setProperty('tag', 'flaw'  )
 
-        m_adv    .addAction(viewadv_act )
         m_buy_adv.addAction(buyattr_act )
         m_buy_adv.addAction(buyvoid_act )
         m_buy_adv.addAction(buyskill_act)
@@ -567,8 +566,9 @@ class L5RMain(QtGui.QMainWindow):
         m_buy_adv.addAction(buymerit_act)
         m_buy_adv.addAction(buyflaw_act )
         m_buy_adv.addAction(buykata_act )
-        #m_buy_adv.addAction(buyspell_act)
-        m_adv.addSeparator()
+        
+        m_adv    .addSeparator()
+        m_adv    .addAction(viewadv_act )   
         m_adv.addAction(refund_act)
         m_adv.addAction(resetadv_act)
 
@@ -620,6 +620,10 @@ class L5RMain(QtGui.QMainWindow):
         add_weap_act       = QtGui.QAction(u'Add Weapon...'       , self)
         add_cust_weap_act  = QtGui.QAction(u'Add Custom Weapon...', self)
         add_misc_item_act  = QtGui.QAction(u'Add Misc Item...'    , self)
+        
+        add_weap_act     .setEnabled(False)
+        add_cust_weap_act.setEnabled(False)
+        add_misc_item_act.setEnabled(False)
         
         m_outfit.addAction(sel_armor_act     )
         m_outfit.addAction(sel_cust_armor_act)
