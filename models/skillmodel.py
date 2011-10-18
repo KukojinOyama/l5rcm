@@ -42,6 +42,8 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
         self.items = []
         self.headers = ['Name', 'Rank', 'Trait', 'Emphases']
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
+        self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
+                            QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
         self.item_size = QtCore.QSize(28, 28)
         if parent:
             self.bold_font = parent.font()
@@ -85,6 +87,8 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
                 return self.bold_font
         elif role == QtCore.Qt.ForegroundRole:
             return self.text_color
+        elif role == QtCore.Qt.BackgroundRole:
+            return self.bg_color[ index.row() % 2 ]            
         elif role == QtCore.Qt.SizeHintRole:
             return self.item_size
         return None
@@ -94,10 +98,6 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
             return QtCore.Qt.ItemIsDropEnabled
         flags = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
         return flags
-
-#    def need_update(self):
-#        self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
-#        self.index(0,0), self.index(len(self.items)-1,0))
 
     def add_item(self, item):
         row = self.rowCount()
@@ -124,19 +124,12 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
 
     def update_from_model(self, model):
         skills_id_s = model.get_school_skills()
-        skills_id_a = model.get_skills( school = False )
+        skills_id_a = model.get_skills()
 
         self.clean()
-        for s in skills_id_s:
+        for s in skills_id_a:           
             itm = self.build_item_model(s)
             itm.rank = model.get_skill_rank(s)
             itm.emph = model.get_skill_emphases(s)
-            itm.is_school = True
+            itm.is_school = (s in skills_id_s)
             self.add_item(itm)
-        for s in skills_id_a:
-            itm = self.build_item_model(s)
-            itm.rank = model.get_skill_rank(s)
-            itm.emph = model.get_skill_emphases(s)
-            self.add_item(itm)
-
-
