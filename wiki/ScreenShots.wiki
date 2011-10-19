@@ -1,4 +1,5 @@
 #summary L5R Character Manager Screenshots
+#labels Featured,Phase-Design
 
 = Take a closer look =
 
