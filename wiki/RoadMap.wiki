@@ -1,0 +1,39 @@
+#summary Project Roadmap
+#labels Phase-Design,Featured
+
+= The Future =
+
+Actually I can't predict the future but that's what I hope It will be :)
+Here you will find what I plan to add to this app as version number increases. There is and never will be any release date, because I'm a lonely developer and can only work on my free time. Please bear with that.
+
+== Version 1.5 ==
+  * School Spells: We need to add School Spells when you choose a School
+  * Spells View: Then Spells should appear on the relative page
+
+== Version 1.6 - 1.9 ==
+  * Fixes and polishing
+
+== Version 2.1 - 2.4 ==
+  * Weapons
+  * Custom Weapons
+  * Inventory System
+
+== Version 2.5 ==
+  * Apply all rules that discount the cost of Attributes and Void ring
+
+== Version 3.x ==
+  * Kata and Kiho
+  * Monk Rules
+
+== Version 4.x == 
+  * Multiple School Advantage
+  * Different School Advantage
+
+== Version 5.x ==
+  * Alternative Path
+  * Advanced Schools
+  * Monk Schools
+
+== Version 6.x ==
+  * Minor clans
+  * Ronin
