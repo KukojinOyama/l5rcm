@@ -378,3 +378,150 @@ class SelWcSkills(QtGui.QDialog):
             self.pc.add_school_skill(uuid, rank)
         self.accept()
 
+class SelWcSpells(QtGui.QDialog):
+    def __init__(self, pc, conn, parent = None):
+        super(SelWcSpells, self).__init__(parent)
+        self.pc  = pc
+        self.dbconn = conn
+        self.cbs_ring    = []
+        self.cbs_mast    = []
+        self.cbs_spell   = []
+        self.error_bar = None
+        self.build_ui()
+        self.connect_signals()
+        self.load_data()
+
+    def build_ui(self):
+        self.setWindowTitle('Choose School Spells')
+
+        grid = QtGui.QGridLayout(self)
+        grid.addWidget( QtGui.QLabel('<i>Your school has granted you ' +
+                                     'the right to choose some spells.</i> ' +
+                                     '<br/><b>Choose with care.</b>', self),
+                                      0, 0, 1, 3)
+        grid.setRowStretch(0,2)
+
+        self.bt_ok     = QtGui.QPushButton('Ok', self)
+        self.bt_cancel = QtGui.QPushButton('Cancel', self)
+
+        row_ = 2
+                
+        for i in xrange(0, self.pc.get_how_many_spell_i_miss()):           
+            grp  = QtGui.QGroupBox('Choose Spell')
+            fbox = QtGui.QFormLayout(grp)
+            
+            cb_ring  = QtGui.QComboBox(self)
+            cb_mast  = QtGui.QComboBox(self)
+            cb_spell = QtGui.QComboBox(self)
+            
+            fbox.addRow('Ring',    cb_ring)
+            fbox.addRow('Mastery', cb_mast)
+            fbox.addRow('Spell',   cb_spell)            
+            
+            self.cbs_ring .append(cb_ring)
+            self.cbs_mast .append(cb_mast)
+            self.cbs_spell.append(cb_spell)
+            
+            grid.addWidget(grp, row_, 0, 1, 3)
+            
+            row_ += 1
+
+        self.error_bar = QtGui.QLabel(self)
+        self.error_bar.setVisible(False)
+        grid.addWidget(self.error_bar, row_, 0, 1, 3)
+
+        grid.addWidget( self.bt_ok,     row_+1, 1)
+        grid.addWidget( self.bt_cancel, row_+1, 2)
+
+    def load_data(self):
+        c = self.dbconn.cursor()
+        
+        for cb in self.cbs_ring:
+            cb.addItem('Air')
+            cb.addItem('Fire')
+            cb.addItem('Earth')
+            cb.addItem('Water')
+            cb.addItem('Void')
+            
+        for cb in self.cbs_mast:
+            for x in xrange(0,5):
+                cb.addItem('Mastery Level %d' % (x+1), x+1)
+        c.close()
+
+
+    def connect_signals(self):    
+        for cb in self.cbs_ring:
+            cb.currentIndexChanged.connect( self.on_ring_change    )
+            
+        for cb in self.cbs_mast:
+            cb.currentIndexChanged.connect( self.on_mastery_change )            
+        
+        self.bt_cancel.clicked.connect( self.close     )
+        self.bt_ok    .clicked.connect( self.on_accept )
+        
+    def on_ring_change(self, text = ''):
+        cb_ring = self.sender()        
+        ring  = cb_ring.itemText( cb_ring.currentIndex() )
+        which = self.cbs_ring.index( cb_ring )
+        cb_mast = self.cbs_mast[which]
+        mastery = cb_mast.itemData( cb_mast.currentIndex() )
+        cb_spell = self.cbs_spell[which]
+        
+        # loads spells based on current mastery level
+        c = self.dbconn.cursor()
+        c.execute('''SELECT uuid, name FROM spells
+                     WHERE ring=? and mastery=?''', [ring, mastery])
+
+        cb_spell.clear()
+        for uuid, name in c.fetchall():
+            cb_spell.addItem(name, uuid)
+            
+        c.close()
+        
+    def on_mastery_change(self, text = ''):
+        cb_mast = self.sender()        
+        mastery  = cb_mast.itemData( cb_mast.currentIndex() )
+        which = self.cbs_mast.index( cb_mast )
+        cb_ring = self.cbs_ring[which]
+        ring = cb_ring.itemText( cb_ring.currentIndex() )
+        cb_spell = self.cbs_spell[which]
+        
+        # loads spells based on current ring
+        c = self.dbconn.cursor()
+        c.execute('''SELECT uuid, name FROM spells
+                     WHERE ring=? and mastery=?''', [ring, mastery])
+        
+        cb_spell.clear()        
+        for uuid, name in c.fetchall():
+            cb_spell.addItem(name, uuid)
+            
+        c.close()        
+
+    def on_accept(self):
+        done = True
+
+        # check that all the choice have been made
+        for cb in self.cbs_spell:
+            if cb.currentIndex() < 0:
+                done = False;
+                break
+
+        if not done:
+            self.error_bar.setText('''<span color:#FF0000>
+                                      <b>
+                                      You need to choose all the spells
+                                      </b>
+                                      </span>
+                                      ''')
+            self.error_bar.setVisible(True)
+            return
+        self.error_bar.setVisible(False)
+
+        for cb in self.cbs_spell:
+            idx = cb.currentIndex()
+            uuid = cb.itemData(idx)
+            self.pc.add_spell(uuid)
+            
+        self.accept()
+        
+
