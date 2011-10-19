@@ -186,7 +186,7 @@ class AdvancedPcModel(BasePcModel):
 
     def get_skill_rank(self, uuid):
         if uuid in self.get_school_skills():
-            rank = self.step_2.skills[str(uuid)]
+            rank = self.step_2.skills[uuid]
         else:
             rank = 0
         for adv in self.advans:
