@@ -984,7 +984,11 @@ class L5RMain(QtGui.QMainWindow):
         
         self.switch_to_page_3 ()
         self.update_from_model()
-        
+
+    def learn_next_school_spells(self):
+        dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.update_from_model()
 
     def show_wear_armor(self):
         dlg = dialogs.ChooseItemDialog(self.pc, 'armor', self.db_conn, self)
@@ -1244,7 +1248,7 @@ class L5RMain(QtGui.QMainWindow):
                 bt = QtGui.QPushButton('Learn Spells')
                 bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                                   QtGui.QSizePolicy.Preferred)
-                #bt.clicked.connect( self.act_choose_skills )
+                bt.clicked.connect( self.learn_next_school_spells )
                 self.show_nicebar([lb, bt])
                 
         # disable step 0-1-2 if any xp are spent

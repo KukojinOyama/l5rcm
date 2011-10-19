@@ -66,20 +66,20 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
             return None
         item = self.items[index.row()]
         if role == QtCore.Qt.DisplayRole:
-			if index.column() == 0:
-				return item.name
-			if index.column() == 1:
-				return item.ring
-			if index.column() == 2:
-				return item.mastery
-			if index.column() == 3:
-				return item.range
-			if index.column() == 4:
-				return item.area
-			if index.column() == 5:
-				return item.duration
-			if index.column() == 6:
-				return item.raises
+            if index.column() == 0:
+                return item.name
+            if index.column() == 1:
+                return item.ring
+            if index.column() == 2:
+                return item.mastery
+            if index.column() == 3:
+                return item.range
+            if index.column() == 4:
+                return item.area
+            if index.column() == 5:
+                return item.duration
+            if index.column() == 6:
+                return item.raises
         #    elif role == QtCore.Qt.DecorationRole:
         #        if index.column() == 0 and (item['epstatus'] & SHOW_STATUS_NEW == SHOW_STATUS_NEW):
         #            return QtGui.QIcon(':/icons/label_new_red.png')
@@ -94,6 +94,18 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
             return self.bg_color[ index.row() % 2 ]            
         elif role == QtCore.Qt.SizeHintRole:
             return self.item_size
+        elif role == QtCore.Qt.ToolTipRole:
+            if index.column() == 1:
+                if len(item.tags) > 0:
+                    return 'Spell Tags: %s' % ', '.join(item.tags)
+            if index.column() == 3:
+                return item.range
+            if index.column() == 4:
+                return item.area
+            if index.column() == 5:
+                return item.duration
+            if index.column() == 6:
+                return item.raises                
         return None
 
     def flags(self, index):

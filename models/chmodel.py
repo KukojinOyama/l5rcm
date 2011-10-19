@@ -139,6 +139,7 @@ class AdvancedPcModel(BasePcModel):
         self.attrib_costs = [4, 4, 4, 4, 4, 4, 4, 4]
         self.void_cost    = 6
         self.health_multiplier = 2
+        self.spells_per_rank = 3
         self.exp_limit = 40
         self.wounds = 0        
         self.mod_init = (0, 0)
@@ -360,8 +361,17 @@ class AdvancedPcModel(BasePcModel):
         if not self.has_tag('shugenja'):
             return
             
-        target_spells = self.get_insight_rank() * 3
+        # must count also the universal spells    
+        target_spells = 3 + self.get_insight_rank() * self.spells_per_rank
         return len(self.get_spells()) < target_spells
+        
+    def get_how_many_spell_i_miss(self):
+        if not self.has_tag('shugenja'):
+            return 0
+            
+        # must count also the universal spells    
+        target_spells = 3 + self.get_insight_rank() * self.spells_per_rank
+        return max(0, target_spells - len(self.get_spells()))
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
         if skill_uid in self.step_2.skills:
