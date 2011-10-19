@@ -376,23 +376,20 @@ class L5RMain(QtGui.QMainWindow):
         add_pc_flags(2, 1)
         mgrid.addWidget(new_horiz_line(self), 3, 0, 1, 3)
         add_pc_quantities(4, 0)
-
-    def build_ui_page_2(self):
-        self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
-        self.ma_view_model = models.MaViewModel        (self.db_conn, self)
-
+        
+    def _build_generic_page(self, models_):
         mfr    = QtGui.QFrame(self)
-        vbox   = QtGui.QVBoxLayout(mfr)
-
-        models_ = [ ("Skills", 'table', self.sk_view_model, None), 
-                    ("Mastery Abilities",  'list', self.ma_view_model, models.MaItemDelegate(self)) ]
-        # Skill View, Weapon View
+        vbox   = QtGui.QVBoxLayout(mfr)        
+        
         for k, t, m, d in models_:
             grp    = QtGui.QGroupBox(k, self)
             view   = None
             if t == 'table':
                 view  = QtGui.QTableView(self)
-                view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);
+                view.setSortingEnabled(True)  
+                view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive);
+                view.horizontalHeader().setStretchLastSection(True)
+                view.horizontalHeader().setCascadingSectionResizes(True)
             elif t == 'list':
                 view = QtGui.QListView(self)
             view.setModel(m)
@@ -401,35 +398,35 @@ class L5RMain(QtGui.QMainWindow):
             tmp    = QtGui.QVBoxLayout(grp)
             tmp.addWidget(view)
             vbox.addWidget(grp)
+        return mfr
 
-        self.tabs.addTab(mfr, u"Skills")
+    def build_ui_page_2(self):
+        self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
+        self.ma_view_model = models.MaViewModel        (self.db_conn, self)
+        
+        # enable sorting through a proxy model
+        sk_sort_model = models.ColorFriendlySortProxyModel(self)
+        sk_sort_model.setDynamicSortFilter(True)
+        sk_sort_model.setSourceModel(self.sk_view_model)
+        
+        models_ = [ ("Skills", 'table', sk_sort_model, None), 
+                    ("Mastery Abilities",  'list', self.ma_view_model, models.MaItemDelegate(self)) ]
+
+        self.tabs.addTab(self._build_generic_page(models_), u"Skills")
         
     def build_ui_page_3(self):
         self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)        
         self.th_view_model = models.TechViewModel      (self.db_conn, self)
+        
+        # enable sorting through a proxy model
+        sp_sort_model = models.ColorFriendlySortProxyModel(self)
+        sp_sort_model.setDynamicSortFilter(True)
+        sp_sort_model.setSourceModel(self.sp_view_model)        
 
-        mfr    = QtGui.QFrame(self)
-        vbox   = QtGui.QVBoxLayout(mfr)
-
-        models_ = [ ("Spells", 'tree', self.sp_view_model, None), 
+        models_ = [ ("Spells", 'table', sp_sort_model, None), 
                     ("Techs",  'list',  self.th_view_model, models.TechItemDelegate(self)) ]
-        # Skill View, Weapon View
-        for k, t, m, d in models_:
-            grp    = QtGui.QGroupBox(k, self)
-            view   = None
-            if t == 'tree':
-                view  = QtGui.QTreeView(self)
-                #view.header().setResizeMode(QtGui.QHeaderView.Stretch);
-            elif t == 'list':
-                view = QtGui.QListView(self)
-            view.setModel(m)
-            if d is not None:
-                view.setItemDelegate(d)
-            tmp    = QtGui.QVBoxLayout(grp)
-            tmp.addWidget(view)
-            vbox.addWidget(grp)
 
-        self.tabs.addTab(mfr, u"Techniques")        
+        self.tabs.addTab(self._build_generic_page(models_), u"Techniques")        
 
     def build_ui_page_4(self):
         mfr    = QtGui.QFrame(self)
@@ -660,6 +657,8 @@ class L5RMain(QtGui.QMainWindow):
         set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
         unlock_school_act  = QtGui.QAction(u'Lock/Unlock Schools...'  , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
+        
+        self.unlock_schools_menu_item = unlock_school_act
         
         m_rules.addAction(set_exp_limit_act )
         m_rules.addAction(set_wound_mult_act)
@@ -899,8 +898,7 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.set_free_school_tech( tmp[0] )      
 
         # if shugenja get universal spells
-        # also player should choose 3 spells from list
-        print tag
+        # also player should choose 3 spells from list        
         
         if tag == 'shugenja':
             print 'fetch universal spells'
@@ -1254,6 +1252,9 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_clan  .setEnabled( not has_adv )
         self.cb_pc_school.setEnabled( not has_adv )
         self.cb_pc_family.setEnabled( not has_adv )
+        
+        # also disable schools lock/unlock
+        self.unlock_schools_menu_item.setEnabled( not has_adv )
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
