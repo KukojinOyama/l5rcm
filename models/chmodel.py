@@ -132,6 +132,7 @@ class AdvancedPcModel(BasePcModel):
         self.armor     = None
         self.weapons   = []
         self.techs     = []
+        self.spells    = []
         
         self.mastery_abilities = []
 
@@ -320,6 +321,9 @@ class AdvancedPcModel(BasePcModel):
         ls += self.techs
         return ls
         
+    def get_spells(self):
+        return self.spells
+        
     def get_perks(self):
         for adv in self.advans:
             if adv.type != 'perk':
@@ -337,10 +341,7 @@ class AdvancedPcModel(BasePcModel):
             if adv.type != 'perk' or adv.cost > 0:
                 continue
             yield adv.perk              
-        
-    def get_spells(self):
-        return []
-       
+               
     def has_tag(self, tag):
         return tag in self.tags or \
                self.step_1.has_tag(tag) or \
@@ -416,8 +417,9 @@ class AdvancedPcModel(BasePcModel):
         self.unsaved = True
         self.school  = school_id
         self.clear_pending_wc_skills()
-        # also reset tech
-        self.techs = []
+        # also reset tech and spells
+        self.techs  = []
+        self.spells = []
         if school_id == 0:
             return
 
@@ -443,6 +445,10 @@ class AdvancedPcModel(BasePcModel):
     def add_tech(self, tech_uuid):
         if tech_uuid not in self.techs:
             self.techs.append(tech_uuid)
+
+    def add_spell(self, spell_uuid):
+        if spell_uuid not in self.spells:
+            self.spells.append(spell_uuid)
             
     def set_void_points(self, value):
         self.void_points = value

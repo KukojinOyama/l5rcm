@@ -22,3 +22,4 @@ from models.outfit        import *
 from models.techviewmodel import *
 from models.perkviewmodel import *
 from models.maviewmodel   import *
+from models.spellmodel    import *

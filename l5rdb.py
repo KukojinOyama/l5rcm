@@ -49,6 +49,11 @@ def create(dbfile):
         (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, type TEXT,
         attribute TEXT)''')
         
+        # spells
+        c.execute('''create table spells
+        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, ring TEXT, mastery INTEGER,
+         range TEXT, area TEXT, duration TEXT, raises TEXT)''')        
+        
         # mastery abilities
         c.execute('''create table mastery_abilities
         (skill_uuid INTEGER, skill_rank INTEGER, rule TEXT, brief TEXT,
@@ -521,6 +526,39 @@ def import_categ_mastery_abilities(dbconn, categ, path):
                                             repr(rule), repr(brief), line ) )
     f.close()    
     
+def import_categ_spells(dbconn, categ, path):
+    print 'import spells from %s' % path
+    
+    f = open( path, 'rt' )
+    while True:
+        if not f.readline().startswith('#'): break
+        name         = value_or_null(f.readline())
+        ring_mastery = value_or_null(f.readline())
+        range        = value_or_null(f.readline())
+        area         = value_or_null(f.readline())
+        duration     = value_or_null(f.readline())
+        raises       = value_or_null(f.readline())
+        
+        toks    = ring_mastery.split()
+        ring    = toks[0].strip()
+        mastery = toks[1].strip()
+        tags    = []
+        if len(toks) > 2 and '(' in toks[2]:
+            # read tags
+            tags = toks[2].strip('()').split(';')
+                                             
+        uuid = get_cnt(dbconn, 'uuid')
+        if non_query(dbconn, '''insert into spells values(?,?,?,?,?,?,?,?)''',
+                             [uuid,name,ring,mastery,range,area,duration,raises]):
+            
+            
+            print 'imported spell %s with uuid %s' % (name, uuid)
+            
+            for t in tags:
+                add_tag(dbconn, uuid, t)
+            
+    f.close()  
+    
 def import_families(conn, path):
     for path, dirs, files in os.walk(path):
         dirn = os.path.basename(path)
@@ -591,6 +629,16 @@ def import_weapons(conn, path):
             if file_.startswith('.') or file_.endswith('~'):
                 continue
             import_categ_weapons(conn, file_.lower(), os.path.join(path, file_))
+            
+def import_spells(conn, path):
+    for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break
+        for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue
+            import_categ_spells(conn, file_.lower(), os.path.join(path, file_))            
 
 def importdb(conn, path):
     import_clans(conn, os.path.join(path, 'clans'))
@@ -605,6 +653,7 @@ def importdb(conn, path):
     import_perks(conn, os.path.join(path, 'merits'), 'merit')
     import_perks(conn, os.path.join(path, 'flaws'), 'flaw')
     import_mastery_abilities(conn, os.path.join(path, 'mastery_abilities'))
+    import_spells(conn, os.path.join(path, 'spells'))
     conn.commit()
 
 ### MAIN ###
