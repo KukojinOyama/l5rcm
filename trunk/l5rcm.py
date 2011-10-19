@@ -405,22 +405,21 @@ class L5RMain(QtGui.QMainWindow):
         self.tabs.addTab(mfr, u"Skills")
         
     def build_ui_page_3(self):
-        #self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)
-        self.sp_view_model = None
+        self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)        
         self.th_view_model = models.TechViewModel      (self.db_conn, self)
 
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
-        models_ = [ ("Spells", 'table', self.sp_view_model, None), 
+        models_ = [ ("Spells", 'tree', self.sp_view_model, None), 
                     ("Techs",  'list',  self.th_view_model, models.TechItemDelegate(self)) ]
         # Skill View, Weapon View
         for k, t, m, d in models_:
             grp    = QtGui.QGroupBox(k, self)
             view   = None
-            if t == 'table':
-                view  = QtGui.QTableView(self)
-                view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch);
+            if t == 'tree':
+                view  = QtGui.QTreeView(self)
+                #view.header().setResizeMode(QtGui.QHeaderView.Stretch);
             elif t == 'list':
                 view = QtGui.QListView(self)
             view.setModel(m)
@@ -897,8 +896,20 @@ class L5RMain(QtGui.QMainWindow):
                      
         tmp = c.fetchone()
         if tmp is not None:
-            self.pc.set_free_school_tech( tmp[0] )            
+            self.pc.set_free_school_tech( tmp[0] )      
+
+        # if shugenja get universal spells
+        # also player should choose 3 spells from list
+        print tag
         
+        if tag == 'shugenja':
+            print 'fetch universal spells'
+            c.execute('''select uuid, name from spells
+                         where ring="All" and mastery=1''')
+            for uuid, name in c.fetchall():
+                print 'add spell %d %s' % ( uuid, name )
+                self.pc.add_spell(uuid)
+                
         c.close()
         self.update_from_model()
 
@@ -1251,6 +1262,7 @@ class L5RMain(QtGui.QMainWindow):
         self.th_view_model    .update_from_model(self.pc)
         self.merits_view_model.update_from_model(self.pc)
         self.flaws_view_model .update_from_model(self.pc)
+        self.sp_view_model    .update_from_model(self.pc)
         
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
