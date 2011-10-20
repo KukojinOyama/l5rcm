@@ -271,6 +271,33 @@ class BuyAdvDialog(QtGui.QDialog):
             self.pc.add_advancement( self.adv )
             self.accept()
 
+def check_all_done(cb_list):
+    # check that all the choice have been made
+    for cb in cb_list:
+        if cb.currentIndex() < 0:
+            return False
+    return True
+
+def check_all_different(cb_list):    
+    # check that all the choices are different
+    for i in xrange(0, len(cb_list)-1):
+        cb = cb_list[i]
+        id = cb.itemData(cb.currentIndex())
+        for j in xrange(i+1, len(cb_list)):
+            cb2 = cb_list[j]
+            id2 = cb2.itemData(cb2.currentIndex())
+            
+            if id2 == id:
+                return False
+    return True
+    
+def check_already_got(list1, list2):
+    # check if you already got this item
+    for id in list1:
+        if id in list2:
+            return True
+    return False
+    
 class SelWcSkills(QtGui.QDialog):
     def __init__(self, pc, conn, parent = None):
         super(SelWcSkills, self).__init__(parent)
@@ -353,23 +380,46 @@ class SelWcSkills(QtGui.QDialog):
         self.bt_ok    .clicked.connect( self.on_accept )
 
     def on_accept(self):
-        done = True
-
-        # check that all the choice have been made
-        for cb in self.cbs:
-            if cb.currentIndex() < 0:
-                done = False;
-                break
+        
+        # check if all selected
+        done = check_all_done(self.cbs)
 
         if not done:
-            self.error_bar.setText('''<span color:#FF0000>
+            self.error_bar.setText('''<p style='color:#FF0000'>
                                       <b>
                                       You need to choose all the skills
                                       </b>
-                                      </span>
+                                      </p>
                                       ''')
             self.error_bar.setVisible(True)
             return
+        
+        # check if all different
+        all_different = check_all_different(self.cbs)
+
+        if not all_different:
+            self.error_bar.setText('''<p style='color:#FF0000'>
+                                      <b>
+                                      You can't select the same skill more than once
+                                      </b>
+                                      </p>
+                                      ''')
+            self.error_bar.setVisible(True)
+            return
+            
+        # check if already got
+        already_got = check_already_got([x.itemData(x.currentIndex())[0] for x in self.cbs], self.pc.get_skills())
+        
+        if already_got:
+            self.error_bar.setText('''<p style='color:#FF0000'>
+                                      <b>
+                                      You already possess some of these skills
+                                      </b>
+                                      </p>
+                                      ''')
+            self.error_bar.setVisible(True)
+            return        
+            
         self.error_bar.setVisible(False)
 
         for cb in self.cbs:
@@ -498,23 +548,45 @@ class SelWcSpells(QtGui.QDialog):
         c.close()        
 
     def on_accept(self):
-        done = True
-
-        # check that all the choice have been made
-        for cb in self.cbs_spell:
-            if cb.currentIndex() < 0:
-                done = False;
-                break
+        # check if all selected
+        done = check_all_done(self.cbs_spell)
 
         if not done:
-            self.error_bar.setText('''<span color:#FF0000>
+            self.error_bar.setText('''<p style='color:#FF0000'>
                                       <b>
                                       You need to choose all the spells
                                       </b>
-                                      </span>
+                                      </p>
                                       ''')
             self.error_bar.setVisible(True)
             return
+        
+        # check if all different
+        all_different = check_all_different(self.cbs_spell)
+
+        if not all_different:
+            self.error_bar.setText('''<p style='color:#FF0000'>
+                                      <b>
+                                      You can't select the same spell more than once
+                                      </b>
+                                      </p>
+                                      ''')
+            self.error_bar.setVisible(True)
+            return
+            
+        # check if already got
+        already_got = check_already_got([x.itemData(x.currentIndex()) for x in self.cbs_spell], self.pc.get_skills())
+        
+        if already_got:
+            self.error_bar.setText('''<p style='color:#FF0000'>
+                                      <b>
+                                      You already possess some of these spells
+                                      </b>
+                                      </p>
+                                      ''')
+            self.error_bar.setVisible(True)
+            return        
+                        
         self.error_bar.setVisible(False)
 
         for cb in self.cbs_spell:
