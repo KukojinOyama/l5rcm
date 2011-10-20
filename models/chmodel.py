@@ -188,7 +188,7 @@ class AdvancedPcModel(BasePcModel):
 
     def get_skill_rank(self, uuid):
         if uuid in self.get_school_skills():
-            rank = self.step_2.skills[uuid]
+            rank = self.get_school_skill_rank(uuid)
         else:
             rank = 0
         for adv in self.advans:
@@ -290,6 +290,12 @@ class AdvancedPcModel(BasePcModel):
 
     def get_school_skills(self):
         return [ int(x) for x in self.step_2.skills.keys() ]
+        
+    def get_school_skill_rank(self, uuid):
+        s_id = str(uuid)
+        if s_id in self.step_2.skills:
+            return self.step_2.skills[s_id]
+        return 0
 
     def get_skills(self, school = True):
         l = []
@@ -297,7 +303,7 @@ class AdvancedPcModel(BasePcModel):
             l = self.get_school_skills()
         for adv in self.advans:
             if adv.type != 'skill' or \
-              adv.skill in self.step_2.skills.keys() or \
+              adv.skill in self.get_school_skills() or \
               adv.skill in l:
                 continue
             l.append(adv.skill)
@@ -305,9 +311,10 @@ class AdvancedPcModel(BasePcModel):
 
     def get_skill_emphases(self, skill_id):
         emph = []
+        s_id = str(skill_id)
         # search school skills
-        if skill_id in self.step_2.emph:
-            emph += self.step_2.emph[skill_id]
+        if s_id in self.step_2.emph:
+            emph += self.step_2.emph[s_id]
         for adv in self.advans:
             if adv.type != 'emph' or adv.text in emph:
                 continue
@@ -374,14 +381,15 @@ class AdvancedPcModel(BasePcModel):
         return max(0, target_spells - len(self.get_spells()))
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
-        if skill_uid in self.step_2.skills:
-            self.step_2.skills[skill_uid] += skill_rank
+        s_id = str(skill_uid)
+        if s_id in self.step_2.skills:
+            self.step_2.skills[s_id] += skill_rank
         else:
-            self.step_2.skills[skill_uid] = skill_rank
+            self.step_2.skills[s_id] = skill_rank
         if emph is not None:
-            if skill_uid not in self.step_2.emph:
-                self.step_2.emph[skill_uid] = []
-            self.step_2.emph[skill_uid].append(emph)
+            if s_id not in self.step_2.emph:
+                self.step_2.emph[s_id] = []
+            self.step_2.emph[s_id].append(emph)
 
         self.unsaved = True
 
@@ -508,38 +516,43 @@ class AdvancedPcModel(BasePcModel):
         if len(file_) == 0 or not os.path.exists(file_):
             return False
             
+        def _load_obj(in_dict, out_obj):
+            for k in in_dict.iterkeys():
+                out_obj.__dict__[k] = in_dict[k]
+            
         fp = open(file_, 'rt')
         if fp:
             obj = json.load(fp)
             fp.close()
 
-            self.__dict__ = deepcopy(obj)
+                
+            _load_obj(deepcopy(obj), self)
 
             self.step_0 = BasePcModel()
             self.step_1 = BasePcModel()
             self.step_2 = BasePcModel()
 
-            self.step_0.__dict__ = deepcopy(obj['step_0'])
-            self.step_1.__dict__ = deepcopy(obj['step_1'])
-            self.step_2.__dict__ = deepcopy(obj['step_2'])
+            _load_obj(deepcopy(obj['step_0']), self.step_0)
+            _load_obj(deepcopy(obj['step_1']), self.step_1)
+            _load_obj(deepcopy(obj['step_2']), self.step_2)
 
             self.advans = []
             for ad in obj['advans']:
                 a = adv.Advancement(None, None)
-                a.__dict__ = deepcopy(ad)                
+                _load_obj(deepcopy(ad), a)
                 self.advans.append(a)
                 
             # armor
             self.armor = outfit.ArmorOutfit()
             if obj['armor'] is not None:
-                self.armor.__dict__ = deepcopy(obj['armor'])
+                _load_obj(deepcopy(obj['armor']), self.armor)
             
             # weapons
             for w in obj['weapons']:
                 item = outfit.WeaponOutfit()
-                item.__dict__ = deepcopy(w)
+                _load_obj(deepcopy(w), self.item)
                 self.add_weapon(item)
-
+            
             self.unsaved  = False           
             
             return True
