@@ -27,7 +27,7 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.3'
+APP_VERSION = '1.4'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -39,6 +39,10 @@ ALDERAC_HOME_PAGE = 'http://www.alderac.com/'
 
 
 MY_CWD        = os.getcwd()
+if not os.path.exists( os.path.join( MY_CWD, 'share/l5rcm') ):
+    MY_CWD = sys.path[0]
+    if not os.path.exists( os.path.join( MY_CWD, 'share/l5rcm') ):
+        MY_CWD = os.path.dirname(sys.path[0])
 
 def get_app_file(rel_path):
     if os.name == 'nt':
@@ -104,7 +108,12 @@ class L5RMain(QtGui.QMainWindow):
         self.build_menu()
 
         # Connect to database
-        self.db_conn = sqlite3.connect( get_app_file('l5rdb.sqlite') )
+        self.db_conn = None
+        try:
+            self.db_conn = sqlite3.connect( get_app_file('l5rdb.sqlite') )
+        except Exception as e:
+            sys.stderr.write('unable to open database file %s\n' % get_app_file('l5rdb.sqlite'))
+            sys.stderr.write("Current working dir : %s\n" % os.getcwd())            
 
         # Build page 1
         self.build_ui_page_1()
@@ -1343,6 +1352,13 @@ def main():
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
     l5rcm.new_character()
+    
+    print sys.argv
+    
+    if len(sys.argv) > 1:
+        print 'load character file %s' % sys.argv[1]
+        l5rcm.pc.load_from(sys.argv[1])
+        l5rcm.update_from_model()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
