@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Legend of the Five Rings: Character Manager"
-!define PRODUCT_VERSION "1.3"
+!define PRODUCT_VERSION "1.4"
 !define PRODUCT_PUBLISHER "openningia"
 !define PRODUCT_WEB_SITE "http://code.google.com/p/l5rcm/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\l5rcm.exe"
@@ -36,7 +36,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "l5rcm.exe"
+OutFile "l5rcm-${PRODUCT_VERSION}.exe"
 InstallDir "$PROGRAMFILES\OpenNingia\L5RCM"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -48,6 +48,16 @@ Section "MainSection" SEC01
   CreateDirectory "$SMPROGRAMS\OpenNingia\L5RCM"
   CreateShortCut "$SMPROGRAMS\OpenNingia\L5RCM\L5RCM.lnk" "$INSTDIR\l5rcm.exe"
   CreateShortCut "$DESKTOP\l5rcm.lnk" "$INSTDIR\l5rcm.exe"
+  
+  # Register File Extension
+  WriteRegStr HKCR ".l5r" "" "L5Rcm.Character"
+  
+  # Register File Type and assign an Icon
+  WriteRegStr HKCR "L5Rcm.Character" "" "L5R: CM - Character File"   
+  WriteRegStr HKCR "L5Rcm.Character\DefaultIcon" "" "$INSTDIR\l5rcm.exe,0"  
+  
+  # Register the Verbs
+    WriteRegStr HKCR "L5Rcm.Character\shell\open\command" "" '"$INSTDIR\l5rcm.exe" "%1"'
 SectionEnd
 
 Section -AdditionalIcons
@@ -83,8 +93,14 @@ Section Uninstall
   Delete "$DESKTOP\L5RCM.lnk"
   Delete "$SMPROGRAMS\OpenNingia\L5RCM\L5RCM.lnk"
   RMDir "$SMPROGRAMS\OpenNingia\L5RCM"
+  RMDir "$SMPROGRAMS\OpenNingia"
   RMDir /r "$INSTDIR"
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
+  
+  # Remove File Type and icon
+  DeleteRegKey HKCR "L5Rcm.Character"
+  DeleteRegKey HKCR ".l5r"
+   
   SetAutoClose true
 SectionEnd

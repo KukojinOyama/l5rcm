@@ -444,7 +444,7 @@ class SelWcSpells(QtGui.QDialog):
             cb.addItem('Void')
             
         for cb in self.cbs_mast:
-            for x in xrange(0,5):
+            for x in xrange(0,6):
                 cb.addItem('Mastery Level %d' % (x+1), x+1)
         c.close()
 

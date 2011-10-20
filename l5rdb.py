@@ -539,13 +539,13 @@ def import_categ_spells(dbconn, categ, path):
         duration     = value_or_null(f.readline())
         raises       = value_or_null(f.readline())
         
-        toks    = ring_mastery.split()
+        toks    = ring_mastery.split(' ', 2)
         ring    = toks[0].strip()
         mastery = toks[1].strip()
         tags    = []
         if len(toks) > 2 and '(' in toks[2]:
-            # read tags
-            tags = toks[2].strip('()').split(';')
+            # read tags            
+            tags = toks[2].strip('()').split(';')            
                                              
         uuid = get_cnt(dbconn, 'uuid')
         if non_query(dbconn, '''insert into spells values(?,?,?,?,?,?,?,?)''',
@@ -555,7 +555,7 @@ def import_categ_spells(dbconn, categ, path):
             print 'imported spell %s with uuid %s' % (name, uuid)
             
             for t in tags:
-                add_tag(dbconn, uuid, t)
+                add_tag(dbconn, uuid, t.strip())
             
     f.close()  
     
