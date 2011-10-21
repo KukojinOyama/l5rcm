@@ -1396,8 +1396,9 @@ def main():
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()    
     
-    # check for updates
-    l5rcm.check_updates()
+    if os.name == 'nt':
+        # check for updates
+        l5rcm.check_updates()
     
     # initialize new character
     l5rcm.new_character()
