@@ -23,6 +23,7 @@ import widgets
 import dialogs
 import autoupdate
 import tempfile
+import exporters
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
@@ -266,7 +267,7 @@ class L5RMain(QtGui.QMainWindow):
             grid.addWidget( QtGui.QLabel("<b>Void Points</b>"), 4, 2, 1, 3,
                             QtCore.Qt.AlignHCenter )
             
-            self.void_points = widgets.CkNumWidget(self) 
+            self.void_points = widgets.CkNumWidget(count=10, parent=self) 
             grid.addWidget( self.void_points, 5, 2, 1, 3,
                             QtCore.Qt.AlignHCenter)
 
@@ -292,7 +293,7 @@ class L5RMain(QtGui.QMainWindow):
                 lay.addWidget(QtGui.QLabel('<b>%s</b>' %f), row, 0)
                 l = new_small_le(self, False)
                 lay.addWidget(l, row, 1)
-                w = widgets.CkNumWidget(self)
+                w = widgets.CkNumWidget(parent=self)
                 lay.addWidget(w, row+1, 0, 1, 2, QtCore.Qt.AlignHCenter)
                 ob_flags_p.append(w)
                 ob_flags_r.append(l)
@@ -530,10 +531,11 @@ class L5RMain(QtGui.QMainWindow):
         # File Menu
         m_file = self.menuBar().addMenu("&File");
         # actions: new, open, save
-        new_act  = QtGui.QAction(u'&New Character', self)
-        open_act = QtGui.QAction(u'&Open Character...', self)
-        save_act = QtGui.QAction(u'&Save Character...', self)
-        exit_act = QtGui.QAction(u'E&xit', self)
+        new_act         = QtGui.QAction(u'&New Character', self)
+        open_act        = QtGui.QAction(u'&Open Character...', self)
+        save_act        = QtGui.QAction(u'&Save Character...', self)
+        export_text_act = QtGui.QAction(u'Ex&port as Text...', self)
+        exit_act        = QtGui.QAction(u'E&xit', self)
         
         new_act .setShortcut( QtGui.QKeySequence.New  )
         open_act.setShortcut( QtGui.QKeySequence.Open )
@@ -544,12 +546,16 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addAction(open_act)
         m_file.addAction(save_act)
         m_file.addSeparator()
+        m_file.addAction(export_text_act)
+        m_file.addSeparator()
         m_file.addAction(exit_act)
 
         new_act .triggered.connect( self.new_character  )
         open_act.triggered.connect( self.load_character )
         save_act.triggered.connect( self.save_character )
         exit_act.triggered.connect( self.close )
+        
+        export_text_act.triggered.connect( self.export_as_text )
 
         self.m_file = m_file
 
@@ -925,9 +931,12 @@ class L5RMain(QtGui.QMainWindow):
     def on_pc_name_change(self):
         self.pc.name = self.tx_pc_name.text()
 
-    def on_flag_points_change(self):
+    def on_flag_points_change(self, old_value, new_value):
         fl  = self.sender()
-        pt = fl.value
+        pt = new_value
+        
+        print 'flag points change: %d' % pt
+        
         if fl == self.pc_flags_points[0]:
             val = int(self.pc_flags_rank[0].text())
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -1381,6 +1390,20 @@ class L5RMain(QtGui.QMainWindow):
                
                sys.stdout.flush()
                os.execl(dlg.file_path, dlg.file_path)
+               
+    def export_as_text(self):
+        export_file = self.pc.name + '.txt'
+        exporter = exporters.TextExporter()
+        exporter.set_form (self)
+        exporter.set_model(self.pc     )
+        #exporter.set_db   (self.db_conn)
+        
+        f = open(export_file, 'wt')
+        if f is not None:
+            exporter.export(f)
+        f.close()
+        
+        
 
 ### MAIN ###
 def main():

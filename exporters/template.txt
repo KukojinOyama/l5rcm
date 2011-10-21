@@ -1,0 +1,33 @@
+﻿* Created by L5R: Character Manager
+* Author: Daniele Simonetti
+* All right on L5R RPG belongs to AEG
+
+# CHARACTER
+Akoto Mokoto                  RANK   :            1
+CLAN  :               LION    FAMILY :        Akodo
+SCHOOL: Akodo Bushi School    INSIGHT:          251
+EXP   :          270 / 300
+
+EARTH: 3    Stamina : 3    Willpower   : 3
+AIR  : 3    Reflexes: 3    Awareness   : 3
+WATER: 3    Strength: 4    Perception  : 3
+FIRE : 4    Agility : 4    Intelligence: 4
+VOID : 3    Void Points:   oooooooooo
+
+HONOR : 6.5
+GLORY : 2.3
+STATUS: 1.0
+TAINT : 0.0
+
+# INITIATIVE          # ARMOR TN            
+BASE    : 10K4        NAME     : Light Armor      
+MODIFIER: 1K1         BASE     : 15
+CURRENT : 10K6        ARMOR    : 5
+                      REDUCTION: 3
+                      CURRENT  : 20 
+
+# HEALTH / WOUNDS (X2)
+HEALTY:     10/9      INJURED : 4/-
+NICKED:      4/-      GRIPPLED: 4/-
+GRAZED:      4/-      DOWN    : 4/-
+HURT  :      4/-      OUT     : 4/-
