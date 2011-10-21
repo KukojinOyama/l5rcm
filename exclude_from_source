@@ -1,5 +1,7 @@
 .svn
 *.pyc
+*.7z
+*.log
 banner.png
 go_gpl.py
 l5rcm.spec
@@ -8,6 +10,7 @@ setup.py
 makesourceball.bat
 makedb.bat
 exclude_from_source
+last_version
 windows
 shots
 import
