@@ -211,7 +211,7 @@ class AdvancedPcModel(BasePcModel):
         return self.step_0.glory + self.glory
 
     def get_status(self):
-        return self.status
+        return self.step_0.status + self.status
 
     def get_taint(self):
         return self.taint
@@ -482,7 +482,7 @@ class AdvancedPcModel(BasePcModel):
         self.unsaved = True
 
     def set_status(self, value):
-        self.status = value
+        self.status = value - self.step_0.status
         self.unsaved = True
 
     def set_taint(self, value):

@@ -1047,7 +1047,23 @@ class L5RMain(QtGui.QMainWindow):
 
         resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
+                        
+    def load_character_from(self, path):
+        pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
+                        self.cb_pc_school] )
 
+        self.save_path = path
+        if self.pc.load_from(self.save_path):
+            self.load_families(self.pc.clan)
+            if self.pc.unlock_schools:
+                self.load_schools ()
+            else:
+                self.load_schools (self.pc.clan)
+            self.update_from_model()
+
+        resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
+                        self.cb_pc_school] )
+                        
     def save_character(self):
         if self.save_path == '' or not os.path.exists(self.save_path):
             self.save_path = self.select_save_path()            
@@ -1388,8 +1404,7 @@ def main():
         
     if len(sys.argv) > 1:
         print 'load character file %s' % sys.argv[1]
-        l5rcm.pc.load_from(sys.argv[1])
-        l5rcm.update_from_model()
+        l5rcm.load_character_from(sys.argv[1])
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
