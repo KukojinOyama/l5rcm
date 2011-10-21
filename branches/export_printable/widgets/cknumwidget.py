@@ -28,15 +28,16 @@ class CkNumWidget(QtGui.QWidget):
 
     valueChanged = QtCore.Signal(int, int)
 
-    def __init__(self, parent = None):
+    def __init__(self, count = 9, parent = None):
         super(CkNumWidget, self).__init__(parent)
-
+        
         self.checks = []
+        self.count = count
         self.value = 0
         hbox = QtGui.QHBoxLayout(self)
         hbox.setSpacing(0)
-        hbox.setContentsMargins(0,0,0,0)
-        for i in xrange(0, 10):
+        hbox.setContentsMargins(0,0,0,0)        
+        for i in xrange(0, count):
             ck = QtGui.QCheckBox(self)
             self.checks.append( ck )
             hbox.addWidget( ck )
@@ -47,37 +48,38 @@ class CkNumWidget(QtGui.QWidget):
         old_v = self.value
         fred = find(lambda ck: ck == self.sender(), self.checks)
         flag = fred.isChecked()
-        if flag:
-            self.value = int(fred.objectName())
-        else:
-            self.value = int(fred.objectName()) - 1
-        for i in xrange(0, 10):
+        cnt = self.value = int(fred.objectName())
+        if not flag:
+            cnt -= 1
+        for i in xrange(0, self.count):
             ck = self.checks[i]
             if flag:
-                if int(ck.objectName()) <= self.value:
+                if int(ck.objectName()) <= cnt:
                     self.checks[i].setChecked(flag)
                 else:
                     self.checks[i].setChecked(not flag)
             else:
-                if int(ck.objectName()) <= self.value:
+                if int(ck.objectName()) <= cnt:
                     self.checks[i].setChecked(not flag)
                 else:
                     self.checks[i].setChecked(flag)
+        
+        print 'old_v: %d, cur_v: %d' % (old_v, self.value)                    
         if self.value != old_v:
             self.valueChanged.emit(old_v, self.value)
-        #print 'value is %d' % self.value
 
     def set_value(self, value):
         if value == self.value:
             return
-        for i in xrange(0, 10):
+        
+        for i in xrange(0, self.count):
             ck = self.checks[i]
-            if int(ck.objectName()) <= value:
+            if int(ck.objectName()) < value:
                 self.checks[i].setChecked(True)
             else:
                 self.checks[i].setChecked(False)
         old_v = self.value
-        self.value = value
+        self.value = value                
 
         self.valueChanged.emit(old_v, value)
 
