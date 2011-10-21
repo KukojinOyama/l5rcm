@@ -17,6 +17,7 @@ Here you will find what I plan to add to this app as version number increases. T
   * Weapons
   * Custom Weapons
   * Inventory System
+  * Export as Text file
 
 == Version 2.5 ==
   * Apply all rules that discount the cost of Attributes and Void ring
@@ -36,4 +37,5 @@ Here you will find what I plan to add to this app as version number increases. T
 
 == Version 6.x ==
   * Minor clans
-  * Ronin
+  * Ronins
+  * Export as rich text/HTML/PDF maybe?
