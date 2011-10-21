@@ -92,7 +92,8 @@ class BasePcModel(object):
         self.void    = 2
         self.attribs = [2, 2, 2, 2, 2, 2, 2, 2]
         self.rank    = 1
-        self.glory   = 2.0
+        self.glory   = 1.0
+        self.status  = 1.0
         
     def add_tag(self, tag):
         if tag not in self.tags:
