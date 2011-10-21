@@ -266,7 +266,7 @@ class L5RMain(QtGui.QMainWindow):
             grid.addWidget( QtGui.QLabel("<b>Void Points</b>"), 4, 2, 1, 3,
                             QtCore.Qt.AlignHCenter )
             
-            self.void_points = widgets.CkNumWidget(self) 
+            self.void_points = widgets.CkNumWidget(count=10, parent=self) 
             grid.addWidget( self.void_points, 5, 2, 1, 3,
                             QtCore.Qt.AlignHCenter)
 
@@ -292,7 +292,7 @@ class L5RMain(QtGui.QMainWindow):
                 lay.addWidget(QtGui.QLabel('<b>%s</b>' %f), row, 0)
                 l = new_small_le(self, False)
                 lay.addWidget(l, row, 1)
-                w = widgets.CkNumWidget(self)
+                w = widgets.CkNumWidget(count=9, parent=self)
                 lay.addWidget(w, row+1, 0, 1, 2, QtCore.Qt.AlignHCenter)
                 ob_flags_p.append(w)
                 ob_flags_r.append(l)
