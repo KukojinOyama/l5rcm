@@ -293,7 +293,7 @@ class L5RMain(QtGui.QMainWindow):
                 lay.addWidget(QtGui.QLabel('<b>%s</b>' %f), row, 0)
                 l = new_small_le(self, False)
                 lay.addWidget(l, row, 1)
-                w = widgets.CkNumWidget(parent=self)
+                w = widgets.CkNumWidget(count=9, parent=self)
                 lay.addWidget(w, row+1, 0, 1, 2, QtCore.Qt.AlignHCenter)
                 ob_flags_p.append(w)
                 ob_flags_r.append(l)

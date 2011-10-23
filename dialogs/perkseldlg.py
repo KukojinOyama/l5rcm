@@ -176,8 +176,6 @@ class BuyPerkDialog(QtGui.QDialog):
             self.le_cost.setText(text)
             c.close()
         
-        if self.tag == 'flaw':
-            cost = -cost
         self.item = models.PerkAdv(self.perk_id, rank, cost, tag)
             
     def on_accept(self):
@@ -193,9 +191,9 @@ class BuyPerkDialog(QtGui.QDialog):
                     self.item.cost = int(self.le_cost.text())
                 except:
                     self.item.cost = 0
-            if self.item.cost == 0:
+            if self.item.cost <= 0:
                 QtGui.QMessageBox.warning(self, "Invalid XP Cost",
-                                          "Please specify the XP Cost.")
+                                          "Please specify a number greater than 0.")
                 return
 
         if self.tag == 'merit':
@@ -210,6 +208,8 @@ class BuyPerkDialog(QtGui.QDialog):
             self.item.desc = "%s Rank %d, XP Gain: %d" % \
             ( self.perk_nm, self.item.rank, abs(self.item.cost) )
             
+        if self.tag == 'flaw':
+            self.item.cost *= -1
             
         self.pc.add_advancement(self.item)
         self.accept()
