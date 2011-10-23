@@ -13,7 +13,7 @@ Here you will find what I plan to add to this app as version number increases. T
 == Version 1.6 - 1.9 ==
   * Fixes and polishing
 
-== Version 2.1 - 2.4 ==
+== Version 2.0 - 2.4 ==
   * Weapons
   * Custom Weapons
   * Inventory System
