@@ -48,54 +48,70 @@ class TextExporter(object):
         f = self.form
         
         io.write('# CHARACTER\n')
-        io.write(str.format('{0:30}RANK   : {1:>12}\n', 
+        io.write(str.format('{0:36}RANK   : {1:>12}\n', 
                 self.get_fullname(m), m.get_insight_rank()))
-        io.write(str.format('CLAN  : {0:>18}    FAMILY : {1:>12}\n', 
+        io.write(str.format('CLAN  : {0:>24}    FAMILY : {1:>12}\n', 
                  self.get_clan_name(m), self.get_family_name(m)))
-        io.write(str.format('SCHOOL: {0:>18}    INSIGHT: {1:>12}\n',
+        io.write(str.format('SCHOOL: {0:>24}    INSIGHT: {1:>12}\n',
                  self.get_school_name(m), m.get_insight()))
-        io.write(str.format('EXP   : {0:>18}\n', self.get_exp(m)))
+        io.write(str.format('EXP   : {0:>24}\n', self.get_exp(m)))
         io.write('\n')
         
-        # Rings
-        io.write(str.format('EARTH: {0:>2}    Stamina : {1:>2}    Willpower   : {2:>2}\n',
+        # Rings & Flags
+        io.write(str.format("EARTH: {0:>2}    Stamina : {1:>2}"
+                            "    Willpower   : {2:>2}    HONOR : {3}\n",
                  m.get_ring_rank(models.RINGS.EARTH), 
                  m.get_attrib_rank(models.ATTRIBS.STAMINA),
-                 m.get_attrib_rank(models.ATTRIBS.WILLPOWER)))
-        io.write(str.format('AIR  : {0:>2}    Reflexes: {1:>2}    Awareness   : {2:>2}\n',
+                 m.get_attrib_rank(models.ATTRIBS.WILLPOWER),
+                 m.get_honor()))
+        io.write(str.format("AIR  : {0:>2}    Reflexes: {1:>2}    "
+                            "Awareness   : {2:>2}    GLORY : {3}\n",
                  m.get_ring_rank(models.RINGS.AIR), 
                  m.get_attrib_rank(models.ATTRIBS.REFLEXES),
-                 m.get_attrib_rank(models.ATTRIBS.AWARENESS)))
-        io.write(str.format('WATER: {0:>2}    Strength: {1:>2}    Perception  : {2:>2}\n',
+                 m.get_attrib_rank(models.ATTRIBS.AWARENESS),
+                 m.get_glory()))
+        io.write(str.format("WATER: {0:>2}    Strength: {1:>2}    "
+                            "Perception  : {2:>2}    STATUS: {3}\n",
                  m.get_ring_rank(models.RINGS.WATER), 
                  m.get_attrib_rank(models.ATTRIBS.STRENGTH),
-                 m.get_attrib_rank(models.ATTRIBS.PERCEPTION)))
-        io.write(str.format('FIRE : {0:>2}    Agility : {1:>2}    Intelligence: {2:>2}\n',
+                 m.get_attrib_rank(models.ATTRIBS.PERCEPTION),
+                 m.get_status()))
+        io.write(str.format("FIRE : {0:>2}    Agility : {1:>2}    "
+                            "Intelligence: {2:>2}    TAINT : {3}\n",
                  m.get_ring_rank(models.RINGS.FIRE), 
                  m.get_attrib_rank(models.ATTRIBS.AGILITY),
-                 m.get_attrib_rank(models.ATTRIBS.INTELLIGENCE)))
-        io.write(str.format('VOID : {0:>2}    Void Points:    oooooooooo\n',
+                 m.get_attrib_rank(models.ATTRIBS.INTELLIGENCE),
+                 m.get_taint()))
+        io.write(str.format("VOID : {0:>2}    Void Points:    oooooooooo\n",
                  m.get_ring_rank(models.RINGS.VOID)))
                  
-        # Flags
         io.write('\n')
-        io.write(str.format('HONOR : {0}\nGLORY : {1}\nSTATUS: {2}\nTAINT : {3}\n',
-                            m.get_honor(), m.get_glory(), m.get_status(),
-                            m.get_taint()))
-        io.write('\n')
-        io.write('# INITIATIVE          # ARMOR TN\n')
-        io.write(str.format('BASE    : {0:<12}NAME     : {1}\n',
+        io.write(str.format("# INITIATIVE       # ARMOR TN                "
+                            "# HEALTH / WOUNDS (X{0})\n", m.health_multiplier))
+        io.write(str.format("BASE    : {0:<5}    NAME     : {1:<15}"
+                            "HEALTY: {2:>2}/{3:>2}    INJURED : {4:>2}/{5:>2}\n",
                  f.tx_base_init.text(),
-                 f.tx_armor_nm.text()))                 
-        io.write(str.format('MODIFIER: {0:<12}BASE     : {1}\n',
+                 f.tx_armor_nm.text(),
+                 f.wounds[0][1].text(), f.wounds[0][2].text(),
+                 f.wounds[4][1].text(), f.wounds[4][2].text()))
+        io.write(str.format("MODIFIER: {0:<5}    BASE     : {1:<15}"
+                            "NICKED: {2:>2}/{3:>2}    GRIPPLED: {4:>2}/{5:>2}\n",
                  f.tx_mod_init.text(),
-                 f.tx_base_tn.text()))        
-        io.write(str.format('CURRENT : {0:<12}ARMOR    : {1}\n',
+                 f.tx_base_tn.text(),
+                 f.wounds[1][1].text(), f.wounds[1][2].text(),
+                 f.wounds[5][1].text(), f.wounds[5][2].text())) 
+        io.write(str.format("CURRENT : {0:<5}    ARMOR    : {1:<15}"
+                            "GRAZED: {2:>2}/{3:>2}    DOWN    : {4:>2}/{5:>2}\n",
                  f.tx_cur_init.text(),
-                 f.tx_armor_tn.text()))
-        io.write(str.format('                      REDUCTION: {0}\n',
-                 f.tx_armor_rd.text()))
-        io.write(str.format('                      CURRENT  : {0}\n',
+                 f.tx_armor_tn.text(),
+                 f.wounds[2][1].text(), f.wounds[2][2].text(),
+                 f.wounds[6][1].text(), f.wounds[6][2].text()))
+        io.write(str.format("                   REDUCTION: {0:<15}"
+                            "HURT  : {1:>2}/{2:>2}    OUT     : {3:>2}/{4:>2}\n",
+                 f.tx_armor_rd.text(),
+                 f.wounds[3][1].text(), f.wounds[3][2].text(),
+                 f.wounds[7][1].text(), f.wounds[7][2].text()))
+        io.write(str.format("                   CURRENT  : {0:<15}\n",
                  f.tx_cur_tn.text()))
                  
                  
