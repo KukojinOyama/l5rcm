@@ -65,6 +65,15 @@ def get_app_icon_path(size = (48,48)):
             return os.path.join( sys_path, APP_NAME + '.png' )
         return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, APP_NAME + '.png' )
 
+def get_icon_path(name, size = (48,48)):
+    size_str = '%dx%d' % size
+    if os.name == 'nt':
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )
+    else:
+        sys_path = '/usr/share/icons/l5rcm/%s' % size_str
+        if os.path.exists( sys_path ):
+            return os.path.join( sys_path, name + '.png' )
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )        
 
 def new_small_le(parent = None, ro = True):
     le = QtGui.QLineEdit(parent)
@@ -93,6 +102,7 @@ def new_small_plus_bt(parent = None):
     bt.setText('+')
     bt.setMaximumSize(16,16)
     bt.setMinimumSize(16,16)
+    bt.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
     return bt
 
 def split_decimal(value):
@@ -423,11 +433,13 @@ class L5RMain(QtGui.QMainWindow):
         add_pc_quantities(4, 0)
 
     def _build_generic_page(self, models_):
-        mfr    = QtGui.QFrame(self)
+        mfr    = QtGui.QFrame(self)        
         vbox   = QtGui.QVBoxLayout(mfr)
-
-        for k, t, m, d in models_:
+        views_ = []
+        
+        for k, t, m, d, tb in models_:
             grp    = QtGui.QGroupBox(k, self)
+            hbox   = QtGui.QHBoxLayout(grp)
             view   = None
             if t == 'table':
                 view  = QtGui.QTableView(self)
@@ -440,10 +452,13 @@ class L5RMain(QtGui.QMainWindow):
             view.setModel(m)
             if d is not None:
                 view.setItemDelegate(d)
-            tmp    = QtGui.QVBoxLayout(grp)
-            tmp.addWidget(view)
+            
+            if tb is not None:
+                hbox.addWidget(tb)
+            hbox.addWidget(view)
             vbox.addWidget(grp)
-        return mfr
+            views_.append(view)
+        return mfr, views_
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
@@ -453,11 +468,26 @@ class L5RMain(QtGui.QMainWindow):
         sk_sort_model = models.ColorFriendlySortProxyModel(self)
         sk_sort_model.setDynamicSortFilter(True)
         sk_sort_model.setSourceModel(self.sk_view_model)
+        
+        # skills vertical toolbar
+        vtb = widgets.VerticalToolBar(self)
+        vtb.addStretch()
+        vtb.addButton(QtGui.QIcon(get_icon_path('add',(16,16))), 
+                      'Add skill rank', self.buy_skill_rank)
+        vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
+                      'Buy another skill', self.show_buy_skill_dlg)
+        vtb.addStretch()
 
-        models_ = [ ("Skills", 'table', sk_sort_model, None),
-                    ("Mastery Abilities",  'list', self.ma_view_model, models.MaItemDelegate(self)) ]
-
-        self.tabs.addTab(self._build_generic_page(models_), u"Skills")
+        models_ = [ ("Skills", 'table', sk_sort_model, None, vtb),
+                    ("Mastery Abilities",  'list', self.ma_view_model, 
+                    models.MaItemDelegate(self), None) ]
+                    
+        frame_, views_ = self._build_generic_page(models_)
+        
+        if len(views_) > 0:
+            self.skill_table_view = views_[0]
+        
+        self.tabs.addTab(frame_, u"Skills")
 
     def build_ui_page_3(self):
         self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)
@@ -468,10 +498,12 @@ class L5RMain(QtGui.QMainWindow):
         sp_sort_model.setDynamicSortFilter(True)
         sp_sort_model.setSourceModel(self.sp_view_model)
 
-        models_ = [ ("Spells", 'table', sp_sort_model, None),
-                    ("Techs",  'list',  self.th_view_model, models.TechItemDelegate(self)) ]
+        models_ = [ ("Spells", 'table', sp_sort_model, None, None),
+                    ("Techs",  'list',  self.th_view_model, 
+                    models.TechItemDelegate(self), None) ]
 
-        self.tabs.addTab(self._build_generic_page(models_), u"Techniques")
+        frame_, views_ = self._build_generic_page(models_)
+        self.tabs.addTab(frame_, u"Techniques")
 
     def build_ui_page_4(self):
         mfr    = QtGui.QFrame(self)
@@ -1034,6 +1066,40 @@ class L5RMain(QtGui.QMainWindow):
         dlg.exec_()
         self.update_from_model()
 
+    def show_buy_skill_dlg(self):
+        dlg = dialogs.BuyAdvDialog(self.pc, 'skill',
+                                   self.db_conn, self)
+        dlg.exec_()
+        self.update_from_model()
+        
+    def buy_skill_rank(self):
+        # get selected skill
+        sm_ = self.skill_table_view.selectionModel()
+        if sm_.hasSelection():
+            idx = sm_.currentIndex()
+            skill_id = self.sk_view_model.data(idx)
+            
+            cur_value = self.pc.get_skill_rank( skill_id )
+            new_value = cur_value + 1
+
+            idx  = self.sk_view_model.index(idx.row(), 0)
+            text = self.sk_view_model.data(idx, QtCore.Qt.DisplayRole)
+            
+            cost = new_value
+
+            adv = models.SkillAdv(skill_id, cost)
+            adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+            
+            if adv.cost + self.pc.get_px() > self.pc.exp_limit:
+                QtGui.QMessageBox.warning(self, "Not enough XP",
+                "Cannot purchase.\nYou've reached the XP Limit.")                
+                return            
+            
+            self.pc.add_advancement(adv)
+            self.update_from_model()
+            sm_.setCurrentIndex(idx, QtGui.QItemSelectionModel.Select | \
+                                     QtGui.QItemSelectionModel.Rows)
+        
     def act_buy_perk(self):
         dlg = dialogs.BuyPerkDialog(self.pc, self.sender().property('tag'),
                                     self.db_conn, self)
