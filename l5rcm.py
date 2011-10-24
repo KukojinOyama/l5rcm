@@ -93,6 +93,7 @@ def new_small_plus_bt(parent = None):
     bt.setText('+')
     bt.setMaximumSize(16,16)
     bt.setMinimumSize(16,16)
+    bt.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
     return bt
 
 def split_decimal(value):
@@ -131,7 +132,8 @@ class L5RMain(QtGui.QMainWindow):
         self.build_ui_page_4()
         self.build_ui_page_5()
         self.build_ui_page_6()
-
+        self.build_ui_page_7()
+        
         self.connect_signals()
 
     def build_ui(self):
@@ -435,6 +437,10 @@ class L5RMain(QtGui.QMainWindow):
                 view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive);
                 view.horizontalHeader().setStretchLastSection(True)
                 view.horizontalHeader().setCascadingSectionResizes(True)
+                if d is not None and len(d) == 2:
+                    col_ = d[0]
+                    obj_ = d[1]
+                    view.setItemDelegateForColumn(col_, obj_)
             elif t == 'list':
                 view = QtGui.QListView(self)
             view.setModel(m)
@@ -519,6 +525,33 @@ class L5RMain(QtGui.QMainWindow):
         self.tabs.addTab(mfr, u"Advancements")
 
     def build_ui_page_6(self):
+        self.weap_view_model = models.WeaponTableViewModel(self)
+        #self.inv_view_model  = models.InventoryViewModel  (self.db_conn, self)
+        self.inv_view_model  = None
+
+        # enable sorting through a proxy model
+        weap_sort_model = models.ColorFriendlySortProxyModel(self)
+        weap_sort_model.setDynamicSortFilter(True)
+        weap_sort_model.setSourceModel(self.weap_view_model)
+        
+        inv_sort_model = models.ColorFriendlySortProxyModel(self)
+        inv_sort_model.setDynamicSortFilter(True)
+        inv_sort_model.setSourceModel(self.inv_view_model)
+        
+        # edit remove item delegate
+        weap_edrm = models.EditRemoveItemDelegate(self)
+        weap_edrm.setEnableEdit  (True)
+        weap_edrm.setEnableRemove(True)
+        weap_edrm.removeClicked.connect( self.on_weapon_remove )
+        weap_edrm.editClicked  .connect( self.on_weapon_edit   )
+        weap_wrap = (0, weap_edrm)
+
+        models_ = [ ("Weapons", 'table', weap_sort_model, weap_wrap),
+                    ("Inventory", 'table', inv_sort_model, None) ]
+
+        self.tabs.addTab(self._build_generic_page(models_), u"Equipment")
+        
+    def build_ui_page_7(self):
         mfr    = QtGui.QFrame(self)
         hbox   = QtGui.QHBoxLayout(mfr)
         hbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -678,8 +711,8 @@ class L5RMain(QtGui.QMainWindow):
         add_cust_weap_act  = QtGui.QAction(u'Add Custom Weapon...', self)
         add_misc_item_act  = QtGui.QAction(u'Add Misc Item...'    , self)
 
-        add_weap_act     .setEnabled(False)
-        add_cust_weap_act.setEnabled(False)
+        #add_weap_act     .setEnabled(False)
+        #add_cust_weap_act.setEnabled(False)
         add_misc_item_act.setEnabled(False)
 
         m_outfit.addAction(sel_armor_act     )
@@ -1085,7 +1118,9 @@ class L5RMain(QtGui.QMainWindow):
 
 
     def show_add_cust_weapon(self):
-        pass
+        dlg = dialogs.CustomWeaponDialog(self.pc, self.db_conn, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.update_from_model()
 
     def show_add_misc_item(self):
         pass
@@ -1278,12 +1313,14 @@ class L5RMain(QtGui.QMainWindow):
         resume_signals( self.pc_flags_points )
         resume_signals( self.pc_flags_rank   )
 
-        # armor tn
+        # armor
         self.tx_armor_nm .setText( str(self.pc.get_armor_name())  )
         self.tx_base_tn  .setText( str(self.pc.get_base_tn())     )
         self.tx_armor_tn .setText( str(self.pc.get_armor_tn())    )
         self.tx_armor_rd .setText( str(self.pc.get_armor_rd())    )
         self.tx_cur_tn   .setText( str(self.pc.get_cur_tn())      )
+        # armor description
+        self.tx_armor_nm.setToolTip( str(self.pc.get_armor_desc()) )
 
         # health
         for i in xrange(0, 8):
@@ -1362,6 +1399,7 @@ class L5RMain(QtGui.QMainWindow):
         self.merits_view_model.update_from_model(self.pc)
         self.flaws_view_model .update_from_model(self.pc)
         self.sp_view_model    .update_from_model(self.pc)
+        self.weap_view_model  .update_from_model(self.pc)
 
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)

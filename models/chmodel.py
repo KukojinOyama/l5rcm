@@ -257,6 +257,12 @@ class AdvancedPcModel(BasePcModel):
             return self.armor.name
         else:
             return 'No Armor'
+            
+    def get_armor_desc(self):
+        if self.armor is not None:
+            return self.armor.desc
+        else:
+            return ''      
 
     def get_cur_tn(self):
         return self.get_base_tn() + self.get_armor_tn()
@@ -380,6 +386,9 @@ class AdvancedPcModel(BasePcModel):
         # must count also the universal spells    
         target_spells = 3 + self.get_insight_rank() * self.spells_per_rank
         return max(0, target_spells - len(self.get_spells()))
+        
+    def get_weapons(self):
+        return self.weapons
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
         s_id = str(skill_uid)

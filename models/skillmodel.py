@@ -28,14 +28,6 @@ class SkillItemModel(object):
     def __str__(self):
         return self.name
 
-class WeaponItemModel(object):
-    def __init__(self):
-        self.name  = ''
-        self.type  = ''
-        self.atk   = ''
-        self.dr    = ''
-        self.bonus = ''
-
 class SkillTableViewModel(QtCore.QAbstractTableModel):
     def __init__(self, dbconn, parent = None):
         super(SkillTableViewModel, self).__init__(parent)

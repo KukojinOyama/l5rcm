@@ -15,6 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+from PySide import QtCore, QtGui
+
 class ArmorOutfit(object):
     def __init__(self):
         self.tn   = 0
@@ -89,3 +91,75 @@ def armor_outfit_from_db(dbconn, armor_uuid):
         
     c.close()
     return itm
+
+class WeaponTableViewModel(QtCore.QAbstractTableModel):
+    def __init__(self, parent = None):
+        super(WeaponTableViewModel, self).__init__(parent)
+        self.items = []
+        self.headers = ['V','Name', 'DR', 'Sec. DR', 'Range', 'Strength', 'Min. Str.']
+        self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
+        self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
+                            QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
+        self.item_size = QtCore.QSize(28, 28)
+
+    def rowCount(self, parent = QtCore.QModelIndex()):
+        return len(self.items)
+
+    def columnCount(self, parent = QtCore.QModelIndex()):
+        return len(self.headers)
+
+    def headerData(self, section, orientation, role = QtCore.Qt.ItemDataRole.DisplayRole):
+        if orientation != QtCore.Qt.Orientation.Horizontal:
+            return None
+        if role == QtCore.Qt.DisplayRole:
+            return self.headers[section]
+        return None
+
+    def data(self, index, role):
+        if not index.isValid() or index.row() >= len(self.items):
+            return None
+        item = self.items[index.row()]
+        if role == QtCore.Qt.DisplayRole:
+            if index.column() == 1:
+                return item.name
+            if index.column() == 2:
+                return item.dr
+            if index.column() == 3:
+                return item.dr_alt
+            if index.column() == 4:
+                return item.range
+            if index.column() == 5:
+                return item.strength
+            if index.column() == 6:
+                return item.min_str
+        elif role == QtCore.Qt.ForegroundRole:
+            return self.text_color
+        elif role == QtCore.Qt.BackgroundRole:
+            return self.bg_color[ index.row() % 2 ]            
+        elif role == QtCore.Qt.SizeHintRole:
+            return self.item_size
+        return None
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsDropEnabled
+        flags = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+        return flags
+
+    def add_item(self, item):
+        row = self.rowCount()
+        self.beginInsertRows(QtCore.QModelIndex(), row, row)
+        self.items.append(item)
+        self.endInsertRows()
+
+    def clean(self):
+        self.beginResetModel()
+        self.items = []
+        self.endResetModel()
+
+    def update_from_model(self, model):
+        self.clean()
+        for w in model.get_weapons():
+            self.add_item(w)
+    
+    
