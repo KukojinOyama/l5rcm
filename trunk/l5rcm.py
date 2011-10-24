@@ -29,7 +29,7 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.5'
+APP_VERSION = '1.6'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
