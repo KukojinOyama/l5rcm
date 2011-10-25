@@ -838,13 +838,20 @@ class L5RMain(QtGui.QMainWindow):
 
     def reset_adv(self):
         self.pc.advans = []
+        self.pc.reset_techs()
+        self.pc.reset_spells()
         self.update_from_model()
 
     def refund_last_adv(self):
         if len(self.pc.advans) > 0:
             adv = self.pc.advans.pop()
-            self.update_from_model()
 
+            if self.pc.get_how_many_spell_i_miss() < 0:
+                self.pc.reset_spells()
+            if len(self.pc.get_techs()) > self.pc.get_insight_rank():
+                self.pc.reset_techs()
+            self.update_from_model()
+        
     def generate_name(self):
         gender = self.sender().property('gender')
         name = ''
@@ -859,7 +866,11 @@ class L5RMain(QtGui.QMainWindow):
         attrib = models.attrib_from_name(text)
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1
+        ring_id = models.get_ring_id_from_attrib_id(attrib)
+        ring_nm = models.ring_name_from_id(ring_id)       
         cost = self.pc.get_attrib_cost( attrib ) * new_value
+        if self.pc.has_rule('elem_bless_%s' % ring_nm):
+            cost -= 1
         adv = models.AttribAdv(attrib, cost)
         adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
@@ -874,6 +885,8 @@ class L5RMain(QtGui.QMainWindow):
         cur_value = self.pc.get_ring_rank( RINGS.VOID )
         new_value = cur_value + 1
         cost = self.pc.void_cost * new_value
+        if self.pc.has_rule('enlightened'):
+            cost -= 2        
         adv = models.VoidAdv(cost)
         adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
@@ -1000,12 +1013,12 @@ class L5RMain(QtGui.QMainWindow):
                 self.pc.add_pending_wc_skill(wc, sk_rank)
 
         # get school tech rank 1
-        c.execute('''select uuid from school_techs
+        c.execute('''select uuid, effect from school_techs
                      where school_uuid=? and rank=1''', [uuid])
 
-        tmp = c.fetchone()
-        if tmp is not None:
-            self.pc.set_free_school_tech( tmp[0] )
+        for uuid, rule in c.fetchall():
+            self.pc.set_free_school_tech( uuid, rule )
+            break
 
         # if shugenja get universal spells
         # also player should choose 3 spells from list
@@ -1119,15 +1132,52 @@ class L5RMain(QtGui.QMainWindow):
         next_rank = len(self.pc.get_techs()) + 1
 
         c = self.db_conn.cursor()
-        c.execute('''select uuid, name from school_techs
+        c.execute('''select uuid, name, effect from school_techs
                      where school_uuid=? and rank=?''', [self.pc.school, next_rank])
-        for uuid, name in c.fetchall():
-            self.pc.add_tech(uuid)
+        for uuid, name, rule in c.fetchall():
+            self.pc.add_tech(int(uuid), rule)
 
         c.close()
 
         self.switch_to_page_3 ()
         self.update_from_model()
+        
+    def check_school_tech_and_spells(self):        
+        # Show nicebar if can get another school tech
+        if self.pc.can_get_other_techs():
+            #print 'can get more techniques'
+            lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
+            bt = QtGui.QPushButton('Learn Technique')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.learn_next_school_tech )
+            self.show_nicebar([lb, bt])
+        elif self.pc.can_get_other_spells():
+            lb = QtGui.QLabel("You reached enough insight Rank to learn other Spells")
+            bt = QtGui.QPushButton('Learn Spells')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.learn_next_school_spells )
+            self.show_nicebar([lb, bt])        
+            
+    def check_rules(self):
+        c = self.db_conn.cursor()
+        for t in self.pc.get_techs():
+            c.execute('''select uuid, effect from school_techs
+                         where uuid=?''', [t])
+            for uuid, rule in c.fetchall():
+                self.pc.add_tech(int(uuid), rule)
+                break
+                
+        for adv in self.pc.advans:
+            if adv.type == 'perk':
+                c.execute('''select uuid, rule from perks
+                             where uuid=?''', [adv.perk])
+                for uuid, rule in c.fetchall():
+                    print 'found character rule %s' % rule
+                    adv.rule = rule
+                    break            
+        c.close()        
 
     def learn_next_school_spells(self):
         dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
@@ -1169,17 +1219,8 @@ class L5RMain(QtGui.QMainWindow):
         pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
 
-        self.save_path = self.select_load_path()
-        if self.pc.load_from(self.save_path):
-            self.load_families(self.pc.clan)
-            if self.pc.unlock_schools:
-                self.load_schools ()
-            else:
-                self.load_schools (self.pc.clan)
-            self.update_from_model()
-
-        resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
-                        self.cb_pc_school] )
+        path = self.select_load_path()
+        self.load_character_from(path)
 
     def load_character_from(self, path):
         pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
@@ -1192,6 +1233,8 @@ class L5RMain(QtGui.QMainWindow):
                 self.load_schools ()
             else:
                 self.load_schools (self.pc.clan)
+                
+            self.check_rules()
             self.update_from_model()
 
         resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
@@ -1394,22 +1437,7 @@ class L5RMain(QtGui.QMainWindow):
         #    self.hide_nicebar()
 
         if not self.nicebar:
-            # Show nicebar if can get another school tech
-            if self.pc.can_get_other_techs():
-                #print 'can get more techniques'
-                lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
-                bt = QtGui.QPushButton('Learn Technique')
-                bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
-                                  QtGui.QSizePolicy.Preferred)
-                bt.clicked.connect( self.learn_next_school_tech )
-                self.show_nicebar([lb, bt])
-            elif self.pc.can_get_other_spells():
-                lb = QtGui.QLabel("You reached enough insight Rank to learn other Spells")
-                bt = QtGui.QPushButton('Learn Spells')
-                bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
-                                  QtGui.QSizePolicy.Preferred)
-                bt.clicked.connect( self.learn_next_school_spells )
-                self.show_nicebar([lb, bt])
+            self.check_school_tech_and_spells()
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0
