@@ -847,7 +847,7 @@ class L5RMain(QtGui.QMainWindow):
             adv = self.pc.advans.pop()
 
             if self.pc.get_how_many_spell_i_miss() < 0:
-                self.pc.reset_spells()
+                self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
             if len(self.pc.get_techs()) > self.pc.get_insight_rank():
                 self.pc.reset_techs()
             self.update_from_model()
@@ -1029,7 +1029,7 @@ class L5RMain(QtGui.QMainWindow):
                          where ring="All" and mastery=1''')
             for uuid, name in c.fetchall():
                 print 'add spell %d %s' % ( uuid, name )
-                self.pc.add_spell(uuid)
+                self.pc.add_free_spell(uuid)
 
         c.close()
         self.update_from_model()

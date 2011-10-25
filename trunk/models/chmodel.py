@@ -98,6 +98,7 @@ class BasePcModel(object):
         self.emph        = {}
         self.pending_wc  = []
         self.tags        = []
+        self.spells     = []
         self.honor       = 0.0
         self.glory       = 0.0
         self.status      = 0.0
@@ -150,7 +151,6 @@ class AdvancedPcModel(BasePcModel):
         self.weapons    = []
         self.techs      = []
         self.tech_rules = []
-        self.spells     = []
         
         self.mastery_abilities = []
 
@@ -348,7 +348,7 @@ class AdvancedPcModel(BasePcModel):
         return ls
         
     def get_spells(self):
-        return self.spells
+        return self.step_2.spells + self.spells
         
     def get_perks(self):
         for adv in self.advans:
@@ -406,7 +406,11 @@ class AdvancedPcModel(BasePcModel):
         
     def reset_spells(self):
         self.spells = []
-      
+        
+    def pop_spells(self, count):
+        for i in xrange(0, count):
+            self.spells.pop()
+            
     def reset_techs(self):
         self.techs = []
         self.tech_rules = []       
@@ -501,8 +505,12 @@ class AdvancedPcModel(BasePcModel):
         if rule is not None and rule not in self.tech_rules:
             self.tech_rules.append(rule)
 
+    def add_free_spell(self, spell_uuid):
+        if spell_uuid not in self.get_spells():
+            self.step_2.spells.append(spell_uuid)
+        
     def add_spell(self, spell_uuid):
-        if spell_uuid not in self.spells:
+        if spell_uuid not in self.get_spells():
             self.spells.append(spell_uuid)
             
     def set_void_points(self, value):
