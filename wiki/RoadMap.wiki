@@ -14,13 +14,13 @@ Here you will find what I plan to add to this app as version number increases. T
   * Fixes and polishing
 
 == Version 2.0 - 2.4 ==
+  * Apply rules that discount the cost of Attributes and Void ring
+
+== Version 2.5 ==
   * Weapons
   * Custom Weapons
   * Inventory System
   * Export as Text file
-
-== Version 2.5 ==
-  * Apply all rules that discount the cost of Attributes and Void ring
 
 == Version 3.x ==
   * Kata and Kiho
