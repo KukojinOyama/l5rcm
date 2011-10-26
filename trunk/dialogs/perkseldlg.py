@@ -129,7 +129,7 @@ class BuyPerkDialog(QtGui.QDialog):
             return
         perk = self.cb_perk.itemData(selected)
         self.perk_id = perk
-        self.perk_nm = text
+        self.perk_nm = self.cb_perk.itemText(selected)
         
         # get perk rule
         c = self.dbconn.cursor()        

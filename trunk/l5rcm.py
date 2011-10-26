@@ -151,7 +151,8 @@ class L5RMain(QtGui.QMainWindow):
         self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
         self.setCentralWidget(self.widgets)
 
-        self.nicebar = None
+        self.nicebar           = None
+        self.lock_advancements = True
 
         mvbox = QtGui.QVBoxLayout(self.centralWidget())
         logo = QtGui.QLabel(self)
@@ -538,7 +539,7 @@ class L5RMain(QtGui.QMainWindow):
         bt_refund_adv = QtGui.QPushButton("Refund", self)
         bt_refund_adv.setSizePolicy( QtGui.QSizePolicy.Maximum,
                                      QtGui.QSizePolicy.Preferred )
-        bt_refund_adv.clicked.connect(self.refund_last_adv)
+        bt_refund_adv.clicked.connect(self.refund_advancement)
         fr_h.addWidget(bt_refund_adv)
         vbox.addWidget(fr_)
 
@@ -547,6 +548,8 @@ class L5RMain(QtGui.QMainWindow):
         lview.setModel(self.adv_view_model)
         lview.setItemDelegate(models.AdvancementItemDelegate(self))
         vbox.addWidget(lview)
+        
+        self.adv_view = lview
 
         self.tabs.addTab(mfr, u"Advancements")
 
@@ -637,6 +640,8 @@ class L5RMain(QtGui.QMainWindow):
         buykata_act  = QtGui.QAction(u'Kata...', self)
         buykiho_act  = QtGui.QAction(u'Kiho...', self)
         buyspell_act = QtGui.QAction(u'Spell...', self)
+        
+        refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
         buyattr_act .setProperty('tag', 'attrib')
         buyvoid_act .setProperty('tag', 'void'  )
@@ -732,14 +737,23 @@ class L5RMain(QtGui.QMainWindow):
         # rules actions
         set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self)
         set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
-        unlock_school_act  = QtGui.QAction(u'Lock/Unlock Schools...'  , self)
+        unlock_school_act  = QtGui.QAction(u'Lock Schools...'         , self)
+        unlock_advans_act  = QtGui.QAction(u'Lock Advancements...'    , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
+        
+        unlock_school_act.setCheckable(True)
+        unlock_advans_act.setCheckable(True)
+        
+        unlock_school_act.setChecked(True)
+        unlock_advans_act.setChecked(True)       
 
         self.unlock_schools_menu_item = unlock_school_act
+        self.unlock_advans_menu_item  = unlock_advans_act
 
         m_rules.addAction(set_exp_limit_act )
         m_rules.addAction(set_wound_mult_act)
         m_rules.addAction(unlock_school_act )
+        m_rules.addAction(unlock_advans_act )
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
 
@@ -747,6 +761,7 @@ class L5RMain(QtGui.QMainWindow):
         set_wound_mult_act.triggered.connect( self.on_set_wnd_mult       )
         damage_act        .triggered.connect( self.on_damage_act         )
         unlock_school_act .triggered.connect( self.on_unlock_school_act  )
+        unlock_advans_act .toggled  .connect( self.on_toggle_advans_act  )
 
     def connect_signals(self):
 
@@ -851,6 +866,24 @@ class L5RMain(QtGui.QMainWindow):
             if len(self.pc.get_techs()) > self.pc.get_insight_rank():
                 self.pc.reset_techs()
             self.update_from_model()
+            
+    def refund_advancement(self, adv_idx = -1):
+        if self.lock_advancements:
+            return self.refund_last_adv()
+       
+        if adv_idx < 0:
+            adv_idx = len(self.pc.advans) - self.adv_view.selectionModel().currentIndex().row() - 1
+            
+        if adv_idx >= len(self.pc.advans) or adv_idx < 0:
+            return           
+        
+        del self.pc.advans[adv_idx]
+        
+        if self.pc.get_how_many_spell_i_miss() < 0:
+            self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
+        if len(self.pc.get_techs()) > self.pc.get_insight_rank():
+            self.pc.reset_techs()
+        self.update_from_model()        
         
     def generate_name(self):
         gender = self.sender().property('gender')
@@ -935,6 +968,20 @@ class L5RMain(QtGui.QMainWindow):
         else:
             self.load_schools(self.pc.clan)
         self.cb_pc_school.setCurrentIndex(0)
+        
+    def on_toggle_advans_act(self, flag):        
+        if flag == False:
+            result = QtGui.QMessageBox.warning(self, "Advancements unlock",
+                "Unlocking the advancements will permits you to Undo any"
+                "advancement with no specific order.\n"
+                "This may lead to incoerence and may permit \"cheating\".\n"
+                "Continue anyway?", 
+                QtGui.QMessageBox.StandardButton.Yes or QtGui.QMessageBox.StandardButton.No,
+                QtGui.QMessageBox.StandardButton.No)
+            if result == QtGui.QMessageBox.StandardButton.Yes:
+                self.lock_advancements = False
+        else:
+            self.lock_advancements = True
 
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
@@ -1446,7 +1493,8 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_family.setEnabled( not has_adv )
 
         # also disable schools lock/unlock
-        self.unlock_schools_menu_item.setEnabled( not has_adv )
+        self.unlock_schools_menu_item.setChecked( not self.pc.unlock_schools )
+        self.unlock_schools_menu_item.setEnabled( not has_adv )        
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
