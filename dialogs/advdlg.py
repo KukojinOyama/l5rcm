@@ -16,7 +16,6 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import models.advances as advances
-import models
 
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
@@ -40,6 +39,8 @@ class BuyAdvDialog(QtGui.QDialog):
                       skill= 'Buy Skill rank',
                       void=  'Buy Void rank',
                       emph=  'Buy Skill emphasys',
+                      merit= 'Buy Advantages',
+                      flaw=  'Buy Disadvantages',
                       kata=  'Buy Kata',
                       kiho=  'Buy Kiho',
                       spell= 'Buy Spell')
@@ -47,6 +48,8 @@ class BuyAdvDialog(QtGui.QDialog):
         labels = dict(attrib=('Choose Attribute'   ,  None),
                       skill= ('Choose Skill Type'  , 'Choose Skill'),
                       emph=  ('Choose Skill'       , 'Choose Emphasis'),
+                      merit= ('Choose Advantage'   , None),
+                      flaw=  ('Choose Disadvantage', None),
                       kata=  ('Choose Kata'        , None),
                       kiho=  ('Choose Kiho'        , None),
                       spell= ('Choose Spell'       , None))
@@ -56,6 +59,8 @@ class BuyAdvDialog(QtGui.QDialog):
         self.widgets = dict(attrib=(QtGui.QComboBox(self), None),
                             skill =(QtGui.QComboBox(self), QtGui.QComboBox(self)),
                             emph  =(QtGui.QComboBox(self), QtGui.QLineEdit(self)),
+                            merit =(QtGui.QComboBox(self), None),
+                            flaw  =(QtGui.QComboBox(self), None),
                             kata  =(None, None),
                             kiho  =(None, None),
                             spell =(None, None))
@@ -115,6 +120,13 @@ class BuyAdvDialog(QtGui.QDialog):
             self.lb_cost.setText('Cost: 2 exp')
             self.lb_from.setVisible(False)
             c.close()
+        elif self.tag == 'merit':
+            cb = self.widgets[self.tag][0]
+            c = self.dbconn.cursor()
+            c.execute('''select uuid, name from perks order by name''')
+            for uuid, name in c.fetchall():
+                cb.addItem( name, uuid )
+            c.close()            
 
     def connect_signals(self):
         if self.tag == 'attrib':
@@ -125,6 +137,9 @@ class BuyAdvDialog(QtGui.QDialog):
             cb2 = self.widgets[self.tag][1]
             cb1.currentIndexChanged.connect( self.on_skill_type_select )
             cb2.currentIndexChanged.connect( self.on_skill_select )
+        elif self.tag == 'merit':
+            cb = self.widgets[self.tag][0]
+            cb.currentIndexChanged.connect( self.on_merit_select )
 
         self.bt_buy.clicked.connect  ( self.buy_advancement )
         self.bt_close.clicked.connect( self.close           )
@@ -134,8 +149,6 @@ class BuyAdvDialog(QtGui.QDialog):
         new_value = cur_value + 1
 
         cost = self.pc.void_cost * new_value
-        if self.pc.has_rule('enlightened'):
-            cost -= 2
 
         self.lb_from.setText('From %d to %d' % (cur_value, new_value))
         self.lb_cost.setText('Cost: %d exp' % cost)
@@ -150,13 +163,8 @@ class BuyAdvDialog(QtGui.QDialog):
         text   = cb.itemText(idx)
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1
-        
-        ring_id = models.get_ring_id_from_attrib_id(attrib)
-        ring_nm = models.ring_name_from_id(ring_id)
 
         cost = self.pc.get_attrib_cost( attrib ) * new_value
-        if self.pc.has_rule('elem_bless_%s' % ring_nm):
-            cost -= 1
 
         self.lb_from.setText('From %d to %d' % (cur_value, new_value))
         self.lb_cost.setText('Cost: %d exp' % cost)
@@ -194,7 +202,44 @@ class BuyAdvDialog(QtGui.QDialog):
 
         self.adv = advances.SkillAdv(uuid, cost)
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+        
+    def on_merit_select(self, text = ''):
+        cb   = self.widgets['merit'][0]
+        idx  = cb.currentIndex()
+        perk = cb.itemData(idx)
+        text = cb.itemText(idx)
+
+        c     = self.dbconn.cursor()
+        c.execute('''select uuid, cost from perks
+                     where uuid=? order by name''', [perk])
+        cost = 0
+        tag  = None
+        for u, c_ in c.fetchall():
+            cost = c_
+            break
+
+        c.execute('''select tag, cost from perk_except
+                     where perk_uuid=? order by cost asc''', [perk])
+                     
+        for t, c_ in c.fetchall():
+            if self.pc.has_tag(t):
+                cost = c_
+                tag  = t
+                break
                 
+        c.close()
+
+        if tag is None:
+            self.lb_cost.setText('Cost: %d exp' % cost)
+        else:
+            self.lb_cost.setText('Cost: %d exp (%s)' % (cost, tag))
+
+        self.adv = advances.MeritAdv(perk, cost, tag)
+        if tag is None:
+            self.adv.desc = '%s, Cost: %d xp' % ( text, cost )
+        else:
+            self.adv.desc = '%s, Cost: %d xp (%s)' % ( text, cost, tag )
+        
     def buy_advancement(self):
         
         if self.adv and (self.adv.cost + self.pc.get_px()) > \
@@ -222,6 +267,9 @@ class BuyAdvDialog(QtGui.QDialog):
             self.adv.desc = '%s, Skill %s. Cost: 2 xp' % ( tx.text(), sk_name )
             self.pc.add_advancement( self.adv )
             tx.setText('')
+        elif self.tag == 'merit':
+            self.pc.add_advancement( self.adv )
+            self.accept()
 
 def check_all_done(cb_list):
     # check that all the choice have been made

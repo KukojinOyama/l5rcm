@@ -27,7 +27,6 @@ class BuyPerkDialog(QtGui.QDialog):
         self.dbconn = conn
         self.perk_id   = 0
         self.perk_nm   = ''
-        self.perk_rule = None
         self.item = None
         self.build_ui()
         self.load_data()
@@ -131,15 +130,6 @@ class BuyPerkDialog(QtGui.QDialog):
         self.perk_id = perk
         self.perk_nm = text
         
-        # get perk rule
-        c = self.dbconn.cursor()        
-        c.execute('''select uuid, rule from perks
-                     where uuid=?''', [perk])
-        for uuid, rule in c.fetchall():
-            self.perk_rule = rule
-            break;
-        c.close()   
-        
         # populate ranks
         # populate perks
         c = self.dbconn.cursor()        
@@ -194,7 +184,6 @@ class BuyPerkDialog(QtGui.QDialog):
                                       "Please select a perk.")
             return
         
-        self.item.rule  = self.perk_rule
         self.item.extra = self.tx_notes.toPlainText()
         if self.item.cost == 0:
             if self.le_cost.text() != '':

@@ -31,16 +31,11 @@ class RINGS:
     VOID  = 4
 
     _names = dict(earth=0, air=1, water=2, fire=3, void=4)
-    _ids   = ['earth', 'air', 'water', 'fire', 'void']
 
 def ring_from_name(name):
     if name in RINGS._names:
         return RINGS._names[name]
     return -1
-    
-def ring_name_from_id(ring_id):
-    if ring_id >= 0 and ring_id < len(RINGS._ids):
-        return RINGS._ids[ring_id]
 
 class ATTRIBS:
     # earth ring
@@ -61,21 +56,10 @@ class ATTRIBS:
 
     _names = dict(stamina=0, willpower=1, reflexes=2, awareness=3,
                   strength=4, perception=5, agility=6, intelligence=7)
-    _ids   = ['stamina', 'willpower', 'reflexes', 'awareness', 'strength',
-              'perception', 'agility', 'intelligence']                  
 
 def attrib_from_name(name):
     if name in ATTRIBS._names:
         return ATTRIBS._names[name]
-    return -1
-    
-def attrib_name_from_id(attrib_id):
-    if attrib_id >= 0 and attrib_id < len(ATTRIBS._ids):
-        return ATTRIBS._ids[attrib_id]
-    
-def get_ring_id_from_attrib_id(attrib_id):
-    if attrib_id >= ATTRIBS.STAMINA and attrib_id <= ATTRIBS.INTELLIGENCE:
-        return attrib_id // 2
     return -1
 
 class MyJsonEncoder(json.JSONEncoder):
@@ -98,7 +82,6 @@ class BasePcModel(object):
         self.emph        = {}
         self.pending_wc  = []
         self.tags        = []
-        self.spells     = []
         self.honor       = 0.0
         self.glory       = 0.0
         self.status      = 0.0
@@ -147,10 +130,10 @@ class AdvancedPcModel(BasePcModel):
         self.insight   = 0
         self.advans    = []
 
-        self.armor      = None
-        self.weapons    = []
-        self.techs      = []
-        self.tech_rules = []
+        self.armor     = None
+        self.weapons   = []
+        self.techs     = []
+        self.spells    = []
         
         self.mastery_abilities = []
 
@@ -264,10 +247,10 @@ class AdvancedPcModel(BasePcModel):
             return 0
 
     def get_armor_rd(self):
-        pc_rd = 0 if self.armor is None else self.armor.rd
-        if self.has_rule('hida_bushi_2'):
-            pc_rd += self.get_ring_rank(RINGS.EARTH)
-        return pc_rd
+        if self.armor is not None:
+            return self.armor.rd
+        else:
+            return 0
             
     def get_armor_name(self):
         if self.armor is not None:
@@ -348,7 +331,7 @@ class AdvancedPcModel(BasePcModel):
         return ls
         
     def get_spells(self):
-        return self.step_2.spells + self.spells
+        return self.spells
         
     def get_perks(self):
         for adv in self.advans:
@@ -372,13 +355,7 @@ class AdvancedPcModel(BasePcModel):
         return tag in self.tags or \
                self.step_1.has_tag(tag) or \
                self.step_2.has_tag(tag)
-    
-    def has_rule(self, rule):        
-        for adv in self.advans:
-            if hasattr(adv, 'rule') and adv.rule == rule:
-                return True
-        return rule in self.tech_rules
-    
+        
     def can_get_other_techs(self):
         if not self.has_tag('bushi') and \
            not self.has_tag('monk') and \
@@ -402,18 +379,7 @@ class AdvancedPcModel(BasePcModel):
             
         # must count also the universal spells    
         target_spells = 3 + self.get_insight_rank() * self.spells_per_rank
-        return target_spells - len(self.get_spells())
-        
-    def reset_spells(self):
-        self.spells = []
-        
-    def pop_spells(self, count):
-        for i in xrange(0, count):
-            self.spells.pop()
-            
-    def reset_techs(self):
-        self.techs = []
-        self.tech_rules = []       
+        return max(0, target_spells - len(self.get_spells()))
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
         s_id = str(skill_uid)
@@ -471,9 +437,8 @@ class AdvancedPcModel(BasePcModel):
         self.school  = school_id
         self.clear_pending_wc_skills()
         # also reset tech and spells
-        self.techs      = []
-        self.tech_rules = []
-        self.spells     = []
+        self.techs  = []
+        self.spells = []
         if school_id == 0:
             return
 
@@ -493,24 +458,15 @@ class AdvancedPcModel(BasePcModel):
                 return True
         return False
         
-    def set_free_school_tech(self, tech_uuid, rule = None):
+    def set_free_school_tech(self, tech_uuid):
         self.step_2.school_tech = tech_uuid
-        if rule is not None:
-            self.tech_rules.append(rule)        
         
-    def add_tech(self, tech_uuid, rule = None):
-        print 'add tech %s, rule %s' % ( repr(tech_uuid), rule )
-        if tech_uuid not in self.get_techs():
+    def add_tech(self, tech_uuid):
+        if tech_uuid not in self.techs:
             self.techs.append(tech_uuid)
-        if rule is not None and rule not in self.tech_rules:
-            self.tech_rules.append(rule)
 
-    def add_free_spell(self, spell_uuid):
-        if spell_uuid not in self.get_spells():
-            self.step_2.spells.append(spell_uuid)
-        
     def add_spell(self, spell_uuid):
-        if spell_uuid not in self.get_spells():
+        if spell_uuid not in self.spells:
             self.spells.append(spell_uuid)
             
     def set_void_points(self, value):

@@ -372,13 +372,12 @@ def import_clan_school_techs(dbconn, clan, path):
             rank   += 1
             tmp    = line.split(';')
             tech   = tmp[1].strip()
-            rule   = tmp[0].strip()
             uuid   = get_cnt(dbconn, 'uuid')
                                     
             if non_query(dbconn, '''insert into school_techs
-                                 (uuid, school_uuid, rank, name, effect)
-                                 values(?,?,?,?,?)''',
-                                 [uuid, s_uuid, rank, tech, rule]):
+                                 (uuid, school_uuid, rank, name)
+                                 values(?,?,?,?)''',
+                                 [uuid, s_uuid, rank, tech]):
                 print 'imported school tech %s with uuid %d' % (tech, uuid)
             else:
                 trace_error('''cannot import school tech with parameters: %s, %s, %s, %s. Line was: %s''' % ( repr(uuid), repr(s_uuid),
