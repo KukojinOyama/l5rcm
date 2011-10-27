@@ -30,7 +30,7 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.5'
+APP_VERSION = '1.6'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -66,6 +66,15 @@ def get_app_icon_path(size = (48,48)):
             return os.path.join( sys_path, APP_NAME + '.png' )
         return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, APP_NAME + '.png' )
 
+def get_icon_path(name, size = (48,48)):
+    size_str = '%dx%d' % size
+    if os.name == 'nt':
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )
+    else:
+        sys_path = '/usr/share/icons/l5rcm/%s' % size_str
+        if os.path.exists( sys_path ):
+            return os.path.join( sys_path, name + '.png' )
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )        
 
 def new_small_le(parent = None, ro = True):
     le = QtGui.QLineEdit(parent)
@@ -94,6 +103,7 @@ def new_small_plus_bt(parent = None):
     bt.setText('+')
     bt.setMaximumSize(16,16)
     bt.setMinimumSize(16,16)
+    bt.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
     return bt
 
 def split_decimal(value):
@@ -142,7 +152,8 @@ class L5RMain(QtGui.QMainWindow):
         self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
         self.setCentralWidget(self.widgets)
 
-        self.nicebar = None
+        self.nicebar           = None
+        self.lock_advancements = True
 
         mvbox = QtGui.QVBoxLayout(self.centralWidget())
         logo = QtGui.QLabel(self)
@@ -426,9 +437,11 @@ class L5RMain(QtGui.QMainWindow):
     def _build_generic_page(self, models_):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
-
-        for k, t, m, d in models_:
+        views_ = []
+        
+        for k, t, m, d, tb in models_:
             grp    = QtGui.QGroupBox(k, self)
+            hbox   = QtGui.QHBoxLayout(grp)
             view   = None
             if t == 'table':
                 view  = QtGui.QTableView(self)
@@ -441,10 +454,13 @@ class L5RMain(QtGui.QMainWindow):
             view.setModel(m)
             if d is not None:
                 view.setItemDelegate(d)
-            tmp    = QtGui.QVBoxLayout(grp)
-            tmp.addWidget(view)
+            
+            if tb is not None:
+                hbox.addWidget(tb)
+            hbox.addWidget(view)
             vbox.addWidget(grp)
-        return mfr
+            views_.append(view)
+        return mfr, views_
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
@@ -454,11 +470,26 @@ class L5RMain(QtGui.QMainWindow):
         sk_sort_model = models.ColorFriendlySortProxyModel(self)
         sk_sort_model.setDynamicSortFilter(True)
         sk_sort_model.setSourceModel(self.sk_view_model)
+        
+        # skills vertical toolbar
+        vtb = widgets.VerticalToolBar(self)
+        vtb.addStretch()
+        vtb.addButton(QtGui.QIcon(get_icon_path('add',(16,16))), 
+                      'Add skill rank', self.buy_skill_rank)
+        vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
+                      'Buy another skill', self.show_buy_skill_dlg)
+        vtb.addStretch()
 
-        models_ = [ ("Skills", 'table', sk_sort_model, None),
-                    ("Mastery Abilities",  'list', self.ma_view_model, models.MaItemDelegate(self)) ]
+        models_ = [ ("Skills", 'table', sk_sort_model, None, vtb),
+                    ("Mastery Abilities",  'list', self.ma_view_model, 
+                    models.MaItemDelegate(self), None) ]
+                    
+        frame_, views_ = self._build_generic_page(models_)
 
-        self.tabs.addTab(self._build_generic_page(models_), u"Skills")
+        if len(views_) > 0:
+            self.skill_table_view = views_[0]
+        
+        self.tabs.addTab(frame_, u"Skills")
 
     def build_ui_page_3(self):
         self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)
@@ -469,10 +500,12 @@ class L5RMain(QtGui.QMainWindow):
         sp_sort_model.setDynamicSortFilter(True)
         sp_sort_model.setSourceModel(self.sp_view_model)
 
-        models_ = [ ("Spells", 'table', sp_sort_model, None),
-                    ("Techs",  'list',  self.th_view_model, models.TechItemDelegate(self)) ]
+        models_ = [ ("Spells", 'table', sp_sort_model, None, None),
+                    ("Techs",  'list',  self.th_view_model, 
+                    models.TechItemDelegate(self), None) ]
 
-        self.tabs.addTab(self._build_generic_page(models_), u"Techniques")
+        frame_, views_ = self._build_generic_page(models_)
+        self.tabs.addTab(frame_, u"Techniques")
 
     def build_ui_page_4(self):
         mfr    = QtGui.QFrame(self)
@@ -507,7 +540,7 @@ class L5RMain(QtGui.QMainWindow):
         bt_refund_adv = QtGui.QPushButton("Refund", self)
         bt_refund_adv.setSizePolicy( QtGui.QSizePolicy.Maximum,
                                      QtGui.QSizePolicy.Preferred )
-        bt_refund_adv.clicked.connect(self.refund_last_adv)
+        bt_refund_adv.clicked.connect(self.refund_advancement)
         fr_h.addWidget(bt_refund_adv)
         vbox.addWidget(fr_)
 
@@ -516,6 +549,8 @@ class L5RMain(QtGui.QMainWindow):
         lview.setModel(self.adv_view_model)
         lview.setItemDelegate(models.AdvancementItemDelegate(self))
         vbox.addWidget(lview)
+        
+        self.adv_view = lview
 
         self.tabs.addTab(mfr, u"Advancements")
 
@@ -611,6 +646,8 @@ class L5RMain(QtGui.QMainWindow):
         buykata_act  = QtGui.QAction(u'Kata...', self)
         buykiho_act  = QtGui.QAction(u'Kiho...', self)
         buyspell_act = QtGui.QAction(u'Spell...', self)
+        
+        refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
         buyattr_act .setProperty('tag', 'attrib')
         buyvoid_act .setProperty('tag', 'void'  )
@@ -706,14 +743,23 @@ class L5RMain(QtGui.QMainWindow):
         # rules actions
         set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self)
         set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
-        unlock_school_act  = QtGui.QAction(u'Lock/Unlock Schools...'  , self)
+        unlock_school_act  = QtGui.QAction(u'Lock Schools...'         , self)
+        unlock_advans_act  = QtGui.QAction(u'Lock Advancements...'    , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
 
+        unlock_school_act.setCheckable(True)
+        unlock_advans_act.setCheckable(True)
+        
+        unlock_school_act.setChecked(True)
+        unlock_advans_act.setChecked(True)       
+
         self.unlock_schools_menu_item = unlock_school_act
+        self.unlock_advans_menu_item  = unlock_advans_act
 
         m_rules.addAction(set_exp_limit_act )
         m_rules.addAction(set_wound_mult_act)
         m_rules.addAction(unlock_school_act )
+        m_rules.addAction(unlock_advans_act )
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
 
@@ -721,6 +767,7 @@ class L5RMain(QtGui.QMainWindow):
         set_wound_mult_act.triggered.connect( self.on_set_wnd_mult       )
         damage_act        .triggered.connect( self.on_damage_act         )
         unlock_school_act .triggered.connect( self.on_unlock_school_act  )
+        unlock_advans_act .toggled  .connect( self.on_toggle_advans_act  )
 
     def connect_signals(self):
 
@@ -812,13 +859,38 @@ class L5RMain(QtGui.QMainWindow):
 
     def reset_adv(self):
         self.pc.advans = []
+        self.pc.reset_techs()
+        self.pc.reset_spells()
         self.update_from_model()
 
     def refund_last_adv(self):
         if len(self.pc.advans) > 0:
             adv = self.pc.advans.pop()
-            self.update_from_model()
 
+            if self.pc.get_how_many_spell_i_miss() < 0:
+                self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
+            if len(self.pc.get_techs()) > self.pc.get_insight_rank():
+                self.pc.reset_techs()
+            self.update_from_model()
+            
+    def refund_advancement(self, adv_idx = -1):
+        if self.lock_advancements:
+            return self.refund_last_adv()
+       
+        if adv_idx < 0:
+            adv_idx = len(self.pc.advans) - self.adv_view.selectionModel().currentIndex().row() - 1
+            
+        if adv_idx >= len(self.pc.advans) or adv_idx < 0:
+            return           
+        
+        del self.pc.advans[adv_idx]
+        
+        if self.pc.get_how_many_spell_i_miss() < 0:
+            self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
+        if len(self.pc.get_techs()) > self.pc.get_insight_rank():
+            self.pc.reset_techs()
+        self.update_from_model()        
+        
     def generate_name(self):
         gender = self.sender().property('gender')
         name = ''
@@ -833,7 +905,11 @@ class L5RMain(QtGui.QMainWindow):
         attrib = models.attrib_from_name(text)
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1
+        ring_id = models.get_ring_id_from_attrib_id(attrib)
+        ring_nm = models.ring_name_from_id(ring_id)       
         cost = self.pc.get_attrib_cost( attrib ) * new_value
+        if self.pc.has_rule('elem_bless_%s' % ring_nm):
+            cost -= 1
         adv = models.AttribAdv(attrib, cost)
         adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
@@ -848,6 +924,8 @@ class L5RMain(QtGui.QMainWindow):
         cur_value = self.pc.get_ring_rank( RINGS.VOID )
         new_value = cur_value + 1
         cost = self.pc.void_cost * new_value
+        if self.pc.has_rule('enlightened'):
+            cost -= 2        
         adv = models.VoidAdv(cost)
         adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
@@ -896,6 +974,20 @@ class L5RMain(QtGui.QMainWindow):
         else:
             self.load_schools(self.pc.clan)
         self.cb_pc_school.setCurrentIndex(0)
+        
+    def on_toggle_advans_act(self, flag):        
+        if flag == False:
+            result = QtGui.QMessageBox.warning(self, "Advancements unlock",
+                "Unlocking the advancements will permits you to Undo any"
+                "advancement with no specific order.\n"
+                "This may lead to incoerence and may permit \"cheating\".\n"
+                "Continue anyway?", 
+                QtGui.QMessageBox.StandardButton.Yes or QtGui.QMessageBox.StandardButton.No,
+                QtGui.QMessageBox.StandardButton.No)
+            if result == QtGui.QMessageBox.StandardButton.Yes:
+                self.lock_advancements = False
+        else:
+            self.lock_advancements = True
 
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
@@ -974,12 +1066,12 @@ class L5RMain(QtGui.QMainWindow):
                 self.pc.add_pending_wc_skill(wc, sk_rank)
 
         # get school tech rank 1
-        c.execute('''select uuid from school_techs
+        c.execute('''select uuid, effect from school_techs
                      where school_uuid=? and rank=1''', [uuid])
 
-        tmp = c.fetchone()
-        if tmp is not None:
-            self.pc.set_free_school_tech( tmp[0] )
+        for uuid, rule in c.fetchall():
+            self.pc.set_free_school_tech( uuid, rule )
+            break
 
         # if shugenja get universal spells
         # also player should choose 3 spells from list
@@ -990,7 +1082,7 @@ class L5RMain(QtGui.QMainWindow):
                          where ring="All" and mastery=1''')
             for uuid, name in c.fetchall():
                 print 'add spell %d %s' % ( uuid, name )
-                self.pc.add_spell(uuid)
+                self.pc.add_free_spell(uuid)
 
         c.close()
         self.update_from_model()
@@ -1017,9 +1109,9 @@ class L5RMain(QtGui.QMainWindow):
             val = int(self.pc_flags_rank[3].text())
             self.pc.set_taint( float(val + float(pt)/10 ) )
 
-    def on_flag_rank_change(self):
+    def on_flag_rank_change(self, old_value, new_value):
         fl  = self.sender()
-        val = int(fl.text())
+        val = new_value
         if fl == self.pc_flags_rank[0]:
             pt = self.pc_flags_points[0].value
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -1043,6 +1135,40 @@ class L5RMain(QtGui.QMainWindow):
         dlg.exec_()
         self.update_from_model()
 
+    def show_buy_skill_dlg(self):
+        dlg = dialogs.BuyAdvDialog(self.pc, 'skill',
+                                   self.db_conn, self)
+        dlg.exec_()
+        self.update_from_model()
+        
+    def buy_skill_rank(self):
+        # get selected skill
+        sm_ = self.skill_table_view.selectionModel()
+        if sm_.hasSelection():
+            idx = sm_.currentIndex()
+            skill_id = self.sk_view_model.data(idx)
+            
+            cur_value = self.pc.get_skill_rank( skill_id )
+            new_value = cur_value + 1
+
+            idx  = self.sk_view_model.index(idx.row(), 0)
+            text = self.sk_view_model.data(idx, QtCore.Qt.DisplayRole)
+            
+            cost = new_value
+
+            adv = models.SkillAdv(skill_id, cost)
+            adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+            
+            if adv.cost + self.pc.get_px() > self.pc.exp_limit:
+                QtGui.QMessageBox.warning(self, "Not enough XP",
+                "Cannot purchase.\nYou've reached the XP Limit.")                
+                return            
+            
+            self.pc.add_advancement(adv)
+            self.update_from_model()
+            sm_.setCurrentIndex(idx, QtGui.QItemSelectionModel.Select | \
+                                     QtGui.QItemSelectionModel.Rows)
+        
     def act_buy_perk(self):
         dlg = dialogs.BuyPerkDialog(self.pc, self.sender().property('tag'),
                                     self.db_conn, self)
@@ -1062,15 +1188,52 @@ class L5RMain(QtGui.QMainWindow):
         next_rank = len(self.pc.get_techs()) + 1
 
         c = self.db_conn.cursor()
-        c.execute('''select uuid, name from school_techs
+        c.execute('''select uuid, name, effect from school_techs
                      where school_uuid=? and rank=?''', [self.pc.school, next_rank])
-        for uuid, name in c.fetchall():
-            self.pc.add_tech(uuid)
+        for uuid, name, rule in c.fetchall():
+            self.pc.add_tech(int(uuid), rule)
 
         c.close()
 
         self.switch_to_page_3 ()
         self.update_from_model()
+        
+    def check_school_tech_and_spells(self):        
+        # Show nicebar if can get another school tech
+        if self.pc.can_get_other_techs():
+            #print 'can get more techniques'
+            lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
+            bt = QtGui.QPushButton('Learn Technique')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.learn_next_school_tech )
+            self.show_nicebar([lb, bt])
+        elif self.pc.can_get_other_spells():
+            lb = QtGui.QLabel("You reached enough insight Rank to learn other Spells")
+            bt = QtGui.QPushButton('Learn Spells')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.learn_next_school_spells )
+            self.show_nicebar([lb, bt])        
+            
+    def check_rules(self):
+        c = self.db_conn.cursor()
+        for t in self.pc.get_techs():
+            c.execute('''select uuid, effect from school_techs
+                         where uuid=?''', [t])
+            for uuid, rule in c.fetchall():
+                self.pc.add_tech(int(uuid), rule)
+                break
+                
+        for adv in self.pc.advans:
+            if adv.type == 'perk':
+                c.execute('''select uuid, rule from perks
+                             where uuid=?''', [adv.perk])
+                for uuid, rule in c.fetchall():
+                    print 'found character rule %s' % rule
+                    adv.rule = rule
+                    break            
+        c.close()        
 
     def learn_next_school_spells(self):
         dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
@@ -1109,20 +1272,8 @@ class L5RMain(QtGui.QMainWindow):
         self.update_from_model()
 
     def load_character(self):
-        pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
-                        self.cb_pc_school] )
-
-        self.save_path = self.select_load_path()
-        if self.pc.load_from(self.save_path):
-            self.load_families(self.pc.clan)
-            if self.pc.unlock_schools:
-                self.load_schools ()
-            else:
-                self.load_schools (self.pc.clan)
-            self.update_from_model()
-
-        resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
-                        self.cb_pc_school] )
+        path = self.select_load_path()
+        self.load_character_from(path)
 
     def load_character_from(self, path):
         pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
@@ -1135,6 +1286,8 @@ class L5RMain(QtGui.QMainWindow):
                 self.load_schools ()
             else:
                 self.load_schools (self.pc.clan)
+                
+            self.check_rules()
             self.update_from_model()
 
         resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
@@ -1337,22 +1490,7 @@ class L5RMain(QtGui.QMainWindow):
         #    self.hide_nicebar()
 
         if not self.nicebar:
-            # Show nicebar if can get another school tech
-            if self.pc.can_get_other_techs():
-                #print 'can get more techniques'
-                lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
-                bt = QtGui.QPushButton('Learn Technique')
-                bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
-                                  QtGui.QSizePolicy.Preferred)
-                bt.clicked.connect( self.learn_next_school_tech )
-                self.show_nicebar([lb, bt])
-            elif self.pc.can_get_other_spells():
-                lb = QtGui.QLabel("You reached enough insight Rank to learn other Spells")
-                bt = QtGui.QPushButton('Learn Spells')
-                bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
-                                  QtGui.QSizePolicy.Preferred)
-                bt.clicked.connect( self.learn_next_school_spells )
-                self.show_nicebar([lb, bt])
+            self.check_school_tech_and_spells()
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0
@@ -1361,7 +1499,8 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_family.setEnabled( not has_adv )
 
         # also disable schools lock/unlock
-        self.unlock_schools_menu_item.setEnabled( not has_adv )
+        self.unlock_schools_menu_item.setChecked( not self.pc.unlock_schools )
+        self.unlock_schools_menu_item.setEnabled( not has_adv )        
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
