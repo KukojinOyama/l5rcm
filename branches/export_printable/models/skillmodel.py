@@ -24,17 +24,10 @@ class SkillItemModel(object):
         self.trait     = ''
         self.is_school = False
         self.emph      = []
+        self.skill_id  = 0
 
     def __str__(self):
         return self.name
-
-class WeaponItemModel(object):
-    def __init__(self):
-        self.name  = ''
-        self.type  = ''
-        self.atk   = ''
-        self.dr    = ''
-        self.bonus = ''
 
 class SkillTableViewModel(QtCore.QAbstractTableModel):
     def __init__(self, dbconn, parent = None):
@@ -64,7 +57,7 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
             return self.headers[section]
         return None
 
-    def data(self, index, role):
+    def data(self, index, role = QtCore.Qt.UserRole):
         if not index.isValid() or index.row() >= len(self.items):
             return None
         item = self.items[index.row()]
@@ -91,6 +84,8 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
             return self.bg_color[ index.row() % 2 ]            
         elif role == QtCore.Qt.SizeHintRole:
             return self.item_size
+        elif role == QtCore.Qt.UserRole:
+            return item.skill_id
         return None
 
     def flags(self, index):
@@ -119,6 +114,7 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
         for f in c.fetchall():
             itm.name = f[0]
             itm.trait = f[1].capitalize()
+        itm.skill_id = sk_id
         c.close()
         return itm
 
