@@ -29,7 +29,7 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.6'
+APP_VERSION = '1.7'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -1520,7 +1520,7 @@ class L5RMain(QtGui.QMainWindow):
          msgBox = QtGui.QMessageBox(self)
          msgBox.setWindowTitle('L5R: CM')
          msgBox.setText("L5R: CM v%s is available for download." % target_version)
-         msgBox.setInformativeText("Do you want to download and install the upgrade now?")
+         msgBox.setInformativeText("Do you want to open the download page?")
          msgBox.addButton( QtGui.QMessageBox.Yes )
          msgBox.addButton( QtGui.QMessageBox.No )
          msgBox.setDefaultButton(QtGui.QMessageBox.No)
@@ -1581,15 +1581,8 @@ class L5RMain(QtGui.QMainWindow):
            autoupdate.need_update(APP_VERSION, update_info['version']) and \
            self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
 
-            dlg = autoupdate.DownloadDialog('Downloading %s' % update_info['uri'])
-            dlg.setMinimumSize(400, 0)
-            dlg.setWindowTitle('L5R: CM Autoupdate')
-
-            if dlg.exec_(tempfile.gettempdir(), update_info['uri']) == \
-               QtGui.QDialog.DialogCode.Accepted:
-
-               sys.stdout.flush()
-               os.execl(dlg.file_path, dlg.file_path)
+            import osutil
+            osutil.portable_open(PROJECT_PAGE_LINK)
 
 ### MAIN ###
 def main():
@@ -1605,9 +1598,8 @@ def main():
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
 
-    if os.name == 'nt':
-        # check for updates
-        l5rcm.check_updates()
+    # check for updates
+    l5rcm.check_updates()
 
     # initialize new character
     l5rcm.new_character()
