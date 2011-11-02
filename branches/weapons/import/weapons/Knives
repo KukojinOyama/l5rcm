@@ -1,7 +1,7 @@
 Knives
 #
 Aiguchi
-small
+small, melee
 1k1
 -
 -
@@ -9,7 +9,7 @@ small
 1k
 #
 Tanto
-small
+small, melee
 1k1
 -
 -
@@ -17,7 +17,7 @@ small
 1k
 #
 Jitte
-small
+small, melee
 1k4
 -
 -
@@ -25,7 +25,7 @@ small
 5b
 #
 Sai
-small
+small, melee
 1k4
 -
 -
@@ -33,7 +33,7 @@ small
 5b
 #
 Kama
-peasant, small
+peasant, small, melee
 0k2
 -
 -

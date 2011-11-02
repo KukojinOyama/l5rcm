@@ -1,7 +1,7 @@
 Ninjutsu
 #
 Blowgun
-medium
+medium, ranged
 1w
 -
 -
@@ -9,14 +9,14 @@ blowgun_special_rule
 8z
 #
 Shuriken
-small
+small, melee, ranged
 1k1
 -
 -
 throw_25f_rule
 1k
 #
-Tsubute
+Tsubute, ranged
 small
 1k1
 -

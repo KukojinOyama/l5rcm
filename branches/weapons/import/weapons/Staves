@@ -1,7 +1,7 @@
 Staves
 #
 Bo
-large
+large, melee
 1k2
 -
 -
@@ -9,7 +9,7 @@ large
 2b
 #
 Jo
-medium
+medium, melee
 0k2
 -
 -
@@ -17,7 +17,7 @@ medium
 1b
 #
 Machi-kanshisha
-medium
+medium, melee
 0k2
 -
 -
@@ -25,7 +25,7 @@ medium
 20k
 #
 Nunchaku
-peasant, small
+peasant, small, melee
 1k2
 -
 -
@@ -33,7 +33,7 @@ peasant, small
 3b
 #
 Sang Kauw
-medium
+medium, melee
 1k2;2k1
 -
 -
@@ -41,7 +41,7 @@ medium
 10k
 #
 Tonfa
-medium, peasant
+medium, peasant, melee
 0k3
 -
 -
