@@ -559,31 +559,58 @@ class L5RMain(QtGui.QMainWindow):
         self.tabs.addTab(mfr, u"Advancements")
 
     def build_ui_page_6(self):
-        self.weap_view_model = models.WeaponTableViewModel(self)
-        #self.inv_view_model  = models.InventoryViewModel  (self.db_conn, self)
-        self.inv_view_model  = None
-
-        # enable sorting through a proxy model
-        weap_sort_model = models.ColorFriendlySortProxyModel(self)
-        weap_sort_model.setDynamicSortFilter(True)
-        weap_sort_model.setSourceModel(self.weap_view_model)
+        self.melee_view_model  = models.WeaponTableViewModel('melee' , self)
+        self.ranged_view_model = models.WeaponTableViewModel('ranged', self)
+        self.arrow_view_model  = models.WeaponTableViewModel('arrow' , self)
         
-        inv_sort_model = models.ColorFriendlySortProxyModel(self)
-        inv_sort_model.setDynamicSortFilter(True)
-        inv_sort_model.setSourceModel(self.inv_view_model)
+        def _make_sortable(model):
+            # enable sorting through a proxy model
+            sort_model_ = models.ColorFriendlySortProxyModel(self)
+            sort_model_.setDynamicSortFilter(True)
+            sort_model_.setSourceModel(model)
+            return sort_model_
         
-        # edit remove item delegate
-        weap_edrm = models.EditRemoveItemDelegate(self)
-        weap_edrm.setEnableEdit  (True)
-        weap_edrm.setEnableRemove(True)
-        weap_edrm.removeClicked.connect( self.on_weapon_remove )
-        weap_edrm.editClicked  .connect( self.on_weapon_edit   )
-        weap_wrap = (0, weap_edrm)
+        # weapon vertical toolbar
+        def _make_vertical_tb(has_custom, has_edit, has_qty):
+            vtb = widgets.VerticalToolBar(self)
+            vtb.addStretch()
+            vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
+                          'Add weapon', self.show_add_weapon)
+            if has_custom:
+                vtb.addButton(QtGui.QIcon(get_icon_path('custom',(16,16))), 
+                              'Add custom weapon', self.show_add_cust_weapon)
+            if has_edit:
+                vtb.addButton(QtGui.QIcon(get_icon_path('edit',(16,16))), 
+                              'Edit weapon', self.edit_selected_weapon)
+            vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))), 
+                          'Remove weapon', self.remove_selected_weapon)                      
+            if has_qty:
+                vtb.addButton(QtGui.QIcon(get_icon_path('add',(16,16))), 
+                              'Increase Quantity', self.increase_item_qty)
+                vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))), 
+                              'Decrease Quantity', self.decrease_item_qty)                              
+            
+            vtb.addStretch()
+            return vtb            
+        
+        melee_vtb  = _make_vertical_tb(True, True, False)
+        ranged_vtb = _make_vertical_tb(True, True, False)
+        arrow_vtb  = _make_vertical_tb(False, False, True)
+        
+        models_ = [ ("Melee Weapons", 'table', _make_sortable(self.melee_view_model), 
+                    None, melee_vtb),
+                    ("Ranged Weapons", 'table', _make_sortable(self.ranged_view_model), 
+                    None, ranged_vtb),
+                    ("Arrows", 'table', _make_sortable(self.arrow_view_model), 
+                    None, arrow_vtb)]
 
-        models_ = [ ("Weapons", 'table', weap_sort_model, weap_wrap),
-                    ("Inventory", 'table', inv_sort_model, None) ]
-
-        self.tabs.addTab(self._build_generic_page(models_), u"Equipment")
+        frame_, views_ = self._build_generic_page(models_)
+        
+        melee_vtb .setProperty('source', views_[0])
+        ranged_vtb.setProperty('source', views_[1])
+        arrow_vtb .setProperty('source', views_[2])
+        
+        self.tabs.addTab(frame_, u"Weapons")
         
     def build_ui_page_7(self):
         mfr    = QtGui.QFrame(self)
@@ -1278,7 +1305,6 @@ class L5RMain(QtGui.QMainWindow):
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
 
-
     def show_add_cust_weapon(self):
         dlg = dialogs.CustomWeaponDialog(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
@@ -1286,7 +1312,81 @@ class L5RMain(QtGui.QMainWindow):
 
     def show_add_misc_item(self):
         pass
+        
+    def edit_selected_weapon(self):
+        view_ = None
+        try:            
+            view_ = self.sender().parent().property('source')
+            print view_
+        except Exception as e:
+            print repr(e)
+        if view_ is None:
+            return
+        sel_idx = view_.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
+        dlg = dialogs.CustomWeaponDialog(self.pc, self.db_conn, self)
+        dlg.load_item(sel_itm)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.update_from_model()
+            
+    def remove_selected_weapon(self):
+        view_ = None
+        try:            
+            view_ = self.sender().parent().property('source')
+            print view_
+        except Exception as e:
+            print repr(e)
+        if view_ is None:
+            return
+        sel_idx = view_.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
+        self.pc.weapons.remove(sel_itm)
+        self.update_from_model()
 
+    def increase_item_qty(self):
+        view_ = None
+        try:            
+            view_ = self.sender().parent().property('source')
+            print view_
+        except Exception as e:
+            print repr(e)
+        if view_ is None:
+            return
+        sel_idx = view_.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
+        if sel_itm.qty < 9999:
+            sel_itm.qty += 1
+            self.update_from_model()            
+            sel_idx = view_.model().index(sel_idx.row(), 0)
+            view_.selectionModel().setCurrentIndex(sel_idx, 
+                QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Rows)
+
+    def decrease_item_qty(self):
+        view_ = None
+        try:            
+            view_ = self.sender().parent().property('source')
+            print view_
+        except Exception as e:
+            print repr(e)
+        if view_ is None:
+            return
+        sel_idx = view_.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
+        if sel_itm.qty > 1:
+            sel_itm.qty -= 1
+            self.update_from_model()
+            sel_idx = view_.model().index(sel_idx.row(), 0)
+            view_.selectionModel().setCurrentIndex(sel_idx,
+                QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Rows)
+        
     def new_character(self):
         self.save_path = ''
         self.pc = models.AdvancedPcModel()
@@ -1540,7 +1640,9 @@ class L5RMain(QtGui.QMainWindow):
         self.merits_view_model.update_from_model(self.pc)
         self.flaws_view_model .update_from_model(self.pc)
         self.sp_view_model    .update_from_model(self.pc)
-        self.weap_view_model  .update_from_model(self.pc)
+        self.melee_view_model .update_from_model(self.pc)
+        self.ranged_view_model.update_from_model(self.pc)
+        self.arrow_view_model .update_from_model(self.pc)
 
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)

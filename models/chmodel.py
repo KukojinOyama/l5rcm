@@ -447,7 +447,7 @@ class AdvancedPcModel(BasePcModel):
         
     def add_weapon(self, item):
         self.weapons.append( item )
-        
+                
     def set_family(self, family_id = 0, perk = None, perkval = 1, tags = []):
         if self.family == family_id:
             return
@@ -601,12 +601,14 @@ class AdvancedPcModel(BasePcModel):
             if obj['armor'] is not None:
                 _load_obj(deepcopy(obj['armor']), self.armor)
             
-            # weapons
-            for w in obj['weapons']:
-                item = outfit.WeaponOutfit()
-                _load_obj(deepcopy(w), self.item)
-                self.add_weapon(item)
-            
+            self.weapons = []
+            if 'weapons' in obj:
+                # weapons
+                for w in obj['weapons']:
+                    item = outfit.WeaponOutfit()
+                    _load_obj(deepcopy(w), item)
+                    self.add_weapon(item)                
+                
             self.unsaved  = False           
             
             return True

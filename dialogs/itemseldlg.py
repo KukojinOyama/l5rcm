@@ -69,14 +69,14 @@ class ChooseItemDialog(QtGui.QDialog):
             self.cb1 = QtGui.QComboBox(self)
             self.cb1.currentIndexChanged.connect( self.on_weap_skill_select )
             vbox.addWidget(self.cb1)           
-            grid.addWidget(grp, 0, 0)
+            grid.addWidget(grp, 0, 0, 1, 2)
 
             grp     = QtGui.QGroupBox("Weapon", self)
             vbox    = QtGui.QVBoxLayout(grp)
             self.cb2 = QtGui.QComboBox(self)
             self.cb2.currentIndexChanged.connect( self.on_weap_select )
             vbox.addWidget(self.cb2)           
-            grid.addWidget(grp, 1, 0)
+            grid.addWidget(grp, 1, 0, 1, 2)
             
             grp     = QtGui.QGroupBox("Stats", self)
             vbox    = QtGui.QVBoxLayout(grp)

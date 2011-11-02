@@ -1,7 +1,7 @@
 Kenjutsu
 #
 Katana
-medium, samurai
+medium, samurai, melee
 3k2
 -
 -
@@ -9,7 +9,7 @@ void_rise_dr_rule
 -
 #
 Ninja-to
-medium, ninja
+medium, ninja, melee
 2k2
 -
 -
@@ -17,7 +17,7 @@ ninjato_special_rule
 5k
 #
 No-dachi
-large
+large, melee
 3k3
 -
 -
@@ -25,7 +25,7 @@ large
 30k
 #
 Parangu
-peasant, medium
+peasant, medium, melee
 2k2
 -
 -
@@ -33,7 +33,7 @@ may_break_30w_rule
 10b
 #
 Scimitar
-medium
+medium, melee
 2k3
 -
 -
@@ -41,7 +41,7 @@ medium
 20k
 #
 Wakizashi
-medium, samurai
+medium, samurai, melee, ranged
 2k2
 -
 -

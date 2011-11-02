@@ -160,6 +160,17 @@ class CustomWeaponDialog(QtGui.QDialog):
             self.cb_base_weap.addItem(name, uuid)
         
         c.close()
+        
+    def load_item(self, item):
+        self.tx_name    .setText( item.name   )
+        self.tx_dr      .setText( item.dr     )
+        self.tx_dr_alt  .setText( item.dr_alt )
+        self.tx_rng     .setText( item.range  )
+        self.tx_notes   .setText( item.rule   )
+        self.tx_str     .setText( str(item.strength) )
+        self.tx_min_str .setText( str(item.min_str)  )        
+        
+        self.cb_base_weap.setVisible(False)
 
     def on_base_weap_change(self, text = ''):        
         selected = self.cb_base_weap.currentIndex()

@@ -24,7 +24,7 @@ class ArmorOutfit(object):
         self.name = ''
         self.desc = ''
         self.rule = ''
-        self.cost = ''      
+        self.cost = ''
 
 class WeaponOutfit(object):        
     def __init__(self):
@@ -37,6 +37,8 @@ class WeaponOutfit(object):
         self.range    = ''
         self.strength = 0
         self.min_str  = 0
+        self.qty      = 1
+        self.tags     = []        
         
 def weapon_outfit_from_db(dbconn, weap_uuid):
     itm = WeaponOutfit()
@@ -64,6 +66,12 @@ def weapon_outfit_from_db(dbconn, weap_uuid):
         itm.strength = str_
         itm.min_str  = mstr_            
         break
+        
+    c.execute('''select uuid, tag from tags where uuid=?''', [weap_uuid])
+    for uuid, tag in c.fetchall():
+        print 'weapon has tag %s' % tag
+        itm.tags.append(tag)
+        
     c.close()
     return itm
             
@@ -93,10 +101,17 @@ def armor_outfit_from_db(dbconn, armor_uuid):
     return itm
 
 class WeaponTableViewModel(QtCore.QAbstractTableModel):
-    def __init__(self, parent = None):
+    def __init__(self, type_, parent = None):
         super(WeaponTableViewModel, self).__init__(parent)
+        self.type  = type_
         self.items = []
-        self.headers = ['V','Name', 'DR', 'Sec. DR', 'Range', 'Strength', 'Min. Str.']
+        if type_ == 'melee':
+            self.headers = ['Name', 'DR', 'Sec. DR']
+        elif type_ == 'ranged':
+            self.headers = ['Name', 'Range', 'Strength', 'Min. Str.']
+        elif type_ == 'arrow':
+            self.headers = ['Name', 'DR', 'Quantity']
+            
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
                             QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
@@ -115,31 +130,56 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
             return self.headers[section]
         return None
 
-    def data(self, index, role):
+    def data(self, index, role = QtCore.Qt.UserRole):
         if not index.isValid() or index.row() >= len(self.items):
             return None
         item = self.items[index.row()]
         if role == QtCore.Qt.DisplayRole:
-            if index.column() == 1:
-                return item.name
-            if index.column() == 2:
-                return item.dr
-            if index.column() == 3:
-                return item.dr_alt
-            if index.column() == 4:
-                return item.range
-            if index.column() == 5:
-                return item.strength
-            if index.column() == 6:
-                return item.min_str
+            if self.type == 'melee':
+                return self.melee_display_role(item, index.column())
+            elif self.type == 'ranged':
+                return self.ranged_display_role(item, index.column())
+            elif self.type == 'arrow':
+                return self.arrow_display_role(item, index.column())
         elif role == QtCore.Qt.ForegroundRole:
             return self.text_color
         elif role == QtCore.Qt.BackgroundRole:
             return self.bg_color[ index.row() % 2 ]            
         elif role == QtCore.Qt.SizeHintRole:
             return self.item_size
+        elif role == QtCore.Qt.UserRole:
+            return item    
         return None
+        
+    def melee_display_role(self, item, column):
+        if column == 0:
+            return item.name
+        if column == 1:
+            return item.dr
+        if column == 2:
+            return item.dr_alt
+        return None
+        
+    def ranged_display_role(self, item, column):
+        if column == 0:
+            return item.name
+        if column == 1:
+            return item.range
+        if column == 2:
+            return item.strength
+        if column == 3:
+            return item.min_str            
+        return None        
 
+    def arrow_display_role(self, item, column):
+        if column == 0:
+            return item.name
+        if column == 1:
+            return item.dr
+        if column == 2:
+            return item.qty
+        return None
+        
     def flags(self, index):
         if not index.isValid():
             return QtCore.Qt.ItemIsDropEnabled
@@ -160,6 +200,5 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
     def update_from_model(self, model):
         self.clean()
         for w in model.get_weapons():
-            self.add_item(w)
-    
-    
+            if self.type in w.tags:
+                self.add_item(w)
