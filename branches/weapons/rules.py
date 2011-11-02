@@ -49,7 +49,7 @@ def get_random_name(path):
         f = open(path, 'rt')
         for l in f:
             if l.strip().startswith('*'):
-                names.append( l.strip('* ') )
+                names.append( l.strip('* \n\r') )
         f.close()
         _cache_names[path] = names
     
