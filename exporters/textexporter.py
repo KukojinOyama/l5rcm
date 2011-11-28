@@ -114,7 +114,55 @@ class TextExporter(object):
         io.write(str.format("                   CURRENT  : {0:<15}\n",
                  f.tx_cur_tn.text()))
                  
-                 
+        # SKILLs
+        if len(f.sk_view_model.items) > 0:
+            io.write('\n')
+            io.write("# SKILL            # RANK       # TRAIT      # EMPHASES\n")
+            for sk in f.sk_view_model.items:
+                tx_name   = sk.name + '*' if sk.is_school else sk.name
+                io.write(str.format("{0:<18} {1:>6}       {2:<12} {3:<32}\n",
+                         tx_name, sk.rank, sk.trait, ', '.join(sk.emph)))
+                     
+        # MASTERY ABILITIES
+        if len(f.ma_view_model.items) > 0:
+            io.write('\n')
+            io.write("# SKILL            # RANK       # EFFECT\n")
+            for ma in f.ma_view_model.items:
+                io.write(str.format("{0:<18} {1:>6}       {2:<28}\n",
+                         ma.skill_name, ma.skill_rank, ma.desc))
+                     
+        # TECHS
+        if len(f.th_view_model.items) > 0:
+            io.write('\n')
+            io.write("# SCHOOL                        # RANK       # TECH\n")
+            for th in f.th_view_model.items:
+                io.write(str.format("{0:<32}{1:>6}       {2:<35}\n",
+                         th.school_name, th.rank, th.name))
+
+        # SPELLS
+        if len(f.sp_view_model.items) > 0:
+            io.write('\n')
+            io.write("# # SPELL                         # RING # RANGE\n")
+            for sp in f.sp_view_model.items:
+                io.write(str.format("{0:<2}{1:<32}{2:<6} {3:<7}\n",
+                         sp.mastery, sp.name, sp.ring, sp.range))
+                     
+        # ADVANTAGES
+        if len(f.merits_view_model.items) > 0:
+            io.write('\n')
+            io.write("# ADVANTAGE                       # RANK # XP COST\n")
+            for ad in f.merits_view_model.items:
+                io.write(str.format("{0:<34}{1:>6} {2:>9}\n",
+                         ad.name, ad.rank, ad.cost))
+            
+        # DISADVANTAGES
+        if len(f.flaws_view_model.items) > 0:
+            io.write('\n')
+            io.write("# DISADVANTAGE                    # RANK # XP GAIN\n")
+            for ad in f.flaws_view_model.items:
+                io.write(str.format("{0:<34}{1:>6} {2:>9}\n",
+                         ad.name, ad.rank, -ad.cost))        
+        
     def get_clan_name(self, model):
         return self.form.cb_pc_clan.currentText()
         

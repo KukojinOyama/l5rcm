@@ -627,7 +627,7 @@ class L5RMain(QtGui.QMainWindow):
         save_act.triggered.connect( self.save_character )
         exit_act.triggered.connect( self.close )
         
-        export_text_act.triggered.connect( self.export_as_text )
+        export_text_act.triggered.connect( self.export_character_as_text )
 
         self.m_file = m_file
 
@@ -1583,7 +1583,26 @@ class L5RMain(QtGui.QMainWindow):
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
         return fileName[0]
+        
+    def select_export_file(self):
+        char_name = self.pc.name
+        
+        settings = QtCore.QSettings()
+        last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
+        fileName = QtGui.QFileDialog.getSaveFileName(self, "Export Character",
+                                os.path.join(last_dir,char_name),
+                                "Text files(*.txt)")
+        if len(fileName) != 2:
+            return ''
 
+        last_dir = os.path.dirname(fileName[0])
+        if last_dir != '':
+            settings.setValue('last_open_dir', last_dir)
+
+        if fileName[0].endswith('.txt'):
+            return fileName[0]
+        return fileName[0] + '.txt'
+        
     def check_updates(self):
         update_info = autoupdate.get_last_version()
         if update_info is not None and \
@@ -1593,9 +1612,12 @@ class L5RMain(QtGui.QMainWindow):
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
 
-               
-    def export_as_text(self):
-        export_file = self.pc.name + '.txt'
+    def export_character_as_text(self):
+        file_ = self.select_export_file()
+        if len(file_) > 0:
+            self.export_as_text(file_)
+            
+    def export_as_text(self, export_file):        
         exporter = exporters.TextExporter()
         exporter.set_form (self)
         exporter.set_model(self.pc     )
