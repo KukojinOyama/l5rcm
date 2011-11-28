@@ -1072,20 +1072,29 @@ class L5RMain(QtGui.QMainWindow):
         c.execute('''select uuid, effect from school_techs
                      where school_uuid=? and rank=1''', [uuid])
 
-        for uuid, rule in c.fetchall():
-            self.pc.set_free_school_tech( uuid, rule )
+        for th_uuid, rule in c.fetchall():
+            self.pc.set_free_school_tech( th_uuid, rule )
             break
 
         # if shugenja get universal spells
         # also player should choose 3 spells from list
 
         if tag == 'shugenja':
-            print 'fetch universal spells'
-            c.execute('''select uuid, name from spells
-                         where ring="All" and mastery=1''')
-            for uuid, name in c.fetchall():
-                print 'add spell %d %s' % ( uuid, name )
-                self.pc.add_free_spell(uuid)
+            count = 0
+            c.execute('''select spell_uuid, wildcard from school_spells
+                      where school_uuid=?''', [uuid])
+            for sp_uuid, wc in c.fetchall():
+                if sp_uuid is None:
+                    ring, qty = rules.parse_spell_wildcard(wc)
+                    print 'add pending wc spell %s' % wc
+                    self.pc.add_pending_wc_spell(wc)
+                    count += qty
+                else:
+                    self.pc.add_free_spell(sp_uuid)
+                    count += 1
+                    
+            print 'starting spells count are %d' % count
+            self.pc.set_school_spells_qty(count)
 
         c.close()
         self.update_from_model()
@@ -1238,6 +1247,7 @@ class L5RMain(QtGui.QMainWindow):
     def learn_next_school_spells(self):
         dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.pc.clear_pending_wc_spells()
             self.update_from_model()
 
     def show_wear_armor(self):
