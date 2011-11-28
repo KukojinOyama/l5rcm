@@ -106,8 +106,11 @@ def new_small_plus_bt(parent = None):
     return bt
 
 def split_decimal(value):
-    d = int(value)
-    return (d, value-d)
+    import decimal
+    decimal.getcontext().prec = 2
+    d = decimal.Decimal(value)
+    i = int(d)
+    return (i, d-i)
 
 def pause_signals(widgets):
     for w in widgets: w.blockSignals(True)
@@ -1383,7 +1386,7 @@ class L5RMain(QtGui.QMainWindow):
         # set rank
         self.pc_flags_rank[flag].setText( str(rank) )
         # set points
-        self.pc_flags_points[flag].set_value(points*10)
+        self.pc_flags_points[flag].set_value( int(points*10) )
 
     def set_honor (self, value): self.set_flag(0, value)
     def set_glory (self, value): self.set_flag(1, value)
