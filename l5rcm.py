@@ -23,13 +23,14 @@ import widgets
 import dialogs
 import autoupdate
 import tempfile
+import exporters
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.7'
+APP_VERSION = '1.8'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -437,10 +438,10 @@ class L5RMain(QtGui.QMainWindow):
         add_pc_quantities(4, 0)
 
     def _build_generic_page(self, models_):
-        mfr    = QtGui.QFrame(self)        
+        mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
         views_ = []
-        
+
         for k, t, m, d, tb in models_:
             grp    = QtGui.QGroupBox(k, self)
             hbox   = QtGui.QHBoxLayout(grp)
@@ -485,7 +486,7 @@ class L5RMain(QtGui.QMainWindow):
         models_ = [ ("Skills", 'table', sk_sort_model, None, vtb),
                     ("Mastery Abilities",  'list', self.ma_view_model, 
                     models.MaItemDelegate(self), None) ]
-                    
+
         frame_, views_ = self._build_generic_page(models_)
         
         if len(views_) > 0:
@@ -602,10 +603,11 @@ class L5RMain(QtGui.QMainWindow):
         # File Menu
         m_file = self.menuBar().addMenu("&File");
         # actions: new, open, save
-        new_act  = QtGui.QAction(u'&New Character', self)
-        open_act = QtGui.QAction(u'&Open Character...', self)
-        save_act = QtGui.QAction(u'&Save Character...', self)
-        exit_act = QtGui.QAction(u'E&xit', self)
+        new_act         = QtGui.QAction(u'&New Character', self)
+        open_act        = QtGui.QAction(u'&Open Character...', self)
+        save_act        = QtGui.QAction(u'&Save Character...', self)
+        export_text_act = QtGui.QAction(u'Ex&port as Text...', self)
+        exit_act        = QtGui.QAction(u'E&xit', self)
 
         new_act .setShortcut( QtGui.QKeySequence.New  )
         open_act.setShortcut( QtGui.QKeySequence.Open )
@@ -616,12 +618,16 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addAction(open_act)
         m_file.addAction(save_act)
         m_file.addSeparator()
+        m_file.addAction(export_text_act)
+        m_file.addSeparator()
         m_file.addAction(exit_act)
 
         new_act .triggered.connect( self.new_character  )
         open_act.triggered.connect( self.load_character )
         save_act.triggered.connect( self.save_character )
         exit_act.triggered.connect( self.close )
+        
+        export_text_act.triggered.connect( self.export_character_as_text )
 
         self.m_file = m_file
 
@@ -743,7 +749,7 @@ class L5RMain(QtGui.QMainWindow):
         unlock_school_act  = QtGui.QAction(u'Lock Schools...'         , self)
         unlock_advans_act  = QtGui.QAction(u'Lock Advancements...'    , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
-        
+
         unlock_school_act.setCheckable(True)
         unlock_advans_act.setCheckable(True)
         
@@ -886,8 +892,8 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
         if len(self.pc.get_techs()) > self.pc.get_insight_rank():
             self.pc.reset_techs()
-        self.update_from_model()        
-        
+            self.update_from_model()
+
     def generate_name(self):
         gender = self.sender().property('gender')
         name = ''
@@ -1497,7 +1503,7 @@ class L5RMain(QtGui.QMainWindow):
 
         # also disable schools lock/unlock
         self.unlock_schools_menu_item.setChecked( not self.pc.unlock_schools )
-        self.unlock_schools_menu_item.setEnabled( not has_adv )        
+        self.unlock_schools_menu_item.setEnabled( not has_adv )
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
@@ -1577,7 +1583,26 @@ class L5RMain(QtGui.QMainWindow):
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
         return fileName[0]
+        
+    def select_export_file(self):
+        char_name = self.pc.name
+        
+        settings = QtCore.QSettings()
+        last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
+        fileName = QtGui.QFileDialog.getSaveFileName(self, "Export Character",
+                                os.path.join(last_dir,char_name),
+                                "Text files(*.txt)")
+        if len(fileName) != 2:
+            return ''
 
+        last_dir = os.path.dirname(fileName[0])
+        if last_dir != '':
+            settings.setValue('last_open_dir', last_dir)
+
+        if fileName[0].endswith('.txt'):
+            return fileName[0]
+        return fileName[0] + '.txt'
+        
     def check_updates(self):
         update_info = autoupdate.get_last_version()
         if update_info is not None and \
@@ -1586,6 +1611,24 @@ class L5RMain(QtGui.QMainWindow):
 
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
+
+    def export_character_as_text(self):
+        file_ = self.select_export_file()
+        if len(file_) > 0:
+            self.export_as_text(file_)
+            
+    def export_as_text(self, export_file):        
+        exporter = exporters.TextExporter()
+        exporter.set_form (self)
+        exporter.set_model(self.pc     )
+        #exporter.set_db   (self.db_conn)
+        
+        f = open(export_file, 'wt')
+        if f is not None:
+            exporter.export(f)
+        f.close()
+        
+        
 
 ### MAIN ###
 def main():

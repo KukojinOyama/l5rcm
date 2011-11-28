@@ -19,7 +19,7 @@ from PySide import QtGui, QtCore
 
 class MaItemModel(object):
     def __init__(self):
-        self.skill       = ''
+        self.skill_name  = ''
         self.skill_rank  = ''
         self.desc        = ''
 
