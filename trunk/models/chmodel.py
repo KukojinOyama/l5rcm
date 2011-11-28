@@ -147,9 +147,9 @@ class AdvancedPcModel(BasePcModel):
         self.insight   = 0
         self.advans    = []
 
-        self.armor      = None
-        self.weapons    = []
-        self.techs      = []
+        self.armor     = None
+        self.weapons   = []
+        self.techs     = []
         self.tech_rules = []
         
         self.mastery_abilities = []
@@ -403,7 +403,7 @@ class AdvancedPcModel(BasePcModel):
         # must count also the universal spells    
         target_spells = 3 + self.get_insight_rank() * self.spells_per_rank
         return target_spells - len(self.get_spells())
-        
+
     def reset_spells(self):
         self.spells = []
         
@@ -471,9 +471,9 @@ class AdvancedPcModel(BasePcModel):
         self.school  = school_id
         self.clear_pending_wc_skills()
         # also reset tech and spells
-        self.techs      = []
+        self.techs  = []
         self.tech_rules = []
-        self.spells     = []
+        self.spells = []
         if school_id == 0:
             return
 
@@ -508,7 +508,7 @@ class AdvancedPcModel(BasePcModel):
     def add_free_spell(self, spell_uuid):
         if spell_uuid not in self.get_spells():
             self.step_2.spells.append(spell_uuid)
-        
+
     def add_spell(self, spell_uuid):
         if spell_uuid not in self.get_spells():
             self.spells.append(spell_uuid)
