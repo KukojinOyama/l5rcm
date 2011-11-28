@@ -21,6 +21,7 @@ import models
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
 
+import rules
 
 class BuyAdvDialog(QtGui.QDialog):
     def __init__(self, pc, tag, conn, parent = None):
@@ -400,14 +401,17 @@ class SelWcSpells(QtGui.QDialog):
         grid.addWidget( QtGui.QLabel('<i>Your school has granted you ' +
                                      'the right to choose some spells.</i> ' +
                                      '<br/><b>Choose with care.</b>', self),
-                                      0, 0, 1, 3)
+                                      0, 0, 1, 5)
         grid.setRowStretch(0,2)
 
         self.bt_ok     = QtGui.QPushButton('Ok', self)
         self.bt_cancel = QtGui.QPushButton('Cancel', self)
 
         row_ = 2
-                
+        col_ = 0
+        max_row = row_
+        max_col = col_
+                                      
         for i in xrange(0, self.pc.get_how_many_spell_i_miss()):           
             grp  = QtGui.QGroupBox('Choose Spell')
             fbox = QtGui.QFormLayout(grp)
@@ -424,16 +428,26 @@ class SelWcSpells(QtGui.QDialog):
             self.cbs_mast .append(cb_mast)
             self.cbs_spell.append(cb_spell)
             
-            grid.addWidget(grp, row_, 0, 1, 3)
+            if i and (i % 4) == 0:
+                col_ += 1
+                row_ = 2  
+                        
+            grid.addWidget(grp, row_, col_)
             
             row_ += 1
+            max_row = max(row_, max_row)
+            max_col = max(col_, max_col)
 
         self.error_bar = QtGui.QLabel(self)
         self.error_bar.setVisible(False)
-        grid.addWidget(self.error_bar, row_, 0, 1, 3)
+        grid.addWidget(self.error_bar, max_row, 0, 1, max_col)
 
-        grid.addWidget( self.bt_ok,     row_+1, 1)
-        grid.addWidget( self.bt_cancel, row_+1, 2)
+        buttonBox = QtGui.QDialogButtonBox(QtCore.Qt.Horizontal, self)
+        buttonBox.addButton(self.bt_ok, QtGui.QDialogButtonBox.AcceptRole)
+        buttonBox.addButton(self.bt_cancel, QtGui.QDialogButtonBox.RejectRole)       
+        
+        grid.addWidget( buttonBox, max_row+1, max_col)
+        #grid.addWidget( self.bt_cancel, max_row+1, max_col+1)
 
     def load_data(self):
         c = self.dbconn.cursor()
@@ -449,7 +463,20 @@ class SelWcSpells(QtGui.QDialog):
             for x in xrange(0,6):
                 cb.addItem('Mastery Level %d' % (x+1), x+1)
         c.close()
-
+        
+        idx = 0
+        print 'pending wildcards: ' + repr(self.pc.get_pending_wc_spells())
+        for wc in self.pc.get_pending_wc_spells():
+            ring, qty = rules.parse_spell_wildcard(wc)
+            print 'wildcard, ring: %s, qty: %d' % (ring, qty)
+            for i in xrange(idx, qty+idx):
+                if ring != 'any':
+                    ring_n = models.chmodel.ring_from_name(ring)
+                    print 'i: %d, ring_n %d' % (i, ring_n)
+                    self.cbs_ring[i].setCurrentIndex(ring_n)
+                    self.cbs_ring[i].setEnabled(False)
+                self.cbs_mast[i].setEnabled(False)
+            idx += qty
 
     def connect_signals(self):    
         for cb in self.cbs_ring:

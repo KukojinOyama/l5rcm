@@ -69,7 +69,12 @@ def create(dbfile):
         c.execute('''create table school_techs
         (uuid INTEGER PRIMARY KEY, school_uuid INTEGER, rank INTEGER,
          name TEXT UNIQUE, effect TEXT, desc TEXT)''')
-
+         
+        # school spells
+        c.execute('''create table school_spells
+        (school_uuid INTEGER, spell_uuid INTEGER, wildcard TEXT,
+         PRIMARY KEY(school_uuid, spell_uuid, wildcard))''')         
+         
         # weapons
         c.execute('''create table weapons
         (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, skill_uuid INTEGER,
@@ -339,6 +344,47 @@ def import_clan_school_skills(dbconn, clan, path):
                                          values(?,?,?,?)''',
                                          [s_uuid, sk_uuid, sk_rank, sk_emph])
     f.close()
+    
+def import_clan_school_spells(dbconn, clan, path):
+    print 'import school spells from %s' % path
+
+    f = open( path, 'rt' )
+    while True:
+        if not f.readline().startswith('#'): break
+        s_name = f.readline().strip()
+        if len(s_name) < 1:
+            break        
+        spell_line = f.readline().strip()
+        spells = spell_line.split(',')
+
+        # get school uid
+        print 'search uuid for school %s' % s_name
+        s_uuid = query(dbconn, '''select uuid from schools where name=?''', [s_name])
+        if s_uuid is not None and len(s_uuid) > 0:
+            s_uuid = s_uuid[0][0]
+
+        for sp in spells:           
+            sp = sp.strip(' \r\n')
+            print sp
+            
+            if sp.startswith('*'):
+                # add wildcard
+                non_query(dbconn, '''insert into school_spells
+                                     (school_uuid, wildcard)
+                                     values(?,?)''',
+                                  [s_uuid, sp[1:]])
+                print 'added wildcard'
+            else:
+                # get scgiik uid
+                print 'search uuid for spell %s' % sp
+                sp_uuid = query(dbconn, '''select uuid from spells where name=?''', [sp])
+                if sp_uuid is not None and len(sp_uuid) > 0:
+                    sp_uuid = sp_uuid[0][0]
+                    non_query(dbconn, '''insert into school_spells
+                                         (school_uuid, spell_uuid)
+                                         values(?,?)''',
+                                         [s_uuid, sp_uuid])
+    f.close()    
 
 def import_clan_school_techs(dbconn, clan, path):
     print 'import school techs from %s' % path
@@ -600,6 +646,16 @@ def import_school_skills(conn, path):
                 continue
             import_clan_school_skills(conn, file_.lower(), os.path.join(path, file_))
             
+def import_school_spells(conn, path):
+    for path, dirs, files in os.walk(path):
+        dirn = os.path.basename(path)
+        if dirn.startswith('.'):
+            break
+        for file_ in files:
+            if file_.startswith('.') or file_.endswith('~'):
+                continue
+            import_clan_school_spells(conn, file_.lower(), os.path.join(path, file_))            
+            
 def import_mastery_abilities(conn, path):
     for path, dirs, files in os.walk(path):
         dirn = os.path.basename(path)
@@ -646,15 +702,16 @@ def importdb(conn, path):
     import_families(conn, os.path.join(path, 'families'))
     import_schools(conn, os.path.join(path, 'schools'))
     import_skills(conn, os.path.join(path, 'skills'))
+    import_spells(conn, os.path.join(path, 'spells'))
     import_school_skills(conn, os.path.join(path, 'school_skills'))
     import_school_techs(conn, os.path.join(path, 'school_techs'))
+    import_school_spells(conn, os.path.join(path, 'school_spells'))
     import_weapon_specials(conn, os.path.join(path, 'weapon_specials'))
     import_weapons(conn, os.path.join(path, 'weapons'))
     import_armors(conn, os.path.join(path, 'armors'))
     import_perks(conn, os.path.join(path, 'merits'), 'merit')
     import_perks(conn, os.path.join(path, 'flaws'), 'flaw')
-    import_mastery_abilities(conn, os.path.join(path, 'mastery_abilities'))
-    import_spells(conn, os.path.join(path, 'spells'))
+    import_mastery_abilities(conn, os.path.join(path, 'mastery_abilities'))    
     conn.commit()
 
 ### MAIN ###
