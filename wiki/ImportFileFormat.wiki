@@ -13,14 +13,17 @@ in several files. In this guide we will follow one by one the steps needed to im
 First open a text editor and create a new file called Scorpion_Families.txt,
 in this file we will put the data that represents the Scorpion Clan families in this format:
 
+{{{
 #
 FamilyName
 FamilyAttributeBonus
 1
 #
+}}}
 
 and repeat for each family, that will results in:
 
+{{{
 #
 Bayushi
 agility
@@ -37,29 +40,36 @@ intelligence
 Yogo
 willpower
 1
+}}}
 
 Save the file.
 
 == The School Skills file ==
 Next we need a file called Skills_Scorpion.txt, each record will contain the information about a Clan School and its starting skills in this format:
 
+{{{
 #
 SchoolName
 SkillName (Emphasis), OtherSkill ?2, *wildcard
 #
+}}}
 
 The second line has each skill separed by a comma, and any emphases is placed between parentesis. Also if you need the starting rank to be higher than 1, add ?2 or ?3, etc.. at the end.
 
 When the manual don't specify a named skill but a category you can add a wildcard. Some wildcards are:
 
+{{{
 *any    = Any Skills
 *bugey  = Any Bugei skills
 *high   = Any High skills
 *weapon = Any Weapon skills
+}}}
+
 and so on...
 
 The result is:
 
+{{{
 #
 Bayushi Bushi School
 Courtier (Manipulation), Defense, Etiquette, Iaijutsu, Kenjutsu, Sincerity, *any
@@ -72,3 +82,4 @@ Calligraphy, Courtier (Gossip), Etiquette, Investigation, Sincerity (Deceit), Te
 #
 Shosuro Infiltrator School
 Acting, Athletics, Ninjutsu, Sincerity, Stealth (Sneaking) ?2, *any
+}}}
