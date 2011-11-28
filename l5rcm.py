@@ -30,7 +30,7 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.6'
+APP_VERSION = '1.7'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -107,8 +107,11 @@ def new_small_plus_bt(parent = None):
     return bt
 
 def split_decimal(value):
-    d = int(value)
-    return (d, value-d)
+    import decimal
+    decimal.getcontext().prec = 2
+    d = decimal.Decimal(value)
+    i = int(d)
+    return (i, d-i)
 
 def pause_signals(widgets):
     for w in widgets: w.blockSignals(True)
@@ -438,7 +441,7 @@ class L5RMain(QtGui.QMainWindow):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
         views_ = []
-        
+
         for k, t, m, d, tb in models_:
             grp    = QtGui.QGroupBox(k, self)
             hbox   = QtGui.QHBoxLayout(grp)
@@ -483,9 +486,9 @@ class L5RMain(QtGui.QMainWindow):
         models_ = [ ("Skills", 'table', sk_sort_model, None, vtb),
                     ("Mastery Abilities",  'list', self.ma_view_model, 
                     models.MaItemDelegate(self), None) ]
-                    
-        frame_, views_ = self._build_generic_page(models_)
 
+        frame_, views_ = self._build_generic_page(models_)
+        
         if len(views_) > 0:
             self.skill_table_view = views_[0]
         
@@ -889,8 +892,8 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
         if len(self.pc.get_techs()) > self.pc.get_insight_rank():
             self.pc.reset_techs()
-        self.update_from_model()        
-        
+            self.update_from_model()
+
     def generate_name(self):
         gender = self.sender().property('gender')
         name = ''
@@ -1090,12 +1093,9 @@ class L5RMain(QtGui.QMainWindow):
     def on_pc_name_change(self):
         self.pc.name = self.tx_pc_name.text()
 
-    def on_flag_points_change(self, old_value, new_value):
+    def on_flag_points_change(self):
         fl  = self.sender()
-        pt = new_value
-        
-        print 'flag points change: %d' % pt
-        
+        pt = fl.value
         if fl == self.pc_flags_points[0]:
             val = int(self.pc_flags_rank[0].text())
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -1109,9 +1109,9 @@ class L5RMain(QtGui.QMainWindow):
             val = int(self.pc_flags_rank[3].text())
             self.pc.set_taint( float(val + float(pt)/10 ) )
 
-    def on_flag_rank_change(self, old_value, new_value):
+    def on_flag_rank_change(self):
         fl  = self.sender()
-        val = new_value
+        val = int(fl.text())
         if fl == self.pc_flags_rank[0]:
             pt = self.pc_flags_points[0].value
             self.pc.set_honor( float(val + float(pt)/10 ) )
@@ -1272,6 +1272,9 @@ class L5RMain(QtGui.QMainWindow):
         self.update_from_model()
 
     def load_character(self):
+        pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
+                        self.cb_pc_school] )
+
         path = self.select_load_path()
         self.load_character_from(path)
 
@@ -1389,7 +1392,7 @@ class L5RMain(QtGui.QMainWindow):
         # set rank
         self.pc_flags_rank[flag].setText( str(rank) )
         # set points
-        self.pc_flags_points[flag].set_value(points*10)
+        self.pc_flags_points[flag].set_value( int(points*10) )
 
     def set_honor (self, value): self.set_flag(0, value)
     def set_glory (self, value): self.set_flag(1, value)
@@ -1500,7 +1503,7 @@ class L5RMain(QtGui.QMainWindow):
 
         # also disable schools lock/unlock
         self.unlock_schools_menu_item.setChecked( not self.pc.unlock_schools )
-        self.unlock_schools_menu_item.setEnabled( not has_adv )        
+        self.unlock_schools_menu_item.setEnabled( not has_adv )
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
@@ -1526,7 +1529,7 @@ class L5RMain(QtGui.QMainWindow):
          msgBox = QtGui.QMessageBox(self)
          msgBox.setWindowTitle('L5R: CM')
          msgBox.setText("L5R: CM v%s is available for download." % target_version)
-         msgBox.setInformativeText("Do you want to download and install the upgrade now?")
+         msgBox.setInformativeText("Do you want to open the download page?")
          msgBox.addButton( QtGui.QMessageBox.Yes )
          msgBox.addButton( QtGui.QMessageBox.No )
          msgBox.setDefaultButton(QtGui.QMessageBox.No)
@@ -1587,15 +1590,9 @@ class L5RMain(QtGui.QMainWindow):
            autoupdate.need_update(APP_VERSION, update_info['version']) and \
            self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
 
-            dlg = autoupdate.DownloadDialog('Downloading %s' % update_info['uri'])
-            dlg.setMinimumSize(400, 0)
-            dlg.setWindowTitle('L5R: CM Autoupdate')
+            import osutil
+            osutil.portable_open(PROJECT_PAGE_LINK)
 
-            if dlg.exec_(tempfile.gettempdir(), update_info['uri']) == \
-               QtGui.QDialog.DialogCode.Accepted:
-
-               sys.stdout.flush()
-               os.execl(dlg.file_path, dlg.file_path)
                
     def export_as_text(self):
         export_file = self.pc.name + '.txt'
@@ -1625,9 +1622,8 @@ def main():
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
 
-    if os.name == 'nt':
-        # check for updates
-        l5rcm.check_updates()
+    # check for updates
+    l5rcm.check_updates()
 
     # initialize new character
     l5rcm.new_character()

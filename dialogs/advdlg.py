@@ -194,7 +194,7 @@ class BuyAdvDialog(QtGui.QDialog):
 
         self.adv = advances.SkillAdv(uuid, cost)
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
-                
+        
     def buy_advancement(self):
         
         if self.adv and (self.adv.cost + self.pc.get_px()) > \
