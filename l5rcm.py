@@ -1282,9 +1282,6 @@ class L5RMain(QtGui.QMainWindow):
         self.update_from_model()
 
     def load_character(self):
-        pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
-                        self.cb_pc_school] )
-
         path = self.select_load_path()
         self.load_character_from(path)
 
