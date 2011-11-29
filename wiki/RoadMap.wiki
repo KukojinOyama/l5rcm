@@ -1,5 +1,5 @@
 #summary Project Roadmap
-#labels Phase-Design,Featured
+#labels Phase-Design
 
 = The Future =
 
