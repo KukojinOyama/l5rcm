@@ -89,7 +89,7 @@ def encode_pc_model(obj):
        isinstance(obj, AdvancedPcModel):
         return obj.__dict__
     return json.JSONEncoder.default(self, obj)
-
+   
 class BasePcModel(object):
     def __init__(self):
         self.void               = 0
@@ -141,6 +141,7 @@ class AdvancedPcModel(BasePcModel):
         self.step_2 = BasePcModel()
 
         self.unsaved = False
+        self.version = '0.0'
 
         self.name      = ''
         self.clan      = 0
@@ -590,8 +591,7 @@ class AdvancedPcModel(BasePcModel):
         if fp:
             obj = json.load(fp)
             fp.close()
-
-                
+           
             _load_obj(deepcopy(obj), self)
 
             self.step_0 = BasePcModel()
