@@ -919,7 +919,7 @@ class L5RMain(QtGui.QMainWindow):
     def refund_last_adv(self):
         if len(self.pc.advans) > 0:
             adv = self.pc.advans.pop()
-
+            
             if self.pc.get_how_many_spell_i_miss() < 0:
                 self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
             if len(self.pc.get_techs()) > self.pc.get_insight_rank():
