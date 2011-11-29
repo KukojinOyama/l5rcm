@@ -236,11 +236,11 @@ def import_armors(dbconn, path):
 def import_clan_families(dbconn, clan, path):
     print 'import %s clan families' % clan
 
-    clanuid = query(dbconn, '''select uuid from clans where name=?''', [clan])
+    clanuid = query(dbconn, '''select uuid from clans where name=?''', [clan.capitalize()])
     if clanuid is not None and len(clanuid) > 0:
         clanuid = clanuid[0][0]
 
-    # get clan uuid
+    # get clan uuid    
     print 'found uuid for clan %s: %d' % (clan, clanuid)
         
     f = open( path, 'rt' )
@@ -260,7 +260,7 @@ def import_clan_schools(dbconn, clan, path):
 
     # get clan uuid
     print 'search uuid for clan %s' % clan
-    clanuid = query(dbconn, '''select uuid from clans where name=?''', [clan])
+    clanuid = query(dbconn, '''select uuid from clans where name=?''', [clan.capitalize()])
     if clanuid is not None and len(clanuid) > 0:
         clanuid = clanuid[0][0]
 
@@ -606,7 +606,7 @@ def import_categ_spells(dbconn, categ, path):
             
     f.close()  
     
-def import_families(conn, path):
+def import_categ_data(conn, path, func):
     for path, dirs, files in os.walk(path):
         dirn = os.path.basename(path)
         if dirn.startswith('.'):
@@ -614,104 +614,34 @@ def import_families(conn, path):
         for file_ in files:
             if file_.startswith('.') or file_.endswith('~'):
                 continue
-            import_clan_families(conn, file_, os.path.join(path, file_))
-
-def import_schools(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_clan_schools(conn, file_, os.path.join(path, file_))
-
-def import_skills(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_categ_skills(conn, file_.lower(), os.path.join(path, file_))
-
-def import_school_skills(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_clan_school_skills(conn, file_.lower(), os.path.join(path, file_))
-            
-def import_school_spells(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_clan_school_spells(conn, file_.lower(), os.path.join(path, file_))            
-            
-def import_mastery_abilities(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_categ_mastery_abilities(conn, file_.lower(), os.path.join(path, file_))            
-            
-def import_school_techs(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_clan_school_techs(conn, file_.lower(), os.path.join(path, file_))
-            
-
-def import_weapons(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_categ_weapons(conn, file_.lower(), os.path.join(path, file_))
-            
-def import_spells(conn, path):
-    for path, dirs, files in os.walk(path):
-        dirn = os.path.basename(path)
-        if dirn.startswith('.'):
-            break
-        for file_ in files:
-            if file_.startswith('.') or file_.endswith('~'):
-                continue
-            import_categ_spells(conn, file_.lower(), os.path.join(path, file_))            
+            func(conn, file_.lower(), os.path.join(path, file_))
 
 def importdb(conn, path):
+    # CLANS
     import_clans(conn, os.path.join(path, 'clans'))
-    import_families(conn, os.path.join(path, 'families'))
-    import_schools(conn, os.path.join(path, 'schools'))
-    import_skills(conn, os.path.join(path, 'skills'))
-    import_spells(conn, os.path.join(path, 'spells'))
-    import_school_skills(conn, os.path.join(path, 'school_skills'))
-    import_school_techs(conn, os.path.join(path, 'school_techs'))
-    import_school_spells(conn, os.path.join(path, 'school_spells'))
-    import_weapon_specials(conn, os.path.join(path, 'weapon_specials'))
-    import_weapons(conn, os.path.join(path, 'weapons'))
+    
+    # FAMILIES, SCHOOOLS, SKILLS, SPELLS
+    import_categ_data(conn, os.path.join(path, 'families'), import_clan_families)
+    import_categ_data(conn, os.path.join(path, 'schools'), import_clan_schools)
+    import_categ_data(conn, os.path.join(path, 'skills'), import_categ_skills)    
+    import_categ_data(conn, os.path.join(path, 'spells'), import_categ_spells)       
+    
+    # SCHOOLS SKILLS, TECHNIQUES, SPELLS
+    import_categ_data(conn, os.path.join(path, 'school_skills'), import_clan_school_skills)
+    import_categ_data(conn, os.path.join(path, 'school_techs'), import_clan_school_techs)
+    import_categ_data(conn, os.path.join(path, 'school_spells'), import_clan_school_spells)
+    
+    # WEAPONS AND ARMORS
+    import_weapon_specials(conn, os.path.join(path, 'weapon_specials'))    
+    import_categ_data(conn, os.path.join(path, 'weapons'), import_categ_weapons)    
     import_armors(conn, os.path.join(path, 'armors'))
+    
+    # ADVANTAGES AND DISADVANTAGES
     import_perks(conn, os.path.join(path, 'merits'), 'merit')
     import_perks(conn, os.path.join(path, 'flaws'), 'flaw')
-    import_mastery_abilities(conn, os.path.join(path, 'mastery_abilities'))    
+    
+    # SKILL MASTERY ABILITIES
+    import_categ_data(conn, os.path.join(path, 'mastery_abilities'), import_categ_mastery_abilities)        
     conn.commit()
 
 ### MAIN ###

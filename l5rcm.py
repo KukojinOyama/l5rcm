@@ -30,7 +30,7 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.8'
+APP_VERSION = '1.9'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -1294,6 +1294,24 @@ class L5RMain(QtGui.QMainWindow):
 
         self.save_path = path
         if self.pc.load_from(self.save_path):
+            
+            if float(self.pc.version) < float(APP_VERSION):
+                # BACKUP CHARACTER
+                backup_path = self.save_path + '.bak'
+                self.pc.save_to(backup_path)
+                # CONVERT CHARACTER
+                import past
+                past_db = 'l5rdb_%s.sqlite' % self.pc.version
+                if not os.path.exists(get_app_file(past_db)):
+                    past_db = 'l5rdb_past.sqlite'
+                print 'converting character using database %s' % past_db
+                cc = past.CharConvert(self.pc, get_app_file(past_db), get_app_file('l5rdb.sqlite') )
+                cc.start()
+                # SAVE CHARACTER
+                self.save_character()
+                # ADVISE USER
+                self.advise_conversion(backup_path)
+        
             self.load_families(self.pc.clan)
             if self.pc.unlock_schools:
                 self.load_schools ()
@@ -1311,6 +1329,7 @@ class L5RMain(QtGui.QMainWindow):
             self.save_path = self.select_save_path()
 
         if self.save_path is not None and len(self.save_path) > 0:
+            self.pc.version = APP_VERSION
             self.pc.save_to(self.save_path)
 
     def load_clans(self):
@@ -1524,6 +1543,16 @@ class L5RMain(QtGui.QMainWindow):
         self.flaws_view_model .update_from_model(self.pc)
         self.sp_view_model    .update_from_model(self.pc)
 
+    def advise_conversion(self, *args):
+         msgBox = QtGui.QMessageBox(self)
+         msgBox.setWindowTitle('L5R: CM')
+         msgBox.setText("The character has been updated.")
+         msgBox.setInformativeText("The character has been updated to the new version.\n"
+                                   "A backup has been created with the name\n%s." % args)
+         msgBox.addButton( QtGui.QMessageBox.Ok )
+         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+         return msgBox.exec_()        
+        
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
          msgBox.setWindowTitle('L5R: CM')
