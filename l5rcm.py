@@ -23,13 +23,14 @@ import widgets
 import dialogs
 import autoupdate
 import tempfile
+import exporters
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME = 'l5rcm'
 APP_DESC = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.7'
+APP_VERSION = '1.9'
 APP_ORG = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -106,8 +107,11 @@ def new_small_plus_bt(parent = None):
     return bt
 
 def split_decimal(value):
-    d = int(value)
-    return (d, value-d)
+    import decimal
+    decimal.getcontext().prec = 2
+    d = decimal.Decimal(value)
+    i = int(d)
+    return (i, d-i)
 
 def pause_signals(widgets):
     for w in widgets: w.blockSignals(True)
@@ -435,10 +439,10 @@ class L5RMain(QtGui.QMainWindow):
         add_pc_quantities(4, 0)
 
     def _build_generic_page(self, models_):
-        mfr    = QtGui.QFrame(self)        
+        mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
         views_ = []
-        
+
         for k, t, m, d, tb in models_:
             grp    = QtGui.QGroupBox(k, self)
             hbox   = QtGui.QHBoxLayout(grp)
@@ -487,7 +491,7 @@ class L5RMain(QtGui.QMainWindow):
         models_ = [ ("Skills", 'table', sk_sort_model, None, vtb),
                     ("Mastery Abilities",  'list', self.ma_view_model, 
                     models.MaItemDelegate(self), None) ]
-                    
+
         frame_, views_ = self._build_generic_page(models_)
         
         if len(views_) > 0:
@@ -571,8 +575,9 @@ class L5RMain(QtGui.QMainWindow):
             return sort_model_
         
         # weapon vertical toolbar
-        def _make_vertical_tb(has_custom, has_edit, has_qty):
+        def _make_vertical_tb(has_custom, has_edit, has_qty, filter):
             vtb = widgets.VerticalToolBar(self)
+            vtb.setProperty('filter', filter)
             vtb.addStretch()
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
                           'Add weapon', self.show_add_weapon)
@@ -593,9 +598,9 @@ class L5RMain(QtGui.QMainWindow):
             vtb.addStretch()
             return vtb            
         
-        melee_vtb  = _make_vertical_tb(True, True, False)
-        ranged_vtb = _make_vertical_tb(True, True, False)
-        arrow_vtb  = _make_vertical_tb(False, False, True)
+        melee_vtb  = _make_vertical_tb(True, True, False, 'melee' )
+        ranged_vtb = _make_vertical_tb(True, True, False, 'ranged')
+        arrow_vtb  = _make_vertical_tb(False, False, True,'arrow' )
         
         models_ = [ ("Melee Weapons", 'table', _make_sortable(self.melee_view_model), 
                     None, melee_vtb),
@@ -658,10 +663,11 @@ class L5RMain(QtGui.QMainWindow):
         # File Menu
         m_file = self.menuBar().addMenu("&File");
         # actions: new, open, save
-        new_act  = QtGui.QAction(u'&New Character', self)
-        open_act = QtGui.QAction(u'&Open Character...', self)
-        save_act = QtGui.QAction(u'&Save Character...', self)
-        exit_act = QtGui.QAction(u'E&xit', self)
+        new_act         = QtGui.QAction(u'&New Character', self)
+        open_act        = QtGui.QAction(u'&Open Character...', self)
+        save_act        = QtGui.QAction(u'&Save Character...', self)
+        export_text_act = QtGui.QAction(u'Ex&port as Text...', self)
+        exit_act        = QtGui.QAction(u'E&xit', self)
 
         new_act .setShortcut( QtGui.QKeySequence.New  )
         open_act.setShortcut( QtGui.QKeySequence.Open )
@@ -672,12 +678,16 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addAction(open_act)
         m_file.addAction(save_act)
         m_file.addSeparator()
+        m_file.addAction(export_text_act)
+        m_file.addSeparator()
         m_file.addAction(exit_act)
 
         new_act .triggered.connect( self.new_character  )
         open_act.triggered.connect( self.load_character )
         save_act.triggered.connect( self.save_character )
         exit_act.triggered.connect( self.close )
+        
+        export_text_act.triggered.connect( self.export_character_as_text )
 
         self.m_file = m_file
 
@@ -799,7 +809,7 @@ class L5RMain(QtGui.QMainWindow):
         unlock_school_act  = QtGui.QAction(u'Lock Schools...'         , self)
         unlock_advans_act  = QtGui.QAction(u'Lock Advancements...'    , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
-        
+
         unlock_school_act.setCheckable(True)
         unlock_advans_act.setCheckable(True)
         
@@ -942,8 +952,8 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
         if len(self.pc.get_techs()) > self.pc.get_insight_rank():
             self.pc.reset_techs()
-        self.update_from_model()        
-        
+            self.update_from_model()
+
     def generate_name(self):
         gender = self.sender().property('gender')
         name = ''
@@ -1122,20 +1132,29 @@ class L5RMain(QtGui.QMainWindow):
         c.execute('''select uuid, effect from school_techs
                      where school_uuid=? and rank=1''', [uuid])
 
-        for uuid, rule in c.fetchall():
-            self.pc.set_free_school_tech( uuid, rule )
+        for th_uuid, rule in c.fetchall():
+            self.pc.set_free_school_tech( th_uuid, rule )
             break
 
         # if shugenja get universal spells
         # also player should choose 3 spells from list
 
         if tag == 'shugenja':
-            print 'fetch universal spells'
-            c.execute('''select uuid, name from spells
-                         where ring="All" and mastery=1''')
-            for uuid, name in c.fetchall():
-                print 'add spell %d %s' % ( uuid, name )
-                self.pc.add_free_spell(uuid)
+            count = 0
+            c.execute('''select spell_uuid, wildcard from school_spells
+                      where school_uuid=?''', [uuid])
+            for sp_uuid, wc in c.fetchall():
+                if sp_uuid is None:
+                    ring, qty = rules.parse_spell_wildcard(wc)
+                    print 'add pending wc spell %s' % wc
+                    self.pc.add_pending_wc_spell(wc)
+                    count += qty
+                else:
+                    self.pc.add_free_spell(sp_uuid)
+                    count += 1
+                    
+            print 'starting spells count are %d' % count
+            self.pc.set_school_spells_qty(count)
 
         c.close()
         self.update_from_model()
@@ -1288,6 +1307,7 @@ class L5RMain(QtGui.QMainWindow):
     def learn_next_school_spells(self):
         dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.pc.clear_pending_wc_spells()
             self.update_from_model()
 
     def show_wear_armor(self):
@@ -1300,8 +1320,12 @@ class L5RMain(QtGui.QMainWindow):
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
 
-    def show_add_weapon(self):
+    def show_add_weapon(self):    
         dlg = dialogs.ChooseItemDialog(self.pc, 'weapon', self.db_conn, self)
+        filter = self.sender().parent().property('filter')        
+        print filter
+        if filter is not None:
+            dlg.set_filter(filter)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
 
@@ -1409,6 +1433,24 @@ class L5RMain(QtGui.QMainWindow):
 
         self.save_path = path
         if self.pc.load_from(self.save_path):
+            
+            if float(self.pc.version) < float(APP_VERSION):
+                # BACKUP CHARACTER
+                backup_path = self.save_path + '.bak'
+                self.pc.save_to(backup_path)
+                # CONVERT CHARACTER
+                import past
+                past_db = 'l5rdb_%s.sqlite' % self.pc.version
+                if not os.path.exists(get_app_file(past_db)):
+                    past_db = 'l5rdb_past.sqlite'
+                print 'converting character using database %s' % past_db
+                cc = past.CharConvert(self.pc, get_app_file(past_db), get_app_file('l5rdb.sqlite') )
+                cc.start()
+                # SAVE CHARACTER
+                self.save_character()
+                # ADVISE USER
+                self.advise_conversion(backup_path)
+        
             self.load_families(self.pc.clan)
             if self.pc.unlock_schools:
                 self.load_schools ()
@@ -1426,6 +1468,7 @@ class L5RMain(QtGui.QMainWindow):
             self.save_path = self.select_save_path()
 
         if self.save_path is not None and len(self.save_path) > 0:
+            self.pc.version = APP_VERSION
             self.pc.save_to(self.save_path)
 
     def load_clans(self):
@@ -1517,7 +1560,7 @@ class L5RMain(QtGui.QMainWindow):
         # set rank
         self.pc_flags_rank[flag].setText( str(rank) )
         # set points
-        self.pc_flags_points[flag].set_value(points*10)
+        self.pc_flags_points[flag].set_value( int(points*10) )
 
     def set_honor (self, value): self.set_flag(0, value)
     def set_glory (self, value): self.set_flag(1, value)
@@ -1630,7 +1673,7 @@ class L5RMain(QtGui.QMainWindow):
 
         # also disable schools lock/unlock
         self.unlock_schools_menu_item.setChecked( not self.pc.unlock_schools )
-        self.unlock_schools_menu_item.setEnabled( not has_adv )        
+        self.unlock_schools_menu_item.setEnabled( not has_adv )
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
@@ -1644,6 +1687,16 @@ class L5RMain(QtGui.QMainWindow):
         self.ranged_view_model.update_from_model(self.pc)
         self.arrow_view_model .update_from_model(self.pc)
 
+    def advise_conversion(self, *args):
+         msgBox = QtGui.QMessageBox(self)
+         msgBox.setWindowTitle('L5R: CM')
+         msgBox.setText("The character has been updated.")
+         msgBox.setInformativeText("The character has been updated to the new version.\n"
+                                   "A backup has been created with the name\n%s." % args)
+         msgBox.addButton( QtGui.QMessageBox.Ok )
+         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+         return msgBox.exec_()        
+        
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
          msgBox.setWindowTitle('L5R: CM')
@@ -1713,7 +1766,26 @@ class L5RMain(QtGui.QMainWindow):
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
         return fileName[0]
+        
+    def select_export_file(self):
+        char_name = self.pc.name
+        
+        settings = QtCore.QSettings()
+        last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
+        fileName = QtGui.QFileDialog.getSaveFileName(self, "Export Character",
+                                os.path.join(last_dir,char_name),
+                                "Text files(*.txt)")
+        if len(fileName) != 2:
+            return ''
 
+        last_dir = os.path.dirname(fileName[0])
+        if last_dir != '':
+            settings.setValue('last_open_dir', last_dir)
+
+        if fileName[0].endswith('.txt'):
+            return fileName[0]
+        return fileName[0] + '.txt'
+        
     def check_updates(self):
         update_info = autoupdate.get_last_version()
         if update_info is not None and \
@@ -1722,6 +1794,24 @@ class L5RMain(QtGui.QMainWindow):
 
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
+
+    def export_character_as_text(self):
+        file_ = self.select_export_file()
+        if len(file_) > 0:
+            self.export_as_text(file_)
+            
+    def export_as_text(self, export_file):        
+        exporter = exporters.TextExporter()
+        exporter.set_form (self)
+        exporter.set_model(self.pc     )
+        #exporter.set_db   (self.db_conn)
+        
+        f = open(export_file, 'wt')
+        if f is not None:
+            exporter.export(f)
+        f.close()
+        
+        
 
 ### MAIN ###
 def main():

@@ -89,20 +89,23 @@ def encode_pc_model(obj):
        isinstance(obj, AdvancedPcModel):
         return obj.__dict__
     return json.JSONEncoder.default(self, obj)
-
+   
 class BasePcModel(object):
     def __init__(self):
-        self.void        = 0
-        self.attribs     = [0, 0, 0, 0, 0, 0, 0, 0]
-        self.skills      = {}
-        self.emph        = {}
-        self.pending_wc  = []
-        self.tags        = []
-        self.spells     = []
-        self.honor       = 0.0
-        self.glory       = 0.0
-        self.status      = 0.0
-        self.taint       = 0.0
+        self.void               = 0
+        self.attribs            = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.skills             = {}
+        self.emph               = {}
+        self.pending_wc         = []
+        self.pending_wc_spell   = []
+        self.tags               = []
+        self.spells             = []
+        self.honor              = 0.0
+        self.glory              = 0.0
+        self.status             = 0.0
+        self.taint              = 0.0
+        
+        self.start_spell_count = 0
         self.school_tech = None
 
     def load_default(self):
@@ -138,6 +141,7 @@ class AdvancedPcModel(BasePcModel):
         self.step_2 = BasePcModel()
 
         self.unsaved = False
+        self.version = '0.0'
 
         self.name      = ''
         self.clan      = 0
@@ -147,9 +151,9 @@ class AdvancedPcModel(BasePcModel):
         self.insight   = 0
         self.advans    = []
 
-        self.armor      = None
-        self.weapons    = []
-        self.techs      = []
+        self.armor     = None
+        self.weapons   = []
+        self.techs     = []
         self.tech_rules = []
         
         self.mastery_abilities = []
@@ -311,6 +315,9 @@ class AdvancedPcModel(BasePcModel):
 
     def get_pending_wc_skills(self):
         return self.step_2.pending_wc
+        
+    def get_pending_wc_spells(self):
+        return self.step_2.pending_wc_spell
 
     def get_school_skills(self):
         return [ int(x) for x in self.step_2.skills.keys() ]
@@ -393,23 +400,26 @@ class AdvancedPcModel(BasePcModel):
            return False
            
         return len(self.get_techs()) < self.get_insight_rank()
+        
+    def get_school_spells_qty(self):
+        return self.step_2.start_spell_count
                 
     def can_get_other_spells(self):
         if not self.has_tag('shugenja'):
             return
             
-        # must count also the universal spells    
-        target_spells = 3 + self.get_insight_rank() * self.spells_per_rank
+        # must count also the school spells    
+        target_spells = self.get_school_spells_qty() + (self.get_insight_rank()-1) * self.spells_per_rank
         return len(self.get_spells()) < target_spells
         
     def get_how_many_spell_i_miss(self):
         if not self.has_tag('shugenja'):
             return 0
             
-        # must count also the universal spells    
-        target_spells = 3 + self.get_insight_rank() * self.spells_per_rank
+        # must count also the school spells    
+        target_spells = self.get_school_spells_qty() + (self.get_insight_rank()-1) * self.spells_per_rank
         return target_spells - len(self.get_spells())
-        
+
     def reset_spells(self):
         self.spells = []
         
@@ -441,9 +451,17 @@ class AdvancedPcModel(BasePcModel):
         self.step_2.pending_wc.append( (wc, skill_rank) )
         self.unsaved = True
 
+    def add_pending_wc_spell(self, wc):
+        self.step_2.pending_wc_spell.append( wc )
+        self.unsaved = True       
+        
     def clear_pending_wc_skills(self):
         self.step_2.pending_wc = []
         self.unsaved = True
+        
+    def clear_pending_wc_spells(self):
+        self.step_2.pending_wc_spell = []
+        self.unsaved = True        
         
     def add_weapon(self, item):
         self.weapons.append( item )
@@ -479,10 +497,11 @@ class AdvancedPcModel(BasePcModel):
         self.unsaved = True
         self.school  = school_id
         self.clear_pending_wc_skills()
+        self.clear_pending_wc_spells()
         # also reset tech and spells
-        self.techs      = []
+        self.techs  = []
         self.tech_rules = []
-        self.spells     = []
+        self.spells = []
         if school_id == 0:
             return
 
@@ -513,11 +532,14 @@ class AdvancedPcModel(BasePcModel):
             self.techs.append(tech_uuid)
         if rule is not None and rule not in self.tech_rules:
             self.tech_rules.append(rule)
+            
+    def set_school_spells_qty(self, qty):
+        self.step_2.start_spell_count = qty
 
     def add_free_spell(self, spell_uuid):
         if spell_uuid not in self.get_spells():
             self.step_2.spells.append(spell_uuid)
-        
+
     def add_spell(self, spell_uuid):
         if spell_uuid not in self.get_spells():
             self.spells.append(spell_uuid)
@@ -578,8 +600,7 @@ class AdvancedPcModel(BasePcModel):
         if fp:
             obj = json.load(fp)
             fp.close()
-
-                
+           
             _load_obj(deepcopy(obj), self)
 
             self.step_0 = BasePcModel()

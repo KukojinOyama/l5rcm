@@ -22,11 +22,13 @@ import models
 class ChooseItemDialog(QtGui.QDialog):
     def __init__(self, pc, tag, conn, parent = None):
         super(ChooseItemDialog, self).__init__(parent)
-        self.tag = tag
-        self.adv = None
-        self.pc  = pc
+        self.tag    = tag
+        self.adv    = None
+        self.pc     = pc
         self.dbconn = conn
-        self.item = None
+        self.item   = None
+        self.filter = None
+        self.weap_by_skill = {}
         self.build_ui()
         self.load_data()
 
@@ -90,17 +92,42 @@ class ChooseItemDialog(QtGui.QDialog):
             grid.addWidget(self.bt_cancel, 3, 3)            
         
     def load_data(self):
+        # RESET CACHE
+        self.weap_by_skill = {}        
         c = self.dbconn.cursor()
         if self.tag == 'armor':
+            self.cb.clear()
+            
             c.execute('''select uuid, name from armors''')
             for uuid, name in c.fetchall():
                 self.cb.addItem(name, uuid)
         elif self.tag == 'weapon':
+            self.cb1.clear()
             c.execute('''select skills.uuid, name, tag from skills
                          inner join tags on tags.uuid=skills.uuid
                          where tag="weapon"''')
             for uuid, name, tag in c.fetchall():
-                self.cb1.addItem(name, uuid)
+                weaps = self.get_weapons_by_skill(uuid, self.filter)
+                if len(weaps) > 0:
+                    self.weap_by_skill[uuid] = weaps
+                    self.cb1.addItem(name, uuid)
+                
+    def get_weapons_by_skill(self, sk_uuid, filter):
+        weapons = []
+        c = self.dbconn.cursor()
+        if self.filter is None:
+            c.execute('''select uuid, name from weapons
+                         where skill_uuid=?''', [sk_uuid])
+        else:
+            c.execute('''select weapons.uuid, name from weapons
+                         inner join tags on tags.uuid = weapons.uuid
+                         where skill_uuid=? and tag=?''', [sk_uuid, self.filter])
+                         
+        for uuid, name in c.fetchall():
+            weapons.append( (uuid, name) )
+        c.close()
+        
+        return weapons
                 
     def on_armor_select(self, text = ''):
         # list stats
@@ -129,13 +156,9 @@ class ChooseItemDialog(QtGui.QDialog):
         if selected < 0:
             return
         sk_uuid = self.cb1.itemData(selected)
-        
-        c = self.dbconn.cursor()
-        c.execute('''select uuid, name from weapons
-                     where skill_uuid=?''', [sk_uuid])
-                     
-        for uuid, name in c.fetchall():
-            self.cb2.addItem(name, uuid)
+               
+        for uuid, name in self.weap_by_skill[sk_uuid]:
+            self.cb2.addItem(name, uuid)            
         
     def on_weap_select(self, text = ''):
         # list stats
@@ -178,3 +201,7 @@ class ChooseItemDialog(QtGui.QDialog):
             self.pc.add_weapon( self.item )
 
         self.accept()
+        
+    def set_filter(self, filter):
+        self.filter = filter
+        self.load_data()

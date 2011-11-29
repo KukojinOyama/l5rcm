@@ -58,13 +58,13 @@ def weapon_outfit_from_db(dbconn, weap_uuid):
             break
        
         itm.name     = name
-        itm.dr       = dr
-        itm.dr_alt   = dr_alt
+        itm.dr       = dr        or 'N/A'
+        itm.dr_alt   = dr_alt    or 'N/A'
         itm.rule     = rule_text
-        itm.cost     = cost
-        itm.range    = rng
-        itm.strength = str_
-        itm.min_str  = mstr_            
+        itm.cost     = cost      or 'N/A'
+        itm.range    = rng       or 'N/A' 
+        itm.strength = str_      or 'N/A'
+        itm.min_str  = mstr_     or 'N/A'
         break
         
     c.execute('''select uuid, tag from tags where uuid=?''', [weap_uuid])
