@@ -333,7 +333,7 @@ def import_clan_school_skills(dbconn, clan, path):
                 non_query(dbconn, '''insert into school_skills
                                      (school_uuid, skill_rank, wildcard)
                                      values(?,?,?)''',
-                                  [s_uuid, 1, sk_name[1:]])
+                                  [s_uuid, sk_rank, sk_name[1:]])
             else:
                 # get skill uid
                 print 'search uuid for skill %s' % s
