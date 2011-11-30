@@ -28,10 +28,11 @@ import exporters
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
 
-APP_NAME = 'l5rcm'
-APP_DESC = 'Legend of the Five Rings: Character Manager'
+APP_NAME    = 'l5rcm'
+APP_DESC    = 'Legend of the Five Rings: Character Manager'
 APP_VERSION = '1.9'
-APP_ORG = 'openningia'
+DB_VERSION  = '1.9'
+APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
 BUGTRAQ_LINK      = 'http://code.google.com/p/l5rcm/issues/list'
@@ -167,8 +168,8 @@ class L5RMain(QtGui.QMainWindow):
 
         self.mvbox = mvbox
 
-        # LOAD SETTINGS
-        settings = QtCore.QSettings()
+        # LOAD SETTINGS        
+        settings = QtCore.QSettings()       
         geo = settings.value('geometry')
         if geo is not None:
             self.restoreGeometry(geo)
@@ -587,6 +588,10 @@ class L5RMain(QtGui.QMainWindow):
                   </p>
                   </p>
                   <p style='color:palette(mid)'>&copy; 2011 %s</p>
+                  <p>Special Thanks:</p>
+                  <p style="margin-left: 10;">
+                  THEPUNISHER17397 (Minor Clans)
+                  </p>
                   </body></html>""" % ( APP_DESC,
                                         QtGui.QApplication.applicationVersion(),
                                         PROJECT_PAGE_LINK, PROJECT_PAGE_NAME,
@@ -1292,7 +1297,7 @@ class L5RMain(QtGui.QMainWindow):
         self.save_path = path
         if self.pc.load_from(self.save_path):
             
-            if float(self.pc.version) < float(APP_VERSION):
+            if float(self.pc.version) < float(DB_VERSION):
                 # BACKUP CHARACTER
                 backup_path = self.save_path + '.bak'
                 self.pc.save_to(backup_path)
@@ -1326,7 +1331,7 @@ class L5RMain(QtGui.QMainWindow):
             self.save_path = self.select_save_path()
 
         if self.save_path is not None and len(self.save_path) > 0:
-            self.pc.version = APP_VERSION
+            self.pc.version = DB_VERSION
             self.pc.save_to(self.save_path)
 
     def load_clans(self):
@@ -1541,14 +1546,23 @@ class L5RMain(QtGui.QMainWindow):
         self.sp_view_model    .update_from_model(self.pc)
 
     def advise_conversion(self, *args):
-         msgBox = QtGui.QMessageBox(self)
-         msgBox.setWindowTitle('L5R: CM')
-         msgBox.setText("The character has been updated.")
-         msgBox.setInformativeText("The character has been updated to the new version.\n"
-                                   "A backup has been created with the name\n%s." % args)
-         msgBox.addButton( QtGui.QMessageBox.Ok )
-         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
-         return msgBox.exec_()        
+        settings = QtCore.QSettings()
+        if settings.value('advise_conversion', 'true') == 'false':
+            return
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText("The character has been updated.")
+        msgBox.setInformativeText("This character was created with an older version of the program.\n"
+                                  "I've done my best to convert and update your character, hope you don't mind :).\n"
+                                  "I also created a backup of your character file in\n\n%s." % args)        
+        do_not_prompt_again = QtGui.QCheckBox("Do not prompt again", msgBox)
+        do_not_prompt_again.blockSignals(True) # PREVENT MSGBOX TO CLOSE ON CLICK
+        msgBox.addButton(QtGui.QMessageBox.Ok)
+        msgBox.addButton(do_not_prompt_again, QtGui.QMessageBox.ActionRole)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+        msgBox.exec_()
+        if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
+            settings.setValue('advise_conversion', 'false')
         
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
