@@ -616,7 +616,7 @@ class AdvancedPcModel(BasePcModel):
             # weapons
             for w in obj['weapons']:
                 item = outfit.WeaponOutfit()
-                _load_obj(deepcopy(w), self.item)
+                _load_obj(deepcopy(w), item)
                 self.add_weapon(item)
             
             self.unsaved  = False           

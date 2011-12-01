@@ -651,9 +651,8 @@ class L5RMain(QtGui.QMainWindow):
         buyemph_act  = QtGui.QAction(u'Skill emphasis...', self)
         buymerit_act = QtGui.QAction(u'Advantage...', self)
         buyflaw_act  = QtGui.QAction(u'Disadvantage...', self)
-        buykata_act  = QtGui.QAction(u'Kata...', self)
-        buykiho_act  = QtGui.QAction(u'Kiho...', self)
-        buyspell_act = QtGui.QAction(u'Spell...', self)
+        # buykata_act  = QtGui.QAction(u'Kata...', self)
+        # buykiho_act  = QtGui.QAction(u'Kiho...', self)        
         
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
@@ -661,19 +660,18 @@ class L5RMain(QtGui.QMainWindow):
         buyvoid_act .setProperty('tag', 'void'  )
         buyskill_act.setProperty('tag', 'skill' )
         buyemph_act .setProperty('tag', 'emph'  )
-        buykata_act .setProperty('tag', 'kata'  )
-        buykiho_act .setProperty('tag', 'kiho'  )
-        buyspell_act.setProperty('tag', 'spell' )
         buymerit_act.setProperty('tag', 'merit' )
         buyflaw_act .setProperty('tag', 'flaw'  )
-
+        # buykata_act .setProperty('tag', 'kata'  )
+        # buykiho_act .setProperty('tag', 'kiho'  )        
+        
         m_buy_adv.addAction(buyattr_act )
         m_buy_adv.addAction(buyvoid_act )
         m_buy_adv.addAction(buyskill_act)
         m_buy_adv.addAction(buyemph_act )
         m_buy_adv.addAction(buymerit_act)
         m_buy_adv.addAction(buyflaw_act )
-        m_buy_adv.addAction(buykata_act )
+        # m_buy_adv.addAction(buykata_act )
 
         m_adv    .addSeparator()
         m_adv    .addAction(viewadv_act )
@@ -690,9 +688,8 @@ class L5RMain(QtGui.QMainWindow):
         buyvoid_act .triggered.connect( self.act_buy_advancement )
         buyskill_act.triggered.connect( self.act_buy_advancement )
         buyemph_act .triggered.connect( self.act_buy_advancement )
-        buykata_act .triggered.connect( self.act_buy_advancement )
-        buykiho_act .triggered.connect( self.act_buy_advancement )
-        buyspell_act.triggered.connect( self.act_buy_advancement )
+        # buykata_act .triggered.connect( self.act_buy_advancement )
+        # buykiho_act .triggered.connect( self.act_buy_advancement )
 
         buymerit_act.triggered.connect( self.act_buy_perk )
         buyflaw_act .triggered.connect( self.act_buy_perk )
@@ -727,23 +724,23 @@ class L5RMain(QtGui.QMainWindow):
         sel_cust_armor_act = QtGui.QAction(u'Wear Custom Armor...', self)
         add_weap_act       = QtGui.QAction(u'Add Weapon...'       , self)
         add_cust_weap_act  = QtGui.QAction(u'Add Custom Weapon...', self)
-        add_misc_item_act  = QtGui.QAction(u'Add Misc Item...'    , self)
+        # add_misc_item_act  = QtGui.QAction(u'Add Misc Item...'    , self)
 
         add_weap_act     .setEnabled(False)
         add_cust_weap_act.setEnabled(False)
-        add_misc_item_act.setEnabled(False)
+        # add_misc_item_act.setEnabled(False)
 
         m_outfit.addAction(sel_armor_act     )
         m_outfit.addAction(sel_cust_armor_act)
         m_outfit.addAction(add_weap_act      )
         m_outfit.addAction(add_cust_weap_act )
-        m_outfit.addAction(add_misc_item_act )
+        # m_outfit.addAction(add_misc_item_act )
 
         sel_armor_act     .triggered.connect( self.show_wear_armor      )
         sel_cust_armor_act.triggered.connect( self.show_wear_cust_armor )
         add_weap_act      .triggered.connect( self.show_add_weapon      )
         add_cust_weap_act .triggered.connect( self.show_add_cust_weapon )
-        add_misc_item_act .triggered.connect( self.show_add_misc_item   )
+        # add_misc_item_act .triggered.connect( self.show_add_misc_item   )
 
         # Rules menu
         m_rules = self.menuBar().addMenu(u'&Rules')
