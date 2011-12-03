@@ -1209,9 +1209,17 @@ class L5RMain(QtGui.QMainWindow):
         self.switch_to_page_3 ()
         self.update_from_model()
         
+    def check_if_tech_available(self):
+	c = self.db_conn.cursor()
+	c.execute('''select COUNT(uuid) from school_techs
+	             where school_uuid=?''', [self.pc.school])
+	count_ = c.fetchone()[0]
+	c.close()
+	return count_ > len(self.pc.get_techs())
+
     def check_school_tech_and_spells(self):        
         # Show nicebar if can get another school tech
-        if self.pc.can_get_other_techs():
+        if self.pc.can_get_other_techs() and self.check_if_tech_available():
             #print 'can get more techniques'
             lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
             bt = QtGui.QPushButton('Learn Technique')
