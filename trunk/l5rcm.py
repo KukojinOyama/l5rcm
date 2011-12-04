@@ -75,7 +75,7 @@ def get_icon_path(name, size = (48,48)):
         sys_path = '/usr/share/icons/l5rcm/%s' % size_str
         if os.path.exists( sys_path ):
             return os.path.join( sys_path, name + '.png' )
-        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )        
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )
 
 def new_small_le(parent = None, ro = True):
     le = QtGui.QLineEdit(parent)
@@ -168,8 +168,8 @@ class L5RMain(QtGui.QMainWindow):
 
         self.mvbox = mvbox
 
-        # LOAD SETTINGS        
-        settings = QtCore.QSettings()       
+        # LOAD SETTINGS
+        settings = QtCore.QSettings()
         geo = settings.value('geometry')
         if geo is not None:
             self.restoreGeometry(geo)
@@ -458,7 +458,7 @@ class L5RMain(QtGui.QMainWindow):
             view.setModel(m)
             if d is not None:
                 view.setItemDelegate(d)
-            
+
             if tb is not None:
                 hbox.addWidget(tb)
             hbox.addWidget(view)
@@ -474,25 +474,25 @@ class L5RMain(QtGui.QMainWindow):
         sk_sort_model = models.ColorFriendlySortProxyModel(self)
         sk_sort_model.setDynamicSortFilter(True)
         sk_sort_model.setSourceModel(self.sk_view_model)
-        
+
         # skills vertical toolbar
         vtb = widgets.VerticalToolBar(self)
         vtb.addStretch()
-        vtb.addButton(QtGui.QIcon(get_icon_path('add',(16,16))), 
+        vtb.addButton(QtGui.QIcon(get_icon_path('add',(16,16))),
                       'Add skill rank', self.buy_skill_rank)
-        vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
+        vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
                       'Buy another skill', self.show_buy_skill_dlg)
         vtb.addStretch()
 
         models_ = [ ("Skills", 'table', sk_sort_model, None, vtb),
-                    ("Mastery Abilities",  'list', self.ma_view_model, 
+                    ("Mastery Abilities",  'list', self.ma_view_model,
                     models.MaItemDelegate(self), None) ]
 
         frame_, views_ = self._build_generic_page(models_)
-        
+
         if len(views_) > 0:
             self.skill_table_view = views_[0]
-        
+
         self.tabs.addTab(frame_, u"Skills")
 
     def build_ui_page_3(self):
@@ -505,7 +505,7 @@ class L5RMain(QtGui.QMainWindow):
         sp_sort_model.setSourceModel(self.sp_view_model)
 
         models_ = [ ("Spells", 'table', sp_sort_model, None, None),
-                    ("Techs",  'list',  self.th_view_model, 
+                    ("Techs",  'list',  self.th_view_model,
                     models.TechItemDelegate(self), None) ]
 
         frame_, views_ = self._build_generic_page(models_)
@@ -553,7 +553,7 @@ class L5RMain(QtGui.QMainWindow):
         lview.setModel(self.adv_view_model)
         lview.setItemDelegate(models.AdvancementItemDelegate(self))
         vbox.addWidget(lview)
-        
+
         self.adv_view = lview
 
         self.tabs.addTab(mfr, u"Advancements")
@@ -631,7 +631,7 @@ class L5RMain(QtGui.QMainWindow):
         open_act.triggered.connect( self.load_character )
         save_act.triggered.connect( self.save_character )
         exit_act.triggered.connect( self.close )
-        
+
         export_text_act.triggered.connect( self.export_character_as_text )
 
         self.m_file = m_file
@@ -652,8 +652,8 @@ class L5RMain(QtGui.QMainWindow):
         buymerit_act = QtGui.QAction(u'Advantage...', self)
         buyflaw_act  = QtGui.QAction(u'Disadvantage...', self)
         # buykata_act  = QtGui.QAction(u'Kata...', self)
-        # buykiho_act  = QtGui.QAction(u'Kiho...', self)        
-        
+        # buykiho_act  = QtGui.QAction(u'Kiho...', self)
+
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
         buyattr_act .setProperty('tag', 'attrib')
@@ -663,8 +663,8 @@ class L5RMain(QtGui.QMainWindow):
         buymerit_act.setProperty('tag', 'merit' )
         buyflaw_act .setProperty('tag', 'flaw'  )
         # buykata_act .setProperty('tag', 'kata'  )
-        # buykiho_act .setProperty('tag', 'kiho'  )        
-        
+        # buykiho_act .setProperty('tag', 'kiho'  )
+
         m_buy_adv.addAction(buyattr_act )
         m_buy_adv.addAction(buyvoid_act )
         m_buy_adv.addAction(buyskill_act)
@@ -754,9 +754,9 @@ class L5RMain(QtGui.QMainWindow):
 
         unlock_school_act.setCheckable(True)
         unlock_advans_act.setCheckable(True)
-        
+
         unlock_school_act.setChecked(True)
-        unlock_advans_act.setChecked(True)       
+        unlock_advans_act.setChecked(True)
 
         self.unlock_schools_menu_item = unlock_school_act
         self.unlock_advans_menu_item  = unlock_advans_act
@@ -877,19 +877,19 @@ class L5RMain(QtGui.QMainWindow):
             if len(self.pc.get_techs()) > self.pc.get_insight_rank():
                 self.pc.reset_techs()
             self.update_from_model()
-            
+
     def refund_advancement(self, adv_idx = -1):
         if self.lock_advancements:
             return self.refund_last_adv()
-       
+
         if adv_idx < 0:
             adv_idx = len(self.pc.advans) - self.adv_view.selectionModel().currentIndex().row() - 1
-            
+
         if adv_idx >= len(self.pc.advans) or adv_idx < 0:
-            return           
-        
+            return
+
         del self.pc.advans[adv_idx]
-        
+
         if self.pc.get_how_many_spell_i_miss() < 0:
             self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
         if len(self.pc.get_techs()) > self.pc.get_insight_rank():
@@ -911,7 +911,7 @@ class L5RMain(QtGui.QMainWindow):
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1
         ring_id = models.get_ring_id_from_attrib_id(attrib)
-        ring_nm = models.ring_name_from_id(ring_id)       
+        ring_nm = models.ring_name_from_id(ring_id)
         cost = self.pc.get_attrib_cost( attrib ) * new_value
         if self.pc.has_rule('elem_bless_%s' % ring_nm):
             cost -= 1
@@ -930,7 +930,7 @@ class L5RMain(QtGui.QMainWindow):
         new_value = cur_value + 1
         cost = self.pc.void_cost * new_value
         if self.pc.has_rule('enlightened'):
-            cost -= 2        
+            cost -= 2
         adv = models.VoidAdv(cost)
         adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
@@ -979,14 +979,14 @@ class L5RMain(QtGui.QMainWindow):
         else:
             self.load_schools(self.pc.clan)
         self.cb_pc_school.setCurrentIndex(0)
-        
-    def on_toggle_advans_act(self, flag):        
+
+    def on_toggle_advans_act(self, flag):
         if flag == False:
             result = QtGui.QMessageBox.warning(self, "Advancements unlock",
                 "Unlocking the advancements will permits you to Undo any"
                 "advancement with no specific order.\n"
                 "This may lead to incoerence and may permit \"cheating\".\n"
-                "Continue anyway?", 
+                "Continue anyway?",
                 QtGui.QMessageBox.StandardButton.Yes or QtGui.QMessageBox.StandardButton.No,
                 QtGui.QMessageBox.StandardButton.No)
             if result == QtGui.QMessageBox.StandardButton.Yes:
@@ -1079,7 +1079,7 @@ class L5RMain(QtGui.QMainWindow):
             break
 
         # if shugenja get universal spells
-        # also player should choose 3 spells from list
+        # also player should choose some spells from list
 
         if tag == 'shugenja':
             count = 0
@@ -1094,7 +1094,7 @@ class L5RMain(QtGui.QMainWindow):
                 else:
                     self.pc.add_free_spell(sp_uuid)
                     count += 1
-                    
+
             print 'starting spells count are %d' % count
             self.pc.set_school_spells_qty(count)
 
@@ -1151,35 +1151,35 @@ class L5RMain(QtGui.QMainWindow):
                                    self.db_conn, self)
         dlg.exec_()
         self.update_from_model()
-        
+
     def buy_skill_rank(self):
         # get selected skill
         sm_ = self.skill_table_view.selectionModel()
         if sm_.hasSelection():
             idx = sm_.currentIndex()
             skill_id = self.sk_view_model.data(idx)
-            
+
             cur_value = self.pc.get_skill_rank( skill_id )
             new_value = cur_value + 1
 
             idx  = self.sk_view_model.index(idx.row(), 0)
             text = self.sk_view_model.data(idx, QtCore.Qt.DisplayRole)
-            
+
             cost = new_value
 
             adv = models.SkillAdv(skill_id, cost)
             adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
-            
+
             if adv.cost + self.pc.get_px() > self.pc.exp_limit:
                 QtGui.QMessageBox.warning(self, "Not enough XP",
-                "Cannot purchase.\nYou've reached the XP Limit.")                
-                return            
-            
+                "Cannot purchase.\nYou've reached the XP Limit.")
+                return
+
             self.pc.add_advancement(adv)
             self.update_from_model()
             sm_.setCurrentIndex(idx, QtGui.QItemSelectionModel.Select | \
                                      QtGui.QItemSelectionModel.Rows)
-        
+
     def act_buy_perk(self):
         dlg = dialogs.BuyPerkDialog(self.pc, self.sender().property('tag'),
                                     self.db_conn, self)
@@ -1190,6 +1190,7 @@ class L5RMain(QtGui.QMainWindow):
         dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_skills()
+            self.pc.clear_pending_wc_emphs ()
             self.update_from_model()
 
     def learn_next_school_tech(self):
@@ -1208,16 +1209,16 @@ class L5RMain(QtGui.QMainWindow):
 
         self.switch_to_page_3 ()
         self.update_from_model()
-        
-    def check_if_tech_available(self):
-	c = self.db_conn.cursor()
-	c.execute('''select COUNT(uuid) from school_techs
-	             where school_uuid=?''', [self.pc.school])
-	count_ = c.fetchone()[0]
-	c.close()
-	return count_ > len(self.pc.get_techs())
 
-    def check_school_tech_and_spells(self):        
+    def check_if_tech_available(self):
+        c = self.db_conn.cursor()
+        c.execute('''select COUNT(uuid) from school_techs
+                     where school_uuid=?''', [self.pc.school])
+        count_ = c.fetchone()[0]
+        c.close()
+        return count_ > len(self.pc.get_techs())
+
+    def check_school_tech_and_spells(self):
         # Show nicebar if can get another school tech
         if self.pc.can_get_other_techs() and self.check_if_tech_available():
             #print 'can get more techniques'
@@ -1233,8 +1234,8 @@ class L5RMain(QtGui.QMainWindow):
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_spells )
-            self.show_nicebar([lb, bt])        
-            
+            self.show_nicebar([lb, bt])
+
     def check_rules(self):
         c = self.db_conn.cursor()
         for t in self.pc.get_techs():
@@ -1243,7 +1244,7 @@ class L5RMain(QtGui.QMainWindow):
             for uuid, rule in c.fetchall():
                 self.pc.add_tech(int(uuid), rule)
                 break
-                
+
         for adv in self.pc.advans:
             if adv.type == 'perk':
                 c.execute('''select uuid, rule from perks
@@ -1251,8 +1252,8 @@ class L5RMain(QtGui.QMainWindow):
                 for uuid, rule in c.fetchall():
                     print 'found character rule %s' % rule
                     adv.rule = rule
-                    break            
-        c.close()        
+                    break
+        c.close()
 
     def learn_next_school_spells(self):
         dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
@@ -1301,7 +1302,7 @@ class L5RMain(QtGui.QMainWindow):
 
         self.save_path = path
         if self.pc.load_from(self.save_path):
-            
+
             if float(self.pc.version) < float(DB_VERSION):
                 # BACKUP CHARACTER
                 backup_path = self.save_path + '.bak'
@@ -1318,13 +1319,13 @@ class L5RMain(QtGui.QMainWindow):
                 self.save_character()
                 # ADVISE USER
                 self.advise_conversion(backup_path)
-        
+
             self.load_families(self.pc.clan)
             if self.pc.unlock_schools:
                 self.load_schools ()
             else:
                 self.load_schools (self.pc.clan)
-                
+
             self.check_rules()
             self.update_from_model()
 
@@ -1559,7 +1560,7 @@ class L5RMain(QtGui.QMainWindow):
         msgBox.setText("The character has been updated.")
         msgBox.setInformativeText("This character was created with an older version of the program.\n"
                                   "I've done my best to convert and update your character, hope you don't mind :).\n"
-                                  "I also created a backup of your character file in\n\n%s." % args)        
+                                  "I also created a backup of your character file in\n\n%s." % args)
         do_not_prompt_again = QtGui.QCheckBox("Do not prompt again", msgBox)
         do_not_prompt_again.blockSignals(True) # PREVENT MSGBOX TO CLOSE ON CLICK
         msgBox.addButton(QtGui.QMessageBox.Ok)
@@ -1568,7 +1569,7 @@ class L5RMain(QtGui.QMainWindow):
         msgBox.exec_()
         if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
             settings.setValue('advise_conversion', 'false')
-        
+
     def ask_to_save(self):
          msgBox = QtGui.QMessageBox(self)
          msgBox.setWindowTitle('L5R: CM')
@@ -1638,10 +1639,10 @@ class L5RMain(QtGui.QMainWindow):
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
         return fileName[0]
-        
+
     def select_export_file(self):
         char_name = self.pc.name
-        
+
         settings = QtCore.QSettings()
         last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Export Character",
@@ -1657,7 +1658,7 @@ class L5RMain(QtGui.QMainWindow):
         if fileName[0].endswith('.txt'):
             return fileName[0]
         return fileName[0] + '.txt'
-        
+
     def check_updates(self):
         update_info = autoupdate.get_last_version()
         if update_info is not None and \
@@ -1671,19 +1672,19 @@ class L5RMain(QtGui.QMainWindow):
         file_ = self.select_export_file()
         if len(file_) > 0:
             self.export_as_text(file_)
-            
-    def export_as_text(self, export_file):        
+
+    def export_as_text(self, export_file):
         exporter = exporters.TextExporter()
         exporter.set_form (self)
         exporter.set_model(self.pc     )
         #exporter.set_db   (self.db_conn)
-        
+
         f = open(export_file, 'wt')
         if f is not None:
             exporter.export(f)
         f.close()
-        
-        
+
+
 
 ### MAIN ###
 def main():
