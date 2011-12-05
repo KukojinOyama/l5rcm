@@ -590,7 +590,7 @@ class L5RMain(QtGui.QMainWindow):
                   <p style='color:palette(mid)'>&copy; 2011 %s</p>
                   <p>Special Thanks:</p>
                   <p style="margin-left: 10;">
-                  THEPUNISHER17397 (Minor Clans)
+                  Paul Tar, Jr aka Geiko (Minor Clans)
                   </p>
                   </body></html>""" % ( APP_DESC,
                                         QtGui.QApplication.applicationVersion(),
