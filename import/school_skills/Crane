@@ -15,7 +15,7 @@ Battle, Defense ?2, Iaijutsu, Kenjutsu (Katana), Kyujutsu, *any
 Athletics, Hunting (Traps), Kenjutsu, Knives, Kyujutsu (Yumi), Stealth (Sneaking), *bugei;low
 #
 [OB] Kakita Artisan School
-Courtier, Games_(Sadane), Etiquette, Sincerity, *artisan, *perform, *artisan, *perform, *artisan, *perform 
+Courtier, Games_(Sadane), Etiquette, Sincerity, *artisan;perform, *artisan;perform, *artisan;perform 
 #
 [OB] Doji Magistrate School
 Defense, Horsemanship, Jiujutsu, Kenjutsu, Knives (Jitte), Polearms, *high;bugei
