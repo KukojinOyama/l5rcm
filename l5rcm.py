@@ -1519,7 +1519,8 @@ class L5RMain(QtGui.QMainWindow):
 
         # Show nicebar if pending wildcard skills
         wcs = self.pc.get_pending_wc_skills()
-        if len(wcs) > 0:
+        wce = self.pc.get_pending_wc_emphs ()
+        if len(wcs) > 0 or len(wce) > 0:
             lb = QtGui.QLabel('Your school gives you the choice of certain skills')
             bt = QtGui.QPushButton('Choose Skills')
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,

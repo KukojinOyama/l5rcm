@@ -26,3 +26,24 @@ willpower 1
 honor 4.5
 -
 -
+#
+[OB] Kaiu Engineer School
+artisan; bushi
+intelligence 1
+honor 4.5
+-
+-
+#
+[OB] Kuni Witch Hunter School
+bushi
+willpower 1
+honor 5.5
+-
+-
+#
+[OB] Hida Pragmatist School
+bushi
+agility 1
+honor 2.5
+-
+-
