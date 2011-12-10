@@ -489,10 +489,10 @@ class SelWcSpells(QtGui.QDialog):
         c = self.dbconn.cursor()
 
         for cb in self.cbs_ring:
-            cb.addItem('Air')
-            cb.addItem('Fire')
             cb.addItem('Earth')
+            cb.addItem('Air')
             cb.addItem('Water')
+            cb.addItem('Fire')
             cb.addItem('Void')
 
         for cb in self.cbs_mast:
