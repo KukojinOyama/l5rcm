@@ -473,6 +473,56 @@ class L5RMain(QtGui.QMainWindow):
             vbox.addWidget(grp)
             views_.append(view)
         return mfr, views_
+       
+    def _build_spell_frame(self, model, layout = None):
+        grp    = QtGui.QGroupBox(u"Spells", self)
+        vbox   = QtGui.QVBoxLayout(grp)       
+        
+        # View
+        view  = QtGui.QTableView(self)
+        view.setSizePolicy( QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Expanding )         
+        view.setSortingEnabled(True)
+        view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive);
+        view.horizontalHeader().setStretchLastSection(True)
+        view.horizontalHeader().setCascadingSectionResizes(True)
+        view.setModel(model)
+        
+        # Affinity/Deficiency
+        self.lb_affin = QtGui.QLabel("None", self)
+        self.lb_defic = QtGui.QLabel("None", self)
+        
+        aff_fr = QtGui.QFrame(self)
+        aff_fr.setSizePolicy( QtGui.QSizePolicy.Preferred,
+                              QtGui.QSizePolicy.Maximum )        
+        fl     = QtGui.QFormLayout(aff_fr)
+        fl.addRow("<b><i>Affinity</i></b>"  , self.lb_affin)
+        fl.addRow("<b><i>Deficiency</i></b>", self.lb_defic)
+        fl.setHorizontalSpacing(60)
+        fl.setVerticalSpacing  ( 5)
+        fl.setContentsMargins(0, 0, 0, 0)
+        
+        
+        vbox.addWidget(aff_fr)
+        vbox.addWidget(view)
+        
+        if layout: layout.addWidget(grp)            
+        
+        return view
+        
+    def _build_tech_frame(self, model, layout = None):
+        grp    = QtGui.QGroupBox(u"Techs", self)
+        vbox   = QtGui.QVBoxLayout(grp)       
+        
+        # View
+        view  = QtGui.QListView(self)
+        view.setModel(model)
+        view.setItemDelegate(models.TechItemDelegate(self))
+        vbox.addWidget(view)
+        
+        if layout: layout.addWidget(grp) 
+        
+        return view
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
@@ -511,12 +561,19 @@ class L5RMain(QtGui.QMainWindow):
         sp_sort_model = models.ColorFriendlySortProxyModel(self)
         sp_sort_model.setDynamicSortFilter(True)
         sp_sort_model.setSourceModel(self.sp_view_model)
+        
+        frame_ = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(frame_)
+        #views_ = []
+        
+        self._build_spell_frame(sp_sort_model     , vbox)
+        self._build_tech_frame (self.th_view_model, vbox)
+        
+        #models_ = [ ("Spells", 'table', sp_sort_model, None, None),
+        #            ("Techs",  'list',  self.th_view_model,
+        #            models.TechItemDelegate(self), None) ]
 
-        models_ = [ ("Spells", 'table', sp_sort_model, None, None),
-                    ("Techs",  'list',  self.th_view_model,
-                    models.TechItemDelegate(self), None) ]
-
-        frame_, views_ = self._build_generic_page(models_)
+        #frame_, views_ = self._build_generic_page(models_)
         self.tabs.addTab(frame_, u"Techniques")
 
     def build_ui_page_4(self):
@@ -1118,6 +1175,14 @@ class L5RMain(QtGui.QMainWindow):
 
             print 'starting spells count are %d' % count
             self.pc.set_school_spells_qty(count)
+            
+            # affinity / deficiency
+            c.execute('''select affinity, deficiency from schools
+                         where uuid=?''', [uuid])
+            
+            for affic, defic in c.fetchall():
+                self.lb_affin.setText(affic.capitalize().strip())
+                self.lb_defic.setText(defic.capitalize().strip())
 
         c.close()
         self.update_from_model()
