@@ -495,9 +495,12 @@ class SelWcSpells(QtGui.QDialog):
             cb.addItem('Fire')
             cb.addItem('Void')
 
+        max_mastery = self.pc.get_insight_rank()
+        
         for cb in self.cbs_mast:
-            for x in xrange(0,6):
+            for x in xrange(0,max_mastery):
                 cb.addItem('Mastery Level %d' % (x+1), x+1)
+                cb.setCurrentIndex(max_mastery-1)
         c.close()
 
         idx = 0
