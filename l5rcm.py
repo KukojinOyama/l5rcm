@@ -30,8 +30,8 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '1.9'
-DB_VERSION  = '1.9'
+APP_VERSION = '2.0'
+DB_VERSION  = '2.0'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -352,12 +352,17 @@ class L5RMain(QtGui.QMainWindow):
             self.pc_flags_rank   = ob_flags_r
             mgrid.addWidget(fr, row, col)
 
-        def add_pc_quantities(row, col):
+        def add_pc_quantities(row, col):                
             fr = QtGui.QFrame(self)
             fr.setSizePolicy(QtGui.QSizePolicy.Expanding,
                             QtGui.QSizePolicy.Preferred)
             hbox = QtGui.QHBoxLayout(fr)
-
+            
+            monos_ = QtGui.QFont('Monospace')
+            monos_.setStyleHint( QtGui.QFont.Courier )
+            
+            # fr.setFont(monos_)
+            
             # initiative
             grp  = QtGui.QGroupBox('Initiative', self)
             grd  = QtGui.QFormLayout(grp)
@@ -404,15 +409,16 @@ class L5RMain(QtGui.QMainWindow):
             grd  = QtGui.QGridLayout(grp)
 
             wnd = []
-            wnd.append( ("Healty",   new_small_le(self), new_small_le(self)) )
-            wnd.append( ("Nicked",   new_small_le(self), new_small_le(self)) )
-            wnd.append( ("Grazed",   new_small_le(self), new_small_le(self)) )
-            wnd.append( ("Hurt",     new_small_le(self), new_small_le(self)) )
-            wnd.append( ("Injured",  new_small_le(self), new_small_le(self)) )
-            wnd.append( ("Grippled", new_small_le(self), new_small_le(self)) )
-            wnd.append( ("Down",     new_small_le(self), new_small_le(self)) )
-            wnd.append( ("Out",      new_small_le(self), new_small_le(self)) )
-
+            wnd.append( (QtGui.QLabel(self), new_small_le(self), new_small_le(self)) )
+            wnd.append( (QtGui.QLabel(self), new_small_le(self), new_small_le(self)) )
+            wnd.append( (QtGui.QLabel(self), new_small_le(self), new_small_le(self)) )
+            wnd.append( (QtGui.QLabel(self), new_small_le(self), new_small_le(self)) )
+            wnd.append( (QtGui.QLabel(self), new_small_le(self), new_small_le(self)) )
+            wnd.append( (QtGui.QLabel(self), new_small_le(self), new_small_le(self)) )
+            wnd.append( (QtGui.QLabel(self), new_small_le(self), new_small_le(self)) )
+            wnd.append( (QtGui.QLabel("Out", self), 
+                         new_small_le(self), new_small_le(self)) )
+            
             self.wounds = wnd
             self.wnd_lb = grp
 
@@ -422,7 +428,9 @@ class L5RMain(QtGui.QMainWindow):
                 if i == 4:
                     col_ = 3
                     row_ = 0
-                grd.addWidget( QtGui.QLabel(wnd[i][0], self), row_, col_ )
+                #wnd[i][0].setFont(monos_)
+                grd.addWidget( wnd[i][0], row_, col_ )
+                grd.addWidget( wnd[i][0], row_, col_ )
                 grd.addWidget( wnd[i][1], row_, col_+1 )
                 grd.addWidget( wnd[i][2], row_, col_+2 )
                 row_ += 1
@@ -590,7 +598,7 @@ class L5RMain(QtGui.QMainWindow):
                   <p style='color:palette(mid)'>&copy; 2011 %s</p>
                   <p>Special Thanks:</p>
                   <p style="margin-left: 10;">
-                  Paul Tar, Jr aka Geiko (Minor Clans)
+                  Paul Tar, Jr aka Geiko (Lots of cool stuff)
                   </p>
                   </body></html>""" % ( APP_DESC,
                                         QtGui.QApplication.applicationVersion(),
@@ -864,18 +872,18 @@ class L5RMain(QtGui.QMainWindow):
 
     def reset_adv(self):
         self.pc.advans = []
-        self.pc.reset_techs()
-        self.pc.reset_spells()
+        self.pc.recalc_ranks()
         self.update_from_model()
 
     def refund_last_adv(self):
         if len(self.pc.advans) > 0:
             adv = self.pc.advans.pop()
 
-            if self.pc.get_how_many_spell_i_miss() < 0:
-                self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
-            if len(self.pc.get_techs()) > self.pc.get_insight_rank():
-                self.pc.reset_techs()
+            #if self.pc.get_how_many_spell_i_miss() < 0:
+            #    self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
+            #if len(self.pc.get_techs()) > self.pc.get_insight_rank():
+            #    self.pc.reset_techs()
+            self.pc.recalc_ranks()
             self.update_from_model()
 
     def refund_advancement(self, adv_idx = -1):
@@ -890,11 +898,13 @@ class L5RMain(QtGui.QMainWindow):
 
         del self.pc.advans[adv_idx]
 
-        if self.pc.get_how_many_spell_i_miss() < 0:
-            self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
-        if len(self.pc.get_techs()) > self.pc.get_insight_rank():
-            self.pc.reset_techs()
-            self.update_from_model()
+        #if self.pc.get_how_many_spell_i_miss() < 0:
+        #    self.pc.pop_spells(-self.pc.get_how_many_spell_i_miss())
+        
+        self.pc.recalc_ranks()
+        #if len(self.pc.get_techs()) > self.pc.get_insight_rank():
+        #    self.pc.reset_techs()
+        self.update_from_model()
 
     def generate_name(self):
         gender = self.sender().property('gender')
@@ -1023,7 +1033,7 @@ class L5RMain(QtGui.QMainWindow):
             return
 
         uuid  = self.cb_pc_family.itemData(index)
-        if uuid == self.pc.family:
+        if uuid == self.pc.get_family():
             return
         # should modify step_1 character
         # get family perk
@@ -1197,16 +1207,18 @@ class L5RMain(QtGui.QMainWindow):
         # for now do not support multiple school advantage
         # learn next technique for your school
 
-        next_rank = len(self.pc.get_techs()) + 1
+        next_rank = self.pc.get_school_rank() + 1
 
         c = self.db_conn.cursor()
         c.execute('''select uuid, name, effect from school_techs
-                     where school_uuid=? and rank=?''', [self.pc.school, next_rank])
+                     where school_uuid=? and rank=?''', [self.pc.get_school_id(), next_rank])
         for uuid, name, rule in c.fetchall():
             self.pc.add_tech(int(uuid), rule)
 
         c.close()
-
+        
+        self.pc.recalc_ranks()
+        
         self.switch_to_page_3 ()
         self.update_from_model()
 
@@ -1256,6 +1268,8 @@ class L5RMain(QtGui.QMainWindow):
         c.close()
 
     def learn_next_school_spells(self):
+        self.pc.recalc_ranks()
+        
         dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
@@ -1411,9 +1425,11 @@ class L5RMain(QtGui.QMainWindow):
         idx = self.cb_pc_school.currentIndex()
         s_uuid = self.cb_pc_school.itemData(idx)
 
-        #print 'set school to %s, current school is %s' % (school_id, s_uuid)
         if s_uuid == school_id:
             return
+            
+        print 'set school to %s, current school is %s' % (school_id, s_uuid)
+        
         for i in xrange(0, self.cb_pc_school.count()):
             if self.cb_pc_school.itemData(i) == school_id:
                 self.cb_pc_school.setCurrentIndex(i)
@@ -1441,10 +1457,10 @@ class L5RMain(QtGui.QMainWindow):
         pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
 
-        self.tx_pc_name.setText( self.pc.name   )
-        self.set_clan          ( self.pc.clan   )
-        self.set_family        ( self.pc.family )
-        self.set_school        ( self.pc.school )
+        self.tx_pc_name.setText( self.pc.name            )
+        self.set_clan          ( self.pc.clan            )
+        self.set_family        ( self.pc.get_family   () )
+        self.set_school        ( self.pc.get_school_id() )
 
         resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
@@ -1493,6 +1509,8 @@ class L5RMain(QtGui.QMainWindow):
             self.wounds[i][1].setText( str(h) )
             self.wounds[i][2].setText( '' )
         self.wnd_lb.setTitle('Health / Wounds (x%d)' % self.pc.health_multiplier)
+        
+        self.update_wound_penalties()
 
         # wounds
         pc_wounds = self.pc.wounds
@@ -1504,7 +1522,6 @@ class L5RMain(QtGui.QMainWindow):
             hr += 1
 
         # initiative
-        # TODO: temporary implementation
         r, k = self.pc.get_base_initiative()
         self.tx_base_init.setText( rules.format_rtk(r, k) )
         rtk = self.tx_mod_init.text()
@@ -1552,6 +1569,19 @@ class L5RMain(QtGui.QMainWindow):
         self.flaws_view_model .update_from_model(self.pc)
         self.sp_view_model    .update_from_model(self.pc)
 
+    def update_wound_penalties(self):
+        penalties = [0, 3, 5, 10, 15, 20, 40]        
+        wounds    = ['Healthy', 'Nicked', 'Grazed', 'Hurt', 'Injured', 'Crippled', 'Down']
+        if self.pc.has_rule('strength_of_earth'):
+            # penalties are reduced by 3
+            penalties = [ max(0,x-3) for x in penalties]
+        
+        for i in xrange(0, len(penalties)):            
+            self.wounds[i][0].setText(
+                str.format('{0} (+{1})', wounds[i], penalties[i]))
+            
+        # TODO toku bushi school removes some penalties
+        
     def advise_conversion(self, *args):
         settings = QtCore.QSettings()
         if settings.value('advise_conversion', 'true') == 'false':

@@ -100,7 +100,7 @@ class BasePcModel(object):
         self.pending_wc_emph    = []
         self.pending_wc_spell   = []
         self.tags               = []
-        self.spells             = []
+        #self.spells             = []
         self.honor              = 0.0
         self.glory              = 0.0
         self.status             = 0.0
@@ -130,6 +130,31 @@ class BasePcModel(object):
     def clear_tags(self):
         self.tags = []
 
+class CharacterSchool(object):
+    def __init__(self, school_id = 0):
+        self.school_id   = school_id
+        self.school_rank = 1
+        self.techs       = []
+        self.tech_rules  = []
+        self.skills      = {}
+        self.emph        = {}
+        self.spells      = [] 
+        self.tags        = []
+
+    def add_tag(self, tag):
+        if tag not in self.tags:
+            self.tags.append(tag)
+
+    def has_tag(self, tag):
+        return tag in self.tags
+
+    def del_tag(self, tag):
+        if tag in self.tags:
+            self.tags.removeone(tag)
+
+    def clear_tags(self):
+        self.tags = []        
+                      
 class AdvancedPcModel(BasePcModel):
     def __init__(self):
         super(AdvancedPcModel, self).__init__()
@@ -152,10 +177,10 @@ class AdvancedPcModel(BasePcModel):
         self.insight   = 0
         self.advans    = []
 
-        self.armor     = None
-        self.weapons   = []
-        self.techs     = []
-        self.tech_rules = []
+        self.armor      = None
+        self.weapons    = []
+        
+        self.schools    = []
 
         self.mastery_abilities = []
 
@@ -208,6 +233,27 @@ class AdvancedPcModel(BasePcModel):
             v += 1
 
         return v
+        
+    def get_family(self):
+        return self.family
+        
+    def get_school(self, index = -1):
+        if len(self.schools) == 0 or index >= len(self.schools):
+            return None
+        if index < 0: index = len(self.schools)-1
+        return self.schools[index]
+        
+    def get_school_id(self, index = -1):
+        try:
+            return self.get_school(index).school_id
+        except:
+            return 0
+        
+    def get_school_rank(self, index = -1):
+        try:
+            return self.get_school(index).school_rank
+        except:
+            return 0
 
     def get_skill_rank(self, uuid):
         if uuid in self.get_school_skills():
@@ -318,13 +364,15 @@ class AdvancedPcModel(BasePcModel):
         return self.step_2.pending_wc_spell
 
     def get_school_skills(self):
-        return [ int(x) for x in self.step_2.skills.keys() ]
+        school_ = self.get_school(0)
+        if school_ is None: return []
+        return [ int(x) for x in school_.skills.keys() ]
 
     def get_school_skill_rank(self, uuid):
         s_id = str(uuid)
-        if s_id in self.step_2.skills:
-            return self.step_2.skills[s_id]
-        return 0
+        school_ = self.get_school(0)
+        if school_ is None or s_id not in school_.skills: return 0        
+        return school_.skills[s_id]
 
     def get_skills(self, school = True):
         l = []
@@ -340,10 +388,11 @@ class AdvancedPcModel(BasePcModel):
 
     def get_skill_emphases(self, skill_id):
         emph = []
-        s_id = str(skill_id)
+        s_id = str(skill_id)        
         # search school skills
-        if s_id in self.step_2.emph:
-            emph += self.step_2.emph[s_id]
+        school_ = self.get_school(0)        
+        if school_ is not None and s_id in school_.emph:
+            emph += school_.emph[s_id]
         for adv in self.advans:
             if adv.type != 'emph' or adv.text in emph:
                 continue
@@ -351,15 +400,20 @@ class AdvancedPcModel(BasePcModel):
                 emph.append(adv.text)
         return emph
 
-    def get_techs(self):
+    def get_techs(self):                
         ls = []
-        if self.step_2.school_tech is not None:
-            ls.append( self.step_2.school_tech )
-        ls += self.techs
+        for s in self.schools:
+            ls += s.techs
+        if self.step_2.school_tech is not None and \
+           self.step_2.school_tech not in ls:
+               ls.insert(0, self.step_2.school_tech)
         return ls
 
     def get_spells(self):
-        return self.step_2.spells + self.spells
+        ls = []
+        for s in self.schools:
+            ls += s.spells
+        return ls
 
     def get_perks(self):
         for adv in self.advans:
@@ -380,15 +434,22 @@ class AdvancedPcModel(BasePcModel):
             yield adv.perk
 
     def has_tag(self, tag):
+        school_tags = []
+        for s in self.schools:
+            school_tags += s.tags
         return tag in self.tags or \
                self.step_1.has_tag(tag) or \
-               self.step_2.has_tag(tag)
+               tag in school_tags
 
     def has_rule(self, rule):
+        school_rules = []
+        for s in self.schools:
+            school_rules += s.tech_rules
+        
         for adv in self.advans:
             if hasattr(adv, 'rule') and adv.rule == rule:
                 return True
-        return rule in self.tech_rules
+        return rule in school_rules
 
     def can_get_other_techs(self):
         if not self.has_tag('bushi') and \
@@ -418,31 +479,43 @@ class AdvancedPcModel(BasePcModel):
         target_spells = self.get_school_spells_qty() + (self.get_insight_rank()-1) * self.spells_per_rank
         return target_spells - len(self.get_spells())
 
-    def reset_spells(self):
-        self.spells = []
-
     def pop_spells(self, count):
-        for i in xrange(0, count):
-            self.spells.pop()
-
-    def reset_techs(self):
-        self.techs = []
-        self.tech_rules = []
+        print 'pop %d spells' % count
+        spells_count = len(self.get_spells())
+        print 'i got %d spells' % spells_count
+        if count >= spells_count:            
+            for s in self.schools:
+                print 'resetting school spells'
+                s.spells = []
+        else:
+            for s in reversed(self.schools):
+                if s.school_id == self.get_school_id(0) and s.school_rank == 1:
+                    break
+                while count > 0 and len(s.spells) > 0:
+                    s.spells.pop()
+                    count -= 1
+                if count <= 0:
+                    break
+            print 'now i got %s spells' % len(self.get_spells())
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
         s_id = str(skill_uid)
-        if s_id in self.step_2.skills:
-            self.step_2.skills[s_id] += skill_rank
+        school_ = self.get_school(0)
+        if school_ is None:
+            return
+            
+        if s_id in school_.skills:
+            school_.skills[s_id] += skill_rank
         else:
-            self.step_2.skills[s_id] = skill_rank
+            school_.skills[s_id] = skill_rank
         if emph is not None:
-            if s_id not in self.step_2.emph:
-                self.step_2.emph[s_id] = []
+            if s_id not in school_.emph:
+                school_.emph[s_id] = []
 
             if emph.startswith('*'):
                 self.add_pending_wc_emph( s_id )
             else:
-                self.step_2.emph[s_id].append(emph)
+                school_.emph[s_id].append(emph)
 
         self.unsaved = True
 
@@ -498,25 +571,23 @@ class AdvancedPcModel(BasePcModel):
 
     def set_school(self, school_id = 0, perk = None, perkval = 1,
                          honor = 0.0, tags = []):
-        if self.school == school_id:
-            return
+        if self.get_school_id() == school_id:
+            return           
         self.step_2  = BasePcModel()
+        self.schools = []
         self.unsaved = True
         self.school  = school_id
         self.clear_pending_wc_skills()
         self.clear_pending_wc_spells()
-        self.clear_pending_wc_emphs ()
-        # also reset tech and spells
-        self.techs  = []
-        self.tech_rules = []
-        self.spells = []
+        self.clear_pending_wc_emphs ()                
         if school_id == 0:
             return
-
+            
+        self.schools = [ CharacterSchool(school_id) ]
         self.step_2.honor = honor
 
         for t in tags:
-            self.step_2.add_tag(t)
+            self.get_school().add_tag(t)
 
         # void ?
         if perk == 'void':
@@ -530,27 +601,41 @@ class AdvancedPcModel(BasePcModel):
         return False
 
     def set_free_school_tech(self, tech_uuid, rule = None):
+        school_ = self.get_school(0)
+        if school_ is None:
+            return
         self.step_2.school_tech = tech_uuid
-        if rule is not None:
-            self.tech_rules.append(rule)
+        school_.techs.append(tech_uuid)
+        #if rule is not None:
+        school_.tech_rules.append(rule or 'N/A')
 
     def add_tech(self, tech_uuid, rule = None):
-        print 'add tech %s, rule %s' % ( repr(tech_uuid), rule )
+        school_ = self.get_school(0)
+        if school_ is None:
+            return
+        #print 'add tech %s, rule %s' % ( repr(tech_uuid), rule )
         if tech_uuid not in self.get_techs():
-            self.techs.append(tech_uuid)
-        if rule is not None and rule not in self.tech_rules:
-            self.tech_rules.append(rule)
+            school_.techs.append(tech_uuid)
+        if rule is not None and not self.has_rule(rule):
+            school_.tech_rules.append(rule)
+        self.unsaved = True
 
     def set_school_spells_qty(self, qty):
         self.step_2.start_spell_count = qty
 
     def add_free_spell(self, spell_uuid):
-        if spell_uuid not in self.get_spells():
-            self.step_2.spells.append(spell_uuid)
+        school_ = self.get_school(0)
+        if school_ is None or spell_uuid in self.get_spells():
+            return 
+        school_.spells.append(spell_uuid)
+        self.unsaved = True
 
     def add_spell(self, spell_uuid):
-        if spell_uuid not in self.get_spells():
-            self.spells.append(spell_uuid)
+        school_ = self.get_school()
+        if school_ is None or spell_uuid in self.get_spells():
+            return 
+        school_.spells.append(spell_uuid)
+        self.unsaved = True
 
     def set_void_points(self, value):
         self.void_points = value
@@ -583,7 +668,44 @@ class AdvancedPcModel(BasePcModel):
     def toggle_unlock_schools(self):
         self.unlock_schools = not self.unlock_schools
         self.unsaved = True
+        
+    def recalc_ranks(self):
+        insight_ = self.get_insight_rank()
+        print 'I got %d schools' % len(self.schools)
+        for s in self.schools:
+            print 'school %d, rank %d' % ( s.school_id, s.school_rank )
+        tot_rank = sum( [x.school_rank for x in self.schools] )
+        
+        print 'insight rank: %d, tot_rank: %d' % ( insight_, tot_rank ) 
+        if tot_rank > insight_:
+            diff_ = tot_rank - insight_
+            print 'diff ranks: %d' % diff_
+            for s in reversed(self.schools):
+                while diff_ > 0 and s.school_rank > 0:
+                    if s.school_id == self.get_school_id(0) and s.school_rank == 1:
+                        break
+                    print 'school %d rank from %d to %d' % (s.school_id, s.school_rank, s.school_rank-1)
 
+                    if len(s.techs) > 0:
+                        s.techs.pop()
+                    if len(s.tech_rules) > 0:
+                        s.tech_rules.pop()
+                    
+                    print s.techs
+                    print s.tech_rules
+                    
+                    self.pop_spells(self.spells_per_rank)
+                    
+                    diff_         -= 1
+                    s.school_rank -= 1
+
+                if diff_ <= 0:
+                    return
+                    
+        elif tot_rank < insight_:
+            self.get_school().school_rank += (insight_-tot_rank)
+            print 'school %d is now rank %d' % (self.get_school_id(), self.get_school_rank())
+                    
     def save_to(self, file):
         self.unsaved = False
 
@@ -619,6 +741,14 @@ class AdvancedPcModel(BasePcModel):
             _load_obj(deepcopy(obj['step_1']), self.step_1)
             _load_obj(deepcopy(obj['step_2']), self.step_2)
 
+            # schools
+            self.schools = []
+            if 'schools' in obj:
+                for s in obj['schools']:
+                    item = CharacterSchool()
+                    _load_obj(deepcopy(s), item)
+                    self.schools.append(item)
+            
             self.advans = []
             for ad in obj['advans']:
                 a = adv.Advancement(None, None)
@@ -631,10 +761,12 @@ class AdvancedPcModel(BasePcModel):
                 _load_obj(deepcopy(obj['armor']), self.armor)
 
             # weapons
-            for w in obj['weapons']:
-                item = outfit.WeaponOutfit()
-                _load_obj(deepcopy(w), item)
-                self.add_weapon(item)
+            self.weapons = []
+            if 'weapons' in obj:
+                for w in obj['weapons']:
+                    item = outfit.WeaponOutfit()
+                    _load_obj(deepcopy(w), item)
+                    self.add_weapon(item)
 
             self.unsaved  = False
 
