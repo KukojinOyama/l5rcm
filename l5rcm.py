@@ -703,10 +703,10 @@ class L5RMain(QtGui.QMainWindow):
         buyflaw_act .triggered.connect( self.act_buy_perk )
 
         # Tools menu
-        #m_tools = self.menuBar().addMenu(u'&Tools')
+        m_tools = self.menuBar().addMenu(u'&Tools')
 
         # Name generator submenu
-        m_namegen = self.menuBar().addMenu(u'&Generate Name')
+        m_namegen = m_tools.addMenu(u'&Generate Name')
 
         # actions generate female, male names
         gen_male_act   = QtGui.QAction(u'Male', self)
@@ -723,6 +723,12 @@ class L5RMain(QtGui.QMainWindow):
 
         gen_male_act  .triggered.connect( self.generate_name )
         gen_female_act.triggered.connect( self.generate_name )
+        
+        # Dice roller menu
+        dice_roll_act = QtGui.QAction(u'Dice &Roller...', self)
+        dice_roll_act  .triggered.connect( self.show_dice_roller )
+        
+        m_tools.addAction(dice_roll_act)
 
         # Outfit menu
         m_outfit = self.menuBar().addMenu(u'Out&fit')
@@ -862,7 +868,7 @@ class L5RMain(QtGui.QMainWindow):
         self.mvbox.insertWidget(1, self.nicebar)
 
         self.nicebar.setVisible(True)
-
+            
     def hide_nicebar(self):
         if not self.nicebar:
             return
@@ -870,6 +876,11 @@ class L5RMain(QtGui.QMainWindow):
         del self.nicebar
         self.nicebar = None
 
+    def show_dice_roller(self):
+        import diceroller
+        dlg = diceroller.DiceRoller(self)
+        dlg.show()
+     
     def reset_adv(self):
         self.pc.advans = []
         self.pc.recalc_ranks()
