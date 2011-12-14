@@ -31,8 +31,8 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.0'
-DB_VERSION  = '2.0'
+APP_VERSION = '2.1'
+DB_VERSION  = '2.1'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -1138,7 +1138,8 @@ class L5RMain(QtGui.QMainWindow):
         c.execute('''select name, perk, perkval, honor, tag from schools
                      where uuid=?''', [uuid])
         name, perk, perkval, honor, tag = c.fetchone()
-        self.pc.set_school( uuid, perk, perkval, honor, [name.lower(), tag] )
+        self.pc.set_school( uuid, perk, perkval, honor, 
+                            [name.lower()] + tag.split(';') )
 
         c.execute('''select skill_uuid, skill_rank, wildcard, emphases
                      from school_skills
@@ -1410,7 +1411,11 @@ class L5RMain(QtGui.QMainWindow):
                                               chooses, 0, False)
         print affinity, is_ok
         if is_ok:
-            self.pc.set_affinity(affinity.lower())
+            if self.pc.has_tag('chuda shugenja school'):
+                self.pc.set_affinity('maho ' + affinity.lower())
+                self.pc.set_deficiency(affinity.lower())
+            else:
+                self.pc.set_affinity(affinity.lower())            
             self.update_from_model()
             
     def show_select_deficiency(self):
