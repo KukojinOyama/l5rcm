@@ -271,8 +271,8 @@ def import_clan_schools(dbconn, clan, path):
         tag = f.readline().strip()
         perk, perkval = f.readline().split()
         honor, honor_val = f.readline().split()
-        affin = f.readline()
-        defic = f.readline()
+        affin = f.readline().strip()
+        defic = f.readline().strip()
         if affin.startswith('-'): affin = None
         if defic.startswith('-'): defic = None
 

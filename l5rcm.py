@@ -24,6 +24,7 @@ import dialogs
 import autoupdate
 import tempfile
 import exporters
+import dbutil
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
@@ -1180,9 +1181,9 @@ class L5RMain(QtGui.QMainWindow):
             c.execute('''select affinity, deficiency from schools
                          where uuid=?''', [uuid])
             
-            for affic, defic in c.fetchall():
-                self.lb_affin.setText(affic.capitalize().strip())
-                self.lb_defic.setText(defic.capitalize().strip())
+            for affin, defic in c.fetchall():
+                self.pc.set_affinity(affin)
+                self.pc.set_deficiency(defic)
 
         c.close()
         self.update_from_model()
@@ -1254,6 +1255,7 @@ class L5RMain(QtGui.QMainWindow):
             cost = new_value
 
             adv = models.SkillAdv(skill_id, cost)
+            adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
             adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
 
             if adv.cost + self.pc.get_px() > self.pc.exp_limit:
@@ -1307,6 +1309,8 @@ class L5RMain(QtGui.QMainWindow):
         return count_ > len(self.pc.get_techs())
 
     def check_school_tech_and_spells(self):
+        if self.nicebar: return
+        
         # Show nicebar if can get another school tech
         if self.pc.can_get_other_techs() and self.check_if_tech_available():
             #print 'can get more techniques'
@@ -1343,6 +1347,26 @@ class L5RMain(QtGui.QMainWindow):
                     break
         c.close()
 
+    def check_affinity_wc(self):
+        if self.nicebar: return
+        
+        if (self.pc.get_affinity() and
+            self.pc.get_affinity().startswith('*')):
+            lb = QtGui.QLabel("You school grant you to choose an elemental affinity.")
+            bt = QtGui.QPushButton('Choose Affinity')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.show_select_affinity )
+            self.show_nicebar([lb, bt])
+        elif (self.pc.get_deficiency() and 
+              self.pc.get_deficiency().startswith('*')):
+            lb = QtGui.QLabel("You school grant you to choose an elemental deficiency.")
+            bt = QtGui.QPushButton('Choose Deficiency')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.show_select_deficiency )
+            self.show_nicebar([lb, bt])
+            
     def learn_next_school_spells(self):
         self.pc.recalc_ranks()
         
@@ -1372,6 +1396,38 @@ class L5RMain(QtGui.QMainWindow):
 
     def show_add_misc_item(self):
         pass
+        
+    def show_select_affinity(self):
+        chooses  = None
+        if self.pc.get_affinity() == '*nonvoid':
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,4) ]
+        else:
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,5) ]
+        
+        affinity, is_ok = QtGui.QInputDialog.getItem(self,
+                                              "L5R: CM",
+                                              "Select your elemental affinity",
+                                              chooses, 0, False)
+        print affinity, is_ok
+        if is_ok:
+            self.pc.set_affinity(affinity.lower())
+            self.update_from_model()
+            
+    def show_select_deficiency(self):
+        chooses  = None
+        if self.pc.get_deficiency() == '*nonvoid':
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,4) ]
+        else:
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,5) ]
+        
+        deficiency, is_ok = QtGui.QInputDialog.getItem(self,
+                                              "L5R: CM",
+                                              "Select your elemental deficiency",
+                                              chooses, 0, False)
+                                              
+        if is_ok:
+            self.pc.set_deficiency(deficiency.lower())      
+            self.update_from_model()
 
     def new_character(self):
         self.save_path = ''
@@ -1607,6 +1663,10 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.mod_init = (r1, k1)
         else:
             self.tx_cur_init.setText( self.tx_base_init.text() )
+        
+        # affinity / deficiency       
+        self.lb_affin.setText(self.pc.get_affinity().capitalize())
+        self.lb_defic.setText(self.pc.get_deficiency().capitalize())            
 
         self.hide_nicebar()
 
@@ -1622,9 +1682,9 @@ class L5RMain(QtGui.QMainWindow):
             self.show_nicebar([lb, bt])
         #else:
         #    self.hide_nicebar()
-
-        if not self.nicebar:
-            self.check_school_tech_and_spells()
+        
+        self.check_affinity_wc()
+        self.check_school_tech_and_spells()            
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0

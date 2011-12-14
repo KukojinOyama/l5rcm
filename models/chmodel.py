@@ -100,11 +100,12 @@ class BasePcModel(object):
         self.pending_wc_emph    = []
         self.pending_wc_spell   = []
         self.tags               = []
-        #self.spells             = []
         self.honor              = 0.0
         self.glory              = 0.0
         self.status             = 0.0
         self.taint              = 0.0
+        self.affinity           = None
+        self.deficiency         = None
 
         self.start_spell_count = 0
         self.school_tech = None
@@ -283,13 +284,23 @@ class AdvancedPcModel(BasePcModel):
 
     def get_taint(self):
         return self.taint
+        
+    def get_affinity(self):
+        return self.step_2.affinity or 'None'
 
+    def get_deficiency(self):
+        return self.step_2.deficiency or 'None'
+        
     def get_insight(self):
         n = 0
         for i in xrange(0, 5):
             n += self.get_ring_rank(i)*10
         for s in self.get_skills():
             n += self.get_skill_rank(s)
+        
+        n += 3*self.cnt_rule('ma_insight_plus_3')
+        n += 3*self.cnt_rule('ma_insight_plus_7')
+        
         return n
 
     def get_insight_rank(self):
@@ -450,7 +461,17 @@ class AdvancedPcModel(BasePcModel):
             if hasattr(adv, 'rule') and adv.rule == rule:
                 return True
         return rule in school_rules
-
+        
+    def cnt_rule(self, rule):
+        school_rules = []
+        for s in self.schools:
+            school_rules += s.tech_rules
+        count = 0
+        for adv in (self.advans+school_rules):
+            if hasattr(adv, 'rule') and adv.rule == rule:
+                count += 1
+        return count
+        
     def can_get_other_techs(self):
         if not self.has_tag('bushi') and \
            not self.has_tag('monk') and \
@@ -656,6 +677,12 @@ class AdvancedPcModel(BasePcModel):
     def set_taint(self, value):
         self.taint = value
         self.unsaved = True
+        
+    def set_affinity(self, value):
+        self.step_2.affinity = value
+        
+    def set_deficiency(self, value):
+        self.step_2.deficiency = value
 
     def add_advancement(self, adv):
         self.advans.append(adv)
