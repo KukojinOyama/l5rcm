@@ -318,12 +318,13 @@ def import_clan_school_skills(dbconn, clan, path):
         skill_line = f.readline().strip()
         skills = skill_line.split(',')
 
-        # get school uid
-        print 'search uuid for school %s' % s_name
         s_uuid = query(dbconn, '''select uuid from schools where name=?''', [s_name])
         if s_uuid is not None and len(s_uuid) > 0:
             s_uuid = s_uuid[0][0]
 
+        # get school uid
+        print 'search uuid for school %s => %s' % (s_name, repr(s_uuid))
+            
         for s in skills:
 
             sk_name, sk_rank, sk_emph = parse_skill_line(s)
