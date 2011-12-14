@@ -17,6 +17,7 @@
 
 import models.advances as advances
 import models
+import dbutil
 
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
@@ -194,6 +195,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText('Cost: %d exp' % cost)
 
         self.adv = advances.SkillAdv(uuid, cost)
+        self.adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, uuid, new_value)
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
 
     def buy_advancement(self):
@@ -578,7 +580,7 @@ class SelWcSpells(QtGui.QDialog):
                                       ''')
             self.error_bar.setVisible(True)
             return
-
+        
         # check if all different
         all_different = check_all_different(self.cbs_spell)
 
