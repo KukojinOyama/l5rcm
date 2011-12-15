@@ -26,3 +26,24 @@ agility 1
 honor 6.5
 -
 -
+#
+[OB] Daidoji Scout School
+bushi
+reflexes 1
+honor 3.5
+-
+-
+#
+[OB] Kakita Artisan School
+artisan
+awareness 1
+honor 5.5
+-
+-
+#
+[OB] Doji Magistrate School
+bushi
+reflexes 1
+honor 5.5
+-
+-

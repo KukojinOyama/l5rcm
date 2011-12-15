@@ -401,10 +401,10 @@ spiritual
 -
 -
 #
-Multiple School
+Multiple Schools
 social
 10
-multiple_school
+multiple_schools
 -
 #
 Paragon (Compassion)
@@ -626,7 +626,7 @@ crane 3, courtier 3
 Strength of the Earth
 physical
 3
--
+strength_of_earth
 bushi 2
 #
 Tactician
