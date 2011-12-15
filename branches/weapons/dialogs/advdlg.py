@@ -151,7 +151,7 @@ class BuyAdvDialog(QtGui.QDialog):
         text   = cb.itemText(idx)
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1
-        
+
         ring_id = models.get_ring_id_from_attrib_id(attrib)
         ring_nm = models.ring_name_from_id(ring_id)
 
@@ -195,16 +195,16 @@ class BuyAdvDialog(QtGui.QDialog):
 
         self.adv = advances.SkillAdv(uuid, cost)
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
-        
+
     def buy_advancement(self):
-        
+
         if self.adv and (self.adv.cost + self.pc.get_px()) > \
                          self.pc.exp_limit:
             QtGui.QMessageBox.warning(self, "Not enough XP",
             "Cannot purchase.\nYou've reached the XP Limit.")
             self.close()
             return
-        
+
         if self.tag == 'attrib':
             self.pc.add_advancement( self.adv )
             self.on_attrib_select()
@@ -231,7 +231,13 @@ def check_all_done(cb_list):
             return False
     return True
 
-def check_all_different(cb_list):    
+def check_all_done_2(le_list):
+    for le in le_list:
+        if len(le.text()) == 0:
+            return False
+    return True
+
+def check_all_different(cb_list):
     # check that all the choices are different
     for i in xrange(0, len(cb_list)-1):
         cb = cb_list[i]
@@ -239,24 +245,25 @@ def check_all_different(cb_list):
         for j in xrange(i+1, len(cb_list)):
             cb2 = cb_list[j]
             id2 = cb2.itemData(cb2.currentIndex())
-            
+
             if id2 == id:
                 return False
     return True
-    
+
 def check_already_got(list1, list2):
     # check if you already got this item
     for id in list1:
         if id in list2:
             return True
     return False
-    
+
 class SelWcSkills(QtGui.QDialog):
     def __init__(self, pc, conn, parent = None):
         super(SelWcSkills, self).__init__(parent)
         self.pc  = pc
         self.dbconn = conn
         self.cbs    = []
+        self.les    = []
         self.error_bar = None
         self.build_ui()
         self.connect_signals()
@@ -290,6 +297,17 @@ class SelWcSkills(QtGui.QDialog):
             cb = QtGui.QComboBox(self)
             self.cbs.append(cb)
             grid.addWidget( cb, row_, 1, 1, 2)
+
+            row_ += 1
+
+        for s in self.pc.get_pending_wc_emphs():
+            lb = "%s's Emphases: " % self.get_skill_name(s)
+
+            grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
+
+            le = QtGui.QLineEdit(self)
+            self.les.append(le)
+            grid.addWidget( le, row_, 1, 1, 2)
 
             row_ += 1
 
@@ -327,26 +345,37 @@ class SelWcSkills(QtGui.QDialog):
             i += 1
         c.close()
 
+    def get_skill_name(self, s_id):
+        c = self.dbconn.cursor()
+        c.execute('''SELECT uuid, name from skills where uuid=?''', [s_id])
+        sk_name = 'N/A'
+        for uuid, name in c.fetchall():
+            sk_name = name
+            break
+        c.close()
+        return sk_name
+
 
     def connect_signals(self):
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )
 
     def on_accept(self):
-        
+
         # check if all selected
-        done = check_all_done(self.cbs)
+        done = check_all_done(self.cbs) and check_all_done_2(self.les)
 
         if not done:
             self.error_bar.setText('''<p style='color:#FF0000'>
                                       <b>
                                       You need to choose all the skills
+                                      e/o emphases
                                       </b>
                                       </p>
                                       ''')
             self.error_bar.setVisible(True)
             return
-        
+
         # check if all different
         all_different = check_all_different(self.cbs)
 
@@ -359,10 +388,10 @@ class SelWcSkills(QtGui.QDialog):
                                       ''')
             self.error_bar.setVisible(True)
             return
-            
+
         # check if already got
         already_got = check_already_got([x.itemData(x.currentIndex())[0] for x in self.cbs], self.pc.get_skills())
-        
+
         if already_got:
             self.error_bar.setText('''<p style='color:#FF0000'>
                                       <b>
@@ -371,14 +400,21 @@ class SelWcSkills(QtGui.QDialog):
                                       </p>
                                       ''')
             self.error_bar.setVisible(True)
-            return        
-            
+            return
+
         self.error_bar.setVisible(False)
 
         for cb in self.cbs:
             idx = cb.currentIndex()
             uuid, rank = cb.itemData(idx)
             self.pc.add_school_skill(uuid, rank)
+
+        for i in xrange(0, len(self.les)):
+            emph = self.les[i].text()
+            s_id = self.pc.get_pending_wc_emphs()[i]
+
+            self.pc.add_school_skill(s_id, 0, emph)
+
         self.accept()
 
 class SelWcSpells(QtGui.QDialog):
@@ -411,29 +447,29 @@ class SelWcSpells(QtGui.QDialog):
         col_ = 0
         max_row = row_
         max_col = col_
-                                      
-        for i in xrange(0, self.pc.get_how_many_spell_i_miss()):           
+
+        for i in xrange(0, self.pc.get_how_many_spell_i_miss()):
             grp  = QtGui.QGroupBox('Choose Spell')
             fbox = QtGui.QFormLayout(grp)
-            
+
             cb_ring  = QtGui.QComboBox(self)
             cb_mast  = QtGui.QComboBox(self)
             cb_spell = QtGui.QComboBox(self)
-            
+
             fbox.addRow('Ring',    cb_ring)
             fbox.addRow('Mastery', cb_mast)
-            fbox.addRow('Spell',   cb_spell)            
-            
+            fbox.addRow('Spell',   cb_spell)
+
             self.cbs_ring .append(cb_ring)
             self.cbs_mast .append(cb_mast)
             self.cbs_spell.append(cb_spell)
-            
+
             if i and (i % 4) == 0:
                 col_ += 1
-                row_ = 2  
-                        
+                row_ = 2
+
             grid.addWidget(grp, row_, col_)
-            
+
             row_ += 1
             max_row = max(row_, max_row)
             max_col = max(col_, max_col)
@@ -444,26 +480,26 @@ class SelWcSpells(QtGui.QDialog):
 
         buttonBox = QtGui.QDialogButtonBox(QtCore.Qt.Horizontal, self)
         buttonBox.addButton(self.bt_ok, QtGui.QDialogButtonBox.AcceptRole)
-        buttonBox.addButton(self.bt_cancel, QtGui.QDialogButtonBox.RejectRole)       
-        
+        buttonBox.addButton(self.bt_cancel, QtGui.QDialogButtonBox.RejectRole)
+
         grid.addWidget( buttonBox, max_row+1, max_col)
         #grid.addWidget( self.bt_cancel, max_row+1, max_col+1)
 
     def load_data(self):
         c = self.dbconn.cursor()
-        
+
         for cb in self.cbs_ring:
-            cb.addItem('Air')
-            cb.addItem('Fire')
             cb.addItem('Earth')
+            cb.addItem('Air')
             cb.addItem('Water')
+            cb.addItem('Fire')
             cb.addItem('Void')
-            
+
         for cb in self.cbs_mast:
             for x in xrange(0,6):
                 cb.addItem('Mastery Level %d' % (x+1), x+1)
         c.close()
-        
+
         idx = 0
         print 'pending wildcards: ' + repr(self.pc.get_pending_wc_spells())
         for wc in self.pc.get_pending_wc_spells():
@@ -478,24 +514,24 @@ class SelWcSpells(QtGui.QDialog):
                 self.cbs_mast[i].setEnabled(False)
             idx += qty
 
-    def connect_signals(self):    
+    def connect_signals(self):
         for cb in self.cbs_ring:
             cb.currentIndexChanged.connect( self.on_ring_change    )
-            
+
         for cb in self.cbs_mast:
-            cb.currentIndexChanged.connect( self.on_mastery_change )            
-        
+            cb.currentIndexChanged.connect( self.on_mastery_change )
+
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )
-        
+
     def on_ring_change(self, text = ''):
-        cb_ring = self.sender()        
+        cb_ring = self.sender()
         ring  = cb_ring.itemText( cb_ring.currentIndex() )
         which = self.cbs_ring.index( cb_ring )
         cb_mast = self.cbs_mast[which]
         mastery = cb_mast.itemData( cb_mast.currentIndex() )
         cb_spell = self.cbs_spell[which]
-        
+
         # loads spells based on current mastery level
         c = self.dbconn.cursor()
         c.execute('''SELECT uuid, name FROM spells
@@ -504,27 +540,27 @@ class SelWcSpells(QtGui.QDialog):
         cb_spell.clear()
         for uuid, name in c.fetchall():
             cb_spell.addItem(name, uuid)
-            
+
         c.close()
-        
+
     def on_mastery_change(self, text = ''):
-        cb_mast = self.sender()        
+        cb_mast = self.sender()
         mastery  = cb_mast.itemData( cb_mast.currentIndex() )
         which = self.cbs_mast.index( cb_mast )
         cb_ring = self.cbs_ring[which]
         ring = cb_ring.itemText( cb_ring.currentIndex() )
         cb_spell = self.cbs_spell[which]
-        
+
         # loads spells based on current ring
         c = self.dbconn.cursor()
         c.execute('''SELECT uuid, name FROM spells
                      WHERE ring=? and mastery=?''', [ring, mastery])
-        
-        cb_spell.clear()        
+
+        cb_spell.clear()
         for uuid, name in c.fetchall():
             cb_spell.addItem(name, uuid)
-            
-        c.close()        
+
+        c.close()
 
     def on_accept(self):
         # check if all selected
@@ -539,7 +575,7 @@ class SelWcSpells(QtGui.QDialog):
                                       ''')
             self.error_bar.setVisible(True)
             return
-        
+
         # check if all different
         all_different = check_all_different(self.cbs_spell)
 
@@ -552,10 +588,10 @@ class SelWcSpells(QtGui.QDialog):
                                       ''')
             self.error_bar.setVisible(True)
             return
-            
+
         # check if already got
         already_got = check_already_got([x.itemData(x.currentIndex()) for x in self.cbs_spell], self.pc.get_skills())
-        
+
         if already_got:
             self.error_bar.setText('''<p style='color:#FF0000'>
                                       <b>
@@ -564,15 +600,15 @@ class SelWcSpells(QtGui.QDialog):
                                       </p>
                                       ''')
             self.error_bar.setVisible(True)
-            return        
-                        
+            return
+
         self.error_bar.setVisible(False)
 
         for cb in self.cbs_spell:
             idx = cb.currentIndex()
             uuid = cb.itemData(idx)
             self.pc.add_spell(uuid)
-            
+
         self.accept()
-        
+
 
