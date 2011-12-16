@@ -16,6 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import models
+import dbutil
 from PySide import QtCore, QtGui
 
 class BuyPerkDialog(QtGui.QDialog):
@@ -222,5 +223,35 @@ class BuyPerkDialog(QtGui.QDialog):
         if self.tag == 'flaw':
             self.item.cost *= -1
             
-        self.pc.add_advancement(self.item)
+        self.pc.add_advancement      (self.item)        
+        self.process_special_effects (self.item)        
         self.accept()
+        
+    def process_special_effects(self, item):
+        def _add_free_skill_rank(skill_nm):
+            skill_id  = dbutil.get_skill_id_from_name(self.dbconn, skill_nm)
+            print '%s => %d' % ( skill_nm, skill_id )
+            cur_value = self.pc.get_skill_rank(skill_id)
+            new_value = cur_value + 1
+            cost = 0
+            adv = models.SkillAdv(skill_id, 0)
+            adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, skill_id, new_value)
+            adv.desc = str.format('{0}, Rank {1} to {2}. Gained by {3}',
+                                  skill_nm, cur_value, new_value, self.perk_nm )
+            self.pc.add_advancement(adv)
+            
+        if item.rule == 'fk_gaijin_pepper':
+            # add a rank in Craft (Explosives), zero cost :)
+            _add_free_skill_rank('Craft (Explosives)')
+        elif item.rule == 'fk_gozoku':
+            # add a rank in Lore (Gozoku), zero cost :)
+            _add_free_skill_rank('Lore (Gozoku)')
+        elif item.rule == 'fk_kolat':
+            # add a rank in Lore (Kolat), zero cost :)
+            _add_free_skill_rank('Lore (Kolat)')
+        elif item.rule == 'fk_lying_darkness':
+            # add a rank in Lore (Lying Darkness), zero cost :)
+            _add_free_skill_rank('Lore (Lying Darkness)')
+        elif item.rule == 'fk_maho':
+            # add a rank in Lore (Maho), zero cost :)
+            _add_free_skill_rank('Lore (Maho)')
