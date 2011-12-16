@@ -730,8 +730,9 @@ class AdvancedPcModel(BasePcModel):
                     return
                     
         elif tot_rank < insight_:
-            self.get_school().school_rank += (insight_-tot_rank)
-            print 'school %d is now rank %d' % (self.get_school_id(), self.get_school_rank())
+            if self.get_school() is not None:
+                self.get_school().school_rank += (insight_-tot_rank)                
+                print 'school %d is now rank %d' % (self.get_school_id(), self.get_school_rank())
                     
     def save_to(self, file):
         self.unsaved = False

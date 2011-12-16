@@ -26,4 +26,22 @@ def get_mastery_ability_rule(dbconn, skill_id, rank):
     c.close()
     return rule_
 
+def get_skill_id_from_name(dbconn, skill_nm):
+    c = dbconn.cursor()
+    c.execute('''select uuid, name from skills
+                 where name=?''', [skill_nm])
+    id_ = None
+    for uuid, name in c.fetchall():
+        id_ = uuid
+    c.close()
+    return id_
     
+def get_skill_type(dbconn, skill_id):
+    c = dbconn.cursor()
+    c.execute('''select uuid, type from skills
+                 where uuid=?''', [skill_id])
+    sk_type = None
+    for uuid, type_ in c.fetchall():
+        sk_type = type_
+    c.close()
+    return sk_type

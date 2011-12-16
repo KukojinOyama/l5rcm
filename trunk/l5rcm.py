@@ -1253,7 +1253,16 @@ class L5RMain(QtGui.QMainWindow):
             idx  = self.sk_view_model.index(idx.row(), 0)
             text = self.sk_view_model.data(idx, QtCore.Qt.DisplayRole)
 
-            cost = new_value
+            cost    = new_value
+            sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
+            
+            if (self.pc.has_rule('obtuse') and
+                sk_type == 'high' and 
+                text != 'Investigation' and
+                text != 'Medicine'):
+                # double the cost for high skill
+                # other than medicine and investigation
+                cost *= 2            
 
             adv = models.SkillAdv(skill_id, cost)
             adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)

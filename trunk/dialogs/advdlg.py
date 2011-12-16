@@ -179,18 +179,29 @@ class BuyAdvDialog(QtGui.QDialog):
             cb2.addItem( s, u )
         c.close()
 
-    def on_skill_select(self, text = ''):
-        cb1  = self.widgets['skill'][0]
+    def on_skill_select(self, text = ''):        
         cb2  = self.widgets['skill'][1]
         idx  = cb2.currentIndex()
+        
         uuid = cb2.itemData(idx)
         text = cb2.itemText(idx)
+        
+        cb1  = self.widgets['skill'][0]
+        type_= cb1.itemData(cb1.currentIndex())
 
         cur_value = self.pc.get_skill_rank( uuid )
         new_value = cur_value + 1
 
         cost = new_value
-
+        
+        if (self.pc.has_rule('obtuse') and
+            type_ == 'high' and 
+            text != 'Investigation' and
+            text != 'Medicine'):
+            # double the cost for high skill
+            # other than medicine and investigation
+            cost *= 2
+                
         self.lb_from.setText('From %d to %d' % (cur_value, new_value))
         self.lb_cost.setText('Cost: %d exp' % cost)
 
