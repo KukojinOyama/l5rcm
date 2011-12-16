@@ -17,6 +17,7 @@
 
 import models.advances as advances
 import models
+import dbutil
 
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
@@ -178,22 +179,34 @@ class BuyAdvDialog(QtGui.QDialog):
             cb2.addItem( s, u )
         c.close()
 
-    def on_skill_select(self, text = ''):
-        cb1  = self.widgets['skill'][0]
+    def on_skill_select(self, text = ''):        
         cb2  = self.widgets['skill'][1]
         idx  = cb2.currentIndex()
+        
         uuid = cb2.itemData(idx)
         text = cb2.itemText(idx)
+        
+        cb1  = self.widgets['skill'][0]
+        type_= cb1.itemData(cb1.currentIndex())
 
         cur_value = self.pc.get_skill_rank( uuid )
         new_value = cur_value + 1
 
         cost = new_value
-
+        
+        if (self.pc.has_rule('obtuse') and
+            type_ == 'high' and 
+            text != 'Investigation' and
+            text != 'Medicine'):
+            # double the cost for high skill
+            # other than medicine and investigation
+            cost *= 2
+                
         self.lb_from.setText('From %d to %d' % (cur_value, new_value))
         self.lb_cost.setText('Cost: %d exp' % cost)
 
         self.adv = advances.SkillAdv(uuid, cost)
+        self.adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, uuid, new_value)
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
 
     def buy_advancement(self):
@@ -495,9 +508,12 @@ class SelWcSpells(QtGui.QDialog):
             cb.addItem('Fire')
             cb.addItem('Void')
 
+        max_mastery = self.pc.get_insight_rank()
+        
         for cb in self.cbs_mast:
-            for x in xrange(0,6):
+            for x in xrange(0,max_mastery):
                 cb.addItem('Mastery Level %d' % (x+1), x+1)
+                cb.setCurrentIndex(max_mastery-1)
         c.close()
 
         idx = 0
@@ -575,7 +591,7 @@ class SelWcSpells(QtGui.QDialog):
                                       ''')
             self.error_bar.setVisible(True)
             return
-
+        
         # check if all different
         all_different = check_all_different(self.cbs_spell)
 

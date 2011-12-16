@@ -24,14 +24,15 @@ import dialogs
 import autoupdate
 import tempfile
 import exporters
+import dbutil
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.0'
-DB_VERSION  = '2.0'
+APP_VERSION = '2.1'
+DB_VERSION  = '2.1'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -478,6 +479,56 @@ class L5RMain(QtGui.QMainWindow):
             vbox.addWidget(grp)
             views_.append(view)
         return mfr, views_
+       
+    def _build_spell_frame(self, model, layout = None):
+        grp    = QtGui.QGroupBox(u"Spells", self)
+        vbox   = QtGui.QVBoxLayout(grp)       
+        
+        # View
+        view  = QtGui.QTableView(self)
+        view.setSizePolicy( QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Expanding )         
+        view.setSortingEnabled(True)
+        view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive);
+        view.horizontalHeader().setStretchLastSection(True)
+        view.horizontalHeader().setCascadingSectionResizes(True)
+        view.setModel(model)
+        
+        # Affinity/Deficiency
+        self.lb_affin = QtGui.QLabel("None", self)
+        self.lb_defic = QtGui.QLabel("None", self)
+        
+        aff_fr = QtGui.QFrame(self)
+        aff_fr.setSizePolicy( QtGui.QSizePolicy.Preferred,
+                              QtGui.QSizePolicy.Maximum )        
+        fl     = QtGui.QFormLayout(aff_fr)
+        fl.addRow("<b><i>Affinity</i></b>"  , self.lb_affin)
+        fl.addRow("<b><i>Deficiency</i></b>", self.lb_defic)
+        fl.setHorizontalSpacing(60)
+        fl.setVerticalSpacing  ( 5)
+        fl.setContentsMargins(0, 0, 0, 0)
+        
+        
+        vbox.addWidget(aff_fr)
+        vbox.addWidget(view)
+        
+        if layout: layout.addWidget(grp)            
+        
+        return view
+        
+    def _build_tech_frame(self, model, layout = None):
+        grp    = QtGui.QGroupBox(u"Techs", self)
+        vbox   = QtGui.QVBoxLayout(grp)       
+        
+        # View
+        view  = QtGui.QListView(self)
+        view.setModel(model)
+        view.setItemDelegate(models.TechItemDelegate(self))
+        vbox.addWidget(view)
+        
+        if layout: layout.addWidget(grp) 
+        
+        return view
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
@@ -516,12 +567,19 @@ class L5RMain(QtGui.QMainWindow):
         sp_sort_model = models.ColorFriendlySortProxyModel(self)
         sp_sort_model.setDynamicSortFilter(True)
         sp_sort_model.setSourceModel(self.sp_view_model)
+        
+        frame_ = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(frame_)
+        #views_ = []
+        
+        self._build_spell_frame(sp_sort_model     , vbox)
+        self._build_tech_frame (self.th_view_model, vbox)
+        
+        #models_ = [ ("Spells", 'table', sp_sort_model, None, None),
+        #            ("Techs",  'list',  self.th_view_model,
+        #            models.TechItemDelegate(self), None) ]
 
-        models_ = [ ("Spells", 'table', sp_sort_model, None, None),
-                    ("Techs",  'list',  self.th_view_model,
-                    models.TechItemDelegate(self), None) ]
-
-        frame_, views_ = self._build_generic_page(models_)
+        #frame_, views_ = self._build_generic_page(models_)
         self.tabs.addTab(frame_, u"Techniques")
 
     def build_ui_page_4(self):
@@ -763,10 +821,10 @@ class L5RMain(QtGui.QMainWindow):
         buyflaw_act .triggered.connect( self.act_buy_perk )
 
         # Tools menu
-        #m_tools = self.menuBar().addMenu(u'&Tools')
+        m_tools = self.menuBar().addMenu(u'&Tools')
 
         # Name generator submenu
-        m_namegen = self.menuBar().addMenu(u'&Generate Name')
+        m_namegen = m_tools.addMenu(u'&Generate Name')
 
         # actions generate female, male names
         gen_male_act   = QtGui.QAction(u'Male', self)
@@ -783,6 +841,12 @@ class L5RMain(QtGui.QMainWindow):
 
         gen_male_act  .triggered.connect( self.generate_name )
         gen_female_act.triggered.connect( self.generate_name )
+        
+        # Dice roller menu
+        dice_roll_act = QtGui.QAction(u'Dice &Roller...', self)
+        dice_roll_act  .triggered.connect( self.show_dice_roller )
+        
+        m_tools.addAction(dice_roll_act)
 
         # Outfit menu
         m_outfit = self.menuBar().addMenu(u'Out&fit')
@@ -922,7 +986,7 @@ class L5RMain(QtGui.QMainWindow):
         self.mvbox.insertWidget(1, self.nicebar)
 
         self.nicebar.setVisible(True)
-
+            
     def hide_nicebar(self):
         if not self.nicebar:
             return
@@ -930,6 +994,11 @@ class L5RMain(QtGui.QMainWindow):
         del self.nicebar
         self.nicebar = None
 
+    def show_dice_roller(self):
+        import diceroller
+        dlg = diceroller.DiceRoller(self)
+        dlg.show()
+     
     def reset_adv(self):
         self.pc.advans = []
         self.pc.recalc_ranks()
@@ -1129,7 +1198,8 @@ class L5RMain(QtGui.QMainWindow):
         c.execute('''select name, perk, perkval, honor, tag from schools
                      where uuid=?''', [uuid])
         name, perk, perkval, honor, tag = c.fetchone()
-        self.pc.set_school( uuid, perk, perkval, honor, [name.lower(), tag] )
+        self.pc.set_school( uuid, perk, perkval, honor, 
+                            [name.lower()] + tag.split(';') )
 
         c.execute('''select skill_uuid, skill_rank, wildcard, emphases
                      from school_skills
@@ -1167,6 +1237,14 @@ class L5RMain(QtGui.QMainWindow):
 
             print 'starting spells count are %d' % count
             self.pc.set_school_spells_qty(count)
+            
+            # affinity / deficiency
+            c.execute('''select affinity, deficiency from schools
+                         where uuid=?''', [uuid])
+            
+            for affin, defic in c.fetchall():
+                self.pc.set_affinity(affin)
+                self.pc.set_deficiency(defic)
 
         c.close()
         self.update_from_model()
@@ -1235,9 +1313,19 @@ class L5RMain(QtGui.QMainWindow):
             idx  = self.sk_view_model.index(idx.row(), 0)
             text = self.sk_view_model.data(idx, QtCore.Qt.DisplayRole)
 
-            cost = new_value
+            cost    = new_value
+            sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
+            
+            if (self.pc.has_rule('obtuse') and
+                sk_type == 'high' and 
+                text != 'Investigation' and
+                text != 'Medicine'):
+                # double the cost for high skill
+                # other than medicine and investigation
+                cost *= 2            
 
             adv = models.SkillAdv(skill_id, cost)
+            adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
             adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
 
             if adv.cost + self.pc.get_px() > self.pc.exp_limit:
@@ -1291,6 +1379,8 @@ class L5RMain(QtGui.QMainWindow):
         return count_ > len(self.pc.get_techs())
 
     def check_school_tech_and_spells(self):
+        if self.nicebar: return
+        
         # Show nicebar if can get another school tech
         if self.pc.can_get_other_techs() and self.check_if_tech_available():
             #print 'can get more techniques'
@@ -1327,6 +1417,26 @@ class L5RMain(QtGui.QMainWindow):
                     break
         c.close()
 
+    def check_affinity_wc(self):
+        if self.nicebar: return
+        
+        if (self.pc.get_affinity() and
+            self.pc.get_affinity().startswith('*')):
+            lb = QtGui.QLabel("You school grant you to choose an elemental affinity.")
+            bt = QtGui.QPushButton('Choose Affinity')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.show_select_affinity )
+            self.show_nicebar([lb, bt])
+        elif (self.pc.get_deficiency() and 
+              self.pc.get_deficiency().startswith('*')):
+            lb = QtGui.QLabel("You school grant you to choose an elemental deficiency.")
+            bt = QtGui.QPushButton('Choose Deficiency')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.show_select_deficiency )
+            self.show_nicebar([lb, bt])
+            
     def learn_next_school_spells(self):
         self.pc.recalc_ranks()
         
@@ -1361,6 +1471,42 @@ class L5RMain(QtGui.QMainWindow):
 
     def show_add_misc_item(self):
         pass
+        
+    def show_select_affinity(self):
+        chooses  = None
+        if self.pc.get_affinity() == '*nonvoid':
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,4) ]
+        else:
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,5) ]
+        
+        affinity, is_ok = QtGui.QInputDialog.getItem(self,
+                                              "L5R: CM",
+                                              "Select your elemental affinity",
+                                              chooses, 0, False)
+        print affinity, is_ok
+        if is_ok:
+            if self.pc.has_tag('chuda shugenja school'):
+                self.pc.set_affinity('maho ' + affinity.lower())
+                self.pc.set_deficiency(affinity.lower())
+            else:
+                self.pc.set_affinity(affinity.lower())            
+            self.update_from_model()
+            
+    def show_select_deficiency(self):
+        chooses  = None
+        if self.pc.get_deficiency() == '*nonvoid':
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,4) ]
+        else:
+            chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,5) ]
+        
+        deficiency, is_ok = QtGui.QInputDialog.getItem(self,
+                                              "L5R: CM",
+                                              "Select your elemental deficiency",
+                                              chooses, 0, False)
+                                              
+        if is_ok:
+            self.pc.set_deficiency(deficiency.lower())      
+            self.update_from_model()
         
     def edit_selected_weapon(self):
         view_ = None
@@ -1672,6 +1818,10 @@ class L5RMain(QtGui.QMainWindow):
             self.pc.mod_init = (r1, k1)
         else:
             self.tx_cur_init.setText( self.tx_base_init.text() )
+        
+        # affinity / deficiency       
+        self.lb_affin.setText(self.pc.get_affinity().capitalize())
+        self.lb_defic.setText(self.pc.get_deficiency().capitalize())            
 
         self.hide_nicebar()
 
@@ -1687,9 +1837,9 @@ class L5RMain(QtGui.QMainWindow):
             self.show_nicebar([lb, bt])
         #else:
         #    self.hide_nicebar()
-
-        if not self.nicebar:
-            self.check_school_tech_and_spells()
+        
+        self.check_affinity_wc()
+        self.check_school_tech_and_spells()            
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0
