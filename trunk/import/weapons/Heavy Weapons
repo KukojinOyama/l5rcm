@@ -1,7 +1,7 @@
 Heavy Weapons
 #
 Dai Tsuchi
-large
+large, melee
 5k2
 -
 -
@@ -9,7 +9,7 @@ large
 15k
 #
 Masakari
-medium
+medium, melee
 2k3
 -
 -
@@ -17,7 +17,7 @@ medium
 8k
 #
 Ono
-large
+large, melee
 0k4
 -
 -
@@ -25,7 +25,7 @@ large
 20k
 #
 Tetsubo
-large
+large, melee
 3k3
 -
 -

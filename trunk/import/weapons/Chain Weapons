@@ -1,7 +1,7 @@
 Chain Weapons
 #
 Kusarigama
-large
+large, melee
 0k2;0k1
 -
 -
@@ -9,7 +9,7 @@ large
 5k
 #
 Kyoketsu-shoji
-large
+large, melee
 0k1
 -
 -
@@ -17,7 +17,7 @@ dbl_opp_armor_rule
 9b
 #
 Manrikikusari
-large
+large, melee
 1k1
 -
 -

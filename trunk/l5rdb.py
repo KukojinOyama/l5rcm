@@ -188,6 +188,7 @@ def get_cnt(conn, cnt):
     return 0
 
 def add_tag(dbconn, uuid, tag):
+    tag = tag.strip()
     if non_query(dbconn, '''insert into tags values (?,?)''', [uuid,tag]):
         print 'add tag %s to %d' % (tag, uuid)
     else:

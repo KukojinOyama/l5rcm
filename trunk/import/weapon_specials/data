@@ -16,4 +16,9 @@ no_shoot_horseback_rule "Increase the TN of all attack rolls by +10 if used from
 light_armor_rule "Wearing light armor increases the TN of all Athletics and Stealth rolls by 5."
 heavy_armor_rule "Wearing heavy armor increases the TN of all Skill Rolls using Agility or Reflexes by 5"
 riding_armor_rule "+12 TN while on horseback. Riding armor is considered heavy armor for the purposes of mechanical effects that specify armor type. Wearing riding armor increases the TN of all Agility and Reflexes rolls by +5 unless the wearer is on horseback."
+ignore_armor_rule "Ignores the Armor TN bonus provided by armor"
+flesh_cutter_rule "Double the Armor TN bonus provided by armor; 1/2 range"
+humming_bulb_rule "Makes a loud whistling sound"
+rope_cutter_rule "2 Free Raises for Called Shots against inanimate objects; 1/2 range"
+
 

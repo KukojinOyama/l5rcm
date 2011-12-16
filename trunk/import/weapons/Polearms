@@ -1,7 +1,7 @@
 Polearms
 #
 Bisento
-large
+large, melee
 3k3
 -
 -
@@ -9,7 +9,7 @@ large
 12k
 #
 Nagamaki
-large
+large, melee
 2k3
 -
 -
@@ -17,7 +17,7 @@ large
 8k
 #
 Naginata
-large, samurai
+large, samurai, melee
 3k2
 -
 -
@@ -25,7 +25,7 @@ large, samurai
 10k
 #
 Sasumata
-large
+large, melee
 0k2
 -
 -
@@ -33,7 +33,7 @@ keep_grapple_rule
 6k
 #
 Sodegarami
-large
+large, melee
 1k1
 -
 -

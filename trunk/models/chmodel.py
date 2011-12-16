@@ -336,6 +336,12 @@ class AdvancedPcModel(BasePcModel):
             return self.armor.name
         else:
             return 'No Armor'
+            
+    def get_armor_desc(self):
+        if self.armor is not None:
+            return self.armor.desc
+        else:
+            return ''      
 
     def get_cur_tn(self):
         return self.get_base_tn() + self.get_armor_tn()
@@ -518,6 +524,9 @@ class AdvancedPcModel(BasePcModel):
                 if count <= 0:
                     break
             print 'now i got %s spells' % len(self.get_spells())
+        
+    def get_weapons(self):
+        return self.weapons
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
         s_id = str(skill_uid)
@@ -788,15 +797,15 @@ class AdvancedPcModel(BasePcModel):
             if obj['armor'] is not None:
                 _load_obj(deepcopy(obj['armor']), self.armor)
 
-            # weapons
             self.weapons = []
             if 'weapons' in obj:
+                # weapons
                 for w in obj['weapons']:
                     item = outfit.WeaponOutfit()
                     _load_obj(deepcopy(w), item)
-                    self.add_weapon(item)
-
-            self.unsaved  = False
-
+                    self.add_weapon(item)                
+                
+            self.unsaved  = False           
+            
             return True
         return False

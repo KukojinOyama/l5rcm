@@ -1,7 +1,7 @@
 Spears
 #
 Kumade
-large, peasant
+large, peasant, melee
 1k1
 -
 -
@@ -9,15 +9,15 @@ may_break_25w_rule
 3b
 #
 Mai Chong
-large
+large, melee, ranged
 0k3
 -
--
+25'
 throw_25f_rule
 20k
 #
 Lance
-large
+large, melee
 3k4
 -
 -
@@ -25,15 +25,15 @@ lance_special_rule
 20k
 #
 Nage-yari
-medium
+medium, melee, ranged
 1k2
 -
--
+50'
 throw_50f_rule
 3k
 #
 Yari
-large
+large, melee
 2k2
 -
 -

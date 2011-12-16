@@ -161,7 +161,31 @@ class TextExporter(object):
             io.write("# DISADVANTAGE                    # RANK # XP GAIN\n")
             for ad in f.flaws_view_model.items:
                 io.write(str.format("{0:<34}{1:>6} {2:>9}\n",
-                         ad.name, ad.rank, -ad.cost))        
+                         ad.name, ad.rank, -ad.cost))
+                         
+        # MELEE WEAPONS
+        if len(f.melee_view_model.items) > 0:
+            io.write('\n')
+            io.write("# WEAPON                        # DR         # ALT. DR\n")
+            for weap in f.melee_view_model.items:
+                io.write(str.format("{0:<32}{1:<12} {2:<8}\n",
+                         weap.name, weap.dr, weap.dr_alt))
+                         
+        # RANGED WEAPONS
+        if len(f.ranged_view_model.items) > 0:
+            io.write('\n')
+            io.write("# WEAPON                        # RANGE      # STRENGTH\n")
+            for weap in f.ranged_view_model.items:
+                io.write(str.format("{0:<32}{1:<12} {2:>10}\n",
+                         weap.name, weap.range, weap.strength)) 
+
+        # ARROWS
+        if len(f.arrow_view_model.items) > 0:
+            io.write('\n')
+            io.write("# ARROW                         # DR         # QUANTITY\n")
+            for weap in f.arrow_view_model.items:
+                io.write(str.format("{0:<32}{1:<12} {2:>10}\n",
+                         weap.name, weap.dr, weap.qty))
         
     def get_clan_name(self, model):
         return self.form.cb_pc_clan.currentText()
