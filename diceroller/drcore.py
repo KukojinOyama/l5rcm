@@ -25,8 +25,13 @@ ops      = [operator.add,operator.sub,operator.mul,operator.div]
 
 global explode 
 global print_cb
-''' Algorithms '''
+global reroll_1
 
+''' Algorithms '''
+def set_reroll_1(flag):
+    global reroll_1
+    reroll_1 = flag
+    
 def set_explode(value):
     global explode
     explode = value
@@ -147,6 +152,12 @@ def roll_l5r_pool(pool, keep):
             old_roll = roll
             roll      = random.randint(1,10)
             tot_roll += roll
+            while (reroll_1 and tot_roll == roll and 
+                roll == 1):
+                # reroll 1s                
+                roll      = random.randint(1,10)
+                out_print('rerolled an 1 into a %d' % roll)
+                tot_roll  = roll
             
             if old_roll >= explode:
                 out_print('exploded %d to %d' % (old_roll, tot_roll))
@@ -158,7 +169,7 @@ def roll_l5r_pool(pool, keep):
     rolls.sort()
     print 'rolls: %s' % rolls
     value = sum( rolls[-keep:] )
-    out_print('from %dk%d kept %s' % (pool,keep,rolls[-keep:]))
+    out_print('from %dk%d %s kept %s' % (pool,keep,rolls,rolls[-keep:]))
     print 'total value = %d' % value
     return value
     

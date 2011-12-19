@@ -586,19 +586,51 @@ class L5RMain(QtGui.QMainWindow):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
-        #self.merit_view_model = models.AdvancementViewModel(self)
+        # advantages/disadvantage vertical toolbar
+        def _make_vertical_tb(tag, has_edit):
+            vtb = widgets.VerticalToolBar(self)
+            vtb.addStretch()
+            
+            cb_buy  = (self.act_buy_merit if tag == 'merit'
+                                        else self.act_buy_flaw)
+            cb_edit = (self.act_edit_merit if tag == 'merit'
+                                        else self.act_edit_flaw)
+            
+            vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
+                         'Add Perk', cb_buy)
+                
+            if has_edit:                
+                vtb.addButton(QtGui.QIcon(get_icon_path('edit',(16,16))), 
+                              'Edit Perk', cb_edit)
+            
+            vtb.addStretch()
+            return vtb 
+
         self.merits_view_model = models.PerkViewModel(self.db_conn, 'merit')
         self.flaws_view_model  = models.PerkViewModel(self.db_conn, 'flaws')
 
         merit_view = QtGui.QListView(self)
         merit_view.setModel(self.merits_view_model)
         merit_view.setItemDelegate(models.PerkItemDelegate(self))
-        vbox.addWidget(new_item_groupbox('Advantages', merit_view))
+        merit_vtb  = _make_vertical_tb('merit', True)
+        fr_        = QtGui.QFrame(self)
+        hb_        = QtGui.QHBoxLayout(fr_)
+        hb_.addWidget(merit_vtb)
+        hb_.addWidget(merit_view)
+        vbox.addWidget(new_item_groupbox('Advantages', fr_))
 
         flaw_view = QtGui.QListView(self)
         flaw_view.setModel(self.flaws_view_model)
         flaw_view.setItemDelegate(models.PerkItemDelegate(self))
-        vbox.addWidget(new_item_groupbox('Disadvantages', flaw_view))
+        flaw_vtb  = _make_vertical_tb('flaw', True)
+        fr_        = QtGui.QFrame(self)
+        hb_        = QtGui.QHBoxLayout(fr_)
+        hb_.addWidget(flaw_vtb)
+        hb_.addWidget(flaw_view)        
+        vbox.addWidget(new_item_groupbox('Disadvantages', fr_))
+        
+        self.merit_view = merit_view
+        self.flaw_view  = flaw_view
 
         self.tabs.addTab(mfr, u"Perks")
 
@@ -1343,6 +1375,49 @@ class L5RMain(QtGui.QMainWindow):
                                     self.db_conn, self)
         dlg.exec_()
         self.update_from_model()
+        
+    def act_buy_merit(self):
+        dlg = dialogs.BuyPerkDialog(self.pc, 'merit',
+                                    self.db_conn, self)
+        dlg.exec_()
+        self.update_from_model()
+        
+    def act_buy_flaw(self):
+        dlg = dialogs.BuyPerkDialog(self.pc, 'flaw',
+                                    self.db_conn, self)
+        dlg.exec_()
+        self.update_from_model()
+        
+    def act_edit_merit(self):
+        sel_idx = self.merit_view.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = self.merit_view.model().data(sel_idx, QtCore.Qt.UserRole)
+        
+        dlg = dialogs.BuyPerkDialog(self.pc, 'merit',
+                                    self.db_conn, self)
+
+        #print 'selected merit: %s' % repr(sel_itm.__dict__)
+        dlg.set_edit_mode(True)        
+        dlg.load_item(sel_itm)
+        dlg.exec_()
+        self.update_from_model()
+    
+    def act_edit_flaw(self):       
+        sel_idx = self.flaw_view.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = self.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
+        
+        dlg = dialogs.BuyPerkDialog(self.pc, 'flaw',
+                                    self.db_conn, self)
+
+        #print 'selected flaw: %s' % repr(sel_itm.__dict__)
+        dlg.load_item(sel_itm)
+        dlg.set_edit_mode(True)        
+        dlg.exec_()
+        self.update_from_model()
+    
 
     def act_choose_skills(self):
         dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)

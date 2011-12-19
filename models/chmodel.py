@@ -267,11 +267,12 @@ class AdvancedPcModel(BasePcModel):
             rank += 1
         return rank
 
-    def get_perk_info(self, uuid):
-        for adv in self.advans:
-            if adv.type != 'perk' or adv.perk != uuid:
-                continue
-            return adv.rank, adv.cost, adv.tag, adv.extra
+    # DEPRECATED
+    #def get_perk_info(self, uuid):
+    #    for adv in self.advans:
+    #        if adv.type != 'perk' or adv.perk != uuid:
+    #            continue
+    #        return adv.rank, adv.cost, adv.tag, adv.extra
 
     def get_honor(self):
         return self.step_2.honor + self.honor
@@ -442,13 +443,13 @@ class AdvancedPcModel(BasePcModel):
         for adv in self.advans:
             if adv.type != 'perk' or adv.cost < 0:
                 continue
-            yield adv.perk
+            yield adv
 
     def get_flaws(self):
         for adv in self.advans:
             if adv.type != 'perk' or adv.cost > 0:
                 continue
-            yield adv.perk
+            yield adv
 
     def has_tag(self, tag):
         school_tags = []
