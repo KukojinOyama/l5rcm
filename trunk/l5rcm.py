@@ -148,6 +148,7 @@ class L5RMain(QtGui.QMainWindow):
         self.build_ui_page_5()
         self.build_ui_page_6()
         self.build_ui_page_7()
+        self.build_ui_page_8()
         
         self.connect_signals()
 
@@ -717,6 +718,17 @@ class L5RMain(QtGui.QMainWindow):
         self.tabs.addTab(frame_, u"Weapons")
         
     def build_ui_page_7(self):
+        mfr  = QtGui.QFrame(self)
+        vbox = QtGui.QVBoxLayout(mfr)
+        #vbox.setAlignment(QtCore.Qt.AlignCenter)
+        #vbox.setSpacing  (30)
+        
+        self.tx_pc_notes = widgets.SimpleRichEditor(self)
+        vbox.addWidget(self.tx_pc_notes)
+        
+        self.tabs.addTab(mfr, u"Notes")
+        
+    def build_ui_page_8(self):
         mfr    = QtGui.QFrame(self)
         hbox   = QtGui.QHBoxLayout(mfr)
         hbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -1662,6 +1674,7 @@ class L5RMain(QtGui.QMainWindow):
         self.pc = models.AdvancedPcModel()
         self.pc.load_default()
         self.load_clans()
+        self.tx_pc_notes.set_content('')
         #self.load_schools(0)
         #self.load_families(0)
         self.update_from_model()
@@ -1700,6 +1713,7 @@ class L5RMain(QtGui.QMainWindow):
             else:
                 self.load_schools (self.pc.clan)
 
+            self.tx_pc_notes.set_content(self.pc.extra_notes)
             self.check_rules()
             self.update_from_model()
 
@@ -1712,6 +1726,7 @@ class L5RMain(QtGui.QMainWindow):
 
         if self.save_path is not None and len(self.save_path) > 0:
             self.pc.version = DB_VERSION
+            self.pc.extra_notes = self.tx_pc_notes.get_content()
             self.pc.save_to(self.save_path)
 
     def load_clans(self):

@@ -194,6 +194,7 @@ class AdvancedPcModel(BasePcModel):
         self.mod_init = (0, 0)
         self.void_points = self.get_void_rank()
         self.unlock_schools = False
+        self.extra_notes = ''
 
     def load_default(self):
         self.step_0.load_default()
