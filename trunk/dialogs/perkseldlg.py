@@ -30,6 +30,7 @@ class BuyPerkDialog(QtGui.QDialog):
         self.perk_nm   = ''
         self.perk_rule = None
         self.item = None
+        self.edit_mode = False
         self.build_ui()
         self.load_data()
         
@@ -104,7 +105,29 @@ class BuyPerkDialog(QtGui.QDialog):
             self.cb_subtype.addItem(typ[0].capitalize(), typ[0])
         c.close()
         
+    def set_edit_mode(self, flag):
+        self.edit_mode = flag
+
+        self.cb_subtype.setEnabled(not flag)
+        self.cb_perk.setEnabled   (not flag)
+        self.cb_rank.setEnabled   (not flag)
+        
+        self.cb_subtype.parent().setVisible(not flag)
+        
+        self.cb_rank   .blockSignals(flag)
+        self.cb_perk   .blockSignals(flag)
+        self.cb_subtype.blockSignals(flag)
+        
+    def load_item(self, perk):
+        self.item = perk.adv
+        self.cb_perk.clear()
+        self.cb_perk.addItem(perk.name, perk.adv.perk)        
+        self.cb_perk.setCurrentIndex(0)
+        
+        self.tx_notes.setPlainText(perk.adv.extra)
+        
     def on_subtype_select(self, text = ''):
+        print 'on_subtype_select'
         self.item = None
         self.cb_perk.clear()
         
@@ -122,6 +145,7 @@ class BuyPerkDialog(QtGui.QDialog):
         c.close()        
         
     def on_perk_select(self, text = ''):
+        print 'on_perk_select'
         self.item = None
         self.cb_rank.clear()
     
@@ -151,7 +175,8 @@ class BuyPerkDialog(QtGui.QDialog):
                                 (rank, cost))
         c.close() 
         
-    def on_rank_select(self, text = ''):       
+    def on_rank_select(self, text = ''):
+        print 'on_rank_select'
         selected = self.cb_rank.currentIndex()
         if selected < 0:
             return
@@ -188,8 +213,16 @@ class BuyPerkDialog(QtGui.QDialog):
             c.close()
         
         self.item = models.PerkAdv(self.perk_id, rank, cost, tag)
-            
+        
+    def update_perk(self):
+        self.item.extra = self.tx_notes.toPlainText()
+        
     def on_accept(self):
+        if self.edit_mode:
+            self.update_perk()
+            self.accept()
+            return
+        
         if not self.item:
             QtGui.QMessageBox.warning(self, "Perk not found",
                                       "Please select a perk.")

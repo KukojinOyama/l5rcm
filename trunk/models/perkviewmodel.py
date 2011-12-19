@@ -24,6 +24,7 @@ class PerkItemModel(object):
         self.rank        = ''
         self.tag         = ''
         self.notes       = ''
+        self.adv         = None
 
     def __str__(self):
         return self.name
@@ -43,16 +44,20 @@ class PerkViewModel(QtCore.QAbstractListModel):
     def rowCount(self, parent = QtCore.QModelIndex()):
         return len(self.items)       
         
-    def build_item_model(self, model, perk_id):
+    def build_item_model(self, model, perk_adv):
         c = self.dbconn.cursor()
         itm = PerkItemModel()
                
         c.execute('''SELECT uuid, name FROM perks
-                     WHERE uuid=?''', [perk_id])
+                     WHERE uuid=?''', [perk_adv.perk])
         
         for uuid, perk_nm in c.fetchall():
-            itm.name        = perk_nm
-            itm.rank, itm.cost, itm.tag, itm.notes = model.get_perk_info( uuid )
+            itm.adv   = perk_adv
+            itm.name  = perk_nm
+            itm.rank  = perk_adv.rank
+            itm.tag   = perk_adv.tag
+            itm.cost  = perk_adv.cost
+            itm.notes = perk_adv.extra
             break
         c.close()
         return itm        

@@ -40,9 +40,13 @@ class DiceRoller(QtGui.QDialog):
         rb_none   = QtGui.QRadioButton ("Explode None", self)
         rb_10     = QtGui.QRadioButton ("Explode 10", self)
         rb_9      = QtGui.QRadioButton ("Explode 9", self)
-        rb_8      = QtGui.QRadioButton ("Explode 8", self)
+        rb_8      = QtGui.QRadioButton ("Explode 8", self)        
         for w in [rb_none, rb_10, rb_9, rb_8]:
             v_.addWidget(w)
+            
+        ck_1      = QtGui.QCheckBox    ("Reroll 1", self)
+        ck_1.setChecked(False)
+        v_.addWidget(ck_1)
         
         rb_10.setChecked(True)
         
@@ -71,6 +75,7 @@ class DiceRoller(QtGui.QDialog):
         self.rb_10   = rb_10
         self.rb_9    = rb_9
         self.rb_8    = rb_8
+        self.ck_1    = ck_1
         
         self.mod_dtl = mod_dtl
 
@@ -93,6 +98,8 @@ class DiceRoller(QtGui.QDialog):
             set_explode(9)
         elif self.rb_8.isChecked():
             set_explode(8)
+            
+        set_reroll_1(self.ck_1.isChecked())
             
         set_output_cb( self.add_to_log )
         
