@@ -161,18 +161,22 @@ def value_or_null(value):
     return value.strip()
 
 def parse_skill_line(sl):
-    tk = sl.strip().split()
-    sk_name = tk[0].replace('_', ' ')
-    sk_rank = 1
-    sk_emph = None
-    if len(tk) > 1:
-        for i in xrange(1, len(tk)):
-            if tk[i].startswith('?'):
-                sk_rank = int(tk[i][1])
-            elif tk[i].startswith('('):
-                sk_emph = tk[i].strip('()').replace('_', ' ')
-    return sk_name, sk_rank, sk_emph
-
+    try:
+        tk = sl.strip().split()
+        sk_name = tk[0].replace('_', ' ')
+        sk_rank = 1
+        sk_emph = None
+        if len(tk) > 1:
+            for i in xrange(1, len(tk)):
+                if tk[i].startswith('?'):
+                    sk_rank = int(tk[i][1])
+                elif tk[i].startswith('('):
+                    sk_emph = tk[i].strip('()').replace('_', ' ')
+        return sk_name, sk_rank, sk_emph
+    except:
+        trace_error('cannot parse line %s' % sl)
+        return None, None, None
+        
 def get_cnt(conn, cnt):
     # increment value in cnt
     if non_query(conn, '''insert into cnt values(?,1)''', [cnt], False) == 0:
