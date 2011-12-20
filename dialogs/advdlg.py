@@ -31,9 +31,9 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv = None
         self.pc  = pc
         self.dbconn = conn
-        self.build_ui()
+        self.build_ui()        
         self.connect_signals()
-        self.load_data()
+        self.load_data()        
 
     def build_ui(self):
         grid = QtGui.QGridLayout(self)
@@ -439,9 +439,9 @@ class SelWcSpells(QtGui.QDialog):
         self.cbs_mast    = []
         self.cbs_spell   = []
         self.error_bar = None
-        self.build_ui()
+        self.build_ui()        
         self.connect_signals()
-        self.load_data()
+        self.load_data()        
 
     def build_ui(self):
         self.setWindowTitle('Choose School Spells')
@@ -498,37 +498,55 @@ class SelWcSpells(QtGui.QDialog):
         grid.addWidget( buttonBox, max_row+1, max_col)
         #grid.addWidget( self.bt_cancel, max_row+1, max_col+1)
 
-    def load_data(self):
-        c = self.dbconn.cursor()
-
-        for cb in self.cbs_ring:
+    def load_data(self):           
+        for cb in self.cbs_ring:            
+            cb.blockSignals(True)
             cb.addItem('Earth')
             cb.addItem('Air')
             cb.addItem('Water')
             cb.addItem('Fire')
-            cb.addItem('Void')
+            cb.addItem('Void')            
 
         max_mastery = self.pc.get_insight_rank()
         
-        for cb in self.cbs_mast:
-            for x in xrange(0,max_mastery):
-                cb.addItem('Mastery Level %d' % (x+1), x+1)
-                cb.setCurrentIndex(max_mastery-1)
-        c.close()
+        #for cb in self.cbs_mast:
+        #    cb.blockSignals(True)
+        #    for x in xrange(0,max_mastery):
+        #        cb.addItem('Mastery Level %d' % (x+1), x+1)
+        #    cb.setCurrentIndex(max_mastery-1)
 
         idx = 0
-        print 'pending wildcards: ' + repr(self.pc.get_pending_wc_spells())
+        #print 'pending wildcards: ' + repr(self.pc.get_pending_wc_spells())
         for wc in self.pc.get_pending_wc_spells():
             ring, qty = rules.parse_spell_wildcard(wc)
             print 'wildcard, ring: %s, qty: %d' % (ring, qty)
             for i in xrange(idx, qty+idx):
-                if ring != 'any':
+                if 'maho' in ring:
+                    print 'set maho flag for index %d' % i
+                    self.cbs_mast[i].setProperty('only_maho', True)
+                    self.cbs_ring[i].setProperty('only_maho', True)
+                elif models.chmodel.ring_from_name(ring) > 0:
                     ring_n = models.chmodel.ring_from_name(ring)
-                    print 'i: %d, ring_n %d' % (i, ring_n)
+                    #print 'i: %d, ring_n %d' % (i, ring_n)
                     self.cbs_ring[i].setCurrentIndex(ring_n)
                     self.cbs_ring[i].setEnabled(False)
-                self.cbs_mast[i].setEnabled(False)
+                if 'nodefic' in ring:
+                    print 'set nodefic flag for index %d' % i
+                    self.cbs_mast[i].setProperty('no_defic', True)
+                    self.cbs_ring[i].setProperty('no_defic', True)
             idx += qty
+        
+        # HACK: might be needed for a good layout
+        for cb in self.cbs_spell:
+            cb.addItem('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        
+        # resume signals
+        for cb in self.cbs_ring:            
+            self.do_ring_change(cb)
+            cb.blockSignals(False)
+        #for cb in self.cbs_mast:
+        #    self.do_mastery_change(cb)
+        #    cb.blockSignals(False)            
 
     def connect_signals(self):
         for cb in self.cbs_ring:
@@ -539,45 +557,109 @@ class SelWcSpells(QtGui.QDialog):
 
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )
-
-    def on_ring_change(self, text = ''):
-        cb_ring = self.sender()
+    
+    def do_ring_change(self, cb_ring):        
         ring  = cb_ring.itemText( cb_ring.currentIndex() )
         which = self.cbs_ring.index( cb_ring )
         cb_mast = self.cbs_mast[which]
-        mastery = cb_mast.itemData( cb_mast.currentIndex() )
         cb_spell = self.cbs_spell[which]
+        
+        print str.format('do ring change. ring: {0}. id: {1}',
+                            ring, which)
+        
+        # SPECIAL FLAGS
+        only_maho = cb_ring.property('only_maho') or False
+        no_defic  = cb_ring.property('no_defic' ) or False       
+        
+        # UPDATE MASTERY COMBOBOX BASED ON AFFINITY/DEFICIENCY
+        affin = self.pc.get_affinity  ()
+        defic = self.pc.get_deficiency()
+        test  = ring.lower()        
+               
+        cb_mast.blockSignals(True)
+        cb_mast.clear()
+        mod_ = 0
+        if affin == test or test in affin:  mod_ = 1
+        if defic == test and not only_maho: mod_ = -1        
+        
+        print str.format('ring: {0}, max_mastery: {1}',
+            ring, self.pc.get_insight_rank()+mod_)
+        
+        for x in xrange(0,self.pc.get_insight_rank()+mod_):
+            cb_mast.addItem('Mastery Level %d' % (x+1), x+1)   
+        cb_mast.blockSignals(False)
+        
+        if cb_mast.currentIndex() < 0:
+            cb_mast.setCurrentIndex(0)
+            
+        mastery = cb_mast.itemData( cb_mast.currentIndex() ) or 0            
+        # 
+                
+        #print 'only maho: %s' % only_maho
+        #print 'no defic : %s' % no_defic
+        
+        if defic == test and no_defic:
+            cb_spell.clear()
+        else:
+            self.do_update_spells(cb_spell, ring, mastery, only_maho)
+            
+    def on_ring_change(self, text = ''):
+        self.do_ring_change(self.sender())
 
-        # loads spells based on current mastery level
-        c = self.dbconn.cursor()
-        c.execute('''SELECT uuid, name FROM spells
-                     WHERE ring=? and mastery=?''', [ring, mastery])
-
-        cb_spell.clear()
-        for uuid, name in c.fetchall():
-            cb_spell.addItem(name, uuid)
-
-        c.close()
-
-    def on_mastery_change(self, text = ''):
-        cb_mast = self.sender()
-        mastery  = cb_mast.itemData( cb_mast.currentIndex() )
+    def do_mastery_change(self, cb_mast):
+        mastery  = cb_mast.itemData( cb_mast.currentIndex() ) or 0
         which = self.cbs_mast.index( cb_mast )
         cb_ring = self.cbs_ring[which]
         ring = cb_ring.itemText( cb_ring.currentIndex() )
         cb_spell = self.cbs_spell[which]
+        
+        print str.format('do mastery change. ring: {0}. mast: {1}. id: {2}',
+                            ring, mastery, which)        
 
-        # loads spells based on current ring
-        c = self.dbconn.cursor()
-        c.execute('''SELECT uuid, name FROM spells
-                     WHERE ring=? and mastery=?''', [ring, mastery])
-
+        affin = self.pc.get_affinity  ()
+        defic = self.pc.get_deficiency()
+        test  = ring.lower()
+        
+        only_maho = cb_mast.property('only_maho') or False
+        no_defic  = cb_mast.property('no_defic' ) or False
+        
+        #print 'only maho: %s' % only_maho
+        #print 'no defic : %s' % no_defic
+        
+        if defic == test and no_defic:
+            cb_spell.clear()
+        else:
+            self.do_update_spells(cb_spell, ring, mastery, only_maho)               
+        
+    def on_mastery_change(self, text = ''):
+        #print 'mastery change: %s' % text
+        self.do_mastery_change(self.sender())
+        
+    def do_update_spells(self, cb_spell, ring, mastery, only_maho):  
+        print 'update spells for ring %s, mastery %d, only_maho %s' % \
+              (ring, mastery, only_maho)
         cb_spell.clear()
+        
+        if mastery <= 0:
+            return
+        
+        query = '''SELECT uuid, name FROM spells
+                   WHERE ring=? and mastery=?'''
+                   
+        if only_maho:
+            query += ''' AND name LIKE "%MAHO%"'''
+        
+        query += ''' ORDER BY name'''
+        
+        #print query
+        
+        # loads spells based on current mastery level
+        c = self.dbconn.cursor()
+        c.execute(query, [ring, mastery])                        
         for uuid, name in c.fetchall():
             cb_spell.addItem(name, uuid)
-
         c.close()
-
+        
     def on_accept(self):
         # check if all selected
         done = check_all_done(self.cbs_spell)
