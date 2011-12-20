@@ -26,3 +26,24 @@ reflexes 1
 honor 3.5
 -
 -
+#
+[OB] Mantis Brawler School
+bushi
+agility 1
+honor 3.5
+-
+-
+#
+[OB] Tsuruchi Bounty Hunter School
+bushi
+agility 1
+honor 4.5
+-
+-
+#
+[OB] Yoritomo Shugenja School
+shugenja
+perception 1
+honor 4.5
+water
+earth
