@@ -31,8 +31,8 @@ from models.chmodel import ATTRIBS, RINGS
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.1'
-DB_VERSION  = '2.1'
+APP_VERSION = '2.2'
+DB_VERSION  = '2.2'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -127,6 +127,7 @@ class L5RMain(QtGui.QMainWindow):
         super(L5RMain, self).__init__(parent)
 
         self.save_path = ''
+        self.last_rank = 1
 
         # Build interface and menus
         self.build_ui()
@@ -1344,41 +1345,43 @@ class L5RMain(QtGui.QMainWindow):
         dlg.exec_()
         self.update_from_model()
 
+    def _buy_skill_rank(self, skill_id):    
+        cur_value = self.pc.get_skill_rank(skill_id)
+        new_value = cur_value + 1
+
+        cost    = new_value
+        sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
+        text    = dbutil.get_skill_name(self.db_conn, skill_id)
+        
+        if (self.pc.has_rule('obtuse') and
+            sk_type == 'high' and 
+            text != 'Investigation' and
+            text != 'Medicine'):
+            # double the cost for high skill
+            # other than medicine and investigation
+            cost *= 2            
+
+        adv = models.SkillAdv(skill_id, cost)
+        adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
+        adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+
+        if adv.cost + self.pc.get_px() > self.pc.exp_limit:
+            QtGui.QMessageBox.warning(self, "Not enough XP",
+            "Cannot purchase.\nYou've reached the XP Limit.")
+            return False
+
+        self.pc.add_advancement(adv)
+        self.update_from_model()
+        
+        return True
+        
     def buy_skill_rank(self):
         # get selected skill
         sm_ = self.skill_table_view.selectionModel()
         if sm_.hasSelection():
             idx = sm_.currentIndex()
-            skill_id = self.sk_view_model.data(idx)
-
-            cur_value = self.pc.get_skill_rank( skill_id )
-            new_value = cur_value + 1
-
-            idx  = self.sk_view_model.index(idx.row(), 0)
-            text = self.sk_view_model.data(idx, QtCore.Qt.DisplayRole)
-
-            cost    = new_value
-            sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
-            
-            if (self.pc.has_rule('obtuse') and
-                sk_type == 'high' and 
-                text != 'Investigation' and
-                text != 'Medicine'):
-                # double the cost for high skill
-                # other than medicine and investigation
-                cost *= 2            
-
-            adv = models.SkillAdv(skill_id, cost)
-            adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
-            adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
-
-            if adv.cost + self.pc.get_px() > self.pc.exp_limit:
-                QtGui.QMessageBox.warning(self, "Not enough XP",
-                "Cannot purchase.\nYou've reached the XP Limit.")
-                return
-
-            self.pc.add_advancement(adv)
-            self.update_from_model()
+            skill_id = self.sk_view_model.data(idx)            
+            self._buy_skill_rank(skill_id)
             sm_.setCurrentIndex(idx, QtGui.QItemSelectionModel.Select | \
                                      QtGui.QItemSelectionModel.Rows)
 
@@ -1460,31 +1463,83 @@ class L5RMain(QtGui.QMainWindow):
     def check_if_tech_available(self):
         c = self.db_conn.cursor()
         c.execute('''select COUNT(uuid) from school_techs
-                     where school_uuid=?''', [self.pc.school])
+                     where school_uuid=?''', [self.pc.get_school_id()])
         count_ = c.fetchone()[0]
         c.close()
         return count_ > len(self.pc.get_techs())
 
+        
+    def check_rank_advancement(self):
+        if self.nicebar: return
+        
+        if self.pc.get_insight_rank() > self.last_rank:
+            # HEY, NEW RANK DUDE!
+            lb = QtGui.QLabel("You reached the next rank, you have an opportunity"
+                              " to decide your destiny.")
+            bt = QtGui.QPushButton('Advance rank')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.show_advance_rank_dlg )
+            self.show_nicebar([lb, bt])                       
+            
     def check_school_tech_and_spells(self):
         if self.nicebar: return
         
         # Show nicebar if can get another school tech
-        if self.pc.can_get_other_techs() and self.check_if_tech_available():
+        if (self.pc.can_get_other_techs() and 
+            self.check_if_tech_available() and
+            self.check_tech_school_requirements()):
             #print 'can get more techniques'
-            lb = QtGui.QLabel("You reached enough insight Rank to learn another School Technique")
+            lb = QtGui.QLabel("You now fit the requirements to learn the next School Technique")
             bt = QtGui.QPushButton('Learn Technique')
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_tech )
             self.show_nicebar([lb, bt])
         elif self.pc.can_get_other_spells():
-            lb = QtGui.QLabel("You reached enough insight Rank to learn other Spells")
+            lb = QtGui.QLabel("You now fit the requirements to learn other Spells")
             bt = QtGui.QPushButton('Learn Spells')
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_spells )
             self.show_nicebar([lb, bt])
 
+    def check_missing_requirements(self):
+        if not self.check_tech_school_requirements():
+            lb = QtGui.QLabel("You need at least one rank in all school skills"
+                              " to learn the next School Technique")
+            bt = QtGui.QPushButton('Buy Requirements')
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.buy_school_requirements )
+            self.show_nicebar([lb, bt])   
+               
+    def check_tech_school_requirements(self):
+        # one should have at least one rank in all school skills
+        # in order to gain a school techniques
+        return len(self.get_missing_school_requirements()) == 0
+        
+    def get_missing_school_requirements(self):
+        list_     = []
+        school_id = self.pc.get_school_id()        
+        c = self.db_conn.cursor()
+        c.execute("""SELECT skill_uuid, skill_rank FROM school_skills
+                     WHERE school_uuid=?""", [school_id])
+        print 'check requirement for school %d' % school_id
+        for uuid, rank in c.fetchall():
+            if not uuid: continue
+            print 'needed %d, got rank %d' % (uuid, self.pc.get_skill_rank(uuid))            
+            if self.pc.get_skill_rank(uuid) < 1:
+                list_.append(uuid)
+        c.close()
+        return list_
+        
+    def buy_school_requirements(self):
+        for skill_uuid in self.get_missing_school_requirements():
+            print 'buy requirement skill %d' % skill_uuid
+            if not self._buy_skill_rank(skill_uuid):
+                return
+        
     def check_rules(self):
         c = self.db_conn.cursor()
         for t in self.pc.get_techs():
@@ -1531,7 +1586,13 @@ class L5RMain(QtGui.QMainWindow):
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
             self.update_from_model()
-
+            
+    def show_advance_rank_dlg(self):
+        dlg = dialogs.NextRankDlg(self.pc, self.db_conn, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.last_rank = self.pc.get_insight_rank()
+            self.update_from_model()
+        
     def show_wear_armor(self):
         dlg = dialogs.ChooseItemDialog(self.pc, 'armor', self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
@@ -1670,6 +1731,7 @@ class L5RMain(QtGui.QMainWindow):
                 QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Rows)
         
     def new_character(self):
+        self.last_rank = 1
         self.save_path = ''
         self.pc = models.AdvancedPcModel()
         self.pc.load_default()
@@ -1688,8 +1750,12 @@ class L5RMain(QtGui.QMainWindow):
                         self.cb_pc_school] )
 
         self.save_path = path
-        if self.pc.load_from(self.save_path):
-
+        if self.pc.load_from(self.save_path):            
+            try:
+                self.last_rank = self.pc.last_rank
+            except:
+                self.last_rank = self.pc.get_insight_rank()
+            
             if float(self.pc.version) < float(DB_VERSION):
                 # BACKUP CHARACTER
                 backup_path = self.save_path + '.bak'
@@ -1727,6 +1793,8 @@ class L5RMain(QtGui.QMainWindow):
         if self.save_path is not None and len(self.save_path) > 0:
             self.pc.version = DB_VERSION
             self.pc.extra_notes = self.tx_pc_notes.get_content()
+            # pending rank advancement?
+            self.pc.last_rank = self.last_rank
             self.pc.save_to(self.save_path)
 
     def load_clans(self):
@@ -1929,6 +1997,8 @@ class L5RMain(QtGui.QMainWindow):
         #    self.hide_nicebar()
         
         self.check_affinity_wc()
+        self.check_rank_advancement()
+        self.check_missing_requirements()
         self.check_school_tech_and_spells()            
 
         # disable step 0-1-2 if any xp are spent
