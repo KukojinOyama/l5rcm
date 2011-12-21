@@ -109,6 +109,12 @@ def create(dbfile):
         c.execute('''create table effects
         (uuid INTEGER PRIMARY KEY, tag VARCHAR UNIQUE, desc TEXT)''')
 
+        # requirements
+        c.execute('''create table requirements
+        (ref_uuid INTEGER, req_field VARCHAR, req_type VARCHAR,
+         min_val INTEGER, max_val INTEGER, target_val TEXT
+         PRIMARY KEY(ref_uuid, req_field) )''')
+        
         # cnt
         c.execute('''create table cnt
         (name varchar PRIMARY KEY, value INTEGER)''')
