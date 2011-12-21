@@ -45,3 +45,13 @@ def get_skill_type(dbconn, skill_id):
         sk_type = type_
     c.close()
     return sk_type
+    
+def get_skill_name(dbconn, skill_id):
+    c = dbconn.cursor()
+    c.execute('''select uuid, name from skills
+                 where uuid=?''', [skill_id])
+    sk_name = None
+    for uuid, name in c.fetchall():
+        sk_name = name
+    c.close()
+    return sk_name    
