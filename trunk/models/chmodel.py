@@ -481,11 +481,11 @@ class AdvancedPcModel(BasePcModel):
         return count
         
     def can_get_other_techs(self):
-        if not self.has_tag('bushi') and \
-           not self.has_tag('monk') and \
-           not self.has_tag('courtier') and \
-           not self.has_tag('ninja'):
-           return False
+        #if not self.has_tag('bushi') and \
+        #   not self.has_tag('monk') and \
+        #   not self.has_tag('courtier') and \
+        #   not self.has_tag('ninja'):
+        #   return False
 
         return len(self.get_techs()) < self.get_insight_rank()
 
