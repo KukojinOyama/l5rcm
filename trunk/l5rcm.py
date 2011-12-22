@@ -177,8 +177,14 @@ class L5RMain(QtGui.QMainWindow):
         geo = settings.value('geometry')
         if geo is not None:
             self.restoreGeometry(geo)
-        #else:
-        #    self.setGeometry(QtCore.QRect(100,100,680,800))
+        
+        self.ic_idx = settings.value('insight_calculation', 1)-1
+        ic_calcs    = [rules.insight_calculation_1,
+                       rules.insight_calculation_2,
+                       rules.insight_calculation_3]
+        if self.ic_idx not in range(0, 3):
+            self.ic_idx = 0
+        self.ic_calc_method = ic_calcs[self.ic_idx]
 
     def build_ui_page_1(self):
 
@@ -928,6 +934,22 @@ class L5RMain(QtGui.QMainWindow):
         unlock_school_act  = QtGui.QAction(u'Lock Schools...'         , self)
         unlock_advans_act  = QtGui.QAction(u'Lock Advancements...'    , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
+        
+        # insight calculation submenu
+        m_insight_calc   = m_rules.addMenu(u'Insight Calculation')
+        self.ic_act_grp  = QtGui.QActionGroup(self)
+        ic_default_act   = QtGui.QAction(u'Default'                     , self)
+        ic_no_rank1_1    = QtGui.QAction(u'Ignore Rank 1 Skills'        , self)
+        ic_no_rank1_2    = QtGui.QAction(u'Account Rank 1 School Skills', self)
+        ic_default_act.setProperty('method', rules.insight_calculation_1)
+        ic_no_rank1_1 .setProperty('method', rules.insight_calculation_2)
+        ic_no_rank1_2 .setProperty('method', rules.insight_calculation_3)
+        ic_list = [ic_default_act, ic_no_rank1_1, ic_no_rank1_2]
+        for act in ic_list:
+            self.ic_act_grp.addAction(act)
+            act.setCheckable(True)
+            m_insight_calc.addAction (act)
+        ic_list[self.ic_idx].setChecked(True)   
 
         unlock_school_act.setCheckable(True)
         unlock_advans_act.setCheckable(True)
@@ -976,6 +998,8 @@ class L5RMain(QtGui.QMainWindow):
         self.trait_sig_mapper.connect(QtCore.SIGNAL("mapped(const QString &)"),
                                       self,
                                       QtCore.SLOT("on_trait_increase(const QString &)"))
+                                      
+        self.ic_act_grp.triggered.connect(self.on_change_insight_calculation)
 
     def switch_to_page_1(self):
         self.tabs.setCurrentIndex(0)
@@ -1738,6 +1762,7 @@ class L5RMain(QtGui.QMainWindow):
         self.pc.load_default()
         self.load_clans()
         self.tx_pc_notes.set_content('')
+        self.pc.set_insight_calc_method(self.ic_calc_method)
         #self.load_schools(0)
         #self.load_families(0)
         self.update_from_model()
@@ -1781,6 +1806,7 @@ class L5RMain(QtGui.QMainWindow):
                 self.load_schools (self.pc.clan)
 
             self.tx_pc_notes.set_content(self.pc.extra_notes)
+            self.pc.set_insight_calc_method(self.ic_calc_method)
             self.check_rules()
             self.update_from_model()
 
@@ -2081,7 +2107,14 @@ class L5RMain(QtGui.QMainWindow):
         # SAVE GEOMETRY
         settings = QtCore.QSettings()
         settings.setValue('geometry', self.saveGeometry())
-
+        
+        if self.pc.insight_calculation == rules.insight_calculation_2:
+            settings.setValue('insight_calculation', 2)
+        elif self.pc.insight_calculation == rules.insight_calculation_3:
+            settings.setValue('insight_calculation', 3)
+        else:
+            settings.setValue('insight_calculation', 1)
+            
         if self.pc.is_dirty():
             resp = self.ask_to_save()
             if resp == QtGui.QMessageBox.Save:
@@ -2170,7 +2203,11 @@ class L5RMain(QtGui.QMainWindow):
             exporter.export(f)
         f.close()
 
-
+    def on_change_insight_calculation(self):
+        method = self.sender().checkedAction().property('method')
+        self.pc.set_insight_calc_method(method)
+        self.update_from_model()
+            
 
 ### MAIN ###
 def main():
