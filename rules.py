@@ -59,3 +59,52 @@ def get_random_name(path):
 def parse_spell_wildcard(wc):
     ring, qty = wc.strip(' \r\n').split()
     return ring, int(qty.strip('()'))
+    
+def insight_calculation_1(model):
+    '''Default insight calculation method = Rings*10+Skills+SpecialPerks'''
+    n = 0
+    for i in xrange(0, 5):
+        n += model.get_ring_rank(i)*10
+    for s in model.get_skills():
+        n += model.get_skill_rank(s)
+    
+    n += 3*model.cnt_rule('ma_insight_plus_3')
+    n += 3*model.cnt_rule('ma_insight_plus_7')
+    
+    return n
+    
+def insight_calculation_2(model):
+    '''Another insight calculation method. Similar to 1, but ignoring
+       rank 1 skills
+    '''
+    n = 0
+    for i in xrange(0, 5):
+        n += model.get_ring_rank(i)*10
+    for s in model.get_skills():
+        sk = model.get_skill_rank(s)
+        if sk > 1:
+            n += sk
+    
+    n += 3*model.cnt_rule('ma_insight_plus_3')
+    n += 3*model.cnt_rule('ma_insight_plus_7')
+    
+    return n
+    
+def insight_calculation_3(model):
+    '''Another insight calculation method. Similar to 2, but
+       school skill are counted even if rank 1
+    '''
+    school_skills = model.get_school_skills()
+    
+    n = 0
+    for i in xrange(0, 5):
+        n += model.get_ring_rank(i)*10
+    for s in model.get_skills():
+        sk = model.get_skill_rank(s)
+        if sk > 1 or s in school_skills:
+            n += sk
+    
+    n += 3*model.cnt_rule('ma_insight_plus_3')
+    n += 3*model.cnt_rule('ma_insight_plus_7')
+    
+    return n        

@@ -19,6 +19,7 @@ import advances as adv
 import outfit
 import json
 import os
+import rules
 
 from copy import deepcopy
 
@@ -195,6 +196,7 @@ class AdvancedPcModel(BasePcModel):
         self.void_points = self.get_void_rank()
         self.unlock_schools = False
         self.extra_notes = ''
+        self.insight_calculation = None
 
     def load_default(self):
         self.step_0.load_default()
@@ -294,17 +296,10 @@ class AdvancedPcModel(BasePcModel):
         return self.step_2.deficiency or 'None'
         
     def get_insight(self):
-        n = 0
-        for i in xrange(0, 5):
-            n += self.get_ring_rank(i)*10
-        for s in self.get_skills():
-            n += self.get_skill_rank(s)
+        if self.insight_calculation:
+            return self.insight_calculation(self)
+        return rules.insight_calculation_1(self)
         
-        n += 3*self.cnt_rule('ma_insight_plus_3')
-        n += 3*self.cnt_rule('ma_insight_plus_7')
-        
-        return n
-
     def get_insight_rank(self):
         value = self.get_insight()
 
@@ -744,7 +739,12 @@ class AdvancedPcModel(BasePcModel):
             if self.get_school() is not None:
                 self.get_school().school_rank += (insight_-tot_rank)                
                 print 'school %d is now rank %d' % (self.get_school_id(), self.get_school_rank())
-                    
+                
+    def set_insight_calc_method(self, func):
+        self.insight_calculation = func
+        
+### LOAD AND SAVE METHODS ###
+
     def save_to(self, file):
         self.unsaved = False
 
