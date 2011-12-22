@@ -1466,7 +1466,7 @@ class L5RMain(QtGui.QMainWindow):
                      where school_uuid=?''', [self.pc.get_school_id()])
         count_ = c.fetchone()[0]
         c.close()
-        return count_ > len(self.pc.get_techs())
+        return count_ > self.pc.get_school_rank()
 
         
     def check_rank_advancement(self):
@@ -1489,13 +1489,14 @@ class L5RMain(QtGui.QMainWindow):
         if (self.pc.can_get_other_techs() and 
             self.check_if_tech_available() and
             self.check_tech_school_requirements()):
+            self.learn_next_school_tech()
             #print 'can get more techniques'
-            lb = QtGui.QLabel("You now fit the requirements to learn the next School Technique")
-            bt = QtGui.QPushButton('Learn Technique')
-            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
-                              QtGui.QSizePolicy.Preferred)
-            bt.clicked.connect( self.learn_next_school_tech )
-            self.show_nicebar([lb, bt])
+            #lb = QtGui.QLabel("You now fit the requirements to learn the next School Technique")
+            #bt = QtGui.QPushButton('Learn Technique')
+            #bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+            #                  QtGui.QSizePolicy.Preferred)
+            #bt.clicked.connect( self.learn_next_school_tech )
+            #self.show_nicebar([lb, bt])
         elif self.pc.can_get_other_spells():
             lb = QtGui.QLabel("You now fit the requirements to learn other Spells")
             bt = QtGui.QPushButton('Learn Spells')
