@@ -112,8 +112,8 @@ def create(dbfile):
         # requirements
         c.execute('''create table requirements
         (ref_uuid INTEGER, req_field VARCHAR, req_type VARCHAR,
-         min_val INTEGER, max_val INTEGER, target_val TEXT
-         PRIMARY KEY(ref_uuid, req_field) )''')
+         min_val INTEGER, max_val INTEGER, target_val TEXT,
+         PRIMARY KEY(ref_uuid, req_field))''')
         
         # cnt
         c.execute('''create table cnt
@@ -123,8 +123,9 @@ def create(dbfile):
         dbconn.commit()
         c.close()
         return True
-    except:
+    except Exception as e:
         print 'database creation failed'
+        print '%s %s' % ( type(e) ,e)
         return False
 
 def connect(dbfile):
