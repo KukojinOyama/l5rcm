@@ -789,6 +789,7 @@ class L5RMain(QtGui.QMainWindow):
         open_act        = QtGui.QAction(u'&Open Character...', self)
         save_act        = QtGui.QAction(u'&Save Character...', self)
         export_text_act = QtGui.QAction(u'Ex&port as Text...', self)
+        export_pdf_act  = QtGui.QAction(u'Ex&port as PDF...', self)
         exit_act        = QtGui.QAction(u'E&xit', self)
 
         new_act .setShortcut( QtGui.QKeySequence.New  )
@@ -801,6 +802,7 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addAction(save_act)
         m_file.addSeparator()
         m_file.addAction(export_text_act)
+        m_file.addAction(export_pdf_act )
         m_file.addSeparator()
         m_file.addAction(exit_act)
 
@@ -810,6 +812,7 @@ class L5RMain(QtGui.QMainWindow):
         exit_act.triggered.connect( self.close )
 
         export_text_act.triggered.connect( self.export_character_as_text )
+        export_pdf_act .triggered.connect( self.export_character_as_pdf  )
 
         self.m_file = m_file
 
@@ -2192,16 +2195,60 @@ class L5RMain(QtGui.QMainWindow):
         if len(file_) > 0:
             self.export_as_text(file_)
 
+    def export_character_as_pdf(self):
+        file_ = self.select_export_file()
+        if len(file_) > 0:
+            self.export_as_pdf(file_)
+            
     def export_as_text(self, export_file):
         exporter = exporters.TextExporter()
         exporter.set_form (self)
-        exporter.set_model(self.pc     )
-        #exporter.set_db   (self.db_conn)
+        exporter.set_model(self.pc     )        
 
         f = open(export_file, 'wt')
         if f is not None:
             exporter.export(f)
         f.close()
+        
+    def export_as_pdf(self, export_file):
+    
+        def _create_fdf(exporter):            
+            #exporter = exporters.FDFExporterAll()
+            exporter.set_form (self)
+            exporter.set_model(self.pc     )
+            from tempfile import gettempdir
+            fpath = os.path.join(gettempdir(), 'l5rcm.fdf')
+            fobj = open(fpath, 'wt')
+            if fobj is not None:
+                exporter.export(fobj)
+            fobj.close()        
+            return fpath
+            
+        def _flatten_pdf(fdf_file, source_pdf, target_pdf, target_suffix = None):
+            basen = os.path.splitext(os.path.basename(target_pdf))[0]
+            based = os.path.dirname (target_pdf)
+            
+            if target_suffix:
+                target_pdf = os.path.join(based, basen) + '_%s.pdf' % target_suffix
+            else:
+                target_pdf = os.path.join(based, basen) + '.pdf'
+                
+            # call pdftk
+            import subprocess
+            args_ = [_get_pdftk(), source_pdf, 'fill_form', fdf_file, 'output', target_pdf, 'flatten']
+            subprocess.call(args_)                       
+            
+        def _get_pdftk():
+            if os.name == 'nt':
+                return os.path.join(MY_CWD, 'tools', 'pdftk.exe')
+            elif os.name == 'posix':
+                return '/usr/bin/pdftk'
+            return None
+        
+        # GENERIC SHEET
+        source_pdf = get_app_file('sheet_all.pdf')
+        source_fdf = _create_fdf(exporters.FDFExporterAll())
+        _flatten_pdf(source_fdf, source_pdf, export_file)
 
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
