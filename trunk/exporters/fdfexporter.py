@@ -51,7 +51,11 @@ class FDFExporter(object):
         io.write("<<\n/Root 1 0 R \n\n>>\n%%EOF\n")
     
     def export_field(self, key, value, io):
-        io.write(str.format("<</T({0})/V({1})>>",
+        if type(value) == type(True):
+            io.write(str.format("<< /V /{1} /T({0})>>",
+                 key, 'Yes' if value else 'No'))
+        else:
+            io.write(str.format("<< /V({1}) /T({0})>>",
                  key, value))
                  
     # HELPERS                    
@@ -66,7 +70,9 @@ class FDFExporter(object):
         return self.form.cb_pc_school.currentText()
         
     def get_fullname(self):
-        return '%s %s' % (self.get_family_name(), self.model.name)
+        if self.model.family:
+            return '%s %s' % (self.get_family_name(), self.model.name)
+        return self.model.name
         
     def get_exp(self):
         return '%s / %s' % (self.model.get_px(), self.model.exp_limit)
@@ -95,6 +101,84 @@ class FDFExporterAll(FDFExporter):
         for i in xrange(0, 5):
             fields[models.ring_name_from_id(i).upper()] = m.get_ring_rank(i)
         
+        # HONOR, GLORY, STATUS, TAINT
+        fields['HONOR' ] = str(int(m.get_honor ()))
+        fields['GLORY' ] = str(int(m.get_glory ()))
+        fields['STATUS'] = str(int(m.get_status()))
+        fields['TAINT' ] = str(int(m.get_taint ()))
+        
+        hdots = int((m.get_honor () - int(m.get_honor ()))*10)
+        gdots = int((m.get_glory () - int(m.get_glory ()))*10)
+        sdots = int((m.get_status() - int(m.get_status()))*10)
+        tdots = int((m.get_taint () - int(m.get_taint ()))*10)
+        
+        for i in xrange(1, hdots+1):
+            fields['HONOR_DOT.%d' % i ]  = 'S&#236'
+
+        for i in xrange(1, gdots+1):
+            fields['GLORY_DOT.%d' % i ]  = True
+
+        for i in xrange(1, sdots+1):
+            fields['STATUS_DOT.%d' % i]  = True
+
+        for i in xrange(1, tdots+1):
+            fields['TAINT_DOT.%d' % i ]  = True
+            
+        # INITIATIVE
+        fields['INITIATIVE_BASE'] = f.tx_base_init.text()
+        fields['INITIATIVE_MOD' ] = f.tx_mod_init .text()
+        fields['INITIATIVE_CUR' ] = f.tx_cur_init .text()
+        
+        # TN / RD
+        fields['TN_BASE'] = m.get_base_tn ()
+        fields['TN_CUR' ] = m.get_cur_tn  ()
+        fields['BASE_RD'] = m.get_base_rd ()
+        fields['CUR_RD' ] = m.get_full_rd ()
+        
+        # ARMOR
+        fields['ARMOR_TYPE' ] = m.get_armor_name   ()
+        fields['ARMOR_TN'   ] = m.get_armor_tn     ()
+        fields['ARMOR_RD'   ] = m.get_armor_rd     ()
+        fields['ARMOR_NOTES'] = m.get_armor_desc   ()
+        
+        # WOUNDS
+        w_labels = ['HEALTY', 'NICKED', 'GRAZED', 
+                    'HURT', 'INJURED', 'CRIPPLED',
+                    'DOWN', 'OUT']
+        for i in xrange(0, len(w_labels)):
+            fields[w_labels[i]] = str(m.get_health_rank(i))
+            
+        fields['WOUND_HEAL_BASE'] = (m.get_attrib_rank(models.ATTRIBS.STAMINA)*2
+                                     + m.get_insight_rank())
+        #fields['WOUND_HEAL_MOD' ] = ''
+        fields['WOUND_HEAL_CUR' ] = fields['WOUND_HEAL_BASE']
+        
+        # SKILLS
+        idx = 1
+        count = min(23, len(f.sk_view_model.items))
+        for i in xrange(1, count+1):
+            sk = f.sk_view_model.items[i-1]
+            fields['SKILL_NAME.%d'    % i] = sk.name
+            fields['SKILL_RANK.%d'    % i] = sk.rank
+            fields['SKILL_TRAIT.%d'   % i] = sk.trait
+            fields['SKILL_EMPH_MA.%d' % i] = ', '.join(sk.emph)            
+        
+        # MERITS AND FLAWS
+        merits = f.merits_view_model.items
+        flaws  = f.flaws_view_model .items
+        
+        count = min(17, len(merits))
+        for i in xrange(1, count+1):
+            merit = merits[i-1]
+            fields['ADVANTAGE_NM.%d' % i] = merit.name
+            fields['ADVANTAGE_PT.%d' % i] = abs(merit.cost)
+
+        count = min(17, len(flaws))
+        for i in xrange(1, count+1):
+            flaw = flaws[i-1]
+            fields['DISADVANTAGE_NM.%d' % i] = flaw.name
+            fields['DISADVANTAGE_PT.%d' % i] = abs(flaw.cost)
+            
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)
             

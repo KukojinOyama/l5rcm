@@ -321,12 +321,17 @@ class AdvancedPcModel(BasePcModel):
             return self.armor.tn
         else:
             return 0
+            
+    def get_base_rd(self):
+        if self.has_rule('hida_bushi_2'):
+            return self.get_ring_rank(RINGS.EARTH)
+        return 0
 
     def get_armor_rd(self):
-        pc_rd = 0 if self.armor is None else self.armor.rd
-        if self.has_rule('hida_bushi_2'):
-            pc_rd += self.get_ring_rank(RINGS.EARTH)
-        return pc_rd
+        return self.armor.rd if self.armor else 0
+        
+    def get_full_rd(self):
+        return self.get_armor_rd() + self.get_base_rd()
 
     def get_armor_name(self):
         if self.armor is not None:

@@ -788,7 +788,7 @@ class L5RMain(QtGui.QMainWindow):
         new_act         = QtGui.QAction(u'&New Character', self)
         open_act        = QtGui.QAction(u'&Open Character...', self)
         save_act        = QtGui.QAction(u'&Save Character...', self)
-        export_text_act = QtGui.QAction(u'Ex&port as Text...', self)
+        #export_text_act = QtGui.QAction(u'Ex&port as Text...', self)
         export_pdf_act  = QtGui.QAction(u'Ex&port as PDF...', self)
         exit_act        = QtGui.QAction(u'E&xit', self)
 
@@ -801,7 +801,7 @@ class L5RMain(QtGui.QMainWindow):
         m_file.addAction(open_act)
         m_file.addAction(save_act)
         m_file.addSeparator()
-        m_file.addAction(export_text_act)
+        #m_file.addAction(export_text_act)
         m_file.addAction(export_pdf_act )
         m_file.addSeparator()
         m_file.addAction(exit_act)
@@ -811,7 +811,7 @@ class L5RMain(QtGui.QMainWindow):
         save_act.triggered.connect( self.save_character )
         exit_act.triggered.connect( self.close )
 
-        export_text_act.triggered.connect( self.export_character_as_text )
+        #export_text_act.triggered.connect( self.export_character_as_text )
         export_pdf_act .triggered.connect( self.export_character_as_pdf  )
 
         self.m_file = m_file
@@ -1372,7 +1372,8 @@ class L5RMain(QtGui.QMainWindow):
         dlg.exec_()
         self.update_from_model()
 
-    def _buy_skill_rank(self, skill_id):    
+    def _buy_skill_rank(self, skill_id):
+        print 'buy skill rank %d' % skill_id
         cur_value = self.pc.get_skill_rank(skill_id)
         new_value = cur_value + 1
 
@@ -1406,11 +1407,17 @@ class L5RMain(QtGui.QMainWindow):
         # get selected skill
         sm_ = self.skill_table_view.selectionModel()
         if sm_.hasSelection():
-            idx = sm_.currentIndex()
-            skill_id = self.sk_view_model.data(idx)            
+            model_   = self.skill_table_view.model()
+            skill_id = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)
             self._buy_skill_rank(skill_id)
-            sm_.setCurrentIndex(idx, QtGui.QItemSelectionModel.Select | \
-                                     QtGui.QItemSelectionModel.Rows)
+            idx = None
+            for i in xrange(0, self.skill_table_view.model().rowCount()):
+                idx = self.skill_table_view.model().index(i, 0)
+                if model_.data(idx, QtCore.Qt.UserRole) == skill_id:
+                    break
+            if idx.isValid():
+                sm_.setCurrentIndex(idx, (QtGui.QItemSelectionModel.Select |
+                                         QtGui.QItemSelectionModel.Rows))
 
     def act_buy_perk(self):
         dlg = dialogs.BuyPerkDialog(self.pc, self.sender().property('tag'),
@@ -1973,7 +1980,7 @@ class L5RMain(QtGui.QMainWindow):
         self.tx_armor_nm .setText( str(self.pc.get_armor_name())  )
         self.tx_base_tn  .setText( str(self.pc.get_base_tn())     )
         self.tx_armor_tn .setText( str(self.pc.get_armor_tn())    )
-        self.tx_armor_rd .setText( str(self.pc.get_armor_rd())    )
+        self.tx_armor_rd .setText( str(self.pc.get_full_rd())    )
         self.tx_cur_tn   .setText( str(self.pc.get_cur_tn())      )
         # armor description
         self.tx_armor_nm.setToolTip( str(self.pc.get_armor_desc()) )
@@ -2162,14 +2169,16 @@ class L5RMain(QtGui.QMainWindow):
             settings.setValue('last_open_dir', last_dir)
         return fileName[0]
 
-    def select_export_file(self):
+    def select_export_file(self, file_ext = '.txt'):
         char_name = self.pc.name
-
+        supported_ext     = ['.pdf']
+        supported_filters = ['PDF Files(*.pdf)']
+        selected_filter   = supported_ext.index(file_ext)
         settings = QtCore.QSettings()
         last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Export Character",
                                 os.path.join(last_dir,char_name),
-                                "Text files(*.txt)")
+                                ";;".join(supported_filters))
         if len(fileName) != 2:
             return ''
 
@@ -2177,9 +2186,9 @@ class L5RMain(QtGui.QMainWindow):
         if last_dir != '':
             settings.setValue('last_open_dir', last_dir)
 
-        if fileName[0].endswith('.txt'):
+        if fileName[0].endswith(file_ext):
             return fileName[0]
-        return fileName[0] + '.txt'
+        return fileName[0] + file_ext
 
     def check_updates(self):
         update_info = autoupdate.get_last_version()
@@ -2196,7 +2205,7 @@ class L5RMain(QtGui.QMainWindow):
             self.export_as_text(file_)
 
     def export_character_as_pdf(self):
-        file_ = self.select_export_file()
+        file_ = self.select_export_file(".pdf")
         if len(file_) > 0:
             self.export_as_pdf(file_)
             
