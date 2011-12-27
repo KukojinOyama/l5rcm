@@ -16,3 +16,4 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from exporters.textexporter import *
+from exporters.fdfexporter  import *
