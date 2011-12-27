@@ -105,7 +105,6 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
         self.items = []
         self.endResetModel()
 
-
     def build_item_model(self, sk_id):
         c = self.dbconn.cursor()
         itm = SkillItemModel()
@@ -129,3 +128,4 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
             itm.emph = model.get_skill_emphases(s)
             itm.is_school = (s in skills_id_s)
             self.add_item(itm)
+     
