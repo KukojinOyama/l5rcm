@@ -54,4 +54,14 @@ def get_skill_name(dbconn, skill_id):
     for uuid, name in c.fetchall():
         sk_name = name
     c.close()
-    return sk_name    
+    return sk_name
+    
+def get_school_name(dbconn, school_id):
+    c = dbconn.cursor()
+    c.execute('''select uuid, name from schools
+                 where uuid=?''', [school_id])
+    sk_name = None
+    for uuid, name in c.fetchall():
+        sk_name = name
+    c.close()
+    return sk_name

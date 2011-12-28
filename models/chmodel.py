@@ -225,7 +225,10 @@ class AdvancedPcModel(BasePcModel):
             if adv.type != 'attrib':
                 continue
             if adv.attrib == attrib: d += 1
-
+            
+        weakness_flaw = 'weak_%s' % attrib_name_from_id(attrib)
+        if self.has_rule(weakness_flaw):
+            return d-1
         return d
 
     def get_void_rank(self):
@@ -269,14 +272,7 @@ class AdvancedPcModel(BasePcModel):
                 continue
             rank += 1
         return rank
-
-    # DEPRECATED
-    #def get_perk_info(self, uuid):
-    #    for adv in self.advans:
-    #        if adv.type != 'perk' or adv.perk != uuid:
-    #            continue
-    #        return adv.rank, adv.cost, adv.tag, adv.extra
-
+        
     def get_honor(self):
         return self.step_2.honor + self.honor
 
@@ -284,6 +280,8 @@ class AdvancedPcModel(BasePcModel):
         return self.step_0.glory + self.glory
 
     def get_status(self):
+        if self.has_rule('social_disadvantage'):
+            return self.status
         return self.step_0.status + self.status
 
     def get_taint(self):

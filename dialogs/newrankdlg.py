@@ -64,7 +64,8 @@ what would you want to do?
     def join_new_school(self):
         dlg = SchoolChoiceDlg(self.pc, self.dbconn, self)
         if dlg.exec_() == QtGui.QDialog.Rejected:
-            self.reject()
+            #self.reject()
+            return
                    
         school_nm  = dlg.get_school_name()
         school_obj = models.CharacterSchool(dlg.get_school_id())        
@@ -164,6 +165,8 @@ class SchoolChoiceDlg(QtGui.QDialog):
         elif self.pc.has_tag('shugenja'):
             query += """ AND tag NOT LIKE '%bushi%'"""
         
+        query += """ order by name asc"""
+        
         c.execute(query, [self.cb_clan.itemData(idx_)])
         
         self.cb_school.clear()
@@ -178,8 +181,19 @@ class SchoolChoiceDlg(QtGui.QDialog):
         self.school_nm = self.cb_school.itemText(idx_)
         
         if self.school_id:
-            self.accept()
-        
+            unmatched = self.check_requirements(self.school_id)
+            if len(unmatched) == 0:
+                self.accept()
+            else:
+                msgBox = QtGui.QMessageBox(self)
+                msgBox.setWindowTitle('L5R: CM')
+                msgBox.setText("You don't have the requirements to join this school.")
+                msgBox.setInformativeText("You miss the following requirements\n" +
+                                          '\n'.join(unmatched))
+                msgBox.exec_()
+                
+                self.reject()
+                
     def get_school_id(self):
         return self.school_id
 
@@ -188,6 +202,57 @@ class SchoolChoiceDlg(QtGui.QDialog):
 
     def get_school_tags(self):
         return self.school_tg
+        
+    def check_requirements(self, school_id):
+        def requirement_to_string(rtype, rfield, min_, max_, trgt):
+            if rtype == 'ring' or rtype == 'trait' or rtype == 'skill':
+                return '%s: %s' % (rfield.capitalize(), min_)
+            if rtype == 'tag' or rtype == 'rule':
+                return rfield.replace('_' , ' ').capitalize()
+                
+        unmatched = []
+        
+        c = self.dbconn.cursor()
+        
+        query = """SELECT req_type, req_field,
+                   min_val, max_val, target_val
+                   FROM requirements WHERE
+                   ref_uuid=? order by req_type asc"""
+                   
+        c.execute(query, [school_id])
+        
+        self.pc_skills = {}
+        for sk_id in self.pc.get_skills():
+            self.pc_skills[sk_id] = self.pc.get_skill_rank(sk_id)
+        
+        for rtype, rfield, min_, max_, trgt in c.fetchall():
+            if not self.match_requirement(rtype, rfield, min_, max_, trgt):
+                unmatched.append( requirement_to_string(rtype, rfield, min_, max_, trgt) )
+        
+        c.close()
+        
+        return unmatched
+        
+    def match_requirement(self, rtype, rfield, min_, max_, trgt):
+        if rtype == 'ring':
+            ring_id = models.ring_from_name(rfield)
+            return self.pc.get_ring_rank(ring_id) >= min_
+        if rtype == 'trait':
+            trait_id = models.attrib_from_name(rfield)
+            return self.pc.get_attrib_rank(trait_id) >= min_
+        if rtype == 'skill':
+            skill_id = dbutil.get_skill_id_from_name(self.dbconn, rfield)
+            if not skill_id: return True
+            if (skill_id not in self.pc_skills or
+                self.pc_skills[skill_id] < min_):
+                return False
+            
+            self.pc_skills.pop(skill_id)
+            return True
+        if rtype == 'tag':
+            return self.pc.has_tag(rfield)
+        if rtype == 'rule':
+            return self.pc.has_rule(rfield)
         
 def test():
     import sys

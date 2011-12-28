@@ -530,49 +530,49 @@ spiritual
 Weakness (Stamina)
 physical
 6
--
+weak_stamina
 -
 #
 Weakness (Willpower)
 physical
 6
--
+weak_willpower
 -
 #
 Weakness (Strength)
 physical
 6
--
+weak_strength
 -
 #
 Weakness (Perception)
 physical
 6
--
+weak_perception
 -
 #
 Weakness (Reflexes)
 physical
 6
--
+weak_reflexes
 -
 #
 Weakness (Awareness)
 physical
 6
--
+weak_awareness
 -
 #
 Weakness (Agility)
 physical
 6
--
+weak_agility
 -
 #
 Weakness (Intelligence)
 physical
 6
--
+weak_intelligence
 -
 #
 Wrath of the Kami
