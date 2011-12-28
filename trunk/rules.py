@@ -107,4 +107,11 @@ def insight_calculation_3(model):
     n += 3*model.cnt_rule('ma_insight_plus_3')
     n += 3*model.cnt_rule('ma_insight_plus_7')
     
-    return n        
+    return n
+    
+def split_decimal(value):
+    import decimal
+    decimal.getcontext().prec = 2
+    d = decimal.Decimal(value)
+    i = int(d)
+    return (i, d-i)    
