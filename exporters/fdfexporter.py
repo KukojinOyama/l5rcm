@@ -17,6 +17,7 @@
 
 import string
 import models
+import rules
 import md5
 from datetime import datetime
 
@@ -68,12 +69,7 @@ class FDFExporter(object):
         
     def get_school_name(self):
         return self.form.cb_pc_school.currentText()
-        
-    def get_fullname(self):
-        if self.model.family:
-            return '%s %s' % (self.get_family_name(), self.model.name)
-        return self.model.name
-        
+                
     def get_exp(self):
         return '%s / %s' % (self.model.get_px(), self.model.exp_limit)
                         
@@ -87,7 +83,7 @@ class FDFExporterAll(FDFExporter):
         f = self.form
         
         fields = {}
-        fields['NAME'   ] = self.get_fullname    ()
+        fields['NAME'   ] = m.name
         fields['CLAN'   ] = self.get_clan_name   ()
         fields['RANK'   ] = m.get_insight_rank   ()
         fields['FAMILY' ] = self.get_family_name ()
@@ -101,27 +97,27 @@ class FDFExporterAll(FDFExporter):
         for i in xrange(0, 5):
             fields[models.ring_name_from_id(i).upper()] = m.get_ring_rank(i)
         
-        # HONOR, GLORY, STATUS, TAINT
-        fields['HONOR' ] = str(int(m.get_honor ()))
-        fields['GLORY' ] = str(int(m.get_glory ()))
-        fields['STATUS'] = str(int(m.get_status()))
-        fields['TAINT' ] = str(int(m.get_taint ()))
+        # HONOR, GLORY, STATUS, TAINT       
+        hvalue, hdots = rules.split_decimal(m.get_honor ())
+        gvalue, gdots = rules.split_decimal(m.get_glory ())
+        svalue, sdots = rules.split_decimal(m.get_status())
+        tvalue, tdots = rules.split_decimal(m.get_taint ())
         
-        hdots = int((m.get_honor () - int(m.get_honor ()))*10)
-        gdots = int((m.get_glory () - int(m.get_glory ()))*10)
-        sdots = int((m.get_status() - int(m.get_status()))*10)
-        tdots = int((m.get_taint () - int(m.get_taint ()))*10)
+        fields['HONOR' ] = hvalue
+        fields['GLORY' ] = gvalue
+        fields['STATUS'] = svalue
+        fields['TAINT' ] = tvalue
         
-        for i in xrange(1, hdots+1):
-            fields['HONOR_DOT.%d' % i ]  = 'S&#236'
+        for i in xrange(1, hdots*10+1):
+            fields['HONOR_DOT.%d' % i ]  = True
 
-        for i in xrange(1, gdots+1):
+        for i in xrange(1, gdots*10+1):
             fields['GLORY_DOT.%d' % i ]  = True
 
-        for i in xrange(1, sdots+1):
+        for i in xrange(1, sdots*10+1):
             fields['STATUS_DOT.%d' % i]  = True
 
-        for i in xrange(1, tdots+1):
+        for i in xrange(1, tdots*10+1):
             fields['TAINT_DOT.%d' % i ]  = True
             
         # INITIATIVE
@@ -142,7 +138,7 @@ class FDFExporterAll(FDFExporter):
         fields['ARMOR_NOTES'] = m.get_armor_desc   ()
         
         # WOUNDS
-        w_labels = ['HEALTY', 'NICKED', 'GRAZED', 
+        w_labels = ['HEALTHY', 'NICKED', 'GRAZED', 
                     'HURT', 'INJURED', 'CRIPPLED',
                     'DOWN', 'OUT']
         for i in xrange(0, len(w_labels)):
@@ -158,10 +154,11 @@ class FDFExporterAll(FDFExporter):
         count = min(23, len(f.sk_view_model.items))
         for i in xrange(1, count+1):
             sk = f.sk_view_model.items[i-1]
-            fields['SKILL_NAME.%d'    % i] = sk.name
-            fields['SKILL_RANK.%d'    % i] = sk.rank
-            fields['SKILL_TRAIT.%d'   % i] = sk.trait
-            fields['SKILL_EMPH_MA.%d' % i] = ', '.join(sk.emph)            
+            fields['SKILL_IS_SCHOOL.%d' % i] = sk.is_school
+            fields['SKILL_NAME.%d'    % i  ] = sk.name
+            fields['SKILL_RANK.%d'    % i  ] = sk.rank
+            fields['SKILL_TRAIT.%d'   % i  ] = sk.trait
+            fields['SKILL_EMPH_MA.%d' % i  ] = ', '.join(sk.emph)            
         
         # MERITS AND FLAWS
         merits = f.merits_view_model.items

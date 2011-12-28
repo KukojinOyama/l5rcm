@@ -26,6 +26,7 @@ ops      = [operator.add,operator.sub,operator.mul,operator.div]
 global explode 
 global print_cb
 global reroll_1
+global explode_once
 
 ''' Algorithms '''
 def set_reroll_1(flag):
@@ -35,6 +36,10 @@ def set_reroll_1(flag):
 def set_explode(value):
     global explode
     explode = value
+    
+def set_explode_once(value):
+    global explode_once
+    explode_once = value    
     
 def set_output_cb(cb):
     global print_cb
@@ -149,7 +154,7 @@ def roll_l5r_pool(pool, keep):
         roll     = 0
         tot_roll = 0
         while ( roll == 0 or roll >= explode ):
-            old_roll = roll
+            old_roll  = roll
             roll      = random.randint(1,10)
             tot_roll += roll
             while (reroll_1 and tot_roll == roll and 
@@ -161,6 +166,9 @@ def roll_l5r_pool(pool, keep):
             
             if old_roll >= explode:
                 out_print('exploded %d to %d' % (old_roll, tot_roll))
+            
+            if explode_once and tot_roll != roll:
+                break
                         
         #out_print('obtained %d' % tot_roll)        
         #print 'obtained ' + str(tot_roll)

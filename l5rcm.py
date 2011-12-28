@@ -108,13 +108,6 @@ def new_small_plus_bt(parent = None):
     bt.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
     return bt
 
-def split_decimal(value):
-    import decimal
-    decimal.getcontext().prec = 2
-    d = decimal.Decimal(value)
-    i = int(d)
-    return (i, d-i)
-
 def pause_signals(widgets):
     for w in widgets: w.blockSignals(True)
 
@@ -1921,7 +1914,7 @@ class L5RMain(QtGui.QMainWindow):
         self.void_points.set_value(value)
 
     def set_flag(self, flag, value):
-        rank, points = split_decimal(value)
+        rank, points = rules.split_decimal(value)
         # set rank
         self.pc_flags_rank[flag].setText( str(rank) )
         # set points
