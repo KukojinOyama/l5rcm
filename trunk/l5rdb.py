@@ -113,7 +113,7 @@ def create(dbfile):
         c.execute('''create table requirements
         (ref_uuid INTEGER, req_field VARCHAR, req_type VARCHAR,
          min_val INTEGER, max_val INTEGER, target_val TEXT,
-         PRIMARY KEY(ref_uuid, req_field))''')
+         PRIMARY KEY(ref_uuid, req_type, req_field))''')
         
         # cnt
         c.execute('''create table cnt
@@ -152,9 +152,10 @@ def non_query(conn, query, data = None, print_error = True):
     recs = 0
     try:
         if data is not None:
-            recs = c.execute(query, data)
+            c.execute(query, data)
         else:
-            recs = c.execute(query)
+            c.execute(query)
+        recs = c.rowcount
     except Exception as e:
         if print_error:
             trace_error(e)
@@ -204,6 +205,15 @@ def add_tag(dbconn, uuid, tag):
         print 'add tag %s to %d' % (tag, uuid)
     else:
         print 'tag %s already exists for uuid %d' % (tag, uuid)
+        
+def add_requirement(dbconn, uuid, req_type, req_field, 
+                    min_val = None, max_val = None, target_val = None):
+    if non_query(dbconn, '''insert into requirements values (?,?,?,?,?,?)''',
+                            [uuid, req_field, req_type,
+                            min_val, max_val, target_val]):
+        print 'add requirement %s' % repr( (uuid, req_type, req_field, min_val) )
+    else:
+        print 'this requirement already exists'
 
 def import_clans(dbconn, path):
     print 'import clans from %s' % path
@@ -281,12 +291,18 @@ def import_clan_schools(dbconn, clan, path):
         if not f.readline().startswith('#'): break
         name = f.readline().strip()
         tag = f.readline().strip()
-        perk, perkval = f.readline().split()
-        honor, honor_val = f.readline().split()
-        affin = f.readline().strip()
-        defic = f.readline().strip()
-        if affin.startswith('-'): affin = None
-        if defic.startswith('-'): defic = None
+        perkline = value_or_null(f.readline())
+        perk, perkval = None, None
+        honor, honor_val = None, None
+        if perkline:
+            perk, perkval = perkline.split()            
+        honorline = value_or_null(f.readline())    
+        if honorline:
+            honor, honor_val = honorline.split()
+        affin = value_or_null(f.readline())
+        defic = value_or_null(f.readline())
+        
+        print 'perkline: %s. perk: %s, perkval: %s' % (perkline, perk, perkval)
 
         uuid = get_cnt(dbconn, 'uuid')
         if non_query(dbconn, '''insert into schools values(?,?,?,?,?,?,?,?,?)''',
@@ -618,6 +634,60 @@ def import_categ_spells(dbconn, categ, path):
                 add_tag(dbconn, uuid, t.strip())
             
     f.close()  
+def import_schools_requirements(dbconn, categ, path):
+    print 'import school requirements from %s' % path
+    
+    f = open( path, 'rt' )
+    while True:
+        if not f.readline().startswith('#'): break
+        s_name       = value_or_null(f.readline())
+        req_rings    = value_or_null(f.readline())
+        req_traits   = value_or_null(f.readline())
+        req_skills   = value_or_null(f.readline())
+        req_tags     = value_or_null(f.readline())
+        req_rules    = value_or_null(f.readline())
+        
+        # get school uid
+        print 'search uuid for school %s' % s_name
+        s_uuid = query(dbconn, '''select uuid from schools where name=?''', [s_name])        
+        if s_uuid is not None and len(s_uuid) > 0:
+            s_uuid = s_uuid[0][0]        
+        else:
+            trace_error('cannot found uuid for school %s' % s_name)            
+        
+        if req_rings:
+            for tok in req_rings.split(','):
+                print 'this school requires %s' % tok
+                sub_tok = tok.split()            
+                add_requirement(dbconn, s_uuid, 'ring', sub_tok[0].strip(), 
+                                sub_tok[1].strip())
+
+        if req_traits:
+            for tok in req_traits.split(','):
+                print 'this school requires %s' % tok
+                sub_tok = tok.split()           
+                add_requirement(dbconn, s_uuid, 'trait', sub_tok[0].strip(), 
+                                sub_tok[1].strip())
+
+        if req_skills:
+            for tok in req_skills.split(','):
+                print 'this school requires %s' % tok
+                sub_tok = tok.split()
+                add_requirement(dbconn, s_uuid, 'skill', 
+                                sub_tok[0].strip().replace('_', ' '), 
+                                sub_tok[1].strip())
+
+        if req_tags:
+            for tok in req_tags.split(','):
+                print 'this school requires %s' % tok            
+                add_requirement(dbconn, s_uuid, 'tag', tok.strip())
+
+        if req_rules:
+            for tok in req_rules.split(','):
+                print 'this school requires %s' % tok            
+                add_requirement(dbconn, s_uuid, 'rule', tok.strip())
+                            
+    f.close()      
     
 def import_categ_data(conn, path, func):
     for path, dirs, files in os.walk(path):
@@ -655,7 +725,13 @@ def importdb(conn, path):
     
     # SKILL MASTERY ABILITIES
     import_categ_data(conn, os.path.join(path, 'mastery_abilities'), import_categ_mastery_abilities)        
-    conn.commit()
+    
+    # ADVANCED SCHOOOLS
+    import_categ_data(conn, os.path.join(path, 'advanced_schools'), import_clan_schools)
+    import_categ_data(conn, os.path.join(path, 'school_requirements'), import_schools_requirements)
+    import_categ_data(conn, os.path.join(path, 'advanced_school_techs'), import_clan_school_techs)
+    
+    conn.commit()    
 
 ### MAIN ###
 

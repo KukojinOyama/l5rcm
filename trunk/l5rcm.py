@@ -42,7 +42,6 @@ AUTHOR_NAME       = 'Daniele Simonetti'
 L5R_RPG_HOME_PAGE = 'http://www.l5r.com/rpg/'
 ALDERAC_HOME_PAGE = 'http://www.alderac.com/'
 
-
 MY_CWD        = os.getcwd()
 if not os.path.exists( os.path.join( MY_CWD, 'share/l5rcm') ):
     MY_CWD = sys.path[0]
@@ -1843,9 +1842,13 @@ class L5RMain(QtGui.QMainWindow):
         self.cb_pc_school.clear()
         if clan_id <= 0:
             c.execute('''select uuid, name from schools
+                         where NOT EXISTS (select ref_uuid from requirements
+                                           where ref_uuid=uuid)
                          order by name asc''')
         else:
             c.execute('''select uuid, name from schools where clan_id=?
+                         AND NOT EXISTS (select ref_uuid from requirements
+                                         where ref_uuid=uuid)            
                          order by name asc''',
                          [clan_id])
 
@@ -1903,11 +1906,22 @@ class L5RMain(QtGui.QMainWindow):
             
         print 'set school to %s, current school is %s' % (school_id, s_uuid)
         
+        found = False
+        self.cb_pc_school.blockSignals(True)
         for i in xrange(0, self.cb_pc_school.count()):
             if self.cb_pc_school.itemData(i) == school_id:
                 self.cb_pc_school.setCurrentIndex(i)
-                return
-
+                found = True
+                break
+                
+        if not found:
+            self.cb_pc_school.addItem(
+                 dbutil.get_school_name(self.db_conn, school_id),
+                 school_id)
+            #self.cb_pc_school.setCurrentIndex(self.cb_pc_school.count()-1)
+        
+        self.cb_pc_school.blockSignals(False)
+        
     def set_void_points(self, value):
         if self.void_points.value == value:
             return
