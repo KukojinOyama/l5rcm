@@ -54,6 +54,12 @@ class PerkAdv(Advancement):
         self.rank  = rank
         self.tag   = tag
         self.extra = ''
+        
+class KataAdv(Advancement):        
+    def __init__(self, kata_id, rule, cost):
+        super(KataAdv, self).__init__('kata', cost)        
+        self.kata = kata_id
+        self.rule = rule
 
 class AdvancementViewModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):

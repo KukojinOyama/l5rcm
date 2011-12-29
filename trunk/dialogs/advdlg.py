@@ -18,6 +18,7 @@
 import models.advances as advances
 import models
 import dbutil
+import string
 
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
@@ -49,7 +50,7 @@ class BuyAdvDialog(QtGui.QDialog):
         labels = dict(attrib=('Choose Attribute'   ,  None),
                       skill= ('Choose Skill Type'  , 'Choose Skill'),
                       emph=  ('Choose Skill'       , 'Choose Emphasis'),
-                      kata=  ('Choose Kata'        , None),
+                      kata=  ('Choose Kata'        , 'Description'),
                       kiho=  ('Choose Kiho'        , None),
                       spell= ('Choose Spell'       , None))
 
@@ -58,7 +59,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.widgets = dict(attrib=(QtGui.QComboBox(self), None),
                             skill =(QtGui.QComboBox(self), QtGui.QComboBox(self)),
                             emph  =(QtGui.QComboBox(self), QtGui.QLineEdit(self)),
-                            kata  =(None, None),
+                            kata  =(QtGui.QComboBox(self), QtGui.QTextEdit(self)),
                             kiho  =(None, None),
                             spell =(None, None))
 
@@ -117,6 +118,19 @@ class BuyAdvDialog(QtGui.QDialog):
             self.lb_cost.setText('Cost: 2 exp')
             self.lb_from.setVisible(False)
             c.close()
+        elif self.tag == 'kata':
+            cb = self.widgets[self.tag][0]
+            te = self.widgets[self.tag][1]
+            
+            te.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
+            te.setReadOnly(True)
+            
+            c = self.dbconn.cursor()
+            c.execute('''select uuid, name from kata order by mastery asc''')            
+            for uuid, name in c.fetchall():
+                if not self.pc.has_kata(uuid):
+                    cb.addItem( name, uuid )
+            c.close()            
 
     def connect_signals(self):
         if self.tag == 'attrib':
@@ -127,6 +141,9 @@ class BuyAdvDialog(QtGui.QDialog):
             cb2 = self.widgets[self.tag][1]
             cb1.currentIndexChanged.connect( self.on_skill_type_select )
             cb2.currentIndexChanged.connect( self.on_skill_select )
+        elif self.tag == 'kata':
+            cb = self.widgets[self.tag][0]
+            cb.currentIndexChanged.connect( self.on_kata_select )
 
         self.bt_buy.clicked.connect  ( self.buy_advancement )
         self.bt_close.clicked.connect( self.close           )
@@ -208,6 +225,56 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv = advances.SkillAdv(uuid, cost)
         self.adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, uuid, new_value)
         self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+        
+    def on_kata_select(self, text = ''):
+        cb  = self.widgets['kata'][0]
+        te  = self.widgets['kata'][1]
+        idx  = cb.currentIndex()
+        uuid = cb.itemData(idx)
+        text = cb.itemText(idx)
+        
+        name, ring, mastery, rule, desc = dbutil.get_kata_info(self.dbconn, uuid)
+        requirements = dbutil.get_requirements(self.dbconn, uuid, 'tag')
+        
+        self.lb_from.setText('Mastery: %s %s' % (ring, mastery))
+        self.lb_cost.setText('Cost: %d exp' % mastery)
+        
+        # te.setText("")
+        html = str.format("<p><em>{0}</em></p>", desc)        
+        
+        # CHECK REQUIREMENTS
+        ring_id  = models.ring_from_name(ring.lower())
+        ring_val = self.pc.get_ring_rank(ring_id)
+        
+        self.adv = None
+        
+        ok = len(requirements) == 0
+        for req in requirements:
+            if self.pc.has_tag(req['field']):
+                ok = True
+                break        
+        
+        if not ok:
+            html += (
+                    "<p><strong>"
+                    "To Buy this kata you need to match "
+                    "at least one of there requirements:"
+                    "</strong></p>")
+                    
+            html += str.format("<p><ul>{0}</ul></p>", 
+                          ''.join(['<li>%s</li>' % string.capwords(x['field'])
+                                  for x in requirements]))
+                     
+        ok = ok and ring_val >= mastery                     
+        if not ok:
+            html += str.format("\n<p>You need a value of {0} in your {1} Ring</p>",
+                               mastery, ring)
+        else:
+            self.adv = models.KataAdv(uuid, rule, mastery)
+            self.adv.desc = '%s, Cost: %d xp' % ( name, mastery )
+            
+        self.bt_buy.setEnabled(ok)           
+        te.setHtml(html)
 
     def buy_advancement(self):
 
@@ -236,6 +303,10 @@ class BuyAdvDialog(QtGui.QDialog):
             self.adv.desc = '%s, Skill %s. Cost: 2 xp' % ( tx.text(), sk_name )
             self.pc.add_advancement( self.adv )
             tx.setText('')
+        elif self.tag == 'kata':
+            self.pc.add_advancement( self.adv )
+            cb = self.widgets[self.tag][0]
+            cb.removeItem(cb.currentIndex())
 
 def check_all_done(cb_list):
     # check that all the choice have been made
@@ -367,8 +438,7 @@ class SelWcSkills(QtGui.QDialog):
             break
         c.close()
         return sk_name
-
-
+        
     def connect_signals(self):
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )

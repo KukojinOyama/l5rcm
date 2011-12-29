@@ -65,3 +65,35 @@ def get_school_name(dbconn, school_id):
         sk_name = name
     c.close()
     return sk_name
+    
+def get_kata_info(dbconn, uuid):
+    c = dbconn.cursor()
+    c.execute('''select name, ring, mastery, rule, desc
+                 from kata
+                 where uuid=?''', [uuid])    
+    for name, ring, mastery, rule, desc in c.fetchall():  
+        c.close()
+        return name, ring, mastery, rule, desc
+        
+def get_requirements(dbconn, uuid, filter_type = None):
+    ret = []
+    c = dbconn.cursor()
+    query = '''select * from requirements where ref_uuid=?'''
+    if filter_type:
+        c.execute(query + ' and req_type=?', [uuid, filter_type])
+    else:
+        c.execute(query, [uuid])
+        
+    for record in c.fetchall():
+        rec = {}
+        #ref_uuid INTEGER, req_field VARCHAR, req_type VARCHAR,
+        #min_val INTEGER, max_val INTEGER, target_val
+        rec['field' ] = record[1]
+        rec['type'  ] = record[2]
+        rec['min'   ] = record[3]
+        rec['max'   ] = record[4]
+        rec['target'] = record[5]
+        ret.append(rec)
+    
+    c.close()
+    return ret
