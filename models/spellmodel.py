@@ -26,6 +26,7 @@ class SpellItemModel(object):
         self.area      = ''
         self.duration  = ''
         self.raises    = ''
+        self.learned   = False
         self.is_school = False
         self.tags      = []
 

@@ -181,7 +181,6 @@ class AdvancedPcModel(BasePcModel):
 
         self.armor      = None
         self.weapons    = []
-        
         self.schools    = []
 
         self.mastery_abilities = []
@@ -449,7 +448,25 @@ class AdvancedPcModel(BasePcModel):
             if adv.type != 'perk' or adv.cost > 0:
                 continue
             yield adv
+            
+    def get_kata(self):
+        for adv in self.advans:
+            if adv.type != 'kata':
+                continue
+            yield adv
 
+    def get_kiho(self):
+        for adv in self.advans:
+            if adv.type != 'kiho':
+                continue
+            yield adv
+            
+    def has_kata(self, kata_id):
+        for adv in self.advans:
+            if adv.type == 'kata' and kata_id == adv.kata:
+                return True
+        return False
+        
     def has_tag(self, tag):
         school_tags = []
         for s in self.schools:

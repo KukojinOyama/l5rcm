@@ -52,7 +52,17 @@ def create(dbfile):
         # spells
         c.execute('''create table spells
         (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, ring TEXT, mastery INTEGER,
-         range TEXT, area TEXT, duration TEXT, raises TEXT)''')        
+         range TEXT, area TEXT, duration TEXT, raises TEXT)''')
+         
+        # kata
+        c.execute('''create table kata
+        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, ring VARCHAR,
+         mastery INTEGER, rule VARCHAR, desc TEXT)''')
+         
+        # kiho
+        c.execute('''create table kiho
+        (uuid INTEGER PRIMARY KEY, name TEXT UNIQUE, ring VARCHAR,
+         mastery INTEGER, rule VARCHAR, tag VARCHAR, desc TEXT)''')
         
         # mastery abilities
         c.execute('''create table mastery_abilities
@@ -559,7 +569,32 @@ def import_perks(dbconn, path, ttype):
                 rank += 1
                              
             print 'imported %s %s with uuid %s' % (ttype, name, uuid)
-    f.close()    
+    f.close()
+    
+def import_katas(dbconn, path):
+    print 'import katas from %s' % path
+    f = open( os.path.join(path, 'data'), 'rt' )
+    while True:
+        if not f.readline().startswith('#'): break
+        name    = value_or_null(f.readline())
+        ring_ma = value_or_null(f.readline())
+        reqs    = value_or_null(f.readline())
+        rule    = value_or_null(f.readline())
+        desc    = value_or_null(f.readline())
+        
+        ring, mastery = ring_ma.split()
+               
+        uuid = get_cnt(dbconn, 'uuid')
+        if non_query(dbconn, '''insert into kata values(?,?,?,?,?,?)''',
+                             [uuid,name,ring.strip(),mastery.strip(),rule,desc]):
+                             
+            # add requisites
+            if reqs:
+                for tag in reqs.split(','):
+                    add_requirement(dbconn, uuid, 'tag', tag.strip().lower())
+                             
+            print 'imported %s with uuid %s' % (name, uuid)
+    f.close()      
 
 def import_categ_mastery_abilities(dbconn, categ, path):
     print 'import mastery abilities from %s' % path
@@ -730,6 +765,9 @@ def importdb(conn, path):
     import_categ_data(conn, os.path.join(path, 'advanced_schools'), import_clan_schools)
     import_categ_data(conn, os.path.join(path, 'school_requirements'), import_schools_requirements)
     import_categ_data(conn, os.path.join(path, 'advanced_school_techs'), import_clan_school_techs)
+    
+    # KATA
+    import_katas(conn, os.path.join(path, 'kata'))
     
     conn.commit()    
 

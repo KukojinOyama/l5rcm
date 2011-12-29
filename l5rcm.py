@@ -823,7 +823,7 @@ class L5RMain(QtGui.QMainWindow):
         buyemph_act  = QtGui.QAction(u'Skill emphasis...', self)
         buymerit_act = QtGui.QAction(u'Advantage...', self)
         buyflaw_act  = QtGui.QAction(u'Disadvantage...', self)
-        # buykata_act  = QtGui.QAction(u'Kata...', self)
+        buykata_act  = QtGui.QAction(u'Kata...', self)
         # buykiho_act  = QtGui.QAction(u'Kiho...', self)
 
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
@@ -834,7 +834,7 @@ class L5RMain(QtGui.QMainWindow):
         buyemph_act .setProperty('tag', 'emph'  )
         buymerit_act.setProperty('tag', 'merit' )
         buyflaw_act .setProperty('tag', 'flaw'  )
-        # buykata_act .setProperty('tag', 'kata'  )
+        buykata_act .setProperty('tag', 'kata'  )
         # buykiho_act .setProperty('tag', 'kiho'  )
 
         m_buy_adv.addAction(buyattr_act )
@@ -843,7 +843,7 @@ class L5RMain(QtGui.QMainWindow):
         m_buy_adv.addAction(buyemph_act )
         m_buy_adv.addAction(buymerit_act)
         m_buy_adv.addAction(buyflaw_act )
-        # m_buy_adv.addAction(buykata_act )
+        m_buy_adv.addAction(buykata_act )
 
         m_adv    .addSeparator()
         m_adv    .addAction(viewadv_act )
@@ -860,7 +860,7 @@ class L5RMain(QtGui.QMainWindow):
         buyvoid_act .triggered.connect( self.act_buy_advancement )
         buyskill_act.triggered.connect( self.act_buy_advancement )
         buyemph_act .triggered.connect( self.act_buy_advancement )
-        # buykata_act .triggered.connect( self.act_buy_advancement )
+        buykata_act .triggered.connect( self.act_buy_advancement )
         # buykiho_act .triggered.connect( self.act_buy_advancement )
 
         buymerit_act.triggered.connect( self.act_buy_perk )
@@ -1257,13 +1257,19 @@ class L5RMain(QtGui.QMainWindow):
 
         # should modify step_2 character
         # get school perk
-
+        
         c = self.db_conn.cursor()
         c.execute('''select name, perk, perkval, honor, tag from schools
                      where uuid=?''', [uuid])
         name, perk, perkval, honor, tag = c.fetchone()
-        self.pc.set_school( uuid, perk, perkval, honor, 
-                            [name.lower()] + tag.split(';') )
+        
+        school_tags = [ x.strip() for x in tag.split(';') ]
+        clan_tag = str.format('{0} {1}', self.cb_pc_clan.currentText(),
+                                         school_tags[0])
+        school_tags.append(clan_tag.lower())
+        school_tags.append(name.lower())
+        
+        self.pc.set_school( uuid, perk, perkval, honor, school_tags)
 
         c.execute('''select skill_uuid, skill_rank, wildcard, emphases
                      from school_skills
@@ -1285,7 +1291,7 @@ class L5RMain(QtGui.QMainWindow):
         # if shugenja get universal spells
         # also player should choose some spells from list
 
-        if tag == 'shugenja':
+        if 'shugenja' in tag:
             count = 0
             c.execute('''select spell_uuid, wildcard from school_spells
                       where school_uuid=?''', [uuid])
