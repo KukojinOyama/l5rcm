@@ -218,12 +218,12 @@ class L5RCMCore(object):
         adv = models.VoidAdv(cost)
         adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
-            QtGui.QMessageBox.warning(self, "Not enough XP",
-            "Cannot purchase.\nYou've reached the XP Limit.")
-            return
+            return CMErrors.NOT_ENOUGH_XP
 
         self.pc.add_advancement( adv )
         self.update_from_model()
+        
+        return CMErrors.NO_ERROR
 
     def set_exp_limit(self, val):
         self.pc.exp_limit = val

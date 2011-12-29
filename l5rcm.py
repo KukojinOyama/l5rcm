@@ -1021,7 +1021,8 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
 
     def on_void_increase(self):
         '''raised when user click on the small '+' button near void ring'''
-        self.increase_void()
+        if ( self.increase_void() == CMErrors.NOT_ENOUGH_XP ):
+             self.not_enough_xp_advise(self)        
 
     def on_set_exp_limit(self):
         ok = False
