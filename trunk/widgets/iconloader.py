@@ -109,13 +109,13 @@ class QtIconLoaderImplementation():
         if themeIndex.exists():
             indexReader = QSettings(themeIndex.fileName(), QSettings.IniFormat)
             for key in indexReader.allKeys():
-                if key.endsWith("/Size"):
-                    size = indexReader.value(key).toInt()
-                    if size[1]:
+                if key.endswith("/Size"):
+                    size = indexReader.value(key)		    
+                    if len(size) > 1 and size[1]:
                         if size[0] not in dirList:
                             dirList[size[0]] = []
                         dirList[size[0]].append(key[:-5])
-            parents = indexReader.value("Icon Theme/Inherits").toStringList()
+            parents = indexReader.value("Icon Theme/Inherits") or []
         if _kdeVersion() >= 3:
             fileInfo = QFileInfo("/usr/share/icons/default.kde4")
             dir_ = QDir(fileInfo.canonicalFilePath())
