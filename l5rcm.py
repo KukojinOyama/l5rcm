@@ -118,7 +118,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         if geo is not None:
             self.restoreGeometry(geo)
         
-        self.ic_idx = settings.value('insight_calculation', 1)-1
+        self.ic_idx = int(settings.value('insight_calculation', 1))-1
         ic_calcs    = [rules.insight_calculation_1,
                        rules.insight_calculation_2,
                        rules.insight_calculation_3]
