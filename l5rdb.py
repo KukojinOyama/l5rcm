@@ -681,6 +681,7 @@ def import_schools_requirements(dbconn, categ, path):
         req_skills   = value_or_null(f.readline())
         req_tags     = value_or_null(f.readline())
         req_rules    = value_or_null(f.readline())
+        more         = value_or_null(f.readline())
         
         # get school uid
         print 'search uuid for school %s' % s_name
