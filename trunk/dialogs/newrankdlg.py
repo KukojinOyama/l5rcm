@@ -132,12 +132,21 @@ class SchoolChoiceDlg(QtGui.QDialog):
         hb_.addWidget(self.cb_clan)        
         vbox.addWidget(grp_)
         
-        self.cb_clan.currentIndexChanged.connect(self.on_clan_change)
+        self.cb_clan.currentIndexChanged.connect(self.on_clan_change)        
         
         grp_ = QtGui.QGroupBox("School", self)
         hb_  = QtGui.QHBoxLayout(grp_)
         self.cb_school = QtGui.QComboBox(self)
         hb_.addWidget(self.cb_school)        
+        vbox.addWidget(grp_)
+        
+        self.cb_school.currentIndexChanged.connect(self.on_school_change)        
+
+        grp_ = QtGui.QGroupBox("Notes", self)
+        hb_  = QtGui.QHBoxLayout(grp_)
+        self.te_notes = QtGui.QTextEdit(self)
+        self.te_notes.setReadOnly(True)
+        hb_.addWidget(self.te_notes)        
         vbox.addWidget(grp_)
         
         self.bt_ok = QtGui.QPushButton("Confirm", self)
@@ -175,6 +184,22 @@ class SchoolChoiceDlg(QtGui.QDialog):
             
         c.close()
         
+    def on_school_change(self):
+        idx_ = self.cb_school.currentIndex()       
+        c = self.dbconn.cursor()
+        school_id = self.cb_school.itemData(idx_)
+        
+        query = """SELECT req_field, target_val
+                   FROM requirements WHERE
+                   ref_uuid=? AND req_type=? 
+                   order by req_type asc"""
+                   
+        c.execute(query, [school_id, 'more'])
+        self.te_notes.setHtml("")
+        for req_field, target_val in c.fetchall():
+            self.te_notes.setHtml(str.format(
+            "<em>{0}</em>", target_val))
+        
     def on_accept(self):
         idx_           = self.cb_school.currentIndex()
         self.school_id = self.cb_school.itemData(idx_)
@@ -182,6 +207,7 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
         if self.school_id:
             unmatched = self.check_requirements(self.school_id)
+
             if len(unmatched) == 0:
                 self.accept()
             else:
@@ -210,6 +236,15 @@ class SchoolChoiceDlg(QtGui.QDialog):
             if rtype == 'tag' or rtype == 'rule':
                 return rfield.replace('_' , ' ').capitalize()
                 
+        def wc_requirement_to_string(rtype, rfield, min_, max_, trgt):
+            if rtype == 'ring' and rfield == '*any':
+                return 'Any ring: %s' % min_
+            if rtype == 'trait' and rfield == '*any':
+                return 'Any trait: %s' % min_
+            if rtype == 'skill' and rfield == '*any':
+                return 'Any skill: %s' % min_
+            return "N/A"
+                
         unmatched = []
         
         c = self.dbconn.cursor()
@@ -222,12 +257,29 @@ class SchoolChoiceDlg(QtGui.QDialog):
         c.execute(query, [school_id])
         
         self.pc_skills = {}
+        self.pc_rings  = []
+        self.pc_traits = []
+        
         for sk_id in self.pc.get_skills():
             self.pc_skills[sk_id] = self.pc.get_skill_rank(sk_id)
+            
+        for i in xrange(0, 5):
+            self.pc_rings.append((i, self.pc.get_ring_rank(i)))
+            
+        for i in xrange(0, 8):
+            self.pc_traits.append((i, self.pc.get_attrib_rank(i)))
         
         for rtype, rfield, min_, max_, trgt in c.fetchall():
-            if not self.match_requirement(rtype, rfield, min_, max_, trgt):
-                unmatched.append( requirement_to_string(rtype, rfield, min_, max_, trgt) )
+            if rfield.startswith('*'):
+                if not self.match_wc_requirement(rtype, rfield, min_, max_, trgt): 
+                    print (rtype, rfield, min_, max_, trgt),
+                    print " => " + wc_requirement_to_string(rtype, rfield, min_, max_, trgt)
+                    unmatched.append( wc_requirement_to_string(rtype, rfield, min_, max_, trgt) )
+            else:
+                if not self.match_requirement(rtype, rfield, min_, max_, trgt):
+                    print (rtype, rfield, min_, max_, trgt),
+                    print " => " + requirement_to_string(rtype, rfield, min_, max_, trgt)
+                    unmatched.append( requirement_to_string(rtype, rfield, min_, max_, trgt) )
         
         c.close()
         
@@ -253,6 +305,38 @@ class SchoolChoiceDlg(QtGui.QDialog):
             return self.pc.has_tag(rfield)
         if rtype == 'rule':
             return self.pc.has_rule(rfield)
+        return True
+            
+    def match_wc_requirement(self, rtype, rfield, min_, max_, trgt):
+        got_req = -1
+        if rtype == 'ring':
+            if rfield == '*any': # any ring                
+                for i in xrange(0, len(self.pc_rings)):
+                    if self.pc_rings[i][1] >= min_:
+                        got_req = i
+            if got_req >= 0:
+                del self.pc_rings[got_req]
+                return True            
+            return False
+        if rtype == 'trait':
+            if rfield == '*any': # any trait
+                for i in xrange(0, len(self.pc_traits)):
+                    if self.pc_traits[i][1] >= min_:
+                        got_req = i
+            if got_req >= 0:
+                del self.pc_traits[got_req]
+                return True                 
+            return False
+        if rtype == 'skill':
+            if rfield == '*any': # any skills
+                for k in self.pc_skills.iterkeys():
+                    if self.pc_skills[k] >= min_:
+                        got_req = k
+            if got_req >= 0:
+                self.pc_skills.pop(got_req)
+                return True  
+            return False
+        return True
         
 def test():
     import sys
