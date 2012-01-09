@@ -122,8 +122,9 @@ def create(dbfile):
         # requirements
         c.execute('''create table requirements
         (ref_uuid INTEGER, req_field VARCHAR, req_type VARCHAR,
-         min_val INTEGER, max_val INTEGER, target_val TEXT,
-         PRIMARY KEY(ref_uuid, req_type, req_field))''')
+         min_val INTEGER, max_val INTEGER, target_val TEXT)''')
+        
+        # PRIMARY KEY(ref_uuid, req_type, req_field)
         
         # cnt
         c.execute('''create table cnt
@@ -221,7 +222,7 @@ def add_requirement(dbconn, uuid, req_type, req_field,
     if non_query(dbconn, '''insert into requirements values (?,?,?,?,?,?)''',
                             [uuid, req_field, req_type,
                             min_val, max_val, target_val]):
-        print 'add requirement %s' % repr( (uuid, req_type, req_field, min_val) )
+        print 'add requirement %s' % repr( (uuid, req_type, req_field, min_val, max_val, target_val) )
     else:
         print 'this requirement already exists'
 
@@ -709,9 +710,18 @@ def import_schools_requirements(dbconn, categ, path):
             for tok in req_skills.split(','):
                 print 'this school requires %s' % tok
                 sub_tok = tok.split()
+                sk_name = sub_tok[0].strip().replace('_', ' ')
+                sk_emph = None
+                sk_rank = 0
+                if len(sub_tok) == 3:
+                    sk_emph = sub_tok[1].strip().replace('_', ' ')[1:-1]
+                    sk_rank = sub_tok[2].strip()
+                else:
+                    sk_rank = sub_tok[1].strip()
+                    
                 add_requirement(dbconn, s_uuid, 'skill', 
-                                sub_tok[0].strip().replace('_', ' '), 
-                                sub_tok[1].strip())
+                                sk_name, 
+                                sk_rank, None, sk_emph)
 
         if req_tags:
             for tok in req_tags.split(','):

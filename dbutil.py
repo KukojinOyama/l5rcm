@@ -97,3 +97,14 @@ def get_requirements(dbconn, uuid, filter_type = None):
     
     c.close()
     return ret
+
+def has_tag(dbconn, uuid, target_tag):
+    c = dbconn.cursor()
+    query = '''SELECT * from tags where uuid=?
+               AND tag=?'''
+    c.execute(query, [uuid, target_tag])
+    got = c.fetchone()
+    c.close()
+    
+    return got != None
+    

@@ -82,7 +82,6 @@ what would you want to do?
                    FROM perks
                    INNER JOIN perk_ranks ON perks.uuid=perk_ranks.perk_uuid
                    WHERE perk_ranks.perk_rank=1 AND perks.name=?'''
-                   
         
         c.execute(query, ["Multiple Schools"])
         try:
@@ -179,8 +178,15 @@ class SchoolChoiceDlg(QtGui.QDialog):
         c.execute(query, [self.cb_clan.itemData(idx_)])
         
         self.cb_school.clear()
+        def has_school(uuid):
+            for s in self.pc.schools:
+                if s.school_id == uuid:
+                    return True
+            return False
+            
         for uuid, name in c.fetchall():
-            self.cb_school.addItem(name, uuid)
+            if not has_school(uuid):
+                self.cb_school.addItem(name, uuid)
             
         c.close()
         
@@ -231,8 +237,14 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
     def check_requirements(self, school_id):
         def requirement_to_string(rtype, rfield, min_, max_, trgt):
-            if rtype == 'ring' or rtype == 'trait' or rtype == 'skill':
+            if rtype == 'ring' or rtype == 'trait':
                 return '%s: %s' % (rfield.capitalize(), min_)
+            if rtype == 'skill':
+                rfield = rfield.replace(';', ' or ')
+                if trgt:
+                    return '%s (%s): %s' % (rfield.capitalize(), trgt, min_)
+                else:
+                    return '%s %s' % (rfield.capitalize(), min_)
             if rtype == 'tag' or rtype == 'rule':
                 return rfield.replace('_' , ' ').capitalize()
                 
@@ -243,6 +255,9 @@ class SchoolChoiceDlg(QtGui.QDialog):
                 return 'Any trait: %s' % min_
             if rtype == 'skill' and rfield == '*any':
                 return 'Any skill: %s' % min_
+            elif rtype == 'skill':
+                tag = rfield[1:].capitalize()
+                return 'Any %s skill: %s' % (tag, min_)
             return "N/A"
                 
         unmatched = []
@@ -270,15 +285,12 @@ class SchoolChoiceDlg(QtGui.QDialog):
             self.pc_traits.append((i, self.pc.get_attrib_rank(i)))
         
         for rtype, rfield, min_, max_, trgt in c.fetchall():
-            if rfield.startswith('*'):
-                if not self.match_wc_requirement(rtype, rfield, min_, max_, trgt): 
-                    print (rtype, rfield, min_, max_, trgt),
-                    print " => " + wc_requirement_to_string(rtype, rfield, min_, max_, trgt)
+            print (rtype, rfield, min_, max_, trgt)
+            if rfield.startswith('*'):            
+                if not self.match_wc_requirement(rtype, rfield, min_, max_, trgt):                     
                     unmatched.append( wc_requirement_to_string(rtype, rfield, min_, max_, trgt) )
             else:
                 if not self.match_requirement(rtype, rfield, min_, max_, trgt):
-                    print (rtype, rfield, min_, max_, trgt),
-                    print " => " + requirement_to_string(rtype, rfield, min_, max_, trgt)
                     unmatched.append( requirement_to_string(rtype, rfield, min_, max_, trgt) )
         
         c.close()
@@ -286,6 +298,12 @@ class SchoolChoiceDlg(QtGui.QDialog):
         return unmatched
         
     def match_requirement(self, rtype, rfield, min_, max_, trgt):
+        if rfield == 'honor':
+            return self.pc.get_honor() > min_
+        if rfield == 'status':
+            return self.pc.get_status() > min_
+        if rfield == 'glory':
+            return self.pc.get_glory() > min_        
         if rtype == 'ring':
             ring_id = models.ring_from_name(rfield)
             return self.pc.get_ring_rank(ring_id) >= min_
@@ -293,8 +311,18 @@ class SchoolChoiceDlg(QtGui.QDialog):
             trait_id = models.attrib_from_name(rfield)
             return self.pc.get_attrib_rank(trait_id) >= min_
         if rtype == 'skill':
+            or_skills = rfield.split(';')
+            if len(or_skills) > 1:
+                ret = False
+                for sk in or_skills:
+                    ret = self.match_requirement(rtype, sk, min_, max_, trgt)
+                    if ret: return True
+                return False
+                
             skill_id = dbutil.get_skill_id_from_name(self.dbconn, rfield)
             if not skill_id: return True
+            if trgt and trgt not in self.pc.get_skill_emphases(skill_id):
+                return False # missing emphases
             if (skill_id not in self.pc_skills or
                 self.pc_skills[skill_id] < min_):
                 return False
@@ -332,6 +360,14 @@ class SchoolChoiceDlg(QtGui.QDialog):
                 for k in self.pc_skills.iterkeys():
                     if self.pc_skills[k] >= min_:
                         got_req = k
+            else:
+                tag = rfield[1:]
+                for k in self.pc_skills.iterkeys():
+                    if not dbutil.has_tag(self.dbconn, k, tag):
+                        continue
+                    if self.pc_skills[k] >= min_:
+                        got_req = k
+                        
             if got_req >= 0:
                 self.pc_skills.pop(got_req)
                 return True  
