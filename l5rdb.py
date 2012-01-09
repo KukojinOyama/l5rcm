@@ -720,8 +720,11 @@ def import_schools_requirements(dbconn, categ, path):
 
         if req_rules:
             for tok in req_rules.split(','):
-                print 'this school requires %s' % tok            
+                print 'this school requires %s' % tok
                 add_requirement(dbconn, s_uuid, 'rule', tok.strip())
+                
+        if more:
+            add_requirement(dbconn, s_uuid, 'more', 'rpg', None, None, more.strip())
                             
     f.close()      
     
