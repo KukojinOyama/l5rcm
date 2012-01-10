@@ -196,7 +196,7 @@ class AdvancedPcModel(BasePcModel):
         self.unlock_schools = False
         self.extra_notes = ''
         self.insight_calculation = None
-
+        
     def load_default(self):
         self.step_0.load_default()
 
@@ -430,7 +430,13 @@ class AdvancedPcModel(BasePcModel):
         for s in self.schools:
             ls += s.spells
         return ls
-
+        
+    def get_memorized_spells(self):
+        for adv in self.advans:
+            if adv.type != 'memo_spell':
+                continue
+            yield adv.spell
+            
     def get_perks(self):
         for adv in self.advans:
             if adv.type != 'perk':
@@ -541,6 +547,13 @@ class AdvancedPcModel(BasePcModel):
                 if count <= 0:
                     break
             print 'now i got %s spells' % len(self.get_spells())
+            
+    def remove_spell(self, spell_id):
+        for s in self.schools:
+            try:
+                s.spells.remove(spell_id)
+            except:
+                pass
         
     def get_weapons(self):
         return self.weapons
@@ -762,7 +775,7 @@ class AdvancedPcModel(BasePcModel):
                 
     def set_insight_calc_method(self, func):
         self.insight_calculation = func
-        
+                
 ### LOAD AND SAVE METHODS ###
 
     def save_to(self, file):

@@ -108,3 +108,15 @@ def has_tag(dbconn, uuid, target_tag):
     
     return got != None
     
+def get_spell_info(dbconn, spell_id):
+    c = dbconn.cursor()
+    c.execute('''SELECT * FROM spells
+                 WHERE uuid=?''', [spell_id])    
+    try:
+        tuple_ = c.fetchone()        
+        return tuple_
+    except:
+        return None
+    finally:
+        c.close()
+        

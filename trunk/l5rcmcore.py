@@ -31,8 +31,8 @@ import dbutil
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.2'
-DB_VERSION  = '2.2'
+APP_VERSION = '2.3'
+DB_VERSION  = '2.3'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -178,6 +178,11 @@ class L5RCMCore(object):
         del self.pc.advans[adv_idx]        
         self.pc.recalc_ranks()
         self.update_from_model()
+        
+    def remove_advancement_item(self, adv_itm):
+        if adv_itm in self.pc.advans:
+            self.pc.advans.remove(adv_itm)
+            self.update_from_model()
 
     def generate_name(self):
         '''generate a random name for the character'''
@@ -200,7 +205,8 @@ class L5RCMCore(object):
             cost -= 1
         text = models.attrib_name_from_id(attrib).capitalize()
         adv = models.AttribAdv(attrib, cost)
-        adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+        adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, 
+                                                        new_value, adv.cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
 
@@ -216,7 +222,9 @@ class L5RCMCore(object):
         if self.pc.has_rule('enlightened'):
             cost -= 2
         adv = models.VoidAdv(cost)
-        adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
+        adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, 
+                                                               new_value, 
+                                                               adv.cost )
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
 
@@ -260,7 +268,8 @@ class L5RCMCore(object):
 
         adv = models.SkillAdv(skill_id, cost)
         adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
-        adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+        adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, 
+                                                        new_value, adv.cost )
 
         if adv.cost + self.pc.get_px() > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
@@ -269,6 +278,27 @@ class L5RCMCore(object):
         self.update_from_model()
         
         return CMErrors.NO_ERROR
+        
+    def memo_spell(self, spell_id):
+        print 'memorize spell %d' % spell_id
+        info_ = dbutil.get_spell_info(self.db_conn, spell_id)
+        cost  = info_[3] # mastery
+        text  = info_[0]
+        
+        adv = models.MemoSpellAdv(spell_id, cost)
+        adv.desc = '%s, Mastery %d. Cost: %d xp' % ( text, cost, adv.cost )
+
+        if adv.cost + self.pc.get_px() > self.pc.exp_limit:
+            return CMErrors.NOT_ENOUGH_XP
+
+        self.pc.add_advancement(adv)
+        self.update_from_model()
+        
+        return CMErrors.NO_ERROR
+        
+    def remove_spell(self, spell_id):
+        self.pc.remove_spell(spell_id)
+        self.update_from_model()
 
     def buy_school_requirements(self):
         for skill_uuid in self.get_missing_school_requirements():
@@ -315,4 +345,6 @@ class L5RCMCore(object):
     def set_pc_deficiency(self, deficiency):
         self.pc.set_deficiency(deficiency.lower())      
         self.update_from_model()
+        
     
+        

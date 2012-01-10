@@ -88,19 +88,20 @@ what would you want to do?
             uuid, name, rule, cost = c.fetchone()       
             c.close()
             
-            if not uuid or not cost: self.reject()
-            
-            if (cost + self.pc.get_px()) > self.pc.exp_limit:
-                QtGui.QMessageBox.warning(self, "Not enough XP",
-                "Cannot purchase.\nYou've reached the XP Limit.")                
-                self.reject()
-                return
+            if not uuid or not cost: self.reject()            
                 
             itm      = models.PerkAdv(uuid, 1, cost)
             itm.rule = rule
             itm.desc = str.format("{0} Rank {1}, XP Cost: {2}",
                                   "Multiple Schools",
                                   1, itm.cost)
+                                  
+            if (itm.cost + self.pc.get_px()) > self.pc.exp_limit:
+                QtGui.QMessageBox.warning(self, "Not enough XP",
+                "Cannot purchase.\nYou've reached the XP Limit.")                
+                self.reject()
+                return
+                
             self.pc.add_advancement(itm)
 
             self.join_new_school()

@@ -18,11 +18,26 @@
 from PySide import QtCore, QtGui
 
 class Advancement(object):
+    BUY_FOR_FREE = False
+    @staticmethod
+    def set_buy_for_free(flag):
+        Advancement.BUY_FOR_FREE = flag
+        print 'buy for free? %s ' % Advancement.BUY_FOR_FREE
+
+    @staticmethod
+    def get_buy_for_free():
+        print 'buy for free? %s ' % Advancement.BUY_FOR_FREE
+        return Advancement.BUY_FOR_FREE
+        
     def __init__(self, tag, cost):
-        self.type  = tag
-        self.cost  = cost
+        self.type  = tag               
         self.desc  = ''
         self.rule  = None
+        
+        if Advancement.get_buy_for_free():
+            self.cost = 0
+        else:
+            self.cost  = cost
 
     def __str__(self):
         return self.desc
@@ -60,6 +75,11 @@ class KataAdv(Advancement):
         super(KataAdv, self).__init__('kata', cost)        
         self.kata = kata_id
         self.rule = rule
+        
+class MemoSpellAdv(Advancement):        
+    def __init__(self, spell_id, cost):
+        super(MemoSpellAdv, self).__init__('memo_spell', cost)        
+        self.spell = spell_id
 
 class AdvancementViewModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):

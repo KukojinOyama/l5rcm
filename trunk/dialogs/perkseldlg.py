@@ -205,15 +205,15 @@ class BuyPerkDialog(QtGui.QDialog):
             if cost <= 0:
                 cost = 1
             
-            text = '%d' % cost
-            
-            if tag:
-                text += ' (%s)' % tag.capitalize()
-            self.le_cost.setText(text)
             c.close()
         
         self.item = models.PerkAdv(self.perk_id, rank, cost, tag)
         
+        text_ = '%d' % self.item.cost        
+        if tag:
+            text_ += ' (%s)' % tag.capitalize()
+        self.le_cost.setText(text_)
+                
     def update_perk(self):
         self.item.extra = self.tx_notes.toPlainText()
         
@@ -236,7 +236,7 @@ class BuyPerkDialog(QtGui.QDialog):
                     self.item.cost = int(self.le_cost.text())
                 except:
                     self.item.cost = 0
-            if self.item.cost <= 0:
+            if self.item.cost < 0:
                 QtGui.QMessageBox.warning(self, "Invalid XP Cost",
                                           "Please specify a number greater than 0.")
                 return

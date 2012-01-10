@@ -403,7 +403,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
 
         for k, t, m, d, tb in models_:
             grp    = QtGui.QGroupBox(k, self)
-            hbox   = QtGui.QHBoxLayout(grp)
+            hbox   = QtGui.QHBoxLayout(grp)            
             view   = None
             if t == 'table':
                 view  = QtGui.QTableView(self)
@@ -430,7 +430,40 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
        
     def _build_spell_frame(self, model, layout = None):
         grp    = QtGui.QGroupBox(u"Spells", self)
-        vbox   = QtGui.QVBoxLayout(grp)       
+        hbox   = QtGui.QHBoxLayout(grp)        
+        
+        fr_    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(fr_)
+        vbox.setContentsMargins(3,3,3,3)
+        
+        # advantages/disadvantage vertical toolbar
+        def _make_vertical_tb():
+            vtb = widgets.VerticalToolBar(self)
+            vtb.addStretch()
+            
+            cb_buy    = None #self.act_buy_spell
+            cb_remove = self.act_del_spell
+            cb_memo   = self.act_memo_spell
+            
+            self.add_spell_bt = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('buy',(16,16))), 
+                                'Add new spell', cb_buy)
+
+            self.del_spell_bt = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('minus',(16,16))), 
+                                'Remove spell', cb_remove)
+            
+            self.memo_spell_bt = vtb.addButton(
+                                 QtGui.QIcon(get_icon_path('book',(16,16))), 
+                                 'Memorize/Forget spell', cb_memo)
+                                 
+            
+            # TODO: enable these buttons eventually
+            self.add_spell_bt.setEnabled(False)
+            self.del_spell_bt.setEnabled(False)
+            
+            vtb.addStretch()
+            return vtb         
         
         # View
         view  = QtGui.QTableView(self)
@@ -441,6 +474,8 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         view.horizontalHeader().setStretchLastSection(True)
         view.horizontalHeader().setCascadingSectionResizes(True)
         view.setModel(model)
+        view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
+        self.spell_table_view = view
         
         # Affinity/Deficiency
         self.lb_affin = QtGui.QLabel("None", self)
@@ -459,6 +494,9 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         
         vbox.addWidget(aff_fr)
         vbox.addWidget(view)
+        
+        hbox.addWidget(_make_vertical_tb())
+        hbox.addWidget(fr_)
         
         if layout: layout.addWidget(grp)            
         
@@ -530,7 +568,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         vbox   = QtGui.QVBoxLayout(mfr)
 
         # advantages/disadvantage vertical toolbar
-        def _make_vertical_tb(tag, has_edit):
+        def _make_vertical_tb(tag, has_edit, has_remove):
             vtb = widgets.VerticalToolBar(self)
             vtb.addStretch()
             
@@ -538,6 +576,8 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                                         else self.act_buy_flaw)
             cb_edit = (self.act_edit_merit if tag == 'merit'
                                         else self.act_edit_flaw)
+            cb_remove = (self.act_del_merit if tag == 'merit'
+                                        else self.act_del_flaw)
             
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
                          'Add Perk', cb_buy)
@@ -545,6 +585,10 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             if has_edit:                
                 vtb.addButton(QtGui.QIcon(get_icon_path('edit',(16,16))), 
                               'Edit Perk', cb_edit)
+            
+            if has_remove:
+                vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))), 
+                              'Remove Perk', cb_remove)
             
             vtb.addStretch()
             return vtb 
@@ -555,9 +599,10 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         merit_view = QtGui.QListView(self)
         merit_view.setModel(self.merits_view_model)
         merit_view.setItemDelegate(models.PerkItemDelegate(self))
-        merit_vtb  = _make_vertical_tb('merit', True)
+        merit_vtb  = _make_vertical_tb('merit', True, True)
         fr_        = QtGui.QFrame(self)
         hb_        = QtGui.QHBoxLayout(fr_)
+        hb_.setContentsMargins(3,3,3,3)
         hb_.addWidget(merit_vtb)
         hb_.addWidget(merit_view)
         vbox.addWidget(new_item_groupbox('Advantages', fr_))
@@ -565,9 +610,10 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         flaw_view = QtGui.QListView(self)
         flaw_view.setModel(self.flaws_view_model)
         flaw_view.setItemDelegate(models.PerkItemDelegate(self))
-        flaw_vtb  = _make_vertical_tb('flaw', True)
+        flaw_vtb  = _make_vertical_tb('flaw', True, True)
         fr_        = QtGui.QFrame(self)
         hb_        = QtGui.QHBoxLayout(fr_)
+        hb_.setContentsMargins(3,3,3,3)
         hb_.addWidget(flaw_vtb)
         hb_.addWidget(flaw_view)        
         vbox.addWidget(new_item_groupbox('Disadvantages', fr_))
@@ -869,8 +915,9 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         # rules actions
         set_exp_limit_act  = QtGui.QAction(u'Set Experience Limit...' , self)
         set_wound_mult_act = QtGui.QAction(u'Set Health Multiplier...', self)
-        unlock_school_act  = QtGui.QAction(u'Lock Schools...'         , self)
-        unlock_advans_act  = QtGui.QAction(u'Lock Advancements...'    , self)
+        unlock_school_act  = QtGui.QAction(u'Lock Schools'            , self)
+        unlock_advans_act  = QtGui.QAction(u'Lock Advancements'       , self)
+        buy_for_free_act   = QtGui.QAction(u'Free Shopping'           , self)
         damage_act         = QtGui.QAction(u'Cure/Inflict Damage...'  , self)
         
         # insight calculation submenu
@@ -891,9 +938,11 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
 
         unlock_school_act.setCheckable(True)
         unlock_advans_act.setCheckable(True)
+        buy_for_free_act .setCheckable(True)
 
         unlock_school_act.setChecked(True)
         unlock_advans_act.setChecked(True)
+        buy_for_free_act .setChecked(False)
 
         self.unlock_schools_menu_item = unlock_school_act
         self.unlock_advans_menu_item  = unlock_advans_act
@@ -902,14 +951,16 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         m_rules.addAction(set_wound_mult_act)
         m_rules.addAction(unlock_school_act )
         m_rules.addAction(unlock_advans_act )
+        m_rules.addAction(buy_for_free_act  )
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
 
-        set_exp_limit_act .triggered.connect( self.on_set_exp_limit      )
-        set_wound_mult_act.triggered.connect( self.on_set_wnd_mult       )
-        damage_act        .triggered.connect( self.on_damage_act         )
-        unlock_school_act .triggered.connect( self.on_unlock_school_act  )
-        unlock_advans_act .toggled  .connect( self.on_toggle_advans_act  )
+        set_exp_limit_act .triggered.connect( self.on_set_exp_limit        )
+        set_wound_mult_act.triggered.connect( self.on_set_wnd_mult         )
+        damage_act        .triggered.connect( self.on_damage_act           )
+        unlock_school_act .triggered.connect( self.on_unlock_school_act    )
+        unlock_advans_act .toggled  .connect( self.on_toggle_advans_act    )
+        buy_for_free_act .toggled   .connect( self.on_toggle_buy_for_free  )
 
     def connect_signals(self):
         # only user change
@@ -1069,6 +1120,9 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                 self.lock_advancements = False
         else:
             self.lock_advancements = True
+            
+    def on_toggle_buy_for_free(self, flag):
+        models.Advancement.set_buy_for_free(flag)
 
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
@@ -1312,7 +1366,21 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         dlg.set_edit_mode(True)        
         dlg.exec_()
         self.update_from_model()
-    
+
+    def act_del_merit(self):
+        sel_idx = self.merit_view.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = self.merit_view.model().data(sel_idx, QtCore.Qt.UserRole)        
+        self.remove_advancement_item(sel_itm.adv)        
+        
+    def act_del_flaw(self):
+        sel_idx = self.flaw_view.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = self.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
+        self.remove_advancement_item(sel_itm.adv)
+        
 
     def act_choose_skills(self):
         dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)
@@ -1320,7 +1388,54 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             self.pc.clear_pending_wc_skills()
             self.pc.clear_pending_wc_emphs ()
             self.update_from_model()
+            
+    def act_memo_spell(self):
+        # get selected spell
+        sm_ = self.spell_table_view.selectionModel()
+        if sm_.hasSelection():
+            model_    = self.spell_table_view.model()
+            spell_itm = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)
+            
+            err_ = CMErrors.NO_ERROR
+            if spell_itm.memo:
+                self.remove_advancement_item(spell_itm.adv)
+            else:
+                err_ = self.memo_spell(spell_itm.spell_id)
+                
+            if err_ != CMErrors.NO_ERROR:
+                if err_ == CMErrors.NOT_ENOUGH_XP:
+                    self.not_enough_xp_advise(self)
+                return               
+                
+            idx = None
+            for i in xrange(0, self.spell_table_view.model().rowCount()):
+                idx = self.spell_table_view.model().index(i, 0)
+                if (model_.data(idx, QtCore.Qt.UserRole).spell_id == 
+                    spell_itm.spell_id):
+                    break
+            if idx.isValid():
+                sm_.setCurrentIndex(idx, (QtGui.QItemSelectionModel.Select |
+                                         QtGui.QItemSelectionModel.Rows))
+                                         
+    def act_del_spell(self):
+        # get selected spell
+        sm_ = self.spell_table_view.selectionModel()
+        if sm_.hasSelection():
+            model_    = self.spell_table_view.model()
+            spell_itm = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)            
+            err_ = CMErrors.NO_ERROR            
+            if spell_itm.memo: return
+            self.remove_spell(spell_itm.spell_id)
 
+    def on_spell_selected(self, current, previous):
+        # get selected spell
+        model_    = self.spell_table_view.model()
+        spell_itm = model_.data(current, QtCore.Qt.UserRole)
+            
+        # toggle remove
+        self.del_spell_bt.setEnabled(not spell_itm.memo)
+        
+                                         
     def learn_next_school_tech(self):
         # for now do not support multiple school advantage
         # learn next technique for your school

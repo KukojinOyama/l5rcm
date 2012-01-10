@@ -160,7 +160,9 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText('Cost: %d exp' % cost)
 
         self.adv = advances.VoidAdv(cost)
-        self.adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, new_value, cost )
+        self.adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, 
+                                                                    new_value,
+                                                                    self.adv.cost )
 
     def on_attrib_select(self, text = ''):
         cb = self.widgets['attrib'][0]
@@ -181,7 +183,10 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText('Cost: %d exp' % cost)
 
         self.adv = advances.AttribAdv(attrib, cost)
-        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, 
+                                                             cur_value, 
+                                                             new_value, 
+                                                             self.adv.cost )
 
     def on_skill_type_select(self, text = ''):
         cb1   = self.widgets['skill'][0]
@@ -224,7 +229,10 @@ class BuyAdvDialog(QtGui.QDialog):
 
         self.adv = advances.SkillAdv(uuid, cost)
         self.adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, uuid, new_value)
-        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, new_value, cost )
+        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, 
+                                                             cur_value, 
+                                                             new_value, 
+                                                             self.adv.cost )
         
     def on_kata_select(self, text = ''):
         cb  = self.widgets['kata'][0]
@@ -271,7 +279,7 @@ class BuyAdvDialog(QtGui.QDialog):
                                mastery, ring)
         else:
             self.adv = models.KataAdv(uuid, rule, mastery)
-            self.adv.desc = '%s, Cost: %d xp' % ( name, mastery )
+            self.adv.desc = '%s, Cost: %d xp' % ( name, self.adv.cost )
             
         self.bt_buy.setEnabled(ok)           
         te.setHtml(html)
@@ -300,7 +308,9 @@ class BuyAdvDialog(QtGui.QDialog):
             sk_name = cb.itemText( cb.currentIndex() )
             sk_uuid = cb.itemData( cb.currentIndex() )
             self.adv = advances.SkillEmph(sk_uuid, tx.text(), 2)
-            self.adv.desc = '%s, Skill %s. Cost: 2 xp' % ( tx.text(), sk_name )
+            self.adv.desc = '%s, Skill %s. Cost: %d xp' % ( tx.text(), 
+                                                            sk_name,
+                                                            self.adv.cost )
             self.pc.add_advancement( self.adv )
             tx.setText('')
         elif self.tag == 'kata':
