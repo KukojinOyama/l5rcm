@@ -31,7 +31,8 @@ class VerticalToolBar(QtGui.QFrame):
         tb.setIcon(icon)
         tb.setToolTip(text)
         tb.clicked.connect( target_slot )
-        self.vbox.addWidget(tb)
+        self.vbox.addWidget(tb)        
+        return tb
     
     def addStretch(self):
         self.vbox.addStretch(1)

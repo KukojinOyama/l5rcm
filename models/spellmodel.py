@@ -17,6 +17,8 @@
 
 from PySide import QtGui, QtCore
 
+from l5rcmcore import get_icon_path
+
 class SpellItemModel(object):
     def __init__(self):
         self.name      = ''
@@ -26,9 +28,11 @@ class SpellItemModel(object):
         self.area      = ''
         self.duration  = ''
         self.raises    = ''
-        self.learned   = False
+        self.memo      = False
         self.is_school = False
         self.tags      = []
+        self.spell_id  = 0
+        self.adv       = None
 
     def __str__(self):
         return self.name
@@ -48,6 +52,7 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
             self.bold_font.setBold(True)
 
         self.dbconn = dbconn
+        self.memo_icon = QtGui.QIcon(get_icon_path('book',(16,16)))
 
     def rowCount(self, parent = QtCore.QModelIndex()):
         return len(self.items)
@@ -84,8 +89,8 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
         #    elif role == QtCore.Qt.DecorationRole:
         #        if index.column() == 0 and (item['epstatus'] & SHOW_STATUS_NEW == SHOW_STATUS_NEW):
         #            return QtGui.QIcon(':/icons/label_new_red.png')
-        #    elif role == QtCore.Qt.UserRole:
-        #        return item['showid']
+        elif role == QtCore.Qt.UserRole:
+            return item
         elif role == QtCore.Qt.FontRole:
             if item.is_school and self.bold_font:
                 return self.bold_font
@@ -106,7 +111,10 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
             if index.column() == 5:
                 return item.duration
             if index.column() == 6:
-                return item.raises                
+                return item.raises
+        elif role == QtCore.Qt.DecorationRole:
+            if index.column() == 0 and item.memo:
+                return self.memo_icon
         return None
 
     def flags(self, index):
@@ -141,6 +149,7 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
             itm.area     = f[5]
             itm.duration = f[6]
             itm.raises   = f[7]
+            itm.spell_id = sp_id
             
         c.close()
         return itm
@@ -150,8 +159,18 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
         self.clean()
         
         print 'update spells from model'
-       
+        memo_spells = [x for x in model.get_memorized_spells()]
+               
         for s in spells:
-            itm = self.build_item_model(s)
+            itm = self.build_item_model(s)            
+            itm.memo = s in memo_spells
+            if itm.memo:
+                adv_ = filter( 
+                lambda x: x.type == 'memo_spell' and x.spell == s,
+                model.advans)
+                
+                if len(adv_):
+                    itm.adv = adv_[0]
+                
             self.add_item(itm)
         
