@@ -1,0 +1,49 @@
+Kenjutsu
+#
+Katana
+medium, samurai, melee
+3k2
+-
+-
+void_rise_dr_rule
+-
+#
+Ninja-to
+medium, ninja, melee
+2k2
+-
+-
+ninjato_special_rule
+5k
+#
+No-dachi
+large, melee
+3k3
+-
+-
+-
+30k
+#
+Parangu
+peasant, medium, melee
+2k2
+-
+-
+may_break_30w_rule
+10b
+#
+Scimitar
+medium, melee
+2k3
+-
+-
+-
+20k
+#
+Wakizashi
+medium, samurai, melee, ranged
+2k2
+-
+20'
+throw_20f_rule
+15k
