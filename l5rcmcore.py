@@ -31,8 +31,8 @@ import dbutil
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.3'
-DB_VERSION  = '2.3'
+APP_VERSION = '2.4'
+DB_VERSION  = '2.4'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -105,11 +105,6 @@ class L5RCMCore(object):
     def update_from_model(self):
         pass
         
-    def reset_adv(self):
-        self.pc.advans = []
-        self.pc.recalc_ranks()
-        self.update_from_model()
-
     def export_as_text(self, export_file):
         exporter = exporters.TextExporter()
         exporter.set_form (self)
@@ -158,43 +153,13 @@ class L5RCMCore(object):
         # GENERIC SHEET
         source_pdf = get_app_file('sheet_all.pdf')
         source_fdf = _create_fdf(exporters.FDFExporterAll())
-        _flatten_pdf(source_fdf, source_pdf, export_file)
-        
-    def refund_last_adv(self):
-        '''pops last advancement and recalculate ranks'''
-        if len(self.pc.advans) > 0:
-            adv = self.pc.advans.pop()            
-            self.pc.recalc_ranks()
-            self.update_from_model()
-
-    def refund_advancement(self, adv_idx = -1):
-        '''refund the specified advancement and recalculate ranks'''
-        if self.lock_advancements:
-            return self.refund_last_adv()
-        if adv_idx < 0:
-            adv_idx = len(self.pc.advans) - self.adv_view.selectionModel().currentIndex().row() - 1
-        if adv_idx >= len(self.pc.advans) or adv_idx < 0:
-            return
-        del self.pc.advans[adv_idx]        
-        self.pc.recalc_ranks()
-        self.update_from_model()
+        _flatten_pdf(source_fdf, source_pdf, export_file)        
         
     def remove_advancement_item(self, adv_itm):
         if adv_itm in self.pc.advans:
             self.pc.advans.remove(adv_itm)
             self.update_from_model()
-
-    def generate_name(self):
-        '''generate a random name for the character'''
-        gender = self.sender().property('gender')
-        name = ''
-        if gender == 'male':
-            name = rules.get_random_name( get_app_file('male.txt') )
-        else:
-            name = rules.get_random_name( get_app_file('female.txt') )
-        self.pc.name = name
-        self.update_from_model()
-        
+       
     def increase_trait(self, attrib):    
         cur_value = self.pc.get_attrib_rank( attrib )
         new_value = cur_value + 1

@@ -74,7 +74,6 @@ class TechViewModel(QtCore.QAbstractListModel):
     def update_from_model(self, model):
         self.clean()
         for tech in model.get_techs():
-            print tech
             self.add_item(tech)
 
     def data(self, index, role):

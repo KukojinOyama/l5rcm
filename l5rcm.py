@@ -28,6 +28,7 @@ import autoupdate
 import tempfile
 import exporters
 import dbutil
+import sinks
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
@@ -77,6 +78,11 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
 
         # character file save path
         self.save_path = ''        
+        
+        # slot sinks
+        self.sink1 = sinks.Sink1(self) # Menu Sink
+        self.sink2 = sinks.Sink2(self) # MeritFlaw Sink
+        self.sink3 = sinks.Sink3(self) # Weapons Sink
 
         # Build interface and menus
         self.build_ui()
@@ -572,12 +578,12 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             vtb = widgets.VerticalToolBar(self)
             vtb.addStretch()
             
-            cb_buy  = (self.act_buy_merit if tag == 'merit'
-                                        else self.act_buy_flaw)
-            cb_edit = (self.act_edit_merit if tag == 'merit'
-                                        else self.act_edit_flaw)
-            cb_remove = (self.act_del_merit if tag == 'merit'
-                                        else self.act_del_flaw)
+            cb_buy  = (self.sink2.act_buy_merit if tag == 'merit'
+                                        else self.sink2.act_buy_flaw)
+            cb_edit = (self.sink2.act_edit_merit if tag == 'merit'
+                                        else self.sink2.act_edit_flaw)
+            cb_remove = (self.sink2.act_del_merit if tag == 'merit'
+                                        else self.sink2.act_del_flaw)
             
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
                          'Add Perk', cb_buy)
@@ -636,7 +642,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         bt_refund_adv = QtGui.QPushButton("Refund", self)
         bt_refund_adv.setSizePolicy( QtGui.QSizePolicy.Maximum,
                                      QtGui.QSizePolicy.Preferred )
-        bt_refund_adv.clicked.connect(self.refund_advancement)
+        bt_refund_adv.clicked.connect(self.sink1.refund_advancement)
         fr_h.addWidget(bt_refund_adv)
         vbox.addWidget(fr_)
 
@@ -668,20 +674,20 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             vtb.setProperty('filter', filter)
             vtb.addStretch()
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
-                          'Add weapon', self.show_add_weapon)
+                          'Add weapon', self.sink3.show_add_weapon)
             if has_custom:
                 vtb.addButton(QtGui.QIcon(get_icon_path('custom',(16,16))), 
-                              'Add custom weapon', self.show_add_cust_weapon)
+                              'Add custom weapon', self.sink3.show_add_cust_weapon)
             if has_edit:
                 vtb.addButton(QtGui.QIcon(get_icon_path('edit',(16,16))), 
-                              'Edit weapon', self.edit_selected_weapon)
+                              'Edit weapon', self.sink3.edit_selected_weapon)
             vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))), 
-                          'Remove weapon', self.remove_selected_weapon)                      
+                          'Remove weapon', self.sink3.remove_selected_weapon)                      
             if has_qty:
                 vtb.addButton(QtGui.QIcon(get_icon_path('add',(16,16))), 
-                              'Increase Quantity', self.on_increase_item_qty)
+                              'Increase Quantity', self.sink3.on_increase_item_qty)
                 vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))), 
-                              'Decrease Quantity', self.on_decrease_item_qty)                              
+                              'Decrease Quantity', self.sink3.on_decrease_item_qty)                              
             
             vtb.addStretch()
             return vtb            
@@ -787,13 +793,13 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         m_file.addSeparator()
         m_file.addAction(exit_act)
 
-        new_act .triggered.connect( self.new_character  )
-        open_act.triggered.connect( self.load_character )
-        save_act.triggered.connect( self.save_character )
+        new_act .triggered.connect( self.sink1.new_character  )
+        open_act.triggered.connect( self.sink1.load_character )
+        save_act.triggered.connect( self.sink1.save_character )
         exit_act.triggered.connect( self.close )
 
         #export_text_act.triggered.connect( self.export_character_as_text )
-        export_pdf_act .triggered.connect( self.export_character_as_pdf  )
+        export_pdf_act .triggered.connect( self.sink1.export_character_as_pdf  )
 
         self.m_file = m_file
 
@@ -842,18 +848,18 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         self.m_adv = m_adv
         self.m_buy = m_buy_adv
 
-        viewadv_act .triggered.connect( self.switch_to_page_5    )
-        resetadv_act.triggered.connect( self.reset_adv           )
-        refund_act  .triggered.connect( self.refund_last_adv     )
-        buyattr_act .triggered.connect( self.act_buy_advancement )
-        buyvoid_act .triggered.connect( self.act_buy_advancement )
-        buyskill_act.triggered.connect( self.act_buy_advancement )
-        buyemph_act .triggered.connect( self.act_buy_advancement )
-        buykata_act .triggered.connect( self.act_buy_advancement )
+        viewadv_act .triggered.connect( self.sink1.switch_to_page_5    )
+        resetadv_act.triggered.connect( self.sink1.reset_adv           )
+        refund_act  .triggered.connect( self.sink1.refund_last_adv     )
+        buyattr_act .triggered.connect( self.sink1.act_buy_advancement )
+        buyvoid_act .triggered.connect( self.sink1.act_buy_advancement )
+        buyskill_act.triggered.connect( self.sink1.act_buy_advancement )
+        buyemph_act .triggered.connect( self.sink1.act_buy_advancement )
+        buykata_act .triggered.connect( self.sink1.act_buy_advancement )
         # buykiho_act .triggered.connect( self.act_buy_advancement )
 
-        buymerit_act.triggered.connect( self.act_buy_perk )
-        buyflaw_act .triggered.connect( self.act_buy_perk )
+        buymerit_act.triggered.connect( self.sink1.act_buy_perk )
+        buyflaw_act .triggered.connect( self.sink1.act_buy_perk )
 
         # Tools menu
         m_tools = self.menuBar().addMenu(u'&Tools')
@@ -874,12 +880,12 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
 
         self.m_namegen = m_namegen
 
-        gen_male_act  .triggered.connect( self.generate_name )
-        gen_female_act.triggered.connect( self.generate_name )
+        gen_male_act  .triggered.connect( self.sink1.generate_name )
+        gen_female_act.triggered.connect( self.sink1.generate_name )
         
         # Dice roller menu
         dice_roll_act = QtGui.QAction(u'Dice &Roller...', self)
-        dice_roll_act  .triggered.connect( self.show_dice_roller )
+        dice_roll_act  .triggered.connect( self.sink1.show_dice_roller )
         
         m_tools.addAction(dice_roll_act)
 
@@ -903,11 +909,11 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         m_outfit.addAction(add_cust_weap_act )
         # m_outfit.addAction(add_misc_item_act )
 
-        sel_armor_act     .triggered.connect( self.show_wear_armor      )
-        sel_cust_armor_act.triggered.connect( self.show_wear_cust_armor )
-        add_weap_act      .triggered.connect( self.show_add_weapon      )
-        add_cust_weap_act .triggered.connect( self.show_add_cust_weapon )
-        # add_misc_item_act .triggered.connect( self.show_add_misc_item   )
+        sel_armor_act     .triggered.connect( self.sink1.show_wear_armor      )
+        sel_cust_armor_act.triggered.connect( self.sink1.show_wear_cust_armor )
+        add_weap_act      .triggered.connect( self.sink3.show_add_weapon      )
+        add_cust_weap_act .triggered.connect( self.sink3.show_add_cust_weapon )
+        # add_misc_item_act .triggered.connect( self.sink1.show_add_misc_item   )
 
         # Rules menu
         m_rules = self.menuBar().addMenu(u'&Rules')
@@ -955,12 +961,12 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
 
-        set_exp_limit_act .triggered.connect( self.on_set_exp_limit        )
-        set_wound_mult_act.triggered.connect( self.on_set_wnd_mult         )
-        damage_act        .triggered.connect( self.on_damage_act           )
-        unlock_school_act .triggered.connect( self.on_unlock_school_act    )
-        unlock_advans_act .toggled  .connect( self.on_toggle_advans_act    )
-        buy_for_free_act .toggled   .connect( self.on_toggle_buy_for_free  )
+        set_exp_limit_act .triggered.connect( self.sink1.on_set_exp_limit       )
+        set_wound_mult_act.triggered.connect( self.sink1.on_set_wnd_mult        )
+        damage_act        .triggered.connect( self.sink1.on_damage_act          )
+        unlock_school_act .triggered.connect( self.sink1.on_unlock_school_act   )
+        unlock_advans_act .toggled  .connect( self.sink1.on_toggle_advans_act   )
+        buy_for_free_act .toggled   .connect( self.sink1.on_toggle_buy_for_free )
 
     def connect_signals(self):
         # only user change
@@ -988,27 +994,6 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                                       QtCore.SLOT("on_trait_increase(const QString &)"))
                                       
         self.ic_act_grp.triggered.connect(self.on_change_insight_calculation)
-
-    def switch_to_page_1(self):
-        self.tabs.setCurrentIndex(0)
-
-    def switch_to_page_2(self):
-        self.tabs.setCurrentIndex(1)
-
-    def switch_to_page_3(self):
-        self.tabs.setCurrentIndex(2)
-
-    def switch_to_page_4(self):
-        self.tabs.setCurrentIndex(3)
-
-    def switch_to_page_5(self):
-        self.tabs.setCurrentIndex(4)
-        
-    def switch_to_page_6(self):
-        self.tabs.setCurrentIndex(5)
-
-    def switch_to_page_7(self):
-        self.tabs.setCurrentIndex(6)
         
     def show_nicebar(self, widgets):
         self.nicebar = QtGui.QFrame(self)
@@ -1047,7 +1032,6 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             hbox.addWidget(w)
 
         self.mvbox.insertWidget(1, self.nicebar)
-
         self.nicebar.setVisible(True)
             
     def hide_nicebar(self):
@@ -1055,74 +1039,19 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             return
         self.nicebar.setVisible(False)
         del self.nicebar
-        self.nicebar = None
-
-    def show_dice_roller(self):
-        import diceroller
-        dlg = diceroller.DiceRoller(self)
-        dlg.show()
+        self.nicebar = None        
      
     def on_trait_increase(self, text):
         '''raised when user click on the small '+' button near traits'''
         
         if ( self.increase_trait( models.attrib_from_name(text) ) ==
              CMErrors.NOT_ENOUGH_XP ):
-             self.not_enough_xp_advise(self)
-        
+             self.not_enough_xp_advise(self)       
 
     def on_void_increase(self):
         '''raised when user click on the small '+' button near void ring'''
         if ( self.increase_void() == CMErrors.NOT_ENOUGH_XP ):
              self.not_enough_xp_advise(self)        
-
-    def on_set_exp_limit(self):
-        ok = False
-        val, ok = QtGui.QInputDialog.getInt(self, 'Set Experience Limit',
-                                       "XP Limit:", self.pc.exp_limit,
-                                        0, 10000, 1)
-        if ok:
-            self.set_exp_limit(val)
-
-    def on_set_wnd_mult(self):
-        ok = False
-        val, ok = QtGui.QInputDialog.getInt(self, 'Set Health Multiplier',
-                                       "Multiplier:", self.pc.health_multiplier,
-                                        2, 5, 1)
-        if ok:
-            self.set_health_multiplier(val)
-
-    def on_damage_act(self):
-        ok = False
-        val, ok = QtGui.QInputDialog.getInt(self, 'Cure/Inflict Damage',
-                                       "Wounds:", 1,
-                                        -1000, 1000, 1)
-        if ok:
-            self.damage_health(val)
-
-    def on_unlock_school_act(self):
-        self.pc.toggle_unlock_schools()
-        if self.pc.unlock_schools:
-            self.load_schools ()
-        else:
-            self.load_schools(self.pc.clan)
-        self.cb_pc_school.setCurrentIndex(0)
-
-    def on_toggle_advans_act(self, flag):
-        if flag == False:
-            result = QtGui.QMessageBox.warning(self, "Advancements unlock",
-                "Unlocking the advancements will permits you to Undo any"
-                "advancement with no specific order.\n"
-                "This may lead to incoerence and may permit \"cheating\".\n"
-                "Continue anyway?",
-                QtGui.QMessageBox.StandardButton.Yes or QtGui.QMessageBox.StandardButton.No,
-                QtGui.QMessageBox.StandardButton.No)
-            if result == QtGui.QMessageBox.StandardButton.Yes:
-                self.lock_advancements = False
-        else:
-            self.lock_advancements = True
-            
-    def on_toggle_buy_for_free(self, flag):
-        models.Advancement.set_buy_for_free(flag)
 
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
@@ -1284,18 +1213,6 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
     def on_void_points_change(self):
         val = self.void_points.value
         self.pc.set_void_points(val)
-
-    def act_buy_advancement(self):
-        dlg = dialogs.BuyAdvDialog(self.pc, self.sender().property('tag'),
-                                   self.db_conn, self)
-        dlg.exec_()
-        self.update_from_model()
-
-    def show_buy_skill_dlg(self):
-        dlg = dialogs.BuyAdvDialog(self.pc, 'skill',
-                                   self.db_conn, self)
-        dlg.exec_()
-        self.update_from_model()
        
     def on_buy_skill_rank(self):
         # get selected skill
@@ -1319,67 +1236,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                 sm_.setCurrentIndex(idx, (QtGui.QItemSelectionModel.Select |
                                          QtGui.QItemSelectionModel.Rows))
 
-    def act_buy_perk(self):
-        dlg = dialogs.BuyPerkDialog(self.pc, self.sender().property('tag'),
-                                    self.db_conn, self)
-        dlg.exec_()
-        self.update_from_model()
-        
-    def act_buy_merit(self):
-        dlg = dialogs.BuyPerkDialog(self.pc, 'merit',
-                                    self.db_conn, self)
-        dlg.exec_()
-        self.update_from_model()
-        
-    def act_buy_flaw(self):
-        dlg = dialogs.BuyPerkDialog(self.pc, 'flaw',
-                                    self.db_conn, self)
-        dlg.exec_()
-        self.update_from_model()
-        
-    def act_edit_merit(self):
-        sel_idx = self.merit_view.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = self.merit_view.model().data(sel_idx, QtCore.Qt.UserRole)
-        
-        dlg = dialogs.BuyPerkDialog(self.pc, 'merit',
-                                    self.db_conn, self)
 
-        #print 'selected merit: %s' % repr(sel_itm.__dict__)
-        dlg.set_edit_mode(True)        
-        dlg.load_item(sel_itm)
-        dlg.exec_()
-        self.update_from_model()
-    
-    def act_edit_flaw(self):       
-        sel_idx = self.flaw_view.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = self.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
-        
-        dlg = dialogs.BuyPerkDialog(self.pc, 'flaw',
-                                    self.db_conn, self)
-
-        #print 'selected flaw: %s' % repr(sel_itm.__dict__)
-        dlg.load_item(sel_itm)
-        dlg.set_edit_mode(True)        
-        dlg.exec_()
-        self.update_from_model()
-
-    def act_del_merit(self):
-        sel_idx = self.merit_view.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = self.merit_view.model().data(sel_idx, QtCore.Qt.UserRole)        
-        self.remove_advancement_item(sel_itm.adv)        
-        
-    def act_del_flaw(self):
-        sel_idx = self.flaw_view.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = self.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
-        self.remove_advancement_item(sel_itm.adv)
         
 
     def act_choose_skills(self):
@@ -1460,12 +1317,15 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         if self.pc.get_insight_rank() > self.last_rank:
             # HEY, NEW RANK DUDE!
             lb = QtGui.QLabel("You reached the next rank, you have an opportunity"
-                              " to decide your destiny.")
-            bt = QtGui.QPushButton('Advance rank')
+                              " to decide your destiny.", self)
+            bt = QtGui.QPushButton('Advance rank', self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.show_advance_rank_dlg )
-            self.show_nicebar([lb, bt])                       
+            self.show_nicebar([lb, bt])
+            
+            # debug
+            dump_slots(self, 'after_a_while.txt')
             
     def check_school_tech_and_spells(self):
         if self.nicebar: return
@@ -1483,18 +1343,20 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             #bt.clicked.connect( self.learn_next_school_tech )
             #self.show_nicebar([lb, bt])
         elif self.pc.can_get_other_spells():
-            lb = QtGui.QLabel("You now fit the requirements to learn other Spells")
-            bt = QtGui.QPushButton('Learn Spells')
+            lb = QtGui.QLabel("You now fit the requirements to learn other Spells", self)
+            bt = QtGui.QPushButton('Learn Spells', self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_spells )
             self.show_nicebar([lb, bt])
 
     def check_missing_requirements(self):
+        if self.nicebar: return
+        
         if not self.check_tech_school_requirements():
             lb = QtGui.QLabel("You need at least one rank in all school skills"
-                              " to learn the next School Technique")
-            bt = QtGui.QPushButton('Buy Requirements')
+                              " to learn the next School Technique", self)
+            bt = QtGui.QPushButton('Buy Requirements', self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.buy_school_requirements )
@@ -1524,16 +1386,16 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         
         if (self.pc.get_affinity() and
             self.pc.get_affinity().startswith('*')):
-            lb = QtGui.QLabel("You school grant you to choose an elemental affinity.")
-            bt = QtGui.QPushButton('Choose Affinity')
+            lb = QtGui.QLabel("You school grant you to choose an elemental affinity.", self)
+            bt = QtGui.QPushButton('Choose Affinity', self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.show_select_affinity )
             self.show_nicebar([lb, bt])
         elif (self.pc.get_deficiency() and 
               self.pc.get_deficiency().startswith('*')):
-            lb = QtGui.QLabel("You school grant you to choose an elemental deficiency.")
-            bt = QtGui.QPushButton('Choose Deficiency')
+            lb = QtGui.QLabel("You school grant you to choose an elemental deficiency.", self)
+            bt = QtGui.QPushButton('Choose Deficiency', self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.show_select_deficiency )
@@ -1552,34 +1414,13 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.last_rank = self.pc.get_insight_rank()
             self.update_from_model()
-        
-    def show_wear_armor(self):
-        dlg = dialogs.ChooseItemDialog(self.pc, 'armor', self.db_conn, self)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            self.update_from_model()
-
-    def show_wear_cust_armor(self):
-        dlg = dialogs.CustomArmorDialog(self.pc, self)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            self.update_from_model()
-
-    def show_add_weapon(self):    
-        dlg = dialogs.ChooseItemDialog(self.pc, 'weapon', self.db_conn, self)
-        filter = self.sender().parent().property('filter')        
-        print filter
-        if filter is not None:
-            dlg.set_filter(filter)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            self.update_from_model()
-
-    def show_add_cust_weapon(self):
-        dlg = dialogs.CustomWeaponDialog(self.pc, self.db_conn, self)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            self.update_from_model()
-
-    def show_add_misc_item(self):
-        pass
-        
+            
+    def show_buy_skill_dlg(self):       
+        dlg = dialogs.BuyAdvDialog(self.pc, 'skill',
+                                   self.db_conn, self)
+        dlg.exec_()
+        self.update_from_model()                            
+                
     def show_select_affinity(self):
         chooses  = None
         if self.pc.get_affinity() == '*nonvoid':
@@ -1609,96 +1450,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                                               
         if is_ok:
             self.set_pc_deficiency(deficiency)
-        
-    def edit_selected_weapon(self):
-        view_ = None
-        try:            
-            view_ = self.sender().parent().property('source')
-            print view_
-        except Exception as e:
-            print repr(e)
-        if view_ is None:
-            return
-        sel_idx = view_.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
-        dlg = dialogs.CustomWeaponDialog(self.pc, self.db_conn, self)
-        dlg.load_item(sel_itm)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            self.update_from_model()
-            
-    def remove_selected_weapon(self):
-        view_ = None
-        try:            
-            view_ = self.sender().parent().property('source')
-            print view_
-        except Exception as e:
-            print repr(e)
-        if view_ is None:
-            return
-        sel_idx = view_.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
-        self.pc.weapons.remove(sel_itm)
-        self.update_from_model()
-
-    def on_increase_item_qty(self):
-        view_ = None
-        try:            
-            view_ = self.sender().parent().property('source')
-        except Exception as e:
-            print repr(e)
-        if view_ is None:
-            return
-        sel_idx = view_.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
-        if sel_itm.qty < 9999:
-            sel_itm.qty += 1
-            self.update_from_model()            
-            sel_idx = view_.model().index(sel_idx.row(), 0)
-            view_.selectionModel().setCurrentIndex(sel_idx, 
-                QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Rows)
-
-    def on_decrease_item_qty(self):
-        view_ = None
-        try:            
-            view_ = self.sender().parent().property('source')
-            print view_
-        except Exception as e:
-            print repr(e)
-        if view_ is None:
-            return
-        sel_idx = view_.selectionModel().currentIndex()
-        if not sel_idx.isValid():
-            return
-        sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
-        if sel_itm.qty > 1:
-            sel_itm.qty -= 1
-            self.update_from_model()
-            sel_idx = view_.model().index(sel_idx.row(), 0)
-            view_.selectionModel().setCurrentIndex(sel_idx,
-                QtGui.QItemSelectionModel.Select | QtGui.QItemSelectionModel.Rows)
-        
-    def new_character(self):
-        self.last_rank = 1
-        self.save_path = ''
-        self.pc = models.AdvancedPcModel()
-        self.pc.load_default()
-        self.load_clans()
-        self.tx_pc_notes.set_content('')
-        self.pc.set_insight_calc_method(self.ic_calc_method)
-        #self.load_schools(0)
-        #self.load_families(0)
-        self.update_from_model()
-
-    def load_character(self):
-        path = self.select_load_path()
-        self.load_character_from(path)
-
+                
     def load_character_from(self, path):
         pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
@@ -1740,17 +1492,6 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
 
         resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
-
-    def save_character(self):
-        if self.save_path == '' or not os.path.exists(self.save_path):
-            self.save_path = self.select_save_path()
-
-        if self.save_path is not None and len(self.save_path) > 0:
-            self.pc.version = DB_VERSION
-            self.pc.extra_notes = self.tx_pc_notes.get_content()
-            # pending rank advancement?
-            self.pc.last_rank = self.last_rank
-            self.pc.save_to(self.save_path)
 
     def load_clans(self):
         c = self.db_conn.cursor()
@@ -1957,8 +1698,8 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         wcs = self.pc.get_pending_wc_skills()
         wce = self.pc.get_pending_wc_emphs ()
         if len(wcs) > 0 or len(wce) > 0:
-            lb = QtGui.QLabel('Your school gives you the choice of certain skills')
-            bt = QtGui.QPushButton('Choose Skills')
+            lb = QtGui.QLabel('Your school gives you the choice of certain skills', self)
+            bt = QtGui.QPushButton('Choose Skills', self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.act_choose_skills )
@@ -1969,7 +1710,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         self.check_affinity_wc()
         self.check_rank_advancement()
         self.check_missing_requirements()
-        self.check_school_tech_and_spells()            
+        self.check_school_tech_and_spells()
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0
@@ -2139,23 +1880,21 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
 
-    def export_character_as_text(self):
-        file_ = self.select_export_file()
-        if len(file_) > 0:
-            self.export_as_text(file_)
-
-    def export_character_as_pdf(self):
-        file_ = self.select_export_file(".pdf")
-        if len(file_) > 0:
-            self.export_as_pdf(file_)           
-
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
         self.pc.set_insight_calc_method(method)
         self.update_from_model()
-            
+        
+    def create_new_character(self):
+        self.sink1.new_character()            
 
 ### MAIN ###
+def dump_slots(obj, out_file):
+    with open(out_file, 'wt') as fobj:
+        mobj = obj.metaObject()
+        for i in xrange( mobj.methodOffset(), mobj.methodCount() ):
+            if mobj.method(i).methodType() == QtCore.QMetaMethod.Slot:
+                fobj.write(mobj.method(i).signature() + ' ' + mobj.method(i).tag() + '\n')
 def main():
     app = QtGui.QApplication(sys.argv)
 
@@ -2169,11 +1908,13 @@ def main():
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
 
+    dump_slots(l5rcm, 'startup.txt')
+    
     # check for updates
     l5rcm.check_updates()
 
     # initialize new character
-    l5rcm.new_character()
+    l5rcm.create_new_character()
 
     if len(sys.argv) > 1:
         print 'load character file %s' % sys.argv[1]
