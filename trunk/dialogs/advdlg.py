@@ -86,6 +86,9 @@ class BuyAdvDialog(QtGui.QDialog):
         grid.addWidget(self.lb_cost, 4, 0, 1, 3)
         grid.addWidget(self.bt_buy,  5, 2, 1, 1)
         grid.addWidget(self.bt_close,  5, 3, 1, 1)
+        
+    def cleanup(self):
+        self.widgets = {}        
 
     def load_data(self):
         if self.tag == 'attrib':
@@ -289,7 +292,7 @@ class BuyAdvDialog(QtGui.QDialog):
         if self.adv and (self.adv.cost + self.pc.get_px()) > \
                          self.pc.exp_limit:
             QtGui.QMessageBox.warning(self, "Not enough XP",
-            "Cannot purchase.\nYou've reached the XP Limit.")
+            "Cannot purchase.\nYou've reached the XP Limit.")            
             self.close()
             return
 
@@ -317,6 +320,9 @@ class BuyAdvDialog(QtGui.QDialog):
             self.pc.add_advancement( self.adv )
             cb = self.widgets[self.tag][0]
             cb.removeItem(cb.currentIndex())
+            
+    def closeEvent(self, event):
+        self.cleanup()
 
 def check_all_done(cb_list):
     # check that all the choice have been made
@@ -411,6 +417,11 @@ class SelWcSkills(QtGui.QDialog):
 
         grid.addWidget( self.bt_ok,     row_+1, 1)
         grid.addWidget( self.bt_cancel, row_+1, 2)
+      
+    def cleanup(self):
+        self.cbs    = []
+        self.les    = []
+        self.error_bar = None    
 
     def load_data(self):
         c = self.dbconn.cursor()
@@ -509,6 +520,10 @@ class SelWcSkills(QtGui.QDialog):
             self.pc.add_school_skill(s_id, 0, emph)
 
         self.accept()
+        
+    def closeEvent(self, event):
+        self.cleanup()
+        
 
 class SelWcSpells(QtGui.QDialog):
     def __init__(self, pc, conn, parent = None):
@@ -637,7 +652,13 @@ class SelWcSpells(QtGui.QDialog):
 
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )
-    
+        
+    def cleanup(self):
+        self.cbs_ring    = []
+        self.cbs_mast    = []
+        self.cbs_spell   = []
+        self.error_bar = None
+        
     def do_ring_change(self, cb_ring):        
         ring  = cb_ring.itemText( cb_ring.currentIndex() )
         which = self.cbs_ring.index( cb_ring )
@@ -789,4 +810,5 @@ class SelWcSpells(QtGui.QDialog):
 
         self.accept()
 
-
+    def closeEvent(self, event):
+        self.cleanup()

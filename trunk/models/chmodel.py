@@ -757,8 +757,8 @@ class AdvancedPcModel(BasePcModel):
                     if len(s.tech_rules) > 0:
                         s.tech_rules.pop()
                     
-                    print s.techs
-                    print s.tech_rules
+                    #print s.techs
+                    #print s.tech_rules
                     
                     self.pop_spells(self.spells_per_rank)
                     

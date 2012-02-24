@@ -22,11 +22,11 @@ class Advancement(object):
     @staticmethod
     def set_buy_for_free(flag):
         Advancement.BUY_FOR_FREE = flag
-        print 'buy for free? %s ' % Advancement.BUY_FOR_FREE
+        print 'set buy for free? %s ' % Advancement.BUY_FOR_FREE
 
     @staticmethod
     def get_buy_for_free():
-        print 'buy for free? %s ' % Advancement.BUY_FOR_FREE
+        print 'get buy for free? %s ' % Advancement.BUY_FOR_FREE
         return Advancement.BUY_FOR_FREE
         
     def __init__(self, tag, cost):
