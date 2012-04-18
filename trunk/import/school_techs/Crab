@@ -23,6 +23,13 @@ hiruma_bushi_3; Hummingbird Wings
 hiruma_bushi_4; Shark Smells Blood
 hiruma_bushi_5; Daylight Wastes No Movement
 #
+Toritaka Bushi School (Crab)
+toritaka_bushi_crab_1; The Falcon's Eyes (Crab)
+toritaka_bushi_crab_2; The Falcon Takes Flight (Crab)
+toritaka_bushi_crab_3; The Falcon's Wings (Crab)
+toritaka_bushi_crab_4; Vigilant And Strong (Crab)
+toritaka_bushi_crab_5; Claws Of The Falcon (Crab)
+# 
 [OB] Kaiu Engineer School
 kaiu_engineer_1; The Kaiu Method
 kaiu_engineer_2; The Path Of Stone
@@ -43,4 +50,11 @@ hida_pragmatist_2; Wearing Down The Mountain
 hida_pragmatist_3; Fury Of The Avalanche
 hida_pragmatist_4; Stone Turns Steel Aside
 hida_pragmatist_5; Fight To The End
+#
+[OB] Hiruma Scout School
+hiruma_scout_1; Dance the Razor's Edge
+hiruma_scout_2; Run Like the Wind
+hiruma_scout_3; Veil of the Spirits
+hiruma_scout_4; Harness the Wind
+hiruma_scout_5; Strike of the Stalker
 #

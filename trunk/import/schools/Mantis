@@ -27,6 +27,13 @@ honor 3.5
 -
 -
 #
+Kitsune Shugenja School (Mantis)
+shugenja 
+stamina 1 
+honor 4.5 
+earth 
+air
+#
 [OB] Mantis Brawler School
 bushi
 agility 1
