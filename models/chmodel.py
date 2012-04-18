@@ -347,8 +347,13 @@ class AdvancedPcModel(BasePcModel):
 
     def get_health_rank(self, idx):
         if idx == 0:
-            return self.get_ring_rank(RINGS.EARTH) * 5
-        return  self.get_ring_rank(RINGS.EARTH) * self.health_multiplier
+            return self.get_ring_rank(RINGS.EARTH) * 5 + self.get_health_rank_mod()
+        return self.get_ring_rank(RINGS.EARTH) * self.health_multiplier + self.get_health_rank_mod()
+        
+    def get_health_rank_mod(self):
+        if self.has_rule('daidoji_bushi_1'):
+            return max(1, int(self.get_honor()-4))
+        return 0
 
     def get_max_wounds(self):
         max_ = 0

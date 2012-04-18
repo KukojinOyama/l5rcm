@@ -1117,7 +1117,12 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         c = self.db_conn.cursor()
         c.execute('''select name, perk, perkval, honor, tag from schools
                      where uuid=?''', [uuid])
-        name, perk, perkval, honor, tag = c.fetchone()
+        try:
+            name, perk, perkval, honor, tag = c.fetchone()
+        except:
+            # no school
+            self.pc.set_school(uuid, None, None, None)
+            return
         
         school_tags = [ x.strip() for x in tag.split(';') ]
         clan_tag = str.format('{0} {1}', self.cb_pc_clan.currentText(),
