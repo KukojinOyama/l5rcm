@@ -27,6 +27,13 @@ honor 4.5
 -
 -
 #
+Toritaka Bushi School (Crab)
+bushi 
+strength 1 
+honor 5.5 
+- 
+-
+#
 [OB] Kaiu Engineer School
 artisan; bushi
 intelligence 1
@@ -45,5 +52,12 @@ honor 5.5
 bushi
 agility 1
 honor 2.5
+-
+-
+#
+[OB] Hiruma Scout School
+bushi
+reflexes 1
+honor 4.5
 -
 -

@@ -26,3 +26,25 @@ void 1
 honor 4.5
 -
 -
+#
+[OB] Mirumoto Taoist Swordsman
+bushi
+void 1
+honor 5.5
+-
+-
+#
+[OB] Hoshi Tsurui Zumi
+monk
+void 1
+honor 4.5
+-
+-
+#
+[OB] Hitomi Kikage Zumi
+monk
+reflexes 1
+honor 4.5
+-
+-
+#

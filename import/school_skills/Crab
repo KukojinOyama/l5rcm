@@ -10,6 +10,9 @@ Commerce (Appraisal), Courtier, Defense, Etiquette, Intimidation, Sincerity (Dec
 #
 Hiruma Bushi School
 Athletics, Hunting, Kenjutsu (Katana), Kyujutsu, Lore_(Shadowlands), Stealth, *any
+# 
+Toritaka Bushi School (Crab)
+Animal_Handling (Falcons), Hunting ?2, Kenjutsu, Lore_(Spirit_Realms), Spears, *any 
 #
 [OB] Kaiu Engineer School
 Battle, Craft_(Armorsmithing), Craft_(Weaponsmithing), Engineering (*any), Lore_(Architecture), War_Fans
@@ -19,3 +22,6 @@ Investigation, Jiujutsu, Kenjutsu, Lore_(Shadowlands), Lore_(Maho), Meditation, 
 #
 [OB] Hida Pragmatist School
 Athletics, Defense, Jiujutsu (Improvised_Weapons) ?2, Kenjutsu, Lore_(Shadowlands), *bugei
+#
+[OB] Hiruma Scout School
+Athletics, Hunting, Kenjutsu, Kyujutsu, Lore_(Shadowlands), Stealth (Sneaking), *bugei
