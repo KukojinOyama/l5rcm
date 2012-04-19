@@ -620,7 +620,7 @@ class SelWcSpells(QtGui.QDialog):
                     print 'set maho flag for index %d' % i
                     self.cbs_mast[i].setProperty('only_maho', True)
                     self.cbs_ring[i].setProperty('only_maho', True)
-                elif models.chmodel.ring_from_name(ring) > 0:
+                elif models.chmodel.ring_from_name(ring) >= 0:
                     ring_n = models.chmodel.ring_from_name(ring)
                     #print 'i: %d, ring_n %d' % (i, ring_n)
                     self.cbs_ring[i].setCurrentIndex(ring_n)
