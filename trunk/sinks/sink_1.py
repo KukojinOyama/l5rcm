@@ -21,7 +21,7 @@ import rules
 import dialogs
 import models
 
-from l5rcmcore import get_app_file
+from l5rcmcore import get_app_file, DB_VERSION
 
 class Sink1(QtCore.QObject):
     def __init__(self, parent = None):
