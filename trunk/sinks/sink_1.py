@@ -20,6 +20,7 @@ from PySide import QtCore, QtGui
 import rules
 import dialogs
 import models
+import os
 
 from l5rcmcore import get_app_file, DB_VERSION
 
@@ -43,7 +44,7 @@ class Sink1(QtCore.QObject):
     def load_character(self):
         form = self.form
         
-        path = self.select_load_path()
+        path = form.select_load_path()
         form.load_character_from(path)
         
     def save_character(self):
