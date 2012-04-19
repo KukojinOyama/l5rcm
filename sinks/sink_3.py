@@ -21,13 +21,14 @@ import dialogs
 
 class Sink3(QtCore.QObject):
     def __init__(self, parent = None):
+        super(Sink3, self).__init__(parent)
         self.form = parent
         
     def show_add_weapon(self):   
         form = self.form
         
         dlg = dialogs.ChooseItemDialog(form.pc, 'weapon', form.db_conn, form)
-        filter = form.sender().parent().property('filter')        
+        filter = self.sender().parent().property('filter')        
         if filter is not None:
             dlg.set_filter(filter)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
@@ -45,7 +46,7 @@ class Sink3(QtCore.QObject):
         
         view_ = None
         try:            
-            view_ = form.sender().parent().property('source')
+            view_ = self.sender().parent().property('source')
         except Exception as e:
             print repr(e)
         if view_ is None:
@@ -64,7 +65,7 @@ class Sink3(QtCore.QObject):
         
         view_ = None
         try:            
-            view_ = form.sender().parent().property('source')
+            view_ = self.sender().parent().property('source')
         except Exception as e:
             print repr(e)
         if view_ is None:
@@ -81,7 +82,7 @@ class Sink3(QtCore.QObject):
         
         view_ = None
         try:            
-            view_ = form.sender().parent().property('source')
+            view_ = self.sender().parent().property('source')
         except Exception as e:
             print repr(e)
         if view_ is None:
@@ -102,7 +103,7 @@ class Sink3(QtCore.QObject):
         
         view_ = None
         try:            
-            view_ = form.sender().parent().property('source')
+            view_ = self.sender().parent().property('source')
         except Exception as e:
             print repr(e)
         if view_ is None:

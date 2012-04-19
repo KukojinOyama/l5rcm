@@ -25,6 +25,7 @@ from l5rcmcore import get_app_file
 
 class Sink1(QtCore.QObject):
     def __init__(self, parent = None):
+        super(Sink1, self).__init__(parent)
         self.form = parent
 
     def new_character(self):
@@ -111,7 +112,7 @@ class Sink1(QtCore.QObject):
     def act_buy_advancement(self):
         form = self.form
         
-        dlg = dialogs.BuyAdvDialog(form.pc, form.sender().property('tag'),
+        dlg = dialogs.BuyAdvDialog(form.pc, self.sender().property('tag'),
                                    form.db_conn, form)
         dlg.exec_()
         form.update_from_model()
@@ -119,7 +120,7 @@ class Sink1(QtCore.QObject):
     def act_buy_perk(self):
         form = self.form
         
-        dlg = dialogs.BuyPerkDialog(form.pc, form.sender().property('tag'),
+        dlg = dialogs.BuyPerkDialog(form.pc, self.sender().property('tag'),
                                     form.db_conn, form)
         dlg.exec_()
         form.update_from_model()   
@@ -128,7 +129,7 @@ class Sink1(QtCore.QObject):
         '''generate a random name for the character'''        
         form = self.form
         
-        gender = form.sender().property('gender')
+        gender = self.sender().property('gender')
         name = ''
         if gender == 'male':
             name = rules.get_random_name( get_app_file('male.txt') )
@@ -224,7 +225,7 @@ class Sink1(QtCore.QObject):
         form = self.form
         
         if form.lock_advancements:
-            return form.refund_last_adv()
+            return self.refund_last_adv()
         if adv_idx < 0:
             adv_idx = len(form.pc.advans) - form.adv_view.selectionModel().currentIndex().row() - 1
         if adv_idx >= len(form.pc.advans) or adv_idx < 0:
