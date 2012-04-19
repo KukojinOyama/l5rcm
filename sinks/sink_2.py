@@ -21,6 +21,7 @@ import dialogs
 
 class Sink2(QtCore.QObject):
     def __init__(self, parent = None):
+        super(Sink2, self).__init__(parent)
         self.form = parent
 
     def act_buy_merit(self):
