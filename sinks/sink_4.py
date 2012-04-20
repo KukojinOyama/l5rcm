@@ -14,3 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+from PySide import QtCore, QtGui
+
+import models
+
+class Sink4(QtCore.QObject):
+    def __init__(self, parent = None):
+        super(Sink4, self).__init__(parent)
+        self.form = parent
+        
+    def add_new_modifier(self):        
+        self.form.pc.add_modifier(models.ModifierModel())
+        self.form.update_from_model()
+        
+    def remove_selected_modifier(self):
+        pass
+    

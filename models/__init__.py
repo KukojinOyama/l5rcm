@@ -24,3 +24,4 @@ from models.perkviewmodel  import *
 from models.maviewmodel    import *
 from models.spellmodel     import *
 from models.sortproxymodel import *
+from models.modifiers      import *

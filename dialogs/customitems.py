@@ -100,6 +100,7 @@ class CustomWeaponDialog(QtGui.QDialog):
         self.pc  = pc
         self.db  = db
         self.item = None
+        self.edit_mode = False
         self.build_ui()
         self.load_data()
         
@@ -169,7 +170,7 @@ class CustomWeaponDialog(QtGui.QDialog):
         self.tx_notes   .setText( item.rule   )
         self.tx_str     .setText( str(item.strength) )
         self.tx_min_str .setText( str(item.min_str)  )        
-        
+        self.item = item
         self.cb_base_weap.setVisible(False)
 
     def on_base_weap_change(self, text = ''):        
@@ -178,7 +179,7 @@ class CustomWeaponDialog(QtGui.QDialog):
             return
             
         weap_uuid = self.cb_base_weap.itemData(selected)
-        itm       = models.weapon_outfit_from_db(self.db, weap_uuid)
+        self.item = itm = models.weapon_outfit_from_db(self.db, weap_uuid)
         
         self.tx_str    .setText( str(itm.strength) )
         self.tx_min_str.setText( str(itm.min_str)  )
@@ -190,7 +191,8 @@ class CustomWeaponDialog(QtGui.QDialog):
         self.tx_notes  .setText( itm.rule   )
         
     def on_accept(self):
-        self.item = models.WeaponOutfit()
+        if not self.item:
+            self.item = models.WeaponOutfit()
         
         def _try_get_int(widget):            
             try: 
@@ -206,17 +208,18 @@ class CustomWeaponDialog(QtGui.QDialog):
         self.item.strength = _try_get_int(self.tx_str     )
         self.item.min_str  = _try_get_int(self.tx_min_str )
 
-        self.item.dr     = _try_get_dr(self.tx_dr    )
-        self.item.dr_alt = _try_get_dr(self.tx_dr_alt)
+        self.item.dr     = _try_get_dr(self.tx_dr    ) or 'N/A'
+        self.item.dr_alt = _try_get_dr(self.tx_dr_alt) or 'N/A'
         self.item.range  = self.tx_rng  .text()      
         self.item.name   = self.tx_name .text()
-        self.item.desc   = self.tx_notes.toPlainText()
+        self.item.rule   = self.tx_notes.toPlainText()
         
         if self.item.name == '':
             QtGui.QMessageBox.warning(self, "Custom Weapon",
                                       "Please enter a name.")
             return
-        
-        self.pc.add_weapon( self.item )
+        if not self.edit_mode:
+            print('add {0}, tags: {1}'.format(self.item.name, self.item.tags))
+            self.pc.add_weapon( self.item )
         self.accept()
         

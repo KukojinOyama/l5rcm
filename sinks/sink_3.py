@@ -56,6 +56,8 @@ class Sink3(QtCore.QObject):
             return
         sel_itm = view_.model().data(sel_idx, QtCore.Qt.UserRole)
         dlg = dialogs.CustomWeaponDialog(form.pc, form.db_conn, form)
+        dlg.edit_mode = True
+        print('loading weap {0}, tags: {1}'.format(sel_itm.name, sel_itm.tags))
         dlg.load_item(sel_itm)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             form.update_from_model()

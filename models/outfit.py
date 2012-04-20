@@ -16,6 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from PySide import QtCore, QtGui
+import rules
 
 class ArmorOutfit(object):
     def __init__(self):
@@ -38,9 +39,15 @@ class WeaponOutfit(object):
         self.strength = 0
         self.min_str  = 0
         self.qty      = 1
+        self.skill_id = None
+        self.skill_nm = ''
+        self.base_atk = ''
+        self.max_atk  = ''
+        self.base_dmg = ''
+        self.max_dmg  = ''
         self.tags     = []        
         
-def weapon_outfit_from_db(dbconn, weap_uuid):
+def weapon_outfit_from_db(dbconn, weap_uuid, sk_uuid = None):
     itm = WeaponOutfit()
     
     c = dbconn.cursor()
@@ -69,8 +76,17 @@ def weapon_outfit_from_db(dbconn, weap_uuid):
         
     c.execute('''select uuid, tag from tags where uuid=?''', [weap_uuid])
     for uuid, tag in c.fetchall():
-        print 'weapon has tag %s' % tag
+        print('weapon {0} has tag {1}'.format(name,tag))
         itm.tags.append(tag)
+        
+    if sk_uuid:
+        itm.skill_id = sk_uuid        
+        c.execute('''select name from skills
+                     where uuid=?''', [sk_uuid])
+        itm.skill_nm = ''
+        for name in c.fetchall():
+            itm.skill_nm = name[0]
+            break        
         
     c.close()
     return itm
@@ -106,9 +122,9 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
         self.type  = type_
         self.items = []
         if type_ == 'melee':
-            self.headers = ['Name', 'DR', 'Sec. DR']
+            self.headers = ['Name', 'DR', 'Sec. DR', 'ATK Roll', 'Mod. ATK Roll', 'DMG Roll', 'Mod. DMG Roll']
         elif type_ == 'ranged':
-            self.headers = ['Name', 'Range', 'Strength', 'Min. Str.']
+            self.headers = ['Name', 'Range', 'Strength', 'Min. Str.', 'ATK Roll', 'Mod. ATK Roll']
         elif type_ == 'arrow':
             self.headers = ['Name', 'DR', 'Quantity']
             
@@ -158,6 +174,14 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
             return item.dr
         if column == 2:
             return item.dr_alt
+        if column == 3:
+            return item.base_atk
+        if column == 4:
+            return item.max_atk
+        if column == 5:
+            return item.base_dmg
+        if column == 6:
+            return item.max_dmg           
         return None
         
     def ranged_display_role(self, item, column):
@@ -168,7 +192,11 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
         if column == 2:
             return item.strength
         if column == 3:
-            return item.min_str            
+            return item.min_str
+        if column == 4:
+            return item.base_atk
+        if column == 5:
+            return item.max_atk
         return None        
 
     def arrow_display_role(self, item, column):
@@ -188,7 +216,7 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
 
     def add_item(self, item):
         row = self.rowCount()
-        self.beginInsertRows(QtCore.QModelIndex(), row, row)
+        self.beginInsertRows(QtCore.QModelIndex(), row, row)               
         self.items.append(item)
         self.endInsertRows()
 
@@ -201,4 +229,9 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
         self.clean()
         for w in model.get_weapons():
             if self.type in w.tags:
+                # calculate weapon atk
+                w.base_atk = rules.format_rtk_t(rules.calculate_base_attack_roll(model, w))
+                w.max_atk  = rules.format_rtk_t(rules.calculate_mod_attack_roll (model, w))
+                w.base_dmg = rules.format_rtk_t(rules.calculate_base_damage_roll(model, w))
+                w.max_dmg  = rules.format_rtk_t(rules.calculate_mod_damage_roll (model, w))                
                 self.add_item(w)

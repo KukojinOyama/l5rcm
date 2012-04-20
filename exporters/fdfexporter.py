@@ -73,7 +73,20 @@ class FDFExporter(object):
     def get_exp(self):
         return '%s / %s' % (self.model.get_px(), self.model.exp_limit)
                         
-                 
+
+def zigzag(l1, l2):    
+    def _zigzag(l1_, l2_):
+        rl = []
+        i = 0
+        for i in xrange(0, len(l2_)):
+            rl.append(l1_[i])
+            rl.append(l2_[i])
+        return rl + l1_[i:]
+        
+    if len(l1) >= len(l2):
+        return _zigzag(l1,l2)
+    return _zigzag(l2, l1)
+                        
 class FDFExporterAll(FDFExporter):
     def __init__(self):
         super(FDFExporterAll, self).__init__()
@@ -176,6 +189,29 @@ class FDFExporterAll(FDFExporter):
             fields['DISADVANTAGE_NM.%d' % i] = flaw.name
             fields['DISADVANTAGE_PT.%d' % i] = abs(flaw.cost)
             
+        # WEAPONS
+        melee_weapons = f.melee_view_model .items
+        range_weapons = f.ranged_view_model.items
+        wl = zigzag(melee_weapons, range_weapons)
+        count = min(2, len(wl))
+        for i in xrange(1, count+1):
+            weap = wl[i-1]
+            fields['WEAP_TYPE.%d'  % i] = weap.name
+            if weap.base_atk != weap.max_atk:
+                fields['WEAP_ATK.%d'   % i] = weap.base_atk + "/" + weap.max_atk
+            fields['WEAP_ATK.%d'   % i] = weap.base_atk
+            fields['WEAP_NOTES.%d' % i] = weap.desc
+            
+        # ARROWS
+        arrows        = f.arrow_view_model .items
+        count = min(5, len(arrows))
+        for i in xrange(1, count+1):
+            ar = arrows[i-1]
+            fields['ARROW_TYPE.%d'  % i] = ar.name.replace('Arrow', '')
+            fields['ARROW_DMG.%d'   % i] = ar.dr
+            fields['ARROW_QTY.%d'   % i] = ar.qty
+                    
+        # EXPORT FIELDS    
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)
             

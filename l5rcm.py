@@ -83,6 +83,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         self.sink1 = sinks.Sink1(self) # Menu Sink
         self.sink2 = sinks.Sink2(self) # MeritFlaw Sink
         self.sink3 = sinks.Sink3(self) # Weapons Sink
+        self.sink4 = sinks.Sink4(self) # Weapons Sink
 
         # Build interface and menus
         self.build_ui()
@@ -97,6 +98,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         self.build_ui_page_6()
         self.build_ui_page_7()
         self.build_ui_page_8()
+        self.build_ui_page_9()
         
         self.connect_signals()
 
@@ -710,8 +712,43 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         arrow_vtb .setProperty('source', views_[2])
         
         self.tabs.addTab(frame_, u"Weapons")
-        
+    
     def build_ui_page_7(self):
+        # modifiers
+        self.mods_view_model  = models.ModifiersTableViewModel(self)
+        self.mods_view_model.user_change.connect(self.update_from_model)
+        
+        def _make_sortable(model):
+            # enable sorting through a proxy model
+            sort_model_ = models.ColorFriendlySortProxyModel(self)
+            sort_model_.setDynamicSortFilter(True)
+            sort_model_.setSourceModel(model)
+            return sort_model_
+        
+        # weapon vertical toolbar
+        def _make_vertical_tb():
+            vtb = widgets.VerticalToolBar(self)            
+            vtb.addStretch()
+            vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))), 
+                          'Add modifier', self.sink4.add_new_modifier)
+            vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))), 
+                          'Remove modifier', self.sink4.remove_selected_modifier)
+            
+            vtb.addStretch()
+            return vtb            
+        
+        vtb  = _make_vertical_tb()
+        
+        models_ = [ ("Modifiers", 'table', _make_sortable(self.mods_view_model), 
+                    None, vtb) ]
+
+        frame_, views_ = self._build_generic_page(models_)        
+        
+        views_[0].setItemDelegate(models.ModifierDelegate())
+        vtb .setProperty('source', views_[0])        
+        self.tabs.addTab(frame_, u"Modifiers")        
+    
+    def build_ui_page_8(self):
         mfr  = QtGui.QFrame(self)
         vbox = QtGui.QVBoxLayout(mfr)
         #vbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -722,7 +759,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         
         self.tabs.addTab(mfr, u"Notes")
         
-    def build_ui_page_8(self):
+    def build_ui_page_9(self):
         mfr    = QtGui.QFrame(self)
         hbox   = QtGui.QHBoxLayout(mfr)
         hbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -1738,6 +1775,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         self.melee_view_model .update_from_model(self.pc)
         self.ranged_view_model.update_from_model(self.pc)
         self.arrow_view_model .update_from_model(self.pc)
+        self.mods_view_model  .update_from_model(self.pc)
 
     def update_wound_penalties(self):
         penalties = [0, 3, 5, 10, 15, 20, 40]        
@@ -1800,6 +1838,9 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
     
 
     def closeEvent(self, ev):
+        # update interface last time, to set unsaved states
+        self.update_from_model()
+        
         # SAVE GEOMETRY
         settings = QtCore.QSettings()
         settings.setValue('geometry', self.saveGeometry())
@@ -1810,7 +1851,8 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             settings.setValue('insight_calculation', 3)
         else:
             settings.setValue('insight_calculation', 1)
-            
+        
+        print('is model dirty? {0}'.format(self.pc.is_dirty()))
         if self.pc.is_dirty():
             resp = self.ask_to_save()
             if resp == QtGui.QMessageBox.Save:
