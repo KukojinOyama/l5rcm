@@ -31,7 +31,7 @@ import dbutil
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.41'
+APP_VERSION = '2.42'
 DB_VERSION  = '2.4'
 APP_ORG     = 'openningia'
 
