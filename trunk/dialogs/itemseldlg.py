@@ -168,7 +168,9 @@ class ChooseItemDialog(QtGui.QDialog):
         if selected < 0:
             return
         weap_uuid = self.cb2.itemData(selected)
-        self.item = models.weapon_outfit_from_db(self.dbconn, weap_uuid)
+        sk_uuid   = self.cb1.itemData(self.cb1.currentIndex())
+        
+        self.item = models.weapon_outfit_from_db(self.dbconn, weap_uuid, sk_uuid)
         lines = []
                     
         if self.item.dr is not None:

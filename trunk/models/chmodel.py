@@ -17,6 +17,7 @@
 
 import advances as adv
 import outfit
+import modifiers
 import json
 import os
 import rules
@@ -196,6 +197,8 @@ class AdvancedPcModel(BasePcModel):
         self.unlock_schools = False
         self.extra_notes = ''
         self.insight_calculation = None
+        
+        self.modifiers = []
         
     def load_default(self):
         self.step_0.load_default()
@@ -562,6 +565,11 @@ class AdvancedPcModel(BasePcModel):
         
     def get_weapons(self):
         return self.weapons
+        
+    def get_modifiers(self, filter_type = None):
+        if not filter_type:
+            return self.modifiers
+        return filter(lambda x: x.type == filter_type, self.modifiers)
 
     def add_school_skill(self, skill_uid, skill_rank, emph = None):
         s_id = str(skill_uid)
@@ -610,6 +618,9 @@ class AdvancedPcModel(BasePcModel):
 
     def add_weapon(self, item):
         self.weapons.append( item )
+        
+    def add_modifier(self, item):
+        self.modifiers.append(item)
 
     def set_family(self, family_id = 0, perk = None, perkval = 1, tags = []):
         if self.family == family_id:
@@ -843,9 +854,15 @@ class AdvancedPcModel(BasePcModel):
                 for w in obj['weapons']:
                     item = outfit.WeaponOutfit()
                     _load_obj(deepcopy(w), item)
-                    self.add_weapon(item)                
-                
-            self.unsaved  = False           
-            
+                    self.add_weapon(item)
+                    
+            self.modifiers = []
+            if 'modifiers' in obj:
+                for m in obj['modifiers']:
+                    item = modifiers.ModifierModel()
+                    _load_obj(deepcopy(m), item)
+                    self.add_modifier(item)
+                    
+            self.unsaved  = False
             return True
         return False

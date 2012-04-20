@@ -16,6 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
+from models.chmodel import ATTRIBS
 
 # global cache
 _cache_names = {}
@@ -24,7 +25,12 @@ def parse_rtk(rtk):
     tk = rtk.split('k')
     if len(tk) != 2:
         return 0, 0
-    return int(tk[0]), int(tk[1])
+    # the sign of the first commands
+    sign = -1 if int(tk[0]) < 0 else 1
+    return int(tk[0]), int(tk[1])*sign
+
+def format_rtk_t(rtk):    
+    return format_rtk(rtk[0], rtk[1])
     
 def format_rtk(r, k):
     bonus = 0
@@ -34,10 +40,12 @@ def format_rtk(r, k):
     if k > 10:
         bonus = (k-10)*2
         k = 10
-    if bonus:
-        return '%dk%d + %d' % (r, k, bonus)
+    sign = -1 if r < 0 else 1
+    sign_chr = '-' if sign < 0 else '+'
+    if bonus:        
+        return '%dk%d %s %d' % (r, abs(k), sign_chr, abs(bonus))
     else:
-        return '%dk%d' % (r, k)
+        return '%dk%d' % (r, abs(k))
     
 def get_random_name(path):
     global _cache_names
@@ -114,4 +122,97 @@ def split_decimal(value):
     decimal.getcontext().prec = 2
     d = decimal.Decimal(value)
     i = int(d)
-    return (i, d-i)    
+    return (i, d-i)
+    
+def calculate_base_attack_roll(pc, weap):
+    # base attack roll is calculated 
+    # as xky where x is agility + weapon_skill_rank
+    # and y is agility
+    
+    attrib = ATTRIBS.AGILITY
+    if weap.skill_nm == 'Kyujutsu':
+        attrib = ATTRIBS.REFLEXES
+    
+    trait   = pc.get_attrib_rank(attrib)
+    skill   = 0
+    if weap.skill_id:
+        skill = pc.get_skill_rank(weap.skill_id)
+        print('calc base atk. trait: {0}, weap: {1}, skill: {2}, rank: {3}'
+             .format(trait, weap.name, weap.skill_nm, skill))
+            
+    return trait+skill, trait
+    
+def calculate_mod_attack_roll(pc, weap):
+    atk_r, atk_k = calculate_base_attack_roll(pc, weap)
+    r_mod = 0
+    k_mod = 0        
+
+    # any roll bonuses
+    anyr = pc.get_modifiers('anyr')
+    for x in anyr:
+        if x.active:
+            r_mod += x.value[0]
+            k_mod += x.value[1]            
+    
+    if 'melee' in weap.tags:
+        # melee attack roll bonuses
+        anyr = pc.get_modifiers('matk')
+        for x in anyr:
+            if x.active:
+                r_mod += x.value[0]
+                k_mod += x.value[1]
+                
+    elif 'ranged' in weap.tags:
+        # ranged attack roll bonuses
+        anyr = pc.get_modifiers('ratk')
+        for x in anyr:
+            if x.active:
+                r_mod += x.value[0]
+                k_mod += x.value[1]
+    
+    return atk_r+r_mod, atk_k+k_mod
+    
+def calculate_base_damage_roll(pc, weap):
+    # base damage roll is calculated 
+    # as xky where x is strength + weapon_damage
+    # and y is strength
+    
+    attrib = ATTRIBS.STRENGTH   
+    trait   = pc.get_attrib_rank(attrib)
+    
+    if weap.skill_nm == 'Kyujutsu': # do not support DMG for ranged
+        return 0, 0
+        
+    drr, drk = parse_rtk(weap.dr)
+                   
+    return trait+drr, drk
+    
+def calculate_mod_damage_roll(pc, weap):
+    dmg_r, dmg_k = calculate_base_damage_roll(pc, weap)
+    r_mod = 0
+    k_mod = 0        
+
+    # any roll bonuses
+    anyr = pc.get_modifiers('anyr')
+    for x in anyr:
+        if x.active:
+            r_mod += x.value[0]
+            k_mod += x.value[1]            
+    
+    if 'melee' in weap.tags:
+        # melee attack roll bonuses
+        anyr = pc.get_modifiers('mdmg')
+        for x in anyr:
+            if x.active:
+                r_mod += x.value[0]
+                k_mod += x.value[1]
+                
+    elif 'ranged' in weap.tags:
+        # ranged attack roll bonuses
+        anyr = pc.get_modifiers('rdmg')
+        for x in anyr:
+            if x.active:
+                r_mod += x.value[0]
+                k_mod += x.value[1]
+    
+    return dmg_r+r_mod, dmg_k+k_mod    
