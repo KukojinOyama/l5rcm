@@ -143,6 +143,12 @@ mental
 -
 spider 4
 #
+Darling Of The Court
+social
+2
+-
+courtier 1
+#
 Different School
 social
 5
@@ -448,6 +454,12 @@ mental
 7
 -
 lion 6
+#
+Perceived Honor
+social
+2;4;6;8;10;12;14;16;18
+-
+-
 #
 Precise Memory
 mental

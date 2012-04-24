@@ -18,31 +18,29 @@
 from PySide import QtCore, QtGui
 import rules
 
-# types:
-# matk => Melee Attack Roll 
-# ratk => Ranged Attack Roll 
-# mdmg => Melee Damage Roll
-# rdmg => Ranged Damage Roll
-# spcr => Spell Casting Roll
-# anyr => Any Roll
-# init => Initiative ??? <- already present
-
 MOD_TYPES = {
     "none" : "Select a modifier",
-    "matk" : "Melee Attack Roll",
-    "ratk" : "Ranged Attack Roll", 
-    "mdmg" : "Melee Damage Roll",
-    #"rdmg" : "Ranged Damage Roll",
+    "wdmg" : "Damage Roll",
     "spcr" : "Spell Casting Roll",
     "anyr" : "Any Roll",
+    "skir" : "Skill Roll",
+    #"rdmg" : "Ranged Damage Roll",    
     #"init" : "Initiative"
+}
+
+MOD_DTLS = {
+    "none": ("none", "N/A"),
+    "anyr": ("none", "N/A"),
+    "skir": ("skill", "Select Skill"),
+    "wdmg": ("aweap", "Select Weapon"),
 }
 
 class ModifierModel(object):
     def __init__(self):
         self.type   = 'none'
+        self.dtl    = None
         self.value  = (0, 0)
-        self.reason = 'No reason, really :)'
+        self.reason = "I'm just this good"
         self.active = False
        
 class ModifiersTableViewModel(QtCore.QAbstractTableModel):
@@ -51,7 +49,7 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
     def __init__(self, parent = None):
         super(ModifiersTableViewModel, self).__init__(parent)
         self.items = []
-        self.headers = ['Modifies', 'Value', 'Reason']
+        self.headers = ['Modifies', 'Detail', 'Value', 'Reason']
         self.dirty   = False
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
@@ -104,8 +102,10 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
             if index.column() == 0:
                 item.type = value
             elif index.column() == 1:
-                item.value = rules.parse_rtk(value)
+                item.dtl = value
             elif index.column() == 2:
+                item.value = rules.parse_rtk(value)
+            elif index.column() == 3:
                 item.reason = value
             else:
                 ret = False
@@ -120,10 +120,12 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
         
     def __display_role(self, item, column):
         if column == 0:
-            return MOD_TYPES[item.type]
+            return MOD_TYPES[item.type] if item.type else None
         if column == 1:
-            return rules.format_rtk_t(item.value)
+            return item.dtl or MOD_DTLS[item.type][1]
         if column == 2:
+            return rules.format_rtk_t(item.value)
+        if column == 3:
             return item.reason
         return None
         
@@ -163,8 +165,9 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
                         
 ## MODIFIER ITEM DELEGATE ##     
 class ModifierDelegate(QtGui.QStyledItemDelegate):    
-    def __init__(self, parent=None):
+    def __init__(self, db, parent=None):
         super(ModifierDelegate, self).__init__(parent)        
+        self.db = db
                     
     def createEditor(self, parent, option, index):
         if not index.isValid():            
@@ -188,6 +191,23 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
         
         item = index.model().data(index, QtCore.Qt.UserRole)
         
+        def __skill_completer():
+            all_skills = []
+            c = self.db.cursor()
+            c.execute('''select name from skills order by name''')
+            for t in c.fetchall():
+                all_skills.append(t[0])
+            return QtGui.QCompleter(all_skills)
+            
+        def __weap_completer():
+            pc = None
+            if self.parent():
+                pc = self.parent().pc
+            aweaps = []
+            for w in pc.get_weapons():
+                aweaps.append(w.name)
+            return QtGui.QCompleter(aweaps)
+            
         def __set_edit_data(column):
             if column == 0:                
                 cur_idx = -1
@@ -197,9 +217,17 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
                     if mk == item.type:
                         cur_idx = editor.count() - 1
                 editor.setCurrentIndex(cur_idx)
+                item.dtl = None
             elif column == 1:
-                editor.setText(rules.format_rtk_t(item.value))
+                dtl = MOD_DTLS[item.type] if item.type else 'none'
+                if dtl[0] == 'skill':
+                    editor.setCompleter(__skill_completer())
+                elif dtl[0] == 'aweap':
+                    editor.setCompleter(__weap_completer())
+                editor.setText(item.dtl)
             elif column == 2:
+                editor.setText(rules.format_rtk_t(item.value))
+            elif column == 3:
                 editor.setText(item.reason)
             else:
                 editor.setText("")
@@ -216,8 +244,10 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
                 idx = editor.currentIndex()
                 return editor.itemData(idx)
             elif column == 1:
-                return editor.text()
+                return editor.text()                
             elif column == 2:
+                return editor.text()
+            elif column == 3:
                 return editor.text()
             return None
                 
@@ -228,4 +258,4 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
     def commitAndCloseEditor(self):
         editor = self.sender()
         self.commitData.emit(editor)
-        self.closeEditor.emit(editor)
+        self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.EndEditHint.NoHint)

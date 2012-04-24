@@ -449,7 +449,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             vtb = widgets.VerticalToolBar(self)
             vtb.addStretch()
             
-            cb_buy    = None #self.act_buy_spell
+            cb_buy    = self.act_buy_spell
             cb_remove = self.act_del_spell
             cb_memo   = self.act_memo_spell
             
@@ -742,10 +742,11 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         models_ = [ ("Modifiers", 'table', _make_sortable(self.mods_view_model), 
                     None, vtb) ]
 
-        frame_, views_ = self._build_generic_page(models_)        
+        frame_, views_ = self._build_generic_page(models_)
+        self.mod_view = views_[0]
         
-        views_[0].setItemDelegate(models.ModifierDelegate())
-        vtb .setProperty('source', views_[0])        
+        self.mod_view.setItemDelegate(models.ModifierDelegate(self.db_conn, self))
+        vtb .setProperty('source', self.mod_view)
         self.tabs.addTab(frame_, u"Modifiers")        
     
     def build_ui_page_8(self):
@@ -1315,7 +1316,10 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             if idx.isValid():
                 sm_.setCurrentIndex(idx, (QtGui.QItemSelectionModel.Select |
                                          QtGui.QItemSelectionModel.Rows))
-                                         
+    
+    def act_buy_spell(self):
+        pass
+        
     def act_del_spell(self):
         # get selected spell
         sm_ = self.spell_table_view.selectionModel()
