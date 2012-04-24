@@ -31,8 +31,8 @@ import dbutil
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.42'
-DB_VERSION  = '2.4'
+APP_VERSION = '2.5'
+DB_VERSION  = '2.5'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
