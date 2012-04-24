@@ -157,7 +157,7 @@ def roll_l5r_pool(pool, keep):
             old_roll  = roll
             roll      = random.randint(1,10)
             tot_roll += roll
-            while (reroll_1 and tot_roll == roll and 
+            if (reroll_1 and tot_roll == roll and 
                 roll == 1):
                 # reroll 1s                
                 roll      = random.randint(1,10)

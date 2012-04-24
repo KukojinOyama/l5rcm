@@ -1313,7 +1313,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         c.close()
         
         self.pc.recalc_ranks()        
-        self.switch_to_page_3 ()
+        self.sink1.switch_to_page_3()
         self.update_from_model()
         
     def check_rank_advancement(self):
@@ -1330,7 +1330,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             self.show_nicebar([lb, bt])
             
             # debug
-            dump_slots(self, 'after_a_while.txt')
+            # dump_slots(self, 'after_a_while.txt')
             
     def check_school_tech_and_spells(self):
         if self.nicebar: return
@@ -1480,7 +1480,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                 cc = past.CharConvert(self.pc, get_app_file(past_db), get_app_file('l5rdb.sqlite') )
                 cc.start()
                 # SAVE CHARACTER
-                self.save_character()
+                self.sink1.save_character()
                 # ADVISE USER
                 self.advise_conversion(backup_path)
 
@@ -1814,7 +1814,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         if self.pc.is_dirty():
             resp = self.ask_to_save()
             if resp == QtGui.QMessageBox.Save:
-                self.save_character()
+                self.sink1.save_character()
                 pass
             elif resp == QtGui.QMessageBox.Cancel:
                 ev.ignore()
@@ -1913,7 +1913,7 @@ def main():
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
 
-    dump_slots(l5rcm, 'startup.txt')
+    # dump_slots(l5rcm, 'startup.txt')
     
     # check for updates
     l5rcm.check_updates()
