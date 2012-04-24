@@ -152,23 +152,15 @@ def calculate_mod_attack_roll(pc, weap):
     for x in anyr:
         if x.active:
             r_mod += x.value[0]
-            k_mod += x.value[1]            
+            k_mod += x.value[1]
     
-    if 'melee' in weap.tags:
-        # melee attack roll bonuses
-        anyr = pc.get_modifiers('matk')
-        for x in anyr:
-            if x.active:
-                r_mod += x.value[0]
-                k_mod += x.value[1]
-                
-    elif 'ranged' in weap.tags:
-        # ranged attack roll bonuses
-        anyr = pc.get_modifiers('ratk')
-        for x in anyr:
-            if x.active:
-                r_mod += x.value[0]
-                k_mod += x.value[1]
+    # skill roll bonuses
+    skir = pc.get_modifiers('skir')    
+    for x in skir:
+        if x.active and x.dtl == weap.skill_nm:
+            print('yai modifier!')
+            r_mod += x.value[0]
+            k_mod += x.value[1]
     
     return atk_r+r_mod, atk_k+k_mod
     
@@ -198,21 +190,12 @@ def calculate_mod_damage_roll(pc, weap):
         if x.active:
             r_mod += x.value[0]
             k_mod += x.value[1]            
-    
-    if 'melee' in weap.tags:
-        # melee attack roll bonuses
-        anyr = pc.get_modifiers('mdmg')
-        for x in anyr:
-            if x.active:
-                r_mod += x.value[0]
-                k_mod += x.value[1]
-                
-    elif 'ranged' in weap.tags:
-        # ranged attack roll bonuses
-        anyr = pc.get_modifiers('rdmg')
-        for x in anyr:
-            if x.active:
-                r_mod += x.value[0]
-                k_mod += x.value[1]
-    
+        
+    # damage roll bonuses
+    wdmg = pc.get_modifiers('wdmg')
+    for x in wdmg:
+        if x.active and x.dtl == weap.name:
+            r_mod += x.value[0]
+            k_mod += x.value[1]
+            
     return dmg_r+r_mod, dmg_k+k_mod    

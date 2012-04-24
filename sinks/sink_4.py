@@ -29,5 +29,9 @@ class Sink4(QtCore.QObject):
         self.form.update_from_model()
         
     def remove_selected_modifier(self):
-        pass
-    
+        index = self.form.mod_view.selectionModel().currentIndex()
+        if not index.isValid():
+            return            
+        item = index.model().data(index, QtCore.Qt.UserRole)
+        self.form.pc.modifiers.remove(item)
+        self.form.update_from_model()
