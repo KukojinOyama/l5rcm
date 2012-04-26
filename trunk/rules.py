@@ -169,12 +169,19 @@ def calculate_base_damage_roll(pc, weap):
     # as xky where x is strength + weapon_damage
     # and y is strength
     
-    attrib = ATTRIBS.STRENGTH   
-    trait   = pc.get_attrib_rank(attrib)
+    attrib   = ATTRIBS.STRENGTH   
+    trait    = pc.get_attrib_rank(attrib)
+    weap_str = 0
+    try:
+        weap_str = int(weap.strength)
+    except:
+        weap_str = 0
     
-    if weap.skill_nm == 'Kyujutsu': # do not support DMG for ranged
-        return 0, 0
-        
+    if 'ranged' in weap.tags and weap_str > 0: 
+        # ranged calculation is different
+        # a weapon does have its own strength
+        trait = weap_str
+    
     drr, drk = parse_rtk(weap.dr)
                    
     return trait+drr, drk
