@@ -199,7 +199,12 @@ class FDFExporterAll(FDFExporter):
             fields['WEAP_TYPE.%d'  % i] = weap.name
             if weap.base_atk != weap.max_atk:
                 fields['WEAP_ATK.%d'   % i] = weap.base_atk + "/" + weap.max_atk
-            fields['WEAP_ATK.%d'   % i] = weap.base_atk
+            else:
+                fields['WEAP_ATK.%d'   % i] = weap.base_atk
+            if weap.base_dmg != weap.max_dmg:
+                fields['WEAP_DMG.%d'   % i] = weap.base_dmg + "/" + weap.max_dmg
+            else:
+                fields['WEAP_DMG.%d'   % i] = weap.base_dmg                
             fields['WEAP_NOTES.%d' % i] = weap.desc
             
         # ARROWS
