@@ -220,3 +220,31 @@ class FDFExporterAll(FDFExporter):
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)
             
+class FDFExporterShugenja(FDFExporter):
+    def __init__(self):
+        super(FDFExporterShugenja, self).__init__()
+        
+    def export_body(self, io):
+        m = self.model
+        f = self.form
+        
+        fields = {}
+        
+        # spells
+        r, c = 0, 0
+        for spell in f.sp_view_model.items:
+            fields['SPELL_NM.%d.%d'  % (r, c)       ] = spell.name
+            fields['SPELL_MASTERY.%d.%d'  % (r, c)  ] = spell.mastery
+            fields['SPELL_RANGE.%d.%d'  % (r, c)    ] = spell.range
+            fields['SPELL_AREA.%d.%d'  % (r, c)     ] = spell.area
+            fields['SPELL_DURATION.%d.%d'  % (r, c) ] = spell.duration
+            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = spell.ring           
+            
+            c += 1
+            if c == 3:
+                c = 0
+                r += 1
+                
+        # EXPORT FIELDS    
+        for k in fields.iterkeys():
+            self.export_field(k, fields[k], io)               

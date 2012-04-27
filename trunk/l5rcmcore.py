@@ -140,8 +140,10 @@ class L5RCMCore(object):
                 
             # call pdftk
             import subprocess
+            print('call pdftk source: {0} fdf: {1} output: {2}'.format(source_pdf, fdf_file, target_pdf))
             args_ = [_get_pdftk(), source_pdf, 'fill_form', fdf_file, 'output', target_pdf, 'flatten']
-            subprocess.call(args_)                       
+            subprocess.call(args_)
+            print('created pdf {0}'.format(target_pdf))
             
         def _get_pdftk():
             if os.name == 'nt':
@@ -153,7 +155,13 @@ class L5RCMCore(object):
         # GENERIC SHEET
         source_pdf = get_app_file('sheet_all.pdf')
         source_fdf = _create_fdf(exporters.FDFExporterAll())
-        _flatten_pdf(source_fdf, source_pdf, export_file)        
+        _flatten_pdf(source_fdf, source_pdf, export_file)
+        
+        # SHUGENJA SHEET
+        if self.pc.has_tag('shugenja'):
+            source_pdf = get_app_file('sheet_shugenja.pdf')
+            source_fdf = _create_fdf(exporters.FDFExporterShugenja())
+            _flatten_pdf(source_fdf, source_pdf, export_file, 'shugenja')
         
     def remove_advancement_item(self, adv_itm):
         if adv_itm in self.pc.advans:
