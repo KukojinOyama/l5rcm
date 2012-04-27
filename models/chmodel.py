@@ -143,6 +143,8 @@ class CharacterSchool(object):
         self.emph        = {}
         self.spells      = [] 
         self.tags        = []
+        self.affinity    = None
+        self.deficiency  = None
 
     def add_tag(self, tag):
         if tag not in self.tags:

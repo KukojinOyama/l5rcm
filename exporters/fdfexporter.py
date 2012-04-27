@@ -245,6 +245,15 @@ class FDFExporterShugenja(FDFExporter):
                 c = 0
                 r += 1
                 
+        # schools
+        schools = filter(lambda x: 'shugenja' in x.tags, m.schools)
+        count = min(3, len(schools))
+        for i in xrange(0, count):
+            fields['SCHOOL_NM.%d'  % (i+1)    ] = f.get_school_name(schools[i].school_id)
+            fields['AFFINITY.%d'  % (i+1)     ] = schools[i].affinity.capitalize()
+            fields['DEFICIENCY.%d'  % (i+1)   ] = schools[i].deficiency.capitalize()
+            fields['SCHOOL_TECH_1.%d'  % (i+1)] = f.get_school_tech_name(schools[i].school_id)
+            
         # EXPORT FIELDS    
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)               
