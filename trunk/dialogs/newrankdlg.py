@@ -71,6 +71,9 @@ what would you want to do?
         school_obj = models.CharacterSchool(dlg.get_school_id())        
         school_obj.tags = dlg.get_school_tags()
         school_obj.school_rank = 0
+        aff_def = self.parent().get_school_aff_def(school_obj.school_id)
+        school_obj.affinity   = aff_def[0]
+        school_obj.deficiency = aff_def[1]        
         
         self.pc.schools.append(school_obj)
         self.accept()
@@ -193,8 +196,17 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
     def on_school_change(self):
         idx_ = self.cb_school.currentIndex()       
+        clan_idx_ = self.cb_clan.currentIndex()       
         c = self.dbconn.cursor()
+        
         school_id = self.cb_school.itemData(idx_)
+        self.school_tg = [self.cb_clan.itemText(clan_idx_).lower()]
+        
+        c.execute('''select tag from schools
+                     where uuid=?''', [school_id])
+        tag = c.fetchone()
+        if tag:
+            self.school_tg.append(tag[0])            
         
         query = """SELECT req_field, target_val
                    FROM requirements WHERE

@@ -140,7 +140,6 @@ class L5RCMCore(object):
                 
             # call pdftk
             import subprocess
-            print('call pdftk source: {0} fdf: {1} output: {2}'.format(source_pdf, fdf_file, target_pdf))
             args_ = [_get_pdftk(), source_pdf, 'fill_form', fdf_file, 'output', target_pdf, 'flatten']
             subprocess.call(args_)
             print('created pdf {0}'.format(target_pdf))
@@ -320,4 +319,30 @@ class L5RCMCore(object):
         self.update_from_model()
         
     
+    def get_school_name(self, school_id):
+        c = self.db_conn.cursor()
+        c.execute('''select name from schools
+                     where uuid=?''', [school_id])
+        tmp = c.fetchone()
+        c.close()
+        return tmp[0] if tmp else ""
         
+    def get_school_aff_def(self, school_id):
+        c = self.db_conn.cursor()
+        c.execute('''select affinity, deficiency from schools
+                     where uuid=?''', [school_id])
+        tmp = c.fetchone()
+        c.close()
+        if tmp:
+            return tmp[0], tmp[1]
+        return None, None
+        
+    def get_school_tech_name(self, school_id, rank = 1):
+        c = self.db_conn.cursor()
+        c.execute('''select name from school_techs
+                     where school_uuid=? and rank=?''', [school_id, rank])
+        tmp = c.fetchone()
+        print(tmp)
+        c.close()
+        return tmp[0] if tmp else ""
+       

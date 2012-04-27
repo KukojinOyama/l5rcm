@@ -1214,6 +1214,8 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             for affin, defic in c.fetchall():
                 self.pc.set_affinity(affin)
                 self.pc.set_deficiency(defic)
+                self.pc.get_school().affinity = affin
+                self.pc.get_school().deficiency = defic
 
         c.close()
         self.update_from_model()
