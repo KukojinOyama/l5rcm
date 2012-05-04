@@ -31,7 +31,7 @@ import dbutil
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.5'
+APP_VERSION = '2.6'
 DB_VERSION  = '2.5'
 APP_ORG     = 'openningia'
 
@@ -116,17 +116,18 @@ class L5RCMCore(object):
         f.close()
         
     def export_as_pdf(self, export_file):
-    
+        from tempfile import mkstemp
+        import subprocess
+        
         def _create_fdf(exporter):            
             #exporter = exporters.FDFExporterAll()
             exporter.set_form (self)
-            exporter.set_model(self.pc     )
-            from tempfile import gettempdir
-            fpath = os.path.join(gettempdir(), 'l5rcm.fdf')
-            fobj = open(fpath, 'wt')
-            if fobj is not None:
-                exporter.export(fobj)
-            fobj.close()        
+            exporter.set_model(self.pc     )           
+            #fpath = os.path.join(gettempdir(), 'l5rcm.fdf')
+            fd, fpath = mkstemp(suffix='.fdf', text=True)
+            with os.fdopen(fd, 'wt') as fobj:
+                exporter.export(fobj)            
+            
             return fpath
             
         def _flatten_pdf(fdf_file, source_pdf, target_pdf, target_suffix = None):
@@ -138,11 +139,18 @@ class L5RCMCore(object):
             else:
                 target_pdf = os.path.join(based, basen) + '.pdf'
                 
-            # call pdftk
-            import subprocess
+            # call pdftk            
             args_ = [_get_pdftk(), source_pdf, 'fill_form', fdf_file, 'output', target_pdf, 'flatten']
             subprocess.call(args_)
+            _try_remove(fdf_file)
             print('created pdf {0}'.format(target_pdf))
+            
+        def _merge_pdf(input_files, output_file):
+            # call pdftk            
+            args_ = [_get_pdftk()] + input_files + ['output', output_file]
+            subprocess.call(args_)
+            for f in input_files:
+                _try_remove(f)            
             
         def _get_pdftk():
             if os.name == 'nt':
@@ -150,17 +158,33 @@ class L5RCMCore(object):
             elif os.name == 'posix':
                 return '/usr/bin/pdftk'
             return None
+            
+        def _try_remove(fpath):
+            try: 
+                os.remove(fpath) 
+            except:
+                pass
+            print('removed {0}'.format(fpath))
         
+        temp_files = []        
         # GENERIC SHEET
         source_pdf = get_app_file('sheet_all.pdf')
-        source_fdf = _create_fdf(exporters.FDFExporterAll())
-        _flatten_pdf(source_fdf, source_pdf, export_file)
-        
+        source_fdf = _create_fdf(exporters.FDFExporterAll())  
+        fd, fpath = mkstemp(suffix='.pdf');
+        _flatten_pdf(source_fdf, source_pdf, fpath)
+        temp_files.append(fpath)
         # SHUGENJA SHEET
         if self.pc.has_tag('shugenja'):
             source_pdf = get_app_file('sheet_shugenja.pdf')
             source_fdf = _create_fdf(exporters.FDFExporterShugenja())
-            _flatten_pdf(source_fdf, source_pdf, export_file, 'shugenja')
+            fd, fpath = mkstemp(suffix='.pdf');
+            _flatten_pdf(source_fdf, source_pdf, fpath)
+            temp_files.append(fpath)
+            
+        if len(temp_files) > 1:
+            _merge_pdf(temp_files, export_file)
+        elif len(temp_files) == 1:
+            os.rename(temp_files[0], export_file)
         
     def remove_advancement_item(self, adv_itm):
         if adv_itm in self.pc.advans:
@@ -342,7 +366,6 @@ class L5RCMCore(object):
         c.execute('''select name from school_techs
                      where school_uuid=? and rank=?''', [school_id, rank])
         tmp = c.fetchone()
-        print(tmp)
         c.close()
         return tmp[0] if tmp else ""
        
