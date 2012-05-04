@@ -281,6 +281,8 @@ class AdvancedPcModel(BasePcModel):
         return self.step_2.honor + self.honor
 
     def get_glory(self):
+        if self.has_tag('monk'):
+            return self.glory
         return self.step_0.glory + self.glory
 
     def get_status(self):
