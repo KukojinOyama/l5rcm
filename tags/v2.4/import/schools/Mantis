@@ -1,0 +1,56 @@
+#
+Yoritomo Bushi School
+bushi
+strength 1
+honor 3.5
+-
+-
+#
+Moshi Shugenja School
+shugenja
+awareness 1
+honor 4.5
+air
+earth
+#
+Yoritomo Courtier School
+courtier
+willpower 1
+honor 2.5
+-
+-
+#
+Tsuruchi Archer School
+bushi
+reflexes 1
+honor 3.5
+-
+-
+#
+Kitsune Shugenja School (Mantis)
+shugenja 
+stamina 1 
+honor 4.5 
+earth 
+air
+#
+[OB] Mantis Brawler School
+bushi
+agility 1
+honor 3.5
+-
+-
+#
+[OB] Tsuruchi Bounty Hunter School
+bushi
+agility 1
+honor 4.5
+-
+-
+#
+[OB] Yoritomo Shugenja School
+shugenja
+perception 1
+honor 4.5
+water
+earth
