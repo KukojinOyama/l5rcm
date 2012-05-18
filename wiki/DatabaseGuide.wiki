@@ -1,4 +1,5 @@
 #summary A database guide to L5RCM
+#labels Featured,Phase-Support
 
 = Introduction =
 
