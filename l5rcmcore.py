@@ -171,16 +171,22 @@ class L5RCMCore(object):
         source_pdf = get_app_file('sheet_all.pdf')
         source_fdf = _create_fdf(exporters.FDFExporterAll())  
         fd, fpath = mkstemp(suffix='.pdf');
-        _flatten_pdf(source_fdf, source_pdf, fpath)
+        os.fdopen(fd, 'wt').close()
+        _flatten_pdf(source_fdf, source_pdf, fpath)        
+        
         temp_files.append(fpath)
         # SHUGENJA SHEET
         if self.pc.has_tag('shugenja'):
             source_pdf = get_app_file('sheet_shugenja.pdf')
             source_fdf = _create_fdf(exporters.FDFExporterShugenja())
             fd, fpath = mkstemp(suffix='.pdf');
+            os.fdopen(fd, 'wt').close()
             _flatten_pdf(source_fdf, source_pdf, fpath)
             temp_files.append(fpath)
-            
+        
+        if os.path.exists(export_file):
+            os.remove(export_file)
+        
         if len(temp_files) > 1:
             _merge_pdf(temp_files, export_file)
         elif len(temp_files) == 1:
