@@ -32,6 +32,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv = None
         self.pc  = pc
         self.dbconn = conn
+        self.quit_on_accept = False
         self.build_ui()        
         self.connect_signals()
         self.load_data()        
@@ -133,7 +134,16 @@ class BuyAdvDialog(QtGui.QDialog):
             for uuid, name in c.fetchall():
                 if not self.pc.has_kata(uuid):
                     cb.addItem( name, uuid )
-            c.close()            
+            c.close()
+            
+    def fix_skill_id(self, uuid):
+        if self.tag == 'emph':
+            cb = self.widgets[self.tag][0]
+            cb.addItem(dbutil.get_skill_name(self.dbconn, uuid), uuid)
+            cb.setCurrentIndex(cb.count()-1)
+            cb.setEnabled(False)
+            
+            self.quit_on_accept = True
 
     def connect_signals(self):
         if self.tag == 'attrib':
@@ -320,6 +330,9 @@ class BuyAdvDialog(QtGui.QDialog):
             self.pc.add_advancement( self.adv )
             cb = self.widgets[self.tag][0]
             cb.removeItem(cb.currentIndex())
+            
+        if self.quit_on_accept:
+            self.close()
             
     def closeEvent(self, event):
         self.cleanup()
