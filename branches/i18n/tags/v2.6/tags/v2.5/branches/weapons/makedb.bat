@@ -1,1 +1,0 @@
-python l5rdb.py -c -i share/l5rcm/l5rdb.sqlite
