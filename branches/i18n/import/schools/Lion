@@ -1,0 +1,42 @@
+#
+Akodo Bushi School
+bushi
+perception 1
+honor 6.5
+-
+-
+#
+Kitsu Shugenja School
+shugenja
+perception 1
+honor 6.5
+water
+fire
+#
+Ikoma Bard School
+courtier
+intelligence 1
+honor 6.5
+-
+-
+#
+Matsu Berserker School
+bushi
+strength 1
+honor 6.5
+-
+-
+#
+[OB] Matsu Beastmaster School
+bushi
+agility 1
+honor 5.5
+-
+-
+#
+[OB] The Ikoma Lion's Shadow School
+bushi
+awareness 1
+honor 3.5
+-
+-
