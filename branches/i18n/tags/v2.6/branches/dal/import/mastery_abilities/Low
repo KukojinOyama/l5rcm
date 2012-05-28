@@ -1,0 +1,24 @@
+#
+Ninjutsu
+3;ma_ninjutsu_3;+1k0 to the damage of all ninjutsu weapons.
+5;-;Dices on damage rolls explode normally.
+7;ma_ninjutsu_7;+0k1 to the damage of all ninjutsu weapons.
+#
+Forgery
+3;-;+1k0 to Forgery Skill Roll vs Investigation/Perception detection Skill Roll.
+5;-;+1k0 on any roll to detect a forgery made by someone else.
+7;-;+0k1 to Forgery Skill Roll vs Investigation/Perception detection Skill Roll.
+#
+Intimidation
+5;-;Gain +5 to the total of any Intimidation Contested Roll.
+#
+Sleight of Hand
+5;-;May use Conceal Emphasis to conceal small weapons.
+#
+Stealth
+3;-;Simple Move Actions while using Stealth allow Water x 5 feet distance.
+5;-;Simple Move Actions while using Stealth allow Water x 10 feet distance.
+7;-;Free Move Action as normal when using Stealth.
+#
+Temptation
+5;-;Gain +5 to the total of any Temptation Contested Roll.

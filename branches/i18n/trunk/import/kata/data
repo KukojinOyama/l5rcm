@@ -1,0 +1,174 @@
+#
+Striking as Air
+Air 3
+-
+striking_as_air
+When in the Defense Stance your Armor TN is increased by your Air Ring
+#
+Striking as Earth
+Earth 3
+-
+striking_as_earth
+When in the Full Defense Stance you gain Reduction equal to your Earth Ring.  This is cumulative with other forms of Reduction
+#
+Striking as Fire
+Fire 3
+-
+striking_as_fire
+When in the Full Attack Stance you may add your Fire Ring to the total of one attack roll made per round
+#
+Striking as Void
+Void 3
+-
+striking_as_void
+When in the Center Stance your Armor TN is increased by your Void Ring
+#
+Striking as Water
+Water 4
+-
+striking_as_water
+When in the Attack Stance you may move 5 additional feet as a Free Action
+#
+Balance The Elements Style
+Void 3
+Mirumoto Bushi School, Shiba Bushi School
+balance_the_elements_style
+You may use your Void Ring in place of your Reflexes for your Initiative roll
+#
+Breath of Wind Style
+Air 3
+Kakita Bushi School, Bayushi Bushi School
+breath_of_wind_style
+Your initiative Score increases by 2 during the Reactions Stage of each Combat Round. This effect stacks but disappears immediately if the kata is no longer in effect
+#
+Disappearing World Style
+Fire 4
+Akodo Bushi School, Kakita Bushi School
+disappearing_world_style
+Choose one opponent. Once per turn against that opponent, you may use your Agility trait instead of your Strength Trait for damage rolls.
+#
+Hidden Blade Style
+Air 4
+Bayushi Bushi School, Yoritomo Bushi School
+hidden_blade_style
+Your Disarm attacks deal normal damage rather than 2k1. You may not increase your damage on these attacks via Raises (including from use of the Feint Maneuver)
+#
+Indomitable Warrior Style
+Earth 4
+Daigotsu Bushi School, Hida Bushi School, Ichiro Bushi School, Moto Bushi School
+indomitable_warrior_style
+Reduce your TN penalties from Wound Ranks by your Earth Ring
+#
+Iron Forest Style
+Air 4
+Daidoji Iron Warrior, Heichi Bushi School, Shiba Bushi School
+iron_forest_style
+While using a spear or polearm, you may use your Air Ring instead of Agility for attack rolls
+#
+Iron in the Mountains Style
+Earth 3
+Daidoji Iron Warrior, Hida Bushi School
+iron_in_the_Mountains_style
+You may use your Earth Ring in place of your Air Ring for the Defense Stance
+#
+Reckless Abandon Style
+Fire 4
+Daigotsu Bushi School, Matsu Berserker School
+reckless_abandon_style
+You may add your Fire Ring to your Armor TN while in the Full Attack Stance
+#
+Strength In Arms Style
+Water 4
+Hida Bushi School, Ichiro Bushi School, Moto Bushi School
+strength_in_arms_style
+Once per Turn while wielding a Heavy Weapon, you may use your Strength Trait instead of your Agility for an attack roll
+#
+Strength Of Purity Style
+Void 4
+Akodo Bushi School, Kakita Bushi School, Matsu Berserker School, Utaku Battle Maiden School
+strength_of_purity_style
+Once per turn while rolling damage, you may roll your Honor Rank instead of the normal Strength + DF of the weapon.  You keep dice equal to the DR of the weapon as usual.
+#
+Spinning Blades Style
+Fire 5
+Mirumoto Bushi School, Yoritomo Bushi School
+spinning_blades_style
+Once per turn while wielding a weapon in each hand, you may make the Extra Attack Maneuver for 3 Raises instead of 5.  The second attack comes from your off-hand weapon, dealing weapon damage as appropriate.  You may not increase your damage on either attack via Raises
+#
+Veiled Menace Style
+Air 4
+Bayushi Bushi School, Hiruma Bushi School, Tsuruchi Archer School, Yoritomo Bushi School
+veiled_menace_style
+Once per turn, you may add your Stealth Skill Rank to your Armor TN for a single attack
+#
+Strength Of The Crab
+Earth 3
+Crab Bushi
+strength_of_the_crab
+While wearing Armor and in the Attack Stance, your armor provides an additional +2 Reduction
+#
+Strength Of The Crane
+Air 3
+Crane Bushi
+strength_of_the_crane
+When fighting with a sword or spear you add an amount equal to your Honor Rank - 3 (minimum 1) to your Armor TN
+#
+Strength Of The Dragon
+Fire 3
+Dragon Bushi
+strength_of_the_dragon
+While wielding a katana in your main hand and a wakizashi in your off hand, you gain a +3 bonus to your Armor TN
+#
+Strength Of The Lion
+Water 3
+Lion Bushi
+strength_of_the_lion
+One per Round during the Reactions stage, you may add +3 to the Initiative Score of one ally in a skirmish.  This effect can stack, but the kata's benefit disappears immediately if the kata is no longer active
+#
+Son Of Storms
+Water 3
+Akodo Bushi School, Shosuro Infiltrator School, Yoritomo Bushi School
+son_of_storms
+When attacking with a Small melee weapon, any Reduction an opponent possesses is decreased by 1
+#
+Strength of The Mantis
+Air 3
+Mantis Bushi
+strength_of_the_mantis
+The attack penalty for ranged attacks fired against opponents currently in melee range is reduced by 3
+#
+Dance Of The Winds
+Air 3
+Daidoji Bushi School, Shiba Bushi School
+dance_of_the_winds
+When wielding a polearm, or a spear, your Initiative Score is increased by 3
+#
+Strength Of The Phoenix
+Void 3
+Phoenix Bushi
+strength_of_the_phoenix
+Once per Turn when you declare a Guard Action, you may increase the Armor TN of the person you are guarding by an additional +3
+#
+Strength Of The Scorpion
+Fire 3
+Scorpion Bushi
+strength_of_the_scorpion
+Once per Turn after successfully making the Feint Maneuver, your damage total is increased by +3 Wounds
+#
+Strength Of The Unicorn
+Water 3
+Unicorn Bushi
+strength_of_the_unicorn
+While you are mounted, your steed gains a bonus of +3 to its Armor TN and an additional 3 Reduction
+#
+Art of Ninjutsu
+Water 5
+Daigotsu Bushi School, Bayushi Bushi School, Daidoji Scout School, Shosuro Actor School, Shosuro Infiltrator School, Goju Ninja School
+art_of_ninjutsu
+Once per Round you may calculate the distance of a Move Action as if your Water is equal to your Stealth Skill Rank. This does not change the maximum distance you can move in a Round
+#
+Strength Of The Spider
+Earth 3
+Spider Bushi
+strength_of_the_spider
+Once per Round if you successfully cause at least 15 Wounds to your opponent, he suffers a -3 penalty to the total of all rolls on his next Turn
