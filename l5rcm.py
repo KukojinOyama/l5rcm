@@ -539,6 +539,8 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         vtb.addButton(QtGui.QIcon(get_icon_path('add',(16,16))),
                       'Add skill rank', self.on_buy_skill_rank)
         vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
+                      'Buy skill emphasys', self.show_buy_emph_dlg)                      
+        vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
                       'Buy another skill', self.show_buy_skill_dlg)
         vtb.addStretch()
 
@@ -1281,9 +1283,6 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                 sm_.setCurrentIndex(idx, (QtGui.QItemSelectionModel.Select |
                                          QtGui.QItemSelectionModel.Rows))
 
-
-        
-
     def act_choose_skills(self):
         dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
@@ -1467,7 +1466,20 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         dlg = dialogs.BuyAdvDialog(self.pc, 'skill',
                                    self.db_conn, self)
         dlg.exec_()
-        self.update_from_model()                            
+        self.update_from_model()   
+
+    def show_buy_emph_dlg(self):
+        # get selected skill
+        sm_ = self.skill_table_view.selectionModel()
+        if sm_.hasSelection():
+            model_   = self.skill_table_view.model()
+            skill_id = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)
+            
+            dlg = dialogs.BuyAdvDialog(self.pc, 'emph',
+                                       self.db_conn, self)
+            dlg.fix_skill_id(skill_id)
+            dlg.exec_()
+            self.update_from_model()             
                 
     def show_select_affinity(self):
         chooses  = None
