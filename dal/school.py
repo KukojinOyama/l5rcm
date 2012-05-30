@@ -16,6 +16,53 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+class SchoolSkill(object):
+    
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolSkill()
+        return f
+        
+class SchoolSkillWildcard(object):
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolSkillWildcard()
+        f.rank = int(elem.attrib['rank'])
+        f.wildcards = []
+        for se in elem.iter():
+            if se.tag == 'Wildcard':
+                f.wildcards.append(se.text)        
+        return f  
+        
+class SchoolTech(object):        
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolTech()
+        f.name = elem.attrib['name']
+        f.rank = int(elem.attrib['rank'])
+        return f
+        
+class SchoolSpellWildcard(object):
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolSpellWildcard()
+        return f
+        
+class SchoolRequirement(object):
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolRequirement()
+        f.field = elem.attrib['field']
+        f.type  = elem.attrib['type' ]
+        f.min = int(elem.attrib['min']) if 'min' in elem.attrib else None
+        f.max = int(elem.attrib['max']) if 'max' in elem.attrib else None
+        f.trg = int(elem.attrib['trg']) if 'trg' in elem.attrib else None
+        return f              
+
 class School(object):
 
     @staticmethod
@@ -32,5 +79,33 @@ class School(object):
         def_tag = elem.find('Deficiency')
         f.affinity   = aff_tag.text if aff_tag else None
         f.deficiency = def_tag.text if def_tag else None
+        
+        # school skills
+        f.skills     = []
+        f.skills_pc  = []
+        for se in elem.find('Skills').iter():
+            if se.tag == 'Skill':
+                f.skills.append(SchoolSkill.build_from_xml(se))
+            elif se.tag == 'PlayerChoose':
+                f.skills_pc.append(SchoolSkillWildcard.build_from_xml(se))
+
+        # school techs
+        f.techs = []
+        for se in elem.find('Techs').iter():
+            if se.tag == 'Tech':
+                f.techs.append(SchoolTech.build_from_xml(se))
+                
+        # school spells
+        f.spells = []
+        for se in elem.find('Spells').iter():
+            if se.tag == 'PlayerChoose':
+                f.spells.append(SchoolSpellWildcard.build_from_xml(se))
+                
+        # requirements
+        f.require = []
+        for se in elem.find('Requirements').iter():
+            if se.tag == 'Requirement':
+                f.require.append(SchoolRequirement.build_from_xml(se))        
+                
         return f  
 

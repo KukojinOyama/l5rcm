@@ -100,7 +100,7 @@ def exp_schools(db, out_file, out_path):
             root = ET.Element('L5RCM')
             cn    = clan
             
-        efam = ET.SubElement(root, 'Family', {'name': name})
+        efam = ET.SubElement(root, 'School', {'name': name})
         ET.SubElement(efam, 'Clan').text = clan
         if perk: ET.SubElement(efam, 'Trait').text = perk.capitalize()
         if affi: ET.SubElement(efam, 'Affinity').text = affi.capitalize()
@@ -181,11 +181,11 @@ def exp_school_requirements(db, uuid, root):
                  from requirements inner join schools on schools.uuid=ref_uuid
                  where ref_uuid=?''', [uuid])
                  
-    for field, type, min, max, target in c.fetchall():
+    for field, type, min, max, trg in c.fetchall():
         attr = {'type': type, 'field': field }
         if min: attr['min'] = str(min)
         if max: attr['min'] = str(max)
-        if target: attr['target'] = str(target)
+        if trg: attr['trg'] = str(trg)
         ET.SubElement(root, "Requirement", attr)
         
 def exp_skills(db, out_file, out_path):  
