@@ -29,6 +29,7 @@ import tempfile
 import exporters
 import dbutil
 import sinks
+import dal
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
@@ -1098,12 +1099,9 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         #self.cb_pc_family.clear()
         index = self.cb_pc_clan.currentIndex()
         if index < 0:
-            self.pc.clan = 0
+            self.pc.clan = None
         else:
-            clan_id = self.cb_pc_clan.itemData(index)
-
-            #print 'set new clan. cur: %d new %d' % ( self.pc.clan, clan_id )
-            self.pc.clan = clan_id
+            self.pc.clan = self.cb_pc_clan.itemData(index)
 
         self.load_families(self.pc.clan)
         if self.pc.unlock_schools:
@@ -1121,24 +1119,24 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             self.update_from_model()
             return
 
-        uuid  = self.cb_pc_family.itemData(index)
-        if uuid == self.pc.get_family():
+        fm  = self.cb_pc_family.itemData(index)
+        if fm == self.pc.get_family():
             return
         # should modify step_1 character
         # get family perk
 
-        c = self.db_conn.cursor()
-        c.execute('''select uuid, name from clans where uuid=?''', [self.pc.clan])
-        clan_uuid, clan_name = c.fetchone()
+        #c = self.db_conn.cursor()
+        #c.execute('''select uuid, name from clans where uuid=?''', [self.pc.clan])
+        #clan_uuid, clan_name = c.fetchone()
 
-        c.execute('''select name, perk, perkval from families
-                     where uuid=?''', [uuid])
-        for name, perk, perkval in c.fetchall():
-            self.pc.set_family( uuid, perk, perkval, [name.lower(), clan_name.lower()] )
-            self.update_from_model()
-            break
+        #c.execute('''select name, perk, perkval from families
+        #             where uuid=?''', [uuid])
+        #for name, perk, perkval in c.fetchall():
+        self.pc.set_family( fm, fm.trait, 1, [fm.name.lower(), fm.clan.lower()] )
+        self.update_from_model()
+        #    break
 
-        c.close()
+        #c.close()
 
     def on_school_change(self, text):
         index = self.cb_pc_school.currentIndex()
@@ -1147,79 +1145,76 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             self.update_from_model()
             return
 
-        uuid  = self.cb_pc_school.itemData(index)
-        if uuid == self.pc.school:
+        sc  = self.cb_pc_school.itemData(index)
+        if sc == self.pc.school:
             return
 
         # should modify step_2 character
         # get school perk
         
-        c = self.db_conn.cursor()
-        c.execute('''select name, perk, perkval, honor, tag from schools
-                     where uuid=?''', [uuid])
-        try:
-            name, perk, perkval, honor, tag = c.fetchone()
-        except:
-            # no school
-            self.pc.set_school(uuid, None, None, None)
-            return
+        # c = self.db_conn.cursor()
+        # c.execute('''select name, perk, perkval, honor, tag from schools
+        #             where uuid=?''', [uuid])
+        #try:
+        #    name, perk, perkval, honor, tag = c.fetchone()
+        # except:
+        #    # no school
+        #    self.pc.set_school(uuid, None, None, None)
+        #    return
         
-        school_tags = [ x.strip() for x in tag.split(';') ]
-        clan_tag = str.format('{0} {1}', self.cb_pc_clan.currentText(),
-                                         school_tags[0])
+        school_tags = sc.tags
+        clan_tag = str.format('{0} {1}', sc.clan,
+                                         sc.tags[0])
         school_tags.append(clan_tag.lower())
-        school_tags.append(name.lower())
+        school_tags.append(sc.name.lower())
         
-        self.pc.set_school( uuid, perk, perkval, honor, school_tags)
+        self.pc.set_school( sc, sc.trait, 1, sc.honor, school_tags)
 
-        c.execute('''select skill_uuid, skill_rank, wildcard, emphases
-                     from school_skills
-                     where school_uuid=?''', [uuid])
-        for sk_uuid, sk_rank, wc, emph in c.fetchall():
-            if sk_uuid is not None:
-                self.pc.add_school_skill(sk_uuid, sk_rank, emph)
-            else:
-                self.pc.add_pending_wc_skill(wc, sk_rank)
+        #c.execute('''select skill_uuid, skill_rank, wildcard, emphases
+        #             from school_skills
+        #             where school_uuid=?''', [uuid])
+        for sk in sc.skills:
+            self.pc.add_school_skill(sk, sk.rank, sk.emph)
+        for sk in sc.skills_pc:
+            self.pc.add_pending_wc_skill(sk, sk.rank)
 
         # get school tech rank 1
-        c.execute('''select uuid, effect from school_techs
-                     where school_uuid=? and rank=1''', [uuid])
+        # c.execute('''select uuid, effect from school_techs
+        #             where school_uuid=? and rank=1''', [uuid])
 
-        for th_uuid, rule in c.fetchall():
-            self.pc.set_free_school_tech( th_uuid, rule )
-            break
+        tech_rank_1 = filter(lambda x: x.rank == 1, sc.techs)
+        if len(tech_rank_1):
+            self.pc.set_free_school_tech( tech_rank_1[0], tech_rank_1[0].rule )
 
         # if shugenja get universal spells
         # also player should choose some spells from list
 
-        if 'shugenja' in tag:
+        if 'shugenja' in sc.tags:
             count = 0
-            c.execute('''select spell_uuid, wildcard from school_spells
-                      where school_uuid=?''', [uuid])
-            for sp_uuid, wc in c.fetchall():
-                if sp_uuid is None:
-                    ring, qty = rules.parse_spell_wildcard(wc)
-                    print 'add pending wc spell %s' % wc
-                    self.pc.add_pending_wc_spell(wc)
-                    count += qty
-                else:
-                    self.pc.add_free_spell(sp_uuid)
-                    count += 1
+            #c.execute('''select spell_uuid, wildcard from school_spells
+            #          where school_uuid=?''', [uuid])
+            for sp in sc.spells:
+                #ring, qty = rules.parse_spell_wildcard(wc)
+                ring = sp.element
+                qty  = sp.count
+                    
+                self.pc.add_pending_wc_spell(sp)
+                count += qty
 
             print 'starting spells count are %d' % count
             self.pc.set_school_spells_qty(count)
             
             # affinity / deficiency
-            c.execute('''select affinity, deficiency from schools
-                         where uuid=?''', [uuid])
+            # c.execute('''select affinity, deficiency from schools
+            #             where uuid=?''', [uuid])
             
-            for affin, defic in c.fetchall():
-                self.pc.set_affinity(affin)
-                self.pc.set_deficiency(defic)
-                self.pc.get_school().affinity = affin
-                self.pc.get_school().deficiency = defic
+            #for affin, defic in c.fetchall():
+            self.pc.set_affinity  (sc.affinity  )
+            self.pc.set_deficiency(sc.deficiency)
+            #self.pc.get_school().affinity = affin
+            #self.pc.get_school().deficiency = defic
 
-        c.close()
+        #c.close()
         self.update_from_model()
 
     def on_pc_name_change(self):
@@ -1554,63 +1549,44 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
                         self.cb_pc_school] )
 
     def load_clans(self):
-        c = self.db_conn.cursor()
         # clans
         self.cb_pc_clan.clear()
-        self.cb_pc_clan.addItem( 'No Clan', 0 )
-        c.execute('''select uuid, name from clans order by name asc''')
-        for f in c.fetchall():
-            self.cb_pc_clan.addItem( f[1], f[0] )
-        c.close()
+        self.cb_pc_clan.addItem( 'No Clan', 'No Clan' )
+        for clan in self.dstore.clans:
+            self.cb_pc_clan.addItem( clan.name, clan )
 
-    def load_schools(self, clan_id = -1):
-        #print 'load schools for clan_id %d' % clan_id
-        c = self.db_conn.cursor()
+    def load_schools(self, clan = None):
         self.cb_pc_school.clear()
-        if clan_id <= 0:
-            c.execute('''select uuid, name from schools
-                         where NOT EXISTS (select ref_uuid from requirements
-                                           where ref_uuid=uuid)
-                         order by name asc''')
-        else:
-            c.execute('''select uuid, name from schools where clan_id=?
-                         AND NOT EXISTS (select ref_uuid from requirements
-                                         where ref_uuid=uuid)            
-                         order by name asc''',
-                         [clan_id])
+        schools = filter(lambda x: len(x.require) == 0, self.dstore.schools)
 
-        self.cb_pc_school.addItem( 'No School', 0 )
-        for f in c.fetchall():
-            self.cb_pc_school.addItem( f[1], f[0] )
-        c.close()
+        if clan:
+            schools = filter(lambda x: x.clan == clan.name, schools) 
 
-    def load_families(self, clan_id):
-        #print 'load families for clan_id %d' % clan_id
+        self.cb_pc_school.addItem( 'No School', 'No School' )
+        for f in schools:
+            self.cb_pc_school.addItem( f.name, f )
 
-        c = self.db_conn.cursor()
+    def load_families(self, clan):
         self.cb_pc_family.clear()
-        if clan_id <= 0:
+        if not clan:
             return
         else:
-            c.execute('''select uuid, name from families where clan_id=?
-                         order by name asc''',
-                         [clan_id])
+            families = filter(lambda x: x.clan == clan.name, self.dstore.families)
 
-        self.cb_pc_family.addItem( 'No Family', 0 )
-        for f in c.fetchall():
-            self.cb_pc_family.addItem( f[1], f[0] )
-        c.close()
+        self.cb_pc_family.addItem( 'No Family', 'No Family' )
+        for f in families:
+            self.cb_pc_family.addItem( f.name, f )
 
-    def set_clan(self, clan_id):
-        idx = self.cb_pc_clan.currentIndex()
-        c_uuid = self.cb_pc_clan.itemData(idx)
+    def set_clan(self, clan):
+        idx    = self.cb_pc_clan.currentIndex()
+        cur_cl = self.cb_pc_clan.itemData(idx)
 
         #print 'set clan. cur: %d new: %d' % (c_uuid, clan_id)
 
-        if c_uuid == clan_id:
+        if cur_cl == clan:
             return
         for i in xrange(0, self.cb_pc_clan.count()):
-            if self.cb_pc_clan.itemData(i) == clan_id:
+            if self.cb_pc_clan.itemData(i) == clan:
                 self.cb_pc_clan.setCurrentIndex(i)
                 return
 

@@ -66,7 +66,7 @@ def exp_families(db, out_file, out_path):
             fobj  = open(fpath, 'wt')
             __write_hd(fobj)
                     
-        fobj.write('''\t<Family name="{0}"/>\n'''.format(name))
+        fobj.write('''\t<Family name="{0}">\n'''.format(name))
         fobj.write('''\t\t<Clan>{0}</Clan>\n'''.format(clan))
         fobj.write('''\t\t<Trait>{0}</Trait>\n'''.format(perk.capitalize()))
         fobj.write('''\t</Family>\n''')
@@ -77,7 +77,8 @@ def exp_families(db, out_file, out_path):
         
 def exp_schools(db, out_file, out_path):
     c = db.cursor()
-    c.execute('''select schools.uuid, clans.name, schools.name, tag, perk, affinity, deficiency
+    c.execute('''select schools.uuid, clans.name, schools.name, tag, perk,
+                 affinity, deficiency, honor
                  from schools inner join clans on clans.uuid=clan_id order by clans.name''')
     cn   = None
     
@@ -88,7 +89,7 @@ def exp_schools(db, out_file, out_path):
     root = None
     
     
-    for uuid, clan, name, tags, perk, affi, defi in scs:
+    for uuid, clan, name, tags, perk, affi, defi, hon in scs:
         if cn != clan and root is not None:
             fname = "{0}_{1}".format(cn, out_file)
             fpath = os.path.join(out_path, fname)            
@@ -105,6 +106,7 @@ def exp_schools(db, out_file, out_path):
         if perk: ET.SubElement(efam, 'Trait').text = perk.capitalize()
         if affi: ET.SubElement(efam, 'Affinity').text = affi.capitalize()
         if defi: ET.SubElement(efam, 'Deficiency').text = defi.capitalize()
+        if hon : ET.SubElement(efam, 'Honor').text = str(hon)
         etags = ET.SubElement(efam, 'Tags')
         for tag in tags.split(';'):
             ET.SubElement(etags, 'Tag').text = tag.strip().capitalize()
@@ -159,10 +161,9 @@ def exp_school_spells(db, uuid, root):
                  and school_uuid=?''', [uuid])
                  
     for sc, wildcard in c.fetchall():
-        epc = ET.SubElement(root, "PlayerChoose")
         elem, cnt = wildcard.split(' ')
         cnt = cnt.strip('()')
-        ET.SubElement(epc, "Element", {'count': cnt}).text = elem.capitalize()     
+        epc = ET.SubElement(root, "PlayerChoose", {'count': cnt, 'element': elem})
 
 def exp_school_techs (db, uuid, root):
     c = db.cursor()
@@ -272,12 +273,12 @@ def exp_tags(db, uuid, root):
         
 def main():
     db = sqlite3.connect(sys.argv[1])
-    exp_clans   (db, "clans.xml", 'D:\\Devel\\l5rcm_dal\\share\\l5rcm\\data')
-    exp_families(db, "families.xml", 'D:\\Devel\\l5rcm_dal\\share\\l5rcm\\data\\families')
-    exp_schools (db, "schools.xml", 'D:\\Devel\\l5rcm_dal\\share\\l5rcm\\data\\schools')
-    exp_skills  (db, "skills.xml", 'D:\\Devel\\l5rcm_dal\\share\\l5rcm\\data')
-    exp_weapons (db, "weapons.xml", 'D:\\Devel\\l5rcm_dal\\share\\l5rcm\\data')
-    exp_spells  (db, "spells.xml", 'D:\\Devel\\l5rcm_dal\\share\\l5rcm\\data')
+    exp_clans   (db, "clans.xml", '../share/l5rcm/data')
+    exp_families(db, "families.xml", '../share/l5rcm/data/families')
+    exp_schools (db, "schools.xml", '../share/l5rcm/data/schools')
+    exp_skills  (db, "skills.xml", '../share/l5rcm/data')
+    exp_weapons (db, "weapons.xml", '../share/l5rcm/data')
+    exp_spells  (db, "spells.xml", '../share/l5rcm/data')
         
 if __name__ == '__main__':
     main()

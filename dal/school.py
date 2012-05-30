@@ -77,8 +77,10 @@ class School(object):
                 f.tags.append(se.text.lower()) # Tags are lower case
         aff_tag = elem.find('Affinity')
         def_tag = elem.find('Deficiency')
+        hon_tag = elem.find('Honor')
         f.affinity   = aff_tag.text if aff_tag else None
         f.deficiency = def_tag.text if def_tag else None
+        f.honor      = float(hon_tag) if hon_tag else 0.0
         
         # school skills
         f.skills     = []
@@ -107,5 +109,9 @@ class School(object):
             if se.tag == 'Requirement':
                 f.require.append(SchoolRequirement.build_from_xml(se))        
                 
-        return f  
+        return f
+
+    def __eq__(self, obj):
+        return obj and obj.name == self.name
+
 

@@ -25,4 +25,7 @@ class Family(object):
         f.clan  = elem.find('Clan').text
         f.trait = elem.find('Trait').text
         return f
- 
+    
+    def __eq__(self, obj):
+        return obj and obj.name == self.name
+
