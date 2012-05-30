@@ -28,6 +28,7 @@ import autoupdate
 import tempfile
 import exporters
 import dbutil
+import dal
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
@@ -95,6 +96,9 @@ class L5RCMCore(object):
         
         # Connect to database
         self.db_conn = None
+
+        # Data storage
+        self.dstore = dal.Data( get_app_file('data') )
         
         try:
             self.db_conn = sqlite3.connect( get_app_file('l5rdb.sqlite') )

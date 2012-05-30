@@ -43,7 +43,7 @@ class Data(object):
         for path, dirs, files in os.walk(data_path):
             dirn = os.path.basename(path)
             if dirn.startswith('.'):
-                break
+                continue
             for file_ in files:
                 if file_.startswith('.') or file_.endswith('~'):
                     continue
@@ -57,6 +57,7 @@ class Data(object):
                     traceback.print_exc()
         
     def __load_xml(self, xml_file):
+        print('load data from {0}'.format(xml_file))
         tree = ET.parse(xml_file)
         root = tree.getroot()
         if root is None or root.tag != 'L5RCM':
