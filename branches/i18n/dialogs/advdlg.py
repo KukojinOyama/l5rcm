@@ -40,20 +40,20 @@ class BuyAdvDialog(QtGui.QDialog):
     def build_ui(self):
         grid = QtGui.QGridLayout(self)
 
-        titles = dict(attrib='Buy Attribute rank',
-                      skill= 'Buy Skill rank',
-                      void=  'Buy Void rank',
-                      emph=  'Buy Skill emphasys',
-                      kata=  'Buy Kata',
-                      kiho=  'Buy Kiho',
-                      spell= 'Buy Spell')
+        titles = dict(attrib=self.tr('Buy Attribute rank'),
+                      skill= self.tr('Buy Skill rank'    ),
+                      void=  self.tr('Buy Void rank'     ),
+                      emph=  self.tr('Buy Skill emphasys'),
+                      kata=  self.tr('Buy Kata'          ),
+                      kiho=  self.tr('Buy Kiho'          ),
+                      spell= self.tr('Buy Spell'         ))
 
-        labels = dict(attrib=('Choose Attribute'   ,  None),
-                      skill= ('Choose Skill Type'  , 'Choose Skill'),
-                      emph=  ('Choose Skill'       , 'Choose Emphasis'),
-                      kata=  ('Choose Kata'        , 'Description'),
-                      kiho=  ('Choose Kiho'        , None),
-                      spell= ('Choose Spell'       , None))
+        labels = dict(attrib=(self.tr('Choose Attribute' ),  None),
+                      skill= (self.tr('Choose Skill Type'), self.tr('Choose Skill'   )),
+                      emph=  (self.tr('Choose Skill'     ), self.tr('Choose Emphasis')),
+                      kata=  (self.tr('Choose Kata'      ), self.tr('Description'    )),
+                      kiho=  (self.tr('Choose Kiho'      ), None),
+                      spell= (self.tr('Choose Spell'     ), None))
 
         self.setWindowTitle( titles[self.tag] )
 
@@ -77,11 +77,11 @@ class BuyAdvDialog(QtGui.QDialog):
                     grid.addWidget(lb, i, 0)
                     grid.addWidget(wd, i, 1, 1, 3)
 
-        self.lb_from = QtGui.QLabel('Make your choice', self)
-        self.lb_cost = QtGui.QLabel('Cost: 0', self)
+        self.lb_from = QtGui.QLabel(self.tr('Make your choice'), self)
+        self.lb_cost = QtGui.QLabel(self.tr('Cost: 0'         ), self)
 
-        self.bt_buy   = QtGui.QPushButton('Buy', self)
-        self.bt_close = QtGui.QPushButton('Close', self)
+        self.bt_buy   = QtGui.QPushButton(self.tr('Buy'  ), self)
+        self.bt_close = QtGui.QPushButton(self.tr('Close'), self)
 
         grid.addWidget(self.lb_from, 3, 0, 1, 3)
         grid.addWidget(self.lb_cost, 4, 0, 1, 3)
@@ -94,14 +94,14 @@ class BuyAdvDialog(QtGui.QDialog):
     def load_data(self):
         if self.tag == 'attrib':
             cb = self.widgets[self.tag][0]
-            cb.addItem('Stamina',      ATTRIBS.STAMINA     )
-            cb.addItem('Willpower',    ATTRIBS.WILLPOWER   )
-            cb.addItem('Reflexes',     ATTRIBS.REFLEXES    )
-            cb.addItem('Awareness',    ATTRIBS.AWARENESS   )
-            cb.addItem('Strength',     ATTRIBS.STRENGTH    )
-            cb.addItem('Perception',   ATTRIBS.PERCEPTION  )
-            cb.addItem('Agility',      ATTRIBS.AGILITY     )
-            cb.addItem('Intelligence', ATTRIBS.INTELLIGENCE)
+            cb.addItem(self.tr('Stamina'     ), ATTRIBS.STAMINA     )
+            cb.addItem(self.tr('Willpower'   ), ATTRIBS.WILLPOWER   )
+            cb.addItem(self.tr('Reflexes'    ), ATTRIBS.REFLEXES    )
+            cb.addItem(self.tr('Awareness'   ), ATTRIBS.AWARENESS   )
+            cb.addItem(self.tr('Strength'    ), ATTRIBS.STRENGTH    )
+            cb.addItem(self.tr('Perception'  ), ATTRIBS.PERCEPTION  )
+            cb.addItem(self.tr('Agility'     ), ATTRIBS.AGILITY     )
+            cb.addItem(self.tr('Intelligence'), ATTRIBS.INTELLIGENCE)            
         elif self.tag == 'void':
             self.on_void_select()
         elif self.tag == 'skill':
@@ -119,7 +119,7 @@ class BuyAdvDialog(QtGui.QDialog):
                              where uuid=? order by name''', [id])
                 for u, s in c.fetchall():
                     cb.addItem(s, u)
-            self.lb_cost.setText('Cost: 2 exp')
+            self.lb_cost.setText(self.tr('Cost: 2 exp'))
             self.lb_from.setVisible(False)
             c.close()
         elif self.tag == 'kata':
@@ -173,9 +173,8 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText('Cost: %d exp' % cost)
 
         self.adv = advances.VoidAdv(cost)
-        self.adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, 
-                                                                    new_value,
-                                                                    self.adv.cost )
+        self.adv.desc = (self.tr('Void Ring, Rank {0} to {1}. Cost: {2} xp')
+                         .format( cur_value, new_value, self.adv.cost ))
 
     def on_attrib_select(self, text = ''):
         cb = self.widgets['attrib'][0]
@@ -192,14 +191,14 @@ class BuyAdvDialog(QtGui.QDialog):
         if self.pc.has_rule('elem_bless_%s' % ring_nm):
             cost -= 1
 
-        self.lb_from.setText('From %d to %d' % (cur_value, new_value))
-        self.lb_cost.setText('Cost: %d exp' % cost)
+        self.lb_from.setText(self.tr('From {0} to {1}')
+                             .format(cur_value, new_value))
+        self.lb_cost.setText(self.tr('Cost: {0} exp')
+                             .format(cost))
 
         self.adv = advances.AttribAdv(attrib, cost)
-        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, 
-                                                             cur_value, 
-                                                             new_value, 
-                                                             self.adv.cost )
+        self.adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
+                         .format( text, cur_value, new_value, self.adv.cost ))
 
     def on_skill_type_select(self, text = ''):
         cb1   = self.widgets['skill'][0]
@@ -231,21 +230,19 @@ class BuyAdvDialog(QtGui.QDialog):
         
         if (self.pc.has_rule('obtuse') and
             type_ == 'high' and 
-            text != 'Investigation' and
-            text != 'Medicine'):
+            text != self.tr('Investigation') and
+            text != self.tr('Medicine')):
             # double the cost for high skill
             # other than medicine and investigation
             cost *= 2
                 
-        self.lb_from.setText('From %d to %d' % (cur_value, new_value))
-        self.lb_cost.setText('Cost: %d exp' % cost)
+        self.lb_from.setText(self.tr('From {0} to {1}').format(cur_value, new_value))
+        self.lb_cost.setText(self.tr('Cost: {0} exp').format(cost))
 
         self.adv = advances.SkillAdv(uuid, cost)
         self.adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, uuid, new_value)
-        self.adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, 
-                                                             cur_value, 
-                                                             new_value, 
-                                                             self.adv.cost )
+        self.adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
+                         .format( text, cur_value, new_value, self.adv.cost ))
         
     def on_kata_select(self, text = ''):
         cb  = self.widgets['kata'][0]
@@ -257,8 +254,8 @@ class BuyAdvDialog(QtGui.QDialog):
         name, ring, mastery, rule, desc = dbutil.get_kata_info(self.dbconn, uuid)
         requirements = dbutil.get_requirements(self.dbconn, uuid, 'tag')
         
-        self.lb_from.setText('Mastery: %s %s' % (ring, mastery))
-        self.lb_cost.setText('Cost: %d exp' % mastery)
+        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(ring, mastery))
+        self.lb_cost.setText(self.tr('Cost: %d exp').format(mastery))
         
         # te.setText("")
         html = str.format("<p><em>{0}</em></p>", desc)        
@@ -276,7 +273,7 @@ class BuyAdvDialog(QtGui.QDialog):
                 break        
         
         if not ok:
-            html += (
+            html += self.tr(
                     "<p><strong>"
                     "To Buy this kata you need to match "
                     "at least one of there requirements:"
@@ -288,21 +285,21 @@ class BuyAdvDialog(QtGui.QDialog):
                      
         ok = ok and ring_val >= mastery                     
         if not ok:
-            html += str.format("\n<p>You need a value of {0} in your {1} Ring</p>",
+            html += str.format(self.tr("\n<p>You need a value of {0} in your {1} Ring</p>"),
                                mastery, ring)
         else:
             self.adv = models.KataAdv(uuid, rule, mastery)
-            self.adv.desc = '%s, Cost: %d xp' % ( name, self.adv.cost )
+            self.adv.desc = self.tr('{0}, Cost: {1} xp').format( name, self.adv.cost )
             
         self.bt_buy.setEnabled(ok)           
         te.setHtml(html)
 
     def buy_advancement(self):
 
-        if self.adv and (self.adv.cost + self.pc.get_px()) > \
-                         self.pc.exp_limit:
-            QtGui.QMessageBox.warning(self, "Not enough XP",
-            "Cannot purchase.\nYou've reached the XP Limit.")            
+        if self.adv and ((self.adv.cost + self.pc.get_px()) > 
+                         self.pc.exp_limit):
+            QtGui.QMessageBox.warning(self, self.tr("Not enough XP"),
+            self.tr("Cannot purchase.\nYou've reached the XP Limit."))
             self.close()
             return
 
@@ -321,9 +318,8 @@ class BuyAdvDialog(QtGui.QDialog):
             sk_name = cb.itemText( cb.currentIndex() )
             sk_uuid = cb.itemData( cb.currentIndex() )
             self.adv = advances.SkillEmph(sk_uuid, tx.text(), 2)
-            self.adv.desc = '%s, Skill %s. Cost: %d xp' % ( tx.text(), 
-                                                            sk_name,
-                                                            self.adv.cost )
+            self.adv.desc = (self.tr('{0}, Skill {1}. Cost: {2} xp')
+                            .format( tx.text(), sk_name, self.adv.cost ))
             self.pc.add_advancement( self.adv )
             tx.setText('')
         elif self.tag == 'kata':
@@ -383,27 +379,27 @@ class SelWcSkills(QtGui.QDialog):
         self.load_data()
 
     def build_ui(self):
-        self.setWindowTitle('Choose School Skills')
+        self.setWindowTitle(self.tr('Choose School Skills'))
 
         grid = QtGui.QGridLayout(self)
-        grid.addWidget( QtGui.QLabel('<i>Your school has granted you ' +
-                                     'the right to choose some skills.</i> ' +
-                                     '<br/><b>Choose with care.</b>', self),
+        grid.addWidget( QtGui.QLabel(self.tr("<i>Your school has granted you \
+                                             the right to choose some skills.</i> \
+                                             <br/><b>Choose with care.</b>"), self),
                                       0, 0, 1, 3)
         grid.setRowStretch(0,2)
 
-        self.bt_ok     = QtGui.QPushButton('Ok', self)
-        self.bt_cancel = QtGui.QPushButton('Cancel', self)
+        self.bt_ok     = QtGui.QPushButton(self.tr('Ok'    ), self)
+        self.bt_cancel = QtGui.QPushButton(self.tr('Cancel'), self)
 
         row_ = 2
         for w, r in self.pc.get_pending_wc_skills():
             lb = ''
             if w == 'any':
-                lb = 'Any one skill (rank %d):' % r
+                lb = self.tr('Any one skill (rank {0}):').format(r)
             else:
                 wildcards = w.split(';')
                 w = ' or '.join(wildcards)
-                lb = 'Any %s skill (rank %d):' % (w, r)
+                lb = self.tr('Any {0} skill (rank {1}):').format(w, r)
 
             grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
 
@@ -414,7 +410,7 @@ class SelWcSkills(QtGui.QDialog):
             row_ += 1
 
         for s in self.pc.get_pending_wc_emphs():
-            lb = "%s's Emphases: " % self.get_skill_name(s)
+            lb = self.tr("{0}'s Emphases: ").format(self.get_skill_name(s))
 
             grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
 
@@ -466,7 +462,7 @@ class SelWcSkills(QtGui.QDialog):
     def get_skill_name(self, s_id):
         c = self.dbconn.cursor()
         c.execute('''SELECT uuid, name from skills where uuid=?''', [s_id])
-        sk_name = 'N/A'
+        sk_name = self.tr('N/A')
         for uuid, name in c.fetchall():
             sk_name = name
             break
@@ -552,17 +548,17 @@ class SelWcSpells(QtGui.QDialog):
         self.load_data()        
 
     def build_ui(self):
-        self.setWindowTitle('Choose School Spells')
+        self.setWindowTitle(self.tr('Choose School Spells'))
 
         grid = QtGui.QGridLayout(self)
-        grid.addWidget( QtGui.QLabel('<i>Your school has granted you ' +
-                                     'the right to choose some spells.</i> ' +
-                                     '<br/><b>Choose with care.</b>', self),
-                                      0, 0, 1, 5)
+        grid.addWidget( QtGui.QLabel(self.tr("<i>Your school has granted you \
+                                             the right to choose some spells.</i> \
+                                             <br/><b>Choose with care.</b>"), self),
+                                              0, 0, 1, 5)
         grid.setRowStretch(0,2)
 
-        self.bt_ok     = QtGui.QPushButton('Ok', self)
-        self.bt_cancel = QtGui.QPushButton('Cancel', self)
+        self.bt_ok     = QtGui.QPushButton(self.tr('Ok'    ), self)
+        self.bt_cancel = QtGui.QPushButton(self.tr('Cancel'), self)
 
         row_ = 2
         col_ = 0
@@ -570,16 +566,16 @@ class SelWcSpells(QtGui.QDialog):
         max_col = col_
 
         for i in xrange(0, self.pc.get_how_many_spell_i_miss()):
-            grp  = QtGui.QGroupBox('Choose Spell')
+            grp  = QtGui.QGroupBox(self.tr('Choose Spell'))
             fbox = QtGui.QFormLayout(grp)
 
             cb_ring  = QtGui.QComboBox(self)
             cb_mast  = QtGui.QComboBox(self)
             cb_spell = QtGui.QComboBox(self)
 
-            fbox.addRow('Ring',    cb_ring)
-            fbox.addRow('Mastery', cb_mast)
-            fbox.addRow('Spell',   cb_spell)
+            fbox.addRow(self.tr('Ring'   ), cb_ring)
+            fbox.addRow(self.tr('Mastery'), cb_mast)
+            fbox.addRow(self.tr('Spell'  ), cb_spell)
 
             self.cbs_ring .append(cb_ring)
             self.cbs_mast .append(cb_mast)
@@ -609,11 +605,11 @@ class SelWcSpells(QtGui.QDialog):
     def load_data(self):           
         for cb in self.cbs_ring:            
             cb.blockSignals(True)
-            cb.addItem('Earth')
-            cb.addItem('Air')
-            cb.addItem('Water')
-            cb.addItem('Fire')
-            cb.addItem('Void')            
+            cb.addItem(self.tr('Earth'))
+            cb.addItem(self.tr('Air'  ))
+            cb.addItem(self.tr('Water'))
+            cb.addItem(self.tr('Fire' ))
+            cb.addItem(self.tr('Void' ))
 
         max_mastery = self.pc.get_insight_rank()
         
@@ -678,8 +674,8 @@ class SelWcSpells(QtGui.QDialog):
         cb_mast = self.cbs_mast[which]
         cb_spell = self.cbs_spell[which]
         
-        print str.format('do ring change. ring: {0}. id: {1}',
-                            ring, which)
+        print(str.format('do ring change. ring: {0}. id: {1}',
+                            ring, which))
         
         # SPECIAL FLAGS
         only_maho = cb_ring.property('only_maho') or False
@@ -696,11 +692,11 @@ class SelWcSpells(QtGui.QDialog):
         if affin == test or test in affin:  mod_ = 1
         if defic == test and not only_maho: mod_ = -1        
         
-        print str.format('ring: {0}, max_mastery: {1}',
-            ring, self.pc.get_insight_rank()+mod_)
+        print(str.format('ring: {0}, max_mastery: {1}',
+            ring, self.pc.get_insight_rank()+mod_))
         
         for x in xrange(0,self.pc.get_insight_rank()+mod_):
-            cb_mast.addItem('Mastery Level %d' % (x+1), x+1)   
+            cb_mast.addItem(self.tr('Mastery Level {0}').format(x+1), x+1)   
         cb_mast.blockSignals(False)
         
         if cb_mast.currentIndex() < 0:
@@ -727,8 +723,8 @@ class SelWcSpells(QtGui.QDialog):
         ring = cb_ring.itemText( cb_ring.currentIndex() )
         cb_spell = self.cbs_spell[which]
         
-        print str.format('do mastery change. ring: {0}. mast: {1}. id: {2}',
-                            ring, mastery, which)        
+        print(str.format('do mastery change. ring: {0}. mast: {1}. id: {2}',
+                            ring, mastery, which))
 
         affin = self.pc.get_affinity  ()
         defic = self.pc.get_deficiency()
@@ -750,8 +746,8 @@ class SelWcSpells(QtGui.QDialog):
         self.do_mastery_change(self.sender())
         
     def do_update_spells(self, cb_spell, ring, mastery, only_maho):  
-        print 'update spells for ring %s, mastery %d, only_maho %s' % \
-              (ring, mastery, only_maho)
+        print('update spells for ring %s, mastery %d, only_maho %s' % (ring, mastery, only_maho))
+        
         cb_spell.clear()
         
         if mastery <= 0:
@@ -779,12 +775,14 @@ class SelWcSpells(QtGui.QDialog):
         done = check_all_done(self.cbs_spell)
 
         if not done:
-            self.error_bar.setText('''<p style='color:#FF0000'>
-                                      <b>
-                                      You need to choose all the spells
-                                      </b>
-                                      </p>
-                                      ''')
+            self.error_bar.setText(self.tr(
+            '''<p style='color:#FF0000'>
+               <b>
+               You need to choose all the spells
+               </b>
+               </p>
+            '''))
+            
             self.error_bar.setVisible(True)
             return
         
@@ -792,12 +790,13 @@ class SelWcSpells(QtGui.QDialog):
         all_different = check_all_different(self.cbs_spell)
 
         if not all_different:
-            self.error_bar.setText('''<p style='color:#FF0000'>
-                                      <b>
-                                      You can't select the same spell more than once
-                                      </b>
-                                      </p>
-                                      ''')
+            self.error_bar.setText(self.tr(
+            '''<p style='color:#FF0000'>
+               <b>
+               You can't select the same spell more than once
+               </b>
+               </p>
+            '''))
             self.error_bar.setVisible(True)
             return
 
@@ -805,12 +804,14 @@ class SelWcSpells(QtGui.QDialog):
         already_got = check_already_got([x.itemData(x.currentIndex()) for x in self.cbs_spell], self.pc.get_skills())
 
         if already_got:
-            self.error_bar.setText('''<p style='color:#FF0000'>
-                                      <b>
-                                      You already possess some of these spells
-                                      </b>
-                                      </p>
-                                      ''')
+            self.error_bar.setText(self.tr(
+            '''<p style='color:#FF0000'>
+               <b>
+               You already possess some of these spells
+               </b>
+               </p>
+            '''))
+            
             self.error_bar.setVisible(True)
             return
 

@@ -1970,6 +1970,33 @@ def main():
     QtCore.QCoreApplication.setOrganizationName(APP_ORG)
 
     app.setWindowIcon( QtGui.QIcon( get_app_icon_path() ) )
+    
+    # Setup translation
+    settings = QtCore.QSettings()    
+    use_machine_locale = settings.value('use_machine_locale', 1)
+    app_translator = QtCore.QTranslator()
+    qt_translator  = QtCore.QTranslator()             
+    
+    if use_machine_locale:        
+        use_locale = QtCore.QLocale.system().name()
+    else:
+        use_locale = settings.value('use_locale')
+        
+    print('current locale is {0}'.format(use_locale))       
+        
+    qt_loc  = 'qt_{0}'.format(use_locale[:2])
+    
+    print(qt_loc)
+    app_loc = get_app_file('i18n/{0}'.format(use_locale))
+    
+    print(QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
+    
+    qt_translator .load(qt_loc, QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
+    app.installTranslator(qt_translator )
+    app_translator.load(app_loc)    
+    app.installTranslator(app_translator)
+    
+    # start main form
 
     l5rcm = L5RMain()
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)

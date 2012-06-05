@@ -36,18 +36,18 @@ class BuyPerkDialog(QtGui.QDialog):
         
     def build_ui(self):
         if self.tag == 'merit':
-            self.setWindowTitle("Add Advantage")
+            self.setWindowTitle(self.tr("Add Advantage"))
         else:
-            self.setWindowTitle("Add Disadvantage")
+            self.setWindowTitle(self.tr("Add Disadvantage"))
             
         self.setMinimumSize(400, 0)
                         
-        self.bt_accept = QtGui.QPushButton('Ok'    , self)
-        self.bt_cancel = QtGui.QPushButton('Cancel', self)            
+        self.bt_accept = QtGui.QPushButton(self.tr("Ok")    , self)
+        self.bt_cancel = QtGui.QPushButton(self.tr("Cancel"), self)            
         
         lvbox = QtGui.QVBoxLayout(self)        
             
-        grp     = QtGui.QGroupBox("SubType", self)
+        grp     = QtGui.QGroupBox(self.tr("SubType"), self)
         vbox    = QtGui.QVBoxLayout(grp)
         self.cb_subtype = QtGui.QComboBox(self)
         self.cb_subtype.currentIndexChanged.connect( self.on_subtype_select )
@@ -56,32 +56,32 @@ class BuyPerkDialog(QtGui.QDialog):
         
         grp     = None
         if self.tag == 'merit':
-            grp     = QtGui.QGroupBox("Advantage", self)        
+            grp     = QtGui.QGroupBox(self.tr("Advantage"), self)        
         else:
-            grp     = QtGui.QGroupBox("Disadvantage", self)
+            grp     = QtGui.QGroupBox(self.tr("Disadvantage"), self)
         vbox    = QtGui.QVBoxLayout(grp)
         self.cb_perk = QtGui.QComboBox(self)
         self.cb_perk.currentIndexChanged.connect( self.on_perk_select )
         vbox.addWidget(self.cb_perk)           
         lvbox.addWidget(grp)
         
-        grp     = QtGui.QGroupBox("Rank", self)
+        grp     = QtGui.QGroupBox(self.tr("Rank"), self)
         vbox    = QtGui.QVBoxLayout(grp)
         self.cb_rank = QtGui.QComboBox(self)
         self.cb_rank.currentIndexChanged.connect( self.on_rank_select )
         vbox.addWidget(self.cb_rank)
         lvbox.addWidget(grp)
         
-        grp     = QtGui.QGroupBox("Notes", self)
+        grp     = QtGui.QGroupBox(self.tr("Notes"), self)
         vbox    = QtGui.QVBoxLayout(grp)
         self.tx_notes = QtGui.QTextEdit(self)
         vbox.addWidget(self.tx_notes)
         lvbox.addWidget(grp)     
         
         if self.tag == 'merit':
-            grp     = QtGui.QGroupBox("XP Cost", self)
+            grp     = QtGui.QGroupBox(self.tr("XP Cost"), self)
         else:
-            grp     = QtGui.QGroupBox("XP Gain", self)
+            grp     = QtGui.QGroupBox(self.tr("XP Gain"), self)
         vbox    = QtGui.QVBoxLayout(grp)
         self.le_cost = QtGui.QLineEdit(self)
         vbox.addWidget(self.le_cost)
@@ -127,7 +127,6 @@ class BuyPerkDialog(QtGui.QDialog):
         self.tx_notes.setPlainText(perk.adv.extra)
         
     def on_subtype_select(self, text = ''):
-        print 'on_subtype_select'
         self.item = None
         self.cb_perk.clear()
         
@@ -145,7 +144,6 @@ class BuyPerkDialog(QtGui.QDialog):
         c.close()        
         
     def on_perk_select(self, text = ''):
-        print 'on_perk_select'
         self.item = None
         self.cb_rank.clear()
     
@@ -171,12 +169,11 @@ class BuyPerkDialog(QtGui.QDialog):
         c.execute('''select perk_rank, cost from perk_ranks
                      where perk_uuid=?''', [perk])
         for rank, cost in c.fetchall():
-            self.cb_rank.addItem('Rank %d' % rank, 
+            self.cb_rank.addItem(self.tr("Rank %d") % rank, 
                                 (rank, cost))
         c.close() 
         
     def on_rank_select(self, text = ''):
-        print 'on_rank_select'
         selected = self.cb_rank.currentIndex()
         if selected < 0:
             return
@@ -184,7 +181,7 @@ class BuyPerkDialog(QtGui.QDialog):
         tag  = None
         self.le_cost.setReadOnly( cost != 0 )
         if cost == 0:
-            self.le_cost.setPlaceholderText('Insert XP')
+            self.le_cost.setPlaceholderText(self.tr("Insert XP"))
             self.le_cost.setText('')
         else:
             # look for exceptions
@@ -224,8 +221,8 @@ class BuyPerkDialog(QtGui.QDialog):
             return
         
         if not self.item:
-            QtGui.QMessageBox.warning(self, "Perk not found",
-                                      "Please select a perk.")
+            QtGui.QMessageBox.warning(self, self.tr("Perk not found"),
+                                      self.tr("Please select a perk."))
             return
         
         self.item.rule  = self.perk_rule
@@ -237,21 +234,19 @@ class BuyPerkDialog(QtGui.QDialog):
                 except:
                     self.item.cost = 0
             if self.item.cost < 0:
-                QtGui.QMessageBox.warning(self, "Invalid XP Cost",
-                                          "Please specify a number greater than 0.")
+                QtGui.QMessageBox.warning(self, self.tr("Invalid XP Cost"),
+                                          self.tr("Please specify a number greater than 0."))
                 return
 
         if self.tag == 'merit':
-            self.item.desc = "%s Rank %d, XP Cost: %d" % \
-            ( self.perk_nm, self.item.rank, self.item.cost )
+            self.item.desc = self.tr("%s Rank %d, XP Cost: %d") % ( self.perk_nm, self.item.rank, self.item.cost )
             
             if (self.item.cost + self.pc.get_px()) > self.pc.exp_limit:
-                QtGui.QMessageBox.warning(self, "Not enough XP",
-                "Cannot purchase.\nYou've reached the XP Limit.")                
+                QtGui.QMessageBox.warning(self, self.tr("Not enough XP"),
+                self.tr("Cannot purchase.\nYou've reached the XP Limit."))
                 return
         else:
-            self.item.desc = "%s Rank %d, XP Gain: %d" % \
-            ( self.perk_nm, self.item.rank, abs(self.item.cost) )
+            self.item.desc = self.tr("%s Rank %d, XP Gain: %d") % ( self.perk_nm, self.item.rank, abs(self.item.cost) )
             
         if self.tag == 'flaw':
             self.item.cost *= -1
@@ -263,28 +258,28 @@ class BuyPerkDialog(QtGui.QDialog):
     def process_special_effects(self, item):
         def _add_free_skill_rank(skill_nm):
             skill_id  = dbutil.get_skill_id_from_name(self.dbconn, skill_nm)
-            print '%s => %d' % ( skill_nm, skill_id )
+
             cur_value = self.pc.get_skill_rank(skill_id)
             new_value = cur_value + 1
             cost = 0
             adv = models.SkillAdv(skill_id, 0)
             adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, skill_id, new_value)
-            adv.desc = str.format('{0}, Rank {1} to {2}. Gained by {3}',
+            adv.desc = str.format(self.tr("{0}, Rank {1} to {2}. Gained by {3}"),
                                   skill_nm, cur_value, new_value, self.perk_nm )
             self.pc.add_advancement(adv)
             
         if item.rule == 'fk_gaijin_pepper':
             # add a rank in Craft (Explosives), zero cost :)
-            _add_free_skill_rank('Craft (Explosives)')
+            _add_free_skill_rank(self.tr("Craft (Explosives)"))
         elif item.rule == 'fk_gozoku':
             # add a rank in Lore (Gozoku), zero cost :)
-            _add_free_skill_rank('Lore (Gozoku)')
+            _add_free_skill_rank(self.tr("Lore (Gozoku)"))
         elif item.rule == 'fk_kolat':
             # add a rank in Lore (Kolat), zero cost :)
-            _add_free_skill_rank('Lore (Kolat)')
+            _add_free_skill_rank(self.tr("Lore (Kolat)"))
         elif item.rule == 'fk_lying_darkness':
             # add a rank in Lore (Lying Darkness), zero cost :)
-            _add_free_skill_rank('Lore (Lying Darkness)')
+            _add_free_skill_rank(self.tr("Lore (Lying Darkness)"))
         elif item.rule == 'fk_maho':
             # add a rank in Lore (Maho), zero cost :)
-            _add_free_skill_rank('Lore (Maho)')
+            _add_free_skill_rank(self.tr("Lore (Maho)"))
