@@ -1,21 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="it_IT">
+<!DOCTYPE TS>
+<TS version="2.0" language="it_IT">
 <context>
     <name></name>
     <message>
         <location filename="dialogs/newrankdlg.py" line="43"/>
         <source>Advance in my current school</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="dialogs/newrankdlg.py" line="46"/>
-        <source>Buy &apos;Multiple School&apos; advantage
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="dialogs/newrankdlg.py" line="46"/>
-        <source>and join a new school</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -44,6 +34,12 @@
 You&apos;ve reached the XP Limit.</source>
         <translation type="unfinished">Impossibile acquistare.
 Hai raggiunto il limite in PX.</translation>
+    </message>
+    <message>
+        <location filename="dialogs/newrankdlg.py" line="46"/>
+        <source>Buy &apos;Multiple School&apos; advantage
+and join a new school</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

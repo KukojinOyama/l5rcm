@@ -42,8 +42,8 @@ what would you want to do?
                                self.tr("Advance in my current school")
                                )
         self.bt_new_school_1 = QtGui.QPushButton(
-                               self.tr("Buy 'Multiple School' advantage\n")
-                               self.tr("and join a new school"))
+                               self.tr("Buy 'Multiple School' advantage\n"
+                                       "and join a new school"))
         self.bt_new_school_2 = QtGui.QPushButton(
                                self.tr("Just join a new school"))
                                
@@ -95,9 +95,9 @@ what would you want to do?
                 
             itm      = models.PerkAdv(uuid, 1, cost)
             itm.rule = rule
-            itm.desc = str.format(self.tr("{0} Rank {1}, XP Cost: {2}"),
-                                  self.tr("Multiple Schools"),
-                                  1, itm.cost)
+            itm.desc = unicode.format(self.tr("{0} Rank {1}, XP Cost: {2}"),
+                                      self.tr("Multiple Schools"),
+                                      1, itm.cost)
                                   
             if (itm.cost + self.pc.get_px()) > self.pc.exp_limit:
                 QtGui.QMessageBox.warning(self, self.tr("Not enough XP"),
@@ -216,8 +216,9 @@ class SchoolChoiceDlg(QtGui.QDialog):
         c.execute(query, [school_id, 'more'])
         self.te_notes.setHtml("")
         for req_field, target_val in c.fetchall():
-            self.te_notes.setHtml(str.format(
-            "<em>{0}</em>", target_val))
+            self.te_notes.setHtml(
+            unicode.format(
+            u"<em>{0}</em>", target_val))
         
     def on_accept(self):
         idx_           = self.cb_school.currentIndex()

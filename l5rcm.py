@@ -1165,7 +1165,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
             return
         
         school_tags = [ x.strip() for x in tag.split(';') ]
-        clan_tag = str.format('{0} {1}', self.cb_pc_clan.currentText(),
+        clan_tag = unicode.format(u'{0} {1}', self.cb_pc_clan.currentText(),
                                          school_tags[0])
         school_tags.append(clan_tag.lower())
         school_tags.append(name.lower())
@@ -1799,7 +1799,7 @@ class L5RMain(QtGui.QMainWindow, L5RCMCore):
         
         for i in xrange(0, len(penalties)):            
             self.wounds[i][0].setText(
-                str.format('{0} (+{1})', wounds[i], penalties[i]))
+                unicode.format(u'{0} (+{1})', wounds[i], penalties[i]))
             
         # TODO toku bushi school removes some penalties
         

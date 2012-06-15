@@ -8,5 +8,7 @@
           
 TRANSLATIONS = i18n/it_IT.ts \
                i18n/es_ES.ts \
-               i18n/en_GB.ts
+               i18n/en_GB.ts \
+               i18n/en_US.ts
+                
                
