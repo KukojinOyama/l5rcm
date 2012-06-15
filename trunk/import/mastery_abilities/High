@@ -10,7 +10,7 @@ Calligraphy
 Courtier
 3;ma_insight_plus_3;Gain +3 Insight bonus
 5;-;+1k0 to all Courtier Contested Rolls
-7;ma_insight_plus_7;Gain +3 Insight bonus (cumulable to bonus from Rank 3)
+7;ma_insight_plus_7;Gain +7 Insight bonus (cumulable to bonus from Rank 3)
 #
 Divination
 5;-;Attempt a second Skill Roll without spending Void Points.
@@ -18,7 +18,7 @@ Divination
 Etiquette
 3;ma_insight_plus_3;Gain +3 Insight bonus
 5;-;+1k0 to all Etiquette Contested Rolls
-7;ma_insight_plus_7;Gain +3 Insight bonus (cumulable to bonus from Rank 3)
+7;ma_insight_plus_7;Gain +7 Insight bonus (cumulable to bonus from Rank 3)
 #
 Investigation
 3;-;Second attempt to Search emphasis without TN increase.
