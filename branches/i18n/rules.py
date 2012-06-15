@@ -77,7 +77,7 @@ def insight_calculation_1(model):
         n += model.get_skill_rank(s)
     
     n += 3*model.cnt_rule('ma_insight_plus_3')
-    n += 3*model.cnt_rule('ma_insight_plus_7')
+    n += 7*model.cnt_rule('ma_insight_plus_7')
     
     return n
     
@@ -94,7 +94,7 @@ def insight_calculation_2(model):
             n += sk
     
     n += 3*model.cnt_rule('ma_insight_plus_3')
-    n += 3*model.cnt_rule('ma_insight_plus_7')
+    n += 7*model.cnt_rule('ma_insight_plus_7')
     
     return n
     
@@ -113,7 +113,7 @@ def insight_calculation_3(model):
             n += sk
     
     n += 3*model.cnt_rule('ma_insight_plus_3')
-    n += 3*model.cnt_rule('ma_insight_plus_7')
+    n += 7*model.cnt_rule('ma_insight_plus_7')
     
     return n
     

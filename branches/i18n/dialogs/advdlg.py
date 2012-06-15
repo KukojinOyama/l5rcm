@@ -258,7 +258,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText(self.tr('Cost: %d exp').format(mastery))
         
         # te.setText("")
-        html = str.format("<p><em>{0}</em></p>", desc)        
+        html = unicode.format(u"<p><em>{0}</em></p>", desc)        
         
         # CHECK REQUIREMENTS
         ring_id  = models.ring_from_name(ring.lower())
@@ -279,13 +279,13 @@ class BuyAdvDialog(QtGui.QDialog):
                     "at least one of there requirements:"
                     "</strong></p>")
                     
-            html += str.format("<p><ul>{0}</ul></p>", 
+            html += unicode.format(u"<p><ul>{0}</ul></p>", 
                           ''.join(['<li>%s</li>' % string.capwords(x['field'])
                                   for x in requirements]))
                      
         ok = ok and ring_val >= mastery                     
         if not ok:
-            html += str.format(self.tr("\n<p>You need a value of {0} in your {1} Ring</p>"),
+            html += unicode.format(self.tr("\n<p>You need a value of {0} in your {1} Ring</p>"),
                                mastery, ring)
         else:
             self.adv = models.KataAdv(uuid, rule, mastery)
@@ -674,8 +674,8 @@ class SelWcSpells(QtGui.QDialog):
         cb_mast = self.cbs_mast[which]
         cb_spell = self.cbs_spell[which]
         
-        print(str.format('do ring change. ring: {0}. id: {1}',
-                            ring, which))
+        #print(str.format('do ring change. ring: {0}. id: {1}',
+        #                    ring, which))
         
         # SPECIAL FLAGS
         only_maho = cb_ring.property('only_maho') or False
@@ -692,8 +692,8 @@ class SelWcSpells(QtGui.QDialog):
         if affin == test or test in affin:  mod_ = 1
         if defic == test and not only_maho: mod_ = -1        
         
-        print(str.format('ring: {0}, max_mastery: {1}',
-            ring, self.pc.get_insight_rank()+mod_))
+        #print(str.format('ring: {0}, max_mastery: {1}',
+        #    ring, self.pc.get_insight_rank()+mod_))
         
         for x in xrange(0,self.pc.get_insight_rank()+mod_):
             cb_mast.addItem(self.tr('Mastery Level {0}').format(x+1), x+1)   
@@ -723,8 +723,8 @@ class SelWcSpells(QtGui.QDialog):
         ring = cb_ring.itemText( cb_ring.currentIndex() )
         cb_spell = self.cbs_spell[which]
         
-        print(str.format('do mastery change. ring: {0}. mast: {1}. id: {2}',
-                            ring, mastery, which))
+        #print(str.format('do mastery change. ring: {0}. mast: {1}. id: {2}',
+        #                    ring, mastery, which))
 
         affin = self.pc.get_affinity  ()
         defic = self.pc.get_deficiency()

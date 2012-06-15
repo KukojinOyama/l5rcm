@@ -264,8 +264,8 @@ class BuyPerkDialog(QtGui.QDialog):
             cost = 0
             adv = models.SkillAdv(skill_id, 0)
             adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, skill_id, new_value)
-            adv.desc = str.format(self.tr("{0}, Rank {1} to {2}. Gained by {3}"),
-                                  skill_nm, cur_value, new_value, self.perk_nm )
+            adv.desc = unicode.format(self.tr("{0}, Rank {1} to {2}. Gained by {3}"),
+                                      skill_nm, cur_value, new_value, self.perk_nm )
             self.pc.add_advancement(adv)
             
         if item.rule == 'fk_gaijin_pepper':
