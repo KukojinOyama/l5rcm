@@ -12,7 +12,7 @@
         <location filename="dialogs/newrankdlg.py" line="46"/>
         <source>Buy &apos;Multiple School&apos; advantage
 and join a new school</source>
-        <translation type="unfinished"></translation>
+        <translation>Adquiere la ventaja &apos;Escuelas Múltiples&apos; y únete a una nueva escuela</translation>
     </message>
     <message>
         <location filename="dialogs/newrankdlg.py" line="48"/>
