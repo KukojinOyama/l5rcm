@@ -33,8 +33,8 @@ from PySide.QtCore import QObject
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.7'
-DB_VERSION  = '2.5'
+APP_VERSION = '2.799'
+DB_VERSION  = '2.6'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -84,7 +84,7 @@ class CMErrors(object):
     NOT_ENOUGH_XP = 'not_enough_xp'
 
 class L5RCMCore(object):
-    def __init__(self):        
+    def __init__(self, locale):        
         self.pc = None
         
         # character stored insight rank
@@ -98,8 +98,18 @@ class L5RCMCore(object):
         # Connect to database
         self.db_conn = None
         
+        # current locale
+        self.locale = locale
+
+        db_name = 'l5rdb_{0}.sqlite'.format(locale)
+        if not os.path.exists( get_app_file(db_name) ):
+            db_name = 'l5rdb.sqlite'
+        
+        print("using database file: {0}".format(get_app_file(db_name)))
+        
         try:
-            self.db_conn = sqlite3.connect( get_app_file('l5rdb.sqlite') )
+            
+            self.db_conn = sqlite3.connect(  get_app_file(db_name) )
         except Exception as e:
             sys.stderr.write('unable to open database file %s\n' % get_app_file('l5rdb.sqlite'))
             sys.stderr.write("current working dir : %s\n" % os.getcwd())
