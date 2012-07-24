@@ -252,6 +252,12 @@ class FDFExporterShugenja(FDFExporter):
             def_ = schools[i].deficiency.capitalize() if schools[i].deficiency else "None"
             aff_ = schools[i].affinity.capitalize()   if schools[i].affinity   else "None"
             
+            if aff_.startswith('*'): # wildcard
+                aff_ = m.get_affinity().capitalize()
+
+            if def_.startswith('*'): # wildcard
+                def_ = m.get_affinity().capitalize()
+                
             fields['SCHOOL_NM.%d'  % (i+1)    ] = f.get_school_name(schools[i].school_id)
             fields['AFFINITY.%d'  % (i+1)     ] = aff_
             fields['DEFICIENCY.%d'  % (i+1)   ] = def_

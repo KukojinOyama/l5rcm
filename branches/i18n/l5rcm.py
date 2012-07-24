@@ -72,9 +72,9 @@ def resume_signals(widgets):
     for w in widgets: w.blockSignals(False)
 
 class L5RMain(QtGui.QMainWindow, L5RCMCore):
-    def __init__(self, parent = None):
+    def __init__(self, locale = None, parent = None):
         QtGui.QMainWindow.__init__(self)
-        L5RCMCore.__init__(self)
+        L5RCMCore.__init__(self, locale)
 
         # character file save path
         self.save_path = ''        
@@ -1998,7 +1998,7 @@ def main():
     
     # start main form
 
-    l5rcm = L5RMain()
+    l5rcm = L5RMain(use_locale)
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
 
