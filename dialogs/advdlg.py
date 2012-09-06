@@ -229,12 +229,13 @@ class BuyAdvDialog(QtGui.QDialog):
         cost = new_value
         
         if (self.pc.has_rule('obtuse') and
-            type_ == 'high' and 
-            text != self.tr('Investigation') and
-            text != self.tr('Medicine')):
+            sk_type == 'high' and 
+            uuid != 211       and # investitagion
+            uuid != 234):         # medicine
+            
             # double the cost for high skill
             # other than medicine and investigation
-            cost *= 2
+            cost *= 2   
                 
         self.lb_from.setText(self.tr('From {0} to {1}').format(cur_value, new_value))
         self.lb_cost.setText(self.tr('Cost: {0} exp').format(cost))

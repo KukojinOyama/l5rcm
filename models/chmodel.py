@@ -74,6 +74,9 @@ def attrib_from_name(name):
 def attrib_name_from_id(attrib_id):
     if attrib_id >= 0 and attrib_id < len(ATTRIBS._ids):
         return ATTRIBS._ids[attrib_id]
+    else:
+        print("unknown trait_id: {0}".format(attrib_id))
+        return None
 
 def get_ring_id_from_attrib_id(attrib_id):
     if attrib_id >= ATTRIBS.STAMINA and attrib_id <= ATTRIBS.INTELLIGENCE:
@@ -200,7 +203,8 @@ class AdvancedPcModel(BasePcModel):
         self.extra_notes = ''
         self.insight_calculation = None
         
-        self.modifiers = []
+        self.modifiers  = []       
+        self.properties = {}
         
     def load_default(self):
         self.step_0.load_default()
@@ -795,7 +799,16 @@ class AdvancedPcModel(BasePcModel):
                 
     def set_insight_calc_method(self, func):
         self.insight_calculation = func
-                
+        
+    # properties
+    def get_property(self, name):
+        if name not in self.properties:
+            self.properties[name] = ''
+        return self.properties[name]
+        
+    def set_property(self, name, value):
+        self.properties[name] = value
+        
 ### LOAD AND SAVE METHODS ###
 
     def save_to(self, file):

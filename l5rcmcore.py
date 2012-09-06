@@ -29,11 +29,11 @@ import tempfile
 import exporters
 import dbutil
 
-from PySide.QtCore import QObject
+from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.799'
+APP_VERSION = '2.7991'
 DB_VERSION  = '2.6'
 APP_ORG     = 'openningia'
 
@@ -83,8 +83,10 @@ class CMErrors(object):
     NO_ERROR      = 'no_error'
     NOT_ENOUGH_XP = 'not_enough_xp'
 
-class L5RCMCore(object):
-    def __init__(self, locale):        
+class L5RCMCore(QtGui.QMainWindow):
+    def __init__(self, locale, parent = None): 
+        super(L5RCMCore, self).__init__(parent)
+        #print(repr(self))
         self.pc = None
         
         # character stored insight rank
@@ -219,7 +221,7 @@ class L5RCMCore(object):
             cost -= 1
         text = models.attrib_name_from_id(attrib).capitalize()
         adv = models.AttribAdv(attrib, cost)
-        adv.desc = (QObject.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
+        adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
                    .format( text, cur_value, new_value, adv.cost ))
                    
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
@@ -237,7 +239,7 @@ class L5RCMCore(object):
         if self.pc.has_rule('enlightened'):
             cost -= 2
         adv = models.VoidAdv(cost)
-        adv.desc = (QObject.tr('Void Ring, Rank {0} to {1}. Cost: {2} xp')
+        adv.desc = (self.tr('Void Ring, Rank {0} to {1}. Cost: {2} xp')
                    .format( cur_value, new_value, adv.cost ))
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
@@ -271,18 +273,19 @@ class L5RCMCore(object):
         cost    = new_value
         sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
         text    = dbutil.get_skill_name(self.db_conn, skill_id)
-        
+               
         if (self.pc.has_rule('obtuse') and
             sk_type == 'high' and 
-            text != QObject.tr('Investigation') and
-            text != QObject.tr('Medicine')):
+            skill_id != 211   and # investitagion
+            skill_id != 234):     # medicine
+            
             # double the cost for high skill
             # other than medicine and investigation
             cost *= 2            
 
         adv = models.SkillAdv(skill_id, cost)
         adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
-        adv.desc = (QObject.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
+        adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
                    .format( text, cur_value, new_value, adv.cost ))
                    
 
@@ -301,7 +304,7 @@ class L5RCMCore(object):
         text  = info_[0]
         
         adv = models.MemoSpellAdv(spell_id, cost)
-        adv.desc = (QObject.tr('{0}, Mastery {1}. Cost: {2} xp')
+        adv.desc = (self.tr('{0}, Mastery {1}. Cost: {2} xp')
                    .format( text, cost, adv.cost ))
 
         if adv.cost + self.pc.get_px() > self.pc.exp_limit:
