@@ -175,8 +175,13 @@ class AdvancementItemDelegate(QtGui.QStyledItemDelegate):
         # paint adv type & cost
         main_font.setBold(True)
         painter.setFont(main_font)
-        font_metric = painter.fontMetrics()        
-        tmp         = str(item).split(',')
+        font_metric = painter.fontMetrics()
+        
+        try:
+            tmp = unicode(item).split(u',')
+        except:        
+            tmp         = str(item).split(',')
+            
         adv_nm      = tmp[0]
         adv_nm_rect = font_metric.boundingRect(adv_nm)
         painter.drawText(left_margin + option.rect.left(),
