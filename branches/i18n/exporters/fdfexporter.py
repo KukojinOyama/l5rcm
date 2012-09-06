@@ -215,6 +215,24 @@ class FDFExporterAll(FDFExporter):
             fields['ARROW_TYPE.%d'  % i] = ar.name.replace('Arrow', '')
             fields['ARROW_DMG.%d'   % i] = ar.dr
             fields['ARROW_QTY.%d'   % i] = ar.qty
+            
+        # PERSONAL INFORMATIONS
+        fields['GENDER']         = m.get_property('sex')
+        fields['AGE']            = m.get_property('age')
+        fields['HEIGHT']         = m.get_property('height')
+        fields['WEIGHT']         = m.get_property('weight')
+        fields['HAIR']           = m.get_property('hair')
+        fields['EYES']           = m.get_property('eyes')
+        fields['FATHER']         = m.get_property('father')
+        fields['MOTHER']         = m.get_property('mother')
+        fields['BROTHERS']       = m.get_property('brosis')
+        fields['MARITAL STATUS'] = m.get_property('marsta')
+        fields['SPOUSE']         = m.get_property('spouse')
+        
+        if m.get_property('childr'):
+            chrows = m.get_property('childr').split('\n\r')
+            for i in xrange(0, len(chrows)):
+                fields['CHILDREN.%d' % (i+1)] = chrows[i]
                     
         # EXPORT FIELDS    
         for k in fields.iterkeys():
