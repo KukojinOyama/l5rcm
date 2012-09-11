@@ -69,6 +69,15 @@ def get_app_icon_path(size = (48,48)):
             return os.path.join( sys_path, APP_NAME + '.png' )
         return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, APP_NAME + '.png' )
 
+def get_tab_icon(name):        
+    if os.name == 'nt':
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/tabs/', name + '.png' )
+    else:
+        sys_path = '/usr/share/icons/l5rcm/tabs/'
+        if os.path.exists( sys_path ):
+            return os.path.join( sys_path, name + '.png' )
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/tabs/', name + '.png' )
+        
 def get_icon_path(name, size = (48,48)):
     size_str = '%dx%d' % size
     if os.name == 'nt':

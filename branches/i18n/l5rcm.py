@@ -108,6 +108,16 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_7()
         self.build_ui_page_8()
         self.build_ui_page_9()
+        
+        self.tabs.setIconSize(QtCore.QSize(24,24))
+        tabs_icons = ['samurai', 'music', 'burn', 'userinfo', 'book', 'katana', 'disk', 'text']
+        for i in xrange(0, 8):
+            self.tabs.setTabIcon(i, QtGui.QIcon(get_tab_icon(tabs_icons[i])))
+            self.tabs.setTabText(i, '')
+            
+        # about = app_icon
+        self.tabs.setTabIcon(8, QtGui.QIcon(get_app_icon_path()))
+        self.tabs.setTabText(8, '')
 
         self.connect_signals()
 
@@ -115,7 +125,7 @@ class L5RMain(L5RCMCore):
         # Main interface widgets
         self.widgets = QtGui.QWidget(self)
         self.tabs = QtGui.QTabWidget(self)
-        self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
+        #self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
         self.setCentralWidget(self.widgets)
 
         self.nicebar = None
@@ -1987,8 +1997,9 @@ class L5RMain(L5RCMCore):
                                 self.tr("Save Character"),
                                 last_dir,
                                 self.tr("L5R Character files (*.l5r)"))
-        if len(fileName) != 2:
-            return ''
+                                
+        if len(fileName) != 2 or fileName[0] == u'':
+            return ''        
 
         last_dir = os.path.dirname(fileName[0])
         if last_dir != '':
