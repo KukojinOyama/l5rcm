@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="es_ES">
+<!DOCTYPE TS><TS version="1.1" language="es_ES">
 <context>
     <name></name>
     <message>
@@ -619,704 +618,704 @@ Has alcanzado el Límite de Experiencia.</translation>
 <context>
     <name>L5RMain</name>
     <message>
-        <location filename="l5rcm.py" line="141"/>
+        <location filename="l5rcm.py" line="149"/>
         <source>Character</source>
         <translation type="unfinished">Personaje</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="360"/>
+        <location filename="l5rcm.py" line="368"/>
         <source>Name</source>
         <translation type="unfinished">Nombre</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="163"/>
+        <location filename="l5rcm.py" line="171"/>
         <source>Clan</source>
         <translation type="unfinished">Clan</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="164"/>
+        <location filename="l5rcm.py" line="172"/>
         <source>Family</source>
         <translation type="unfinished">Familia</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="165"/>
+        <location filename="l5rcm.py" line="173"/>
         <source>School</source>
         <translation type="unfinished">Escuela</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="168"/>
+        <location filename="l5rcm.py" line="176"/>
         <source>Rank</source>
         <translation type="unfinished">Rango</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="169"/>
+        <location filename="l5rcm.py" line="177"/>
         <source>Exp. Points</source>
         <translation type="unfinished">Puntos Exp.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="170"/>
+        <location filename="l5rcm.py" line="178"/>
         <source>Insight</source>
         <translation type="unfinished">Reconocimiento</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="195"/>
+        <location filename="l5rcm.py" line="203"/>
         <source>Rings and Attributes</source>
         <translation type="unfinished">Anillos y Atributos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="201"/>
+        <location filename="l5rcm.py" line="209"/>
         <source>Earth</source>
         <translation type="unfinished">Tierra</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="202"/>
+        <location filename="l5rcm.py" line="210"/>
         <source>Air</source>
         <translation type="unfinished">Aire</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="203"/>
+        <location filename="l5rcm.py" line="211"/>
         <source>Water</source>
         <translation type="unfinished">Agua</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="204"/>
+        <location filename="l5rcm.py" line="212"/>
         <source>Fire</source>
         <translation type="unfinished">Fuego</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="205"/>
+        <location filename="l5rcm.py" line="213"/>
         <source>Void</source>
         <translation type="unfinished">Vacío</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="227"/>
+        <location filename="l5rcm.py" line="235"/>
         <source>Stamina</source>
         <translation type="unfinished">Resistencia</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="228"/>
+        <location filename="l5rcm.py" line="236"/>
         <source>Willpower</source>
         <translation type="unfinished">Voluntad</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="232"/>
+        <location filename="l5rcm.py" line="240"/>
         <source>Reflexes</source>
         <translation type="unfinished">Reflejos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="233"/>
+        <location filename="l5rcm.py" line="241"/>
         <source>Awareness</source>
         <translation type="unfinished">Consciencia</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="237"/>
+        <location filename="l5rcm.py" line="245"/>
         <source>Strength</source>
         <translation type="unfinished">Fuerza</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="238"/>
+        <location filename="l5rcm.py" line="246"/>
         <source>Perception</source>
         <translation type="unfinished">Percepción</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="242"/>
+        <location filename="l5rcm.py" line="250"/>
         <source>Agility</source>
         <translation type="unfinished">Agilidad</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="243"/>
+        <location filename="l5rcm.py" line="251"/>
         <source>Intelligence</source>
         <translation type="unfinished">Inteligencia</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="275"/>
+        <location filename="l5rcm.py" line="283"/>
         <source>&lt;b&gt;Void Points&lt;/b&gt;</source>
         <translation type="unfinished">&lt;b&gt;Puntos de Vacío&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="288"/>
+        <location filename="l5rcm.py" line="296"/>
         <source>Honor</source>
         <translation type="unfinished">Honor</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="288"/>
+        <location filename="l5rcm.py" line="296"/>
         <source>Glory</source>
         <translation type="unfinished">Gloria</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="289"/>
+        <location filename="l5rcm.py" line="297"/>
         <source>Status</source>
         <translation type="unfinished">Estatus</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="290"/>
+        <location filename="l5rcm.py" line="298"/>
         <source>Shadowland Taint</source>
         <translation type="unfinished">Mancha de las Tierras Sombrias</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="328"/>
+        <location filename="l5rcm.py" line="336"/>
         <source>Initiative</source>
         <translation type="unfinished">Iniciativa</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="361"/>
+        <location filename="l5rcm.py" line="369"/>
         <source>Base</source>
         <translation type="unfinished">Base</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="339"/>
+        <location filename="l5rcm.py" line="347"/>
         <source>Modifier</source>
         <translation type="unfinished">Modificador</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="364"/>
+        <location filename="l5rcm.py" line="372"/>
         <source>Current</source>
         <translation type="unfinished">Actual</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="345"/>
+        <location filename="l5rcm.py" line="353"/>
         <source>Armor TN</source>
         <translation type="unfinished">NO de Armadura</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="362"/>
+        <location filename="l5rcm.py" line="370"/>
         <source>Armor</source>
         <translation type="unfinished">Armadura</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="363"/>
+        <location filename="l5rcm.py" line="371"/>
         <source>Reduction</source>
         <translation type="unfinished">Reducción</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="369"/>
+        <location filename="l5rcm.py" line="377"/>
         <source>Wounds</source>
         <translation type="unfinished">Heridas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="380"/>
+        <location filename="l5rcm.py" line="388"/>
         <source>Out</source>
         <translation type="unfinished">Inconsciente</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="443"/>
+        <location filename="l5rcm.py" line="526"/>
         <source>Spells</source>
         <translation type="unfinished">Hechizos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="461"/>
+        <location filename="l5rcm.py" line="544"/>
         <source>Add new spell</source>
         <translation type="unfinished">Añadir nuevo hechizo</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="465"/>
+        <location filename="l5rcm.py" line="548"/>
         <source>Remove spell</source>
         <translation type="unfinished">Borrar hechizo</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="469"/>
+        <location filename="l5rcm.py" line="552"/>
         <source>Memorize/Forget spell</source>
         <translation type="unfinished">Memorizar/Olvidar hechizo</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="493"/>
+        <location filename="l5rcm.py" line="576"/>
         <source>None</source>
         <translation type="unfinished">Ninguno/a</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="499"/>
+        <location filename="l5rcm.py" line="582"/>
         <source>&lt;b&gt;&lt;i&gt;Affinity&lt;/i&gt;&lt;/b&gt;</source>
         <translation type="unfinished"> &lt;b&gt;&lt;i&gt;Afinidad&lt;/i&gt;&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="500"/>
+        <location filename="l5rcm.py" line="583"/>
         <source>&lt;b&gt;&lt;i&gt;Deficiency&lt;/i&gt;&lt;/b&gt;</source>
         <translation type="unfinished"> &lt;b&gt;&lt;i&gt;Deficiencia&lt;/i&gt;&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="517"/>
+        <location filename="l5rcm.py" line="600"/>
         <source>Techs</source>
         <translation type="unfinished">Técnicas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="543"/>
+        <location filename="l5rcm.py" line="626"/>
         <source>Add skill rank</source>
         <translation type="unfinished">Subir rango de habilidad</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="545"/>
+        <location filename="l5rcm.py" line="628"/>
         <source>Buy skill emphasys</source>
         <translation type="unfinished">Comprar especialización de la habilidad seleccionada</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="547"/>
+        <location filename="l5rcm.py" line="630"/>
         <source>Buy another skill</source>
         <translation type="unfinished">Comprar otra habilidad</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="551"/>
+        <location filename="l5rcm.py" line="634"/>
         <source>Mastery Abilities</source>
         <translation type="unfinished">Aptitudes Superiores</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="559"/>
+        <location filename="l5rcm.py" line="642"/>
         <source>Skills</source>
         <translation type="unfinished">Habilidades</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="577"/>
+        <location filename="l5rcm.py" line="660"/>
         <source>Techniques</source>
         <translation type="unfinished">Técnicas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="596"/>
+        <location filename="l5rcm.py" line="679"/>
         <source>Add Perk</source>
         <translation type="unfinished">Añadir ventaja/desventaja</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="600"/>
+        <location filename="l5rcm.py" line="683"/>
         <source>Edit Perk</source>
         <translation type="unfinished">Modificar ventaja/desventaja</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="604"/>
+        <location filename="l5rcm.py" line="687"/>
         <source>Remove Perk</source>
         <translation type="unfinished">Quitar ventaja/desventaja</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="621"/>
+        <location filename="l5rcm.py" line="704"/>
         <source>Advantages</source>
         <translation type="unfinished">Ventajas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="632"/>
+        <location filename="l5rcm.py" line="715"/>
         <source>Disadvantages</source>
         <translation type="unfinished">Desventajas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="637"/>
+        <location filename="l5rcm.py" line="720"/>
         <source>Perks</source>
         <translation type="unfinished">Ventajas/desventajas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="647"/>
+        <location filename="l5rcm.py" line="730"/>
         <source>&lt;p&gt;&lt;i&gt;Click the button to refund
                                              the last advancement&lt;/i&gt;&lt;/p&gt;</source>
         <translation type="unfinished">&lt;p&gt;&lt;i&gt;Presiona el botón para devolver
              último progreso&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="648"/>
+        <location filename="l5rcm.py" line="731"/>
         <source>Refund</source>
         <translation type="unfinished">Devolver</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="663"/>
+        <location filename="l5rcm.py" line="746"/>
         <source>Advancements</source>
         <translation type="unfinished">Progresos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="683"/>
+        <location filename="l5rcm.py" line="766"/>
         <source>Add weapon</source>
         <translation type="unfinished">Añadir arma</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="686"/>
+        <location filename="l5rcm.py" line="769"/>
         <source>Add custom weapon</source>
         <translation type="unfinished">Añadir arma personalizada</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="689"/>
+        <location filename="l5rcm.py" line="772"/>
         <source>Edit weapon</source>
         <translation type="unfinished">Modificar arma</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="691"/>
+        <location filename="l5rcm.py" line="774"/>
         <source>Remove weapon</source>
         <translation type="unfinished">Quitar arma</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="694"/>
+        <location filename="l5rcm.py" line="777"/>
         <source>Increase Quantity</source>
         <translation type="unfinished">Incrementar cantidad</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="696"/>
+        <location filename="l5rcm.py" line="779"/>
         <source>Decrease Quantity</source>
         <translation type="unfinished">Disminuir cantidad</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="705"/>
+        <location filename="l5rcm.py" line="788"/>
         <source>Melee Weapons</source>
         <translation type="unfinished">Armas cuerpo a cuerpo</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="707"/>
+        <location filename="l5rcm.py" line="790"/>
         <source>Ranged Weapons</source>
         <translation type="unfinished">Armas a distancia</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="709"/>
+        <location filename="l5rcm.py" line="792"/>
         <source>Arrows</source>
         <translation type="unfinished">Flechas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="718"/>
+        <location filename="l5rcm.py" line="801"/>
         <source>Weapons</source>
         <translation type="unfinished">Armas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="737"/>
+        <location filename="l5rcm.py" line="820"/>
         <source>Add modifier</source>
         <translation type="unfinished">Añadir modificador</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="739"/>
+        <location filename="l5rcm.py" line="822"/>
         <source>Remove modifier</source>
         <translation type="unfinished">Quitar modificador</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="754"/>
+        <location filename="l5rcm.py" line="837"/>
         <source>Modifiers</source>
         <translation type="unfinished">Modificadores</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="765"/>
+        <location filename="l5rcm.py" line="848"/>
         <source>Notes</source>
         <translation type="unfinished">Notas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="811"/>
+        <location filename="l5rcm.py" line="894"/>
         <source>About</source>
         <translation type="unfinished">Acerca de</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="815"/>
+        <location filename="l5rcm.py" line="898"/>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;Archivo</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="817"/>
+        <location filename="l5rcm.py" line="900"/>
         <source>&amp;New Character</source>
         <translation type="unfinished">&amp;Nuevo personaje</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="818"/>
+        <location filename="l5rcm.py" line="901"/>
         <source>&amp;Open Character...</source>
         <translation type="unfinished">&amp;Abrir personaje</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="819"/>
+        <location filename="l5rcm.py" line="902"/>
         <source>&amp;Save Character...</source>
         <translation type="unfinished">&amp;Guardar personaje</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="820"/>
+        <location filename="l5rcm.py" line="903"/>
         <source>Ex&amp;port as PDF...</source>
         <translation type="unfinished">Ex&amp;portar a PDF...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="821"/>
+        <location filename="l5rcm.py" line="904"/>
         <source>E&amp;xit</source>
         <translation type="unfinished">Sa&amp;lir</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="848"/>
+        <location filename="l5rcm.py" line="931"/>
         <source>A&amp;dvancement</source>
         <translation type="unfinished">Pro&amp;gresos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="850"/>
+        <location filename="l5rcm.py" line="933"/>
         <source>&amp;Buy</source>
         <translation type="unfinished">&amp;Comprar</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="853"/>
+        <location filename="l5rcm.py" line="936"/>
         <source>&amp;View advancements...</source>
         <translation type="unfinished">&amp;Ver progresos...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="854"/>
+        <location filename="l5rcm.py" line="937"/>
         <source>&amp;Reset advancements</source>
         <translation type="unfinished">&amp;Reiniciar progresos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="855"/>
+        <location filename="l5rcm.py" line="938"/>
         <source>Refund last advancement</source>
         <translation type="unfinished">Devolver el último progreso</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="856"/>
+        <location filename="l5rcm.py" line="939"/>
         <source>Attribute rank...</source>
         <translation type="unfinished">Rango de atributo...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="857"/>
+        <location filename="l5rcm.py" line="940"/>
         <source>Void ring...</source>
         <translation type="unfinished">Anillo de Vacío...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="858"/>
+        <location filename="l5rcm.py" line="941"/>
         <source>Skill rank...</source>
         <translation type="unfinished">Rango de habilidad...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="859"/>
+        <location filename="l5rcm.py" line="942"/>
         <source>Skill emphasis...</source>
         <translation type="unfinished">Especialidad de habilidad...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="860"/>
+        <location filename="l5rcm.py" line="943"/>
         <source>Advantage...</source>
         <translation type="unfinished">Ventaja...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="861"/>
+        <location filename="l5rcm.py" line="944"/>
         <source>Disadvantage...</source>
         <translation type="unfinished">Desventaja...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="862"/>
+        <location filename="l5rcm.py" line="945"/>
         <source>Kata...</source>
         <translation type="unfinished">Kata...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="906"/>
+        <location filename="l5rcm.py" line="989"/>
         <source>&amp;Tools</source>
         <translation type="unfinished">&amp;Herramientas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="909"/>
+        <location filename="l5rcm.py" line="992"/>
         <source>&amp;Generate Name</source>
         <translation type="unfinished">&amp;Generar nombre</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="912"/>
+        <location filename="l5rcm.py" line="995"/>
         <source>Male</source>
         <translation type="unfinished">Hombre</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="913"/>
+        <location filename="l5rcm.py" line="996"/>
         <source>Female</source>
         <translation type="unfinished">Mujer</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="928"/>
+        <location filename="l5rcm.py" line="1011"/>
         <source>Dice &amp;Roller...</source>
         <translation type="unfinished">Lanzador de &amp;Dados...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="934"/>
+        <location filename="l5rcm.py" line="1017"/>
         <source>Out&amp;fit</source>
         <translation type="unfinished">E&amp;quipo</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="937"/>
+        <location filename="l5rcm.py" line="1020"/>
         <source>Wear Armor...</source>
         <translation type="unfinished">Equipar armadura...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="938"/>
+        <location filename="l5rcm.py" line="1021"/>
         <source>Wear Custom Armor...</source>
         <translation type="unfinished">Equipar armadura personalizada...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="939"/>
+        <location filename="l5rcm.py" line="1022"/>
         <source>Add Weapon...</source>
         <translation type="unfinished">Añadir arma...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="940"/>
+        <location filename="l5rcm.py" line="1023"/>
         <source>Add Custom Weapon...</source>
         <translation type="unfinished">Añadir arma personalizada...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="960"/>
+        <location filename="l5rcm.py" line="1043"/>
         <source>&amp;Rules</source>
         <translation type="unfinished">&amp;Normas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="963"/>
+        <location filename="l5rcm.py" line="1046"/>
         <source>Set Experience Limit...</source>
         <translation type="unfinished">Ajustar Límite de Experiencia...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="964"/>
+        <location filename="l5rcm.py" line="1047"/>
         <source>Set Health Multiplier...</source>
         <translation type="unfinished">Ajustar Multiplicador de Salud...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="965"/>
+        <location filename="l5rcm.py" line="1048"/>
         <source>Lock Schools</source>
         <translation type="unfinished">Bloquear Escuelas</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="966"/>
+        <location filename="l5rcm.py" line="1049"/>
         <source>Lock Advancements</source>
         <translation type="unfinished">Bloquear Progresos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="967"/>
+        <location filename="l5rcm.py" line="1050"/>
         <source>Free Shopping</source>
         <translation type="unfinished">Progreso Gratuito</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="968"/>
+        <location filename="l5rcm.py" line="1051"/>
         <source>Cure/Inflict Damage...</source>
         <translation type="unfinished">Curar/Infligir daño...</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="971"/>
+        <location filename="l5rcm.py" line="1054"/>
         <source>Insight Calculation</source>
         <translation type="unfinished">Calcular Reconocimiento</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="973"/>
+        <location filename="l5rcm.py" line="1056"/>
         <source>Default</source>
         <translation type="unfinished">Por defecto</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="974"/>
+        <location filename="l5rcm.py" line="1057"/>
         <source>Ignore Rank 1 Skills</source>
         <translation type="unfinished">Ignorar Habilidades de Rango 1</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="975"/>
+        <location filename="l5rcm.py" line="1058"/>
         <source>Account Rank 1 School Skills</source>
         <translation type="unfinished">Considerar Habilidades de Rango 1</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1368"/>
+        <location filename="l5rcm.py" line="1459"/>
         <source>You reached the next rank, you have an opportunity to decide your destiny.</source>
         <translation type="unfinished">Has alcanzado el siguiente rango, tienes la oportunidad de decidir tu destino.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1369"/>
+        <location filename="l5rcm.py" line="1460"/>
         <source>Advance rank</source>
         <translation type="unfinished">Avanzar de rango</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1387"/>
+        <location filename="l5rcm.py" line="1478"/>
         <source>You now fit the requirements to learn other Spells</source>
         <translation type="unfinished">Has alcanzado los requisitos para aprender otros Hechizos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1388"/>
+        <location filename="l5rcm.py" line="1479"/>
         <source>Learn Spells</source>
         <translation type="unfinished">Aprender Hechizos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1399"/>
+        <location filename="l5rcm.py" line="1490"/>
         <source>You need at least one rank in all school skills to learn the next School Technique</source>
         <translation type="unfinished">Necesitas al menos un nivel en todas las habilidades de escuela para aprender la nueva Técnica de Escuela.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1400"/>
+        <location filename="l5rcm.py" line="1491"/>
         <source>Buy Requirements</source>
         <translation type="unfinished">Adquirir Requisitos</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1430"/>
+        <location filename="l5rcm.py" line="1521"/>
         <source>You school grant you to choose an elemental affinity.</source>
         <translation type="unfinished">Tu escuela te permite elegir una afinidad elemental</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1431"/>
+        <location filename="l5rcm.py" line="1522"/>
         <source>Choose Affinity</source>
         <translation type="unfinished">Elegir Afinidad</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1438"/>
+        <location filename="l5rcm.py" line="1529"/>
         <source>You school grant you to choose an elemental deficiency.</source>
         <translation type="unfinished">Tu escuela te permite elegir una deficiencia elemental</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1439"/>
+        <location filename="l5rcm.py" line="1530"/>
         <source>Choose Deficiency</source>
         <translation type="unfinished">Elegir Deficiencia</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1487"/>
+        <location filename="l5rcm.py" line="1578"/>
         <source>Select your elemental affinity</source>
         <translation type="unfinished">Selecciona tu afinidad elemental</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1502"/>
+        <location filename="l5rcm.py" line="1593"/>
         <source>Select your elemental deficiency</source>
         <translation type="unfinished">Selecciona tu deficiencia elemental</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1554"/>
+        <location filename="l5rcm.py" line="1647"/>
         <source>No Clan</source>
         <translation type="unfinished">Sin Clan</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1576"/>
+        <location filename="l5rcm.py" line="1669"/>
         <source>No School</source>
         <translation type="unfinished">Sin Escuela</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1593"/>
+        <location filename="l5rcm.py" line="1686"/>
         <source>No Family</source>
         <translation type="unfinished">Sin Familia</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1721"/>
+        <location filename="l5rcm.py" line="1820"/>
         <source>Health / Wounds (x%d)</source>
         <translation type="unfinished">Salud / Heridas (x%d)</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1755"/>
+        <location filename="l5rcm.py" line="1854"/>
         <source>Your school gives you the choice of certain skills</source>
         <translation type="unfinished">Tu escuela te da la posibilidad de elegir ciertas habilidades</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1756"/>
+        <location filename="l5rcm.py" line="1855"/>
         <source>Choose Skills</source>
         <translation type="unfinished">Elige habilidades</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1794"/>
+        <location filename="l5rcm.py" line="1893"/>
         <source>Healthy</source>
         <translation type="unfinished">Saludable</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1794"/>
+        <location filename="l5rcm.py" line="1893"/>
         <source>Nicked</source>
         <translation type="unfinished">Magullado</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1794"/>
+        <location filename="l5rcm.py" line="1893"/>
         <source>Grazed</source>
         <translation type="unfinished">Lesionado</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1795"/>
+        <location filename="l5rcm.py" line="1894"/>
         <source>Hurt</source>
         <translation type="unfinished">Herido</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1795"/>
+        <location filename="l5rcm.py" line="1894"/>
         <source>Injured</source>
         <translation type="unfinished">Malherido</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1795"/>
+        <location filename="l5rcm.py" line="1894"/>
         <source>Crippled</source>
         <translation type="unfinished">Tullido</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1797"/>
+        <location filename="l5rcm.py" line="1896"/>
         <source>Down</source>
         <translation type="unfinished">Caído</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1813"/>
+        <location filename="l5rcm.py" line="1912"/>
         <source>The character has been updated.</source>
         <translation type="unfinished">El personaje ha sido actualizado.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1816"/>
+        <location filename="l5rcm.py" line="1915"/>
         <source>This character was created with an older version of the program.
 I&apos;ve done my best to convert and update your character, hope you don&apos;t mind :).
 I also created a backup of your character file in
@@ -1325,66 +1324,131 @@ I also created a backup of your character file in
         <translation type="unfinished">Este personaje ha sido creado con una versión antigua del programa. He hecho todo lo posible para convertir y actualizar tu personaje, espero que no te moleste :). También he creado una copia de seguridad del archivo de tu personaje en %s.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1817"/>
+        <location filename="l5rcm.py" line="1916"/>
         <source>Do not prompt again</source>
         <translation type="unfinished">No mostrar otra vez</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1829"/>
+        <location filename="l5rcm.py" line="1928"/>
         <source>The character has been modified.</source>
         <translation type="unfinished">El personaje ha sido modificado.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1830"/>
+        <location filename="l5rcm.py" line="1929"/>
         <source>Do you want to save your changes?</source>
         <translation type="unfinished">¿Quieres guardar los cambios?</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1840"/>
+        <location filename="l5rcm.py" line="1939"/>
         <source>L5R: CM v%s is available for download.</source>
         <translation type="unfinished">L5R: CM v%s está disponible para descarga.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1841"/>
+        <location filename="l5rcm.py" line="1940"/>
         <source>Do you want to open the download page?</source>
         <translation type="unfinished">¿Quieres abrir la página de descarga?</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1849"/>
+        <location filename="l5rcm.py" line="1948"/>
         <source>Not enough XP</source>
         <translation type="unfinished">Puntos de Experiencia insuficientes</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1850"/>
+        <location filename="l5rcm.py" line="1949"/>
         <source>Cannot purchase.
 You&apos;ve reached the XP Limit.</source>
         <translation type="unfinished">Imposible adquirirlo.
 Has alcanzado el Límite de Experiencia.</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1888"/>
+        <location filename="l5rcm.py" line="1987"/>
         <source>Save Character</source>
         <translation type="unfinished">Guardar Personaje</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1910"/>
+        <location filename="l5rcm.py" line="2009"/>
         <source>L5R Character files (*.l5r)</source>
         <translation type="unfinished">Archivos de Personaje L5R (*.l5r)</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1908"/>
+        <location filename="l5rcm.py" line="2007"/>
         <source>Load Character</source>
         <translation type="unfinished">Abrir Personaje</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1923"/>
+        <location filename="l5rcm.py" line="2022"/>
         <source>PDF Files(*.pdf)</source>
         <translation type="unfinished">Archivos PDF(*.pdf)</translation>
     </message>
     <message>
-        <location filename="l5rcm.py" line="1928"/>
+        <location filename="l5rcm.py" line="2027"/>
         <source>Export Character</source>
         <translation type="unfinished">Exportar personaje</translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="412"/>
+        <source>Personal Informations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="430"/>
+        <source>Sex</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="431"/>
+        <source>Age</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="432"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="433"/>
+        <source>Weight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="434"/>
+        <source>Hair</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="435"/>
+        <source>Eyes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="452"/>
+        <source>Father</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="453"/>
+        <source>Mother</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="454"/>
+        <source>Brothers, Sisters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="455"/>
+        <source>Marital Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="456"/>
+        <source>Spouse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="l5rcm.py" line="457"/>
+        <source>Children</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
