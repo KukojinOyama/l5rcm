@@ -36,8 +36,8 @@ class ChooseItemDialog(QtGui.QDialog):
         # depending on the tag ( armor or weapon )
         # we build a different interface
         
-        self.bt_accept = QtGui.QPushButton('Ok'    , self)
-        self.bt_cancel = QtGui.QPushButton('Cancel', self)
+        self.bt_accept = QtGui.QPushButton(self.tr("Ok")    , self)
+        self.bt_cancel = QtGui.QPushButton(self.tr("Cancel"), self)
         
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_accept.clicked.connect( self.on_accept )       
@@ -46,15 +46,15 @@ class ChooseItemDialog(QtGui.QDialog):
         grid.setColumnStretch(0, 2)
         
         if self.tag == 'armor':
-            self.setWindowTitle("Wear Armor")
-            grp     = QtGui.QGroupBox("Select Armor", self)
+            self.setWindowTitle(self.tr("Wear Armor"))
+            grp     = QtGui.QGroupBox(self.tr("Select Armor"), self)
             vbox    = QtGui.QVBoxLayout(grp)
             self.cb = QtGui.QComboBox(self)
             self.cb.currentIndexChanged.connect( self.on_armor_select )
             vbox.addWidget(self.cb)           
             grid.addWidget(grp, 0, 0)
             
-            grp     = QtGui.QGroupBox("Stats", self)
+            grp     = QtGui.QGroupBox(self.tr("Stats"), self)
             vbox    = QtGui.QVBoxLayout(grp)
             self.stats = QtGui.QLabel(self)
             self.stats.setWordWrap(True)
@@ -65,22 +65,22 @@ class ChooseItemDialog(QtGui.QDialog):
             grid.addWidget(self.bt_accept, 2, 2)
             grid.addWidget(self.bt_cancel, 2, 3)
         elif self.tag == 'weapon':
-            self.setWindowTitle("Add Weapon")
-            grp     = QtGui.QGroupBox("Weapon Skill", self)
+            self.setWindowTitle(self.tr("Add Weapon"))
+            grp     = QtGui.QGroupBox(self.tr("Weapon Skill"), self)
             vbox    = QtGui.QVBoxLayout(grp)
             self.cb1 = QtGui.QComboBox(self)
             self.cb1.currentIndexChanged.connect( self.on_weap_skill_select )
             vbox.addWidget(self.cb1)           
             grid.addWidget(grp, 0, 0, 1, 2)
 
-            grp     = QtGui.QGroupBox("Weapon", self)
+            grp     = QtGui.QGroupBox(self.tr("Weapon"), self)
             vbox    = QtGui.QVBoxLayout(grp)
             self.cb2 = QtGui.QComboBox(self)
             self.cb2.currentIndexChanged.connect( self.on_weap_select )
             vbox.addWidget(self.cb2)           
             grid.addWidget(grp, 1, 0, 1, 2)
             
-            grp     = QtGui.QGroupBox("Stats", self)
+            grp     = QtGui.QGroupBox(self.tr("Stats"), self)
             vbox    = QtGui.QVBoxLayout(grp)
             self.stats = QtGui.QLabel(self)
             self.stats.setWordWrap(True)
@@ -141,9 +141,9 @@ class ChooseItemDialog(QtGui.QDialog):
                         <p><pre>%-20s %s</pre></p>
                         <p><pre>%-20s %s</pre></p>
                         <p><i>%s</i></p>''' % \
-                        ( 'Armor TN ', self.item.tn,
-                          'Reduction', self.item.rd,
-                          'Cost     ', self.item.cost,
+                        ( self.tr("Armor TN" ), self.item.tn,
+                          self.tr("Reduction"), self.item.rd,
+                          self.tr("Cost"     ), self.item.cost,
                           self.item.rule )
         self.stats.setText(stats_text)            
         
@@ -174,17 +174,17 @@ class ChooseItemDialog(QtGui.QDialog):
         lines = []
                     
         if self.item.dr is not None:
-            lines.append( '<pre>%-24s %s</pre>' % ('Primary DR  ',self.item.dr) )
+            lines.append( '<pre>%-24s %s</pre>' % (self.tr("Primary DR"  ), self.item.dr      ))
         if self.item.dr_alt is not None:
-            lines.append( '<pre>%-24s %s</pre>' % ('Secondary DR',self.item.dr_alt) )
+            lines.append( '<pre>%-24s %s</pre>' % (self.tr("Secondary DR"), self.item.dr_alt  ))
         if self.item.range is not None:               
-           lines.append( '<pre>%-24s %s</pre>' % ('Range        ',self.item.range) )
+           lines.append( '<pre>%-24s %s</pre>' % (self.tr("Range"        ), self.item.range   ))
         if self.item.strength is not None:
-           lines.append( '<pre>%-24s %s</pre>' % ('Strength     ',self.item.strength) )
+           lines.append( '<pre>%-24s %s</pre>' % (self.tr("Strength"     ), self.item.strength))
         if self.item.min_str is not None:
-           lines.append( '<pre>%-24s %s</pre>' % ('Min. Strength',self.item.min_str) )
+           lines.append( '<pre>%-24s %s</pre>' % (self.tr("Min. Strength"), self.item.min_str ))
         if self.item.cost is not None:
-           lines.append( '<pre>%-24s %s</pre>' % ('Cost         ',self.item.cost) )
+           lines.append( '<pre>%-24s %s</pre>' % (self.tr("Cost"         ), self.item.cost    ))
         if self.item.rule is not None:
            lines.append( '<i>%s</i>' % self.item.rule )
             
