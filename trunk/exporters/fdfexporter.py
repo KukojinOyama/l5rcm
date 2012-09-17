@@ -215,6 +215,24 @@ class FDFExporterAll(FDFExporter):
             fields['ARROW_TYPE.%d'  % i] = ar.name.replace('Arrow', '')
             fields['ARROW_DMG.%d'   % i] = ar.dr
             fields['ARROW_QTY.%d'   % i] = ar.qty
+            
+        # PERSONAL INFORMATIONS
+        fields['GENDER']         = m.get_property('sex')
+        fields['AGE']            = m.get_property('age')
+        fields['HEIGHT']         = m.get_property('height')
+        fields['WEIGHT']         = m.get_property('weight')
+        fields['HAIR']           = m.get_property('hair')
+        fields['EYES']           = m.get_property('eyes')
+        fields['FATHER']         = m.get_property('father')
+        fields['MOTHER']         = m.get_property('mother')
+        fields['BROTHERS']       = m.get_property('brosis')
+        fields['MARITAL STATUS'] = m.get_property('marsta')
+        fields['SPOUSE']         = m.get_property('spouse')
+        
+        if m.get_property('childr'):
+            chrows = m.get_property('childr').split('\n\r')
+            for i in xrange(0, len(chrows)):
+                fields['CHILDREN.%d' % (i+1)] = chrows[i]
                     
         # EXPORT FIELDS    
         for k in fields.iterkeys():
@@ -252,6 +270,12 @@ class FDFExporterShugenja(FDFExporter):
             def_ = schools[i].deficiency.capitalize() if schools[i].deficiency else "None"
             aff_ = schools[i].affinity.capitalize()   if schools[i].affinity   else "None"
             
+            if aff_.startswith('*'): # wildcard
+                aff_ = m.get_affinity().capitalize()
+
+            if def_.startswith('*'): # wildcard
+                def_ = m.get_affinity().capitalize()
+                
             fields['SCHOOL_NM.%d'  % (i+1)    ] = f.get_school_name(schools[i].school_id)
             fields['AFFINITY.%d'  % (i+1)     ] = aff_
             fields['DEFICIENCY.%d'  % (i+1)   ] = def_
