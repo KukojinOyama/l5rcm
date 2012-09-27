@@ -31,50 +31,48 @@ def __write_hd(fobj):
 
 def __write_ft(fobj):
     fobj.write("</L5RCM>")
-        
+               
 def exp_clans(db, out_file, out_path):
     c = db.cursor()
-    c.execute("select * from clans")
+    c.execute('''select uuid, name
+                 from clans order by name''')
     
     if not os.path.exists(out_path):
-        os.makedirs(out_path)        
+        os.makedirs(out_path)
+        
+    scs  = [ x for x in c.fetchall() ]
+    root = ET.Element('L5RCM')    
     fpath = os.path.join(out_path, out_file)
     
-    with open(fpath, 'wt') as fobj:
-        __write_hd(fobj)
-        for id, name in c.fetchall():
-            fobj.write('''\t<Clan name="{0}"/>\n'''.format(name))
-        __write_ft(fobj)
-                        
+    for uuid, name in scs:           
+        ec = ET.SubElement(root, 'Clan', {'name': name})
+        etags = ET.SubElement(ec, 'Tags')
+        ET.SubElement(etags, 'Tag').text = name.lower()
+
+    if root is not None: 
+        ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)
+        
 def exp_families(db, out_file, out_path):
     c = db.cursor()
     c.execute("select clans.name, families.name, perk from families inner join clans on clans.uuid=clan_id order by clans.name")
-    fobj = None
-    cn   = None
     
     if not os.path.exists(out_path):
-        os.makedirs(out_path)        
-      
-    for clan, name, perk in c.fetchall():
-        if cn != clan:
-            if fobj: 
-                __write_ft(fobj)
-                fobj.close()
-            fname = "{0}_{1}".format(clan, out_file)
-            fpath = os.path.join(out_path, fname)
-            cn    = clan
-            fobj  = open(fpath, 'wt')
-            __write_hd(fobj)
-                    
-        fobj.write('''\t<Family name="{0}">\n'''.format(name))
-        fobj.write('''\t\t<Clan>{0}</Clan>\n'''.format(clan))
-        fobj.write('''\t\t<Trait>{0}</Trait>\n'''.format(perk.capitalize()))
-        fobj.write('''\t</Family>\n''')
-    
-    if fobj: 
-        __write_ft(fobj)
-        fobj.close()
+        os.makedirs(out_path)
         
+    scs  = [ x for x in c.fetchall() ]
+    root = ET.Element('L5RCM')    
+    fpath = os.path.join(out_path, out_file)
+    
+    for clan, name, perk in scs:           
+        efam = ET.SubElement(root, 'Family', {'name': name})
+        ET.SubElement(efam, 'Clan').text = clan.lower()  # should be the clan tag here
+        ET.SubElement(efam, 'Trait').text = perk.lower() # should be the perk tag here
+        etags = ET.SubElement(efam, 'Tags')
+        ET.SubElement(etags, 'Tag').text = name.lower()
+
+    if root is not None: 
+        ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)        
+                                
 def exp_schools(db, out_file, out_path):
     c = db.cursor()
     c.execute('''select schools.uuid, clans.name, schools.name, tag, perk,
