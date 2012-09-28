@@ -16,7 +16,46 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-class Perk(object):
-	def __init__(self, name):
-		self.name = name
+class PerkException(object):
+    
+    @staticmethod
+    def build_from_xml(elem):
+        f = PerkException()
+        f.tag = elem.attrib['tag']
+        f.value = int(elem.attrib['value'])       
+        return f
         
+class PerkRank(object):
+    
+    @staticmethod
+    def build_from_xml(elem):
+        f = PerkRank()
+        f.id    = int(elem.attrib['id'])
+        f.value = int(elem.attrib['value'])
+        f.exceptions = []        
+        for se in elem.iter():
+            if se.tag == 'Exception':
+                f.exceptions.append(PerkException.build_from_xml(se))       
+        
+        return f
+
+class Perk(object):
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = Perk()
+        f.name  = elem.attrib['name']
+        f.id    = elem.attrib['id']
+        f.type  = elem.attrib['type']
+        f.rule  = elem.attrib['rule'] if ('rule' in elem.attrib) else None
+        f.ranks = []
+        for se in elem.iter():
+            if se.tag == 'Rank':
+                f.ranks.append(PerkRank.build_from_xml(se))
+        return f        
+        
+    def __str__(self):
+        return self.name or self.id
+
+    def __eq__(self, obj):
+        return obj and obj.id == self.id

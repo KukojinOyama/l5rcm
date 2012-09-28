@@ -21,6 +21,7 @@ from family      import *
 from school      import *
 from skill       import *
 from spell       import *
+from perk        import *
 
 import os
 import xml.etree.cElementTree as ET
@@ -35,7 +36,11 @@ class Data(object):
         self.schools  = []
         
         self.spells   = []
-        self.skills   = []        
+        self.skills   = []
+        self.merits   = []
+        self.flaws    = []
+        
+        self.effects  = []
         
         if data_dir and os.path.exists(data_dir):
             self.load_data(data_dir)
@@ -76,7 +81,12 @@ class Data(object):
             elif elem.tag == 'SkillDef':
                 self.skills.append(Skill.build_from_xml(elem))
             elif elem.tag == 'SpellDef':
-                self.spells.append(Spell.build_from_xml(elem))                
+                self.spells.append(Spell.build_from_xml(elem))
+            elif elem.tag == 'Merit':
+                self.merits.append(Perk.build_from_xml(elem))
+            elif elem.tag == 'Flaw':
+                self.flaws.append(Perk.build_from_xml(elem))
+                    
                 
                 
                 

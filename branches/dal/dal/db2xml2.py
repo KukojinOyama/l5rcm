@@ -213,6 +213,16 @@ def exp_skills(db, out_file, out_path):
         attr = {'type': type, 'trait': _lu(trait), 'id': _lu(name), 'name': name}
         sk_def = ET.SubElement(root, "SkillDef", attr)
         exp_tags(db, uuid, ET.SubElement(sk_def, 'Tags'))
+        ma_elem = ET.SubElement(sk_def, 'MasteryAbilities')
+        c.execute('''select skill_rank, rule, brief
+                     from mastery_abilities
+                     where skill_uuid=?
+                     order by skill_rank''', [uuid])
+                     
+        for rank, rule, brief in c.fetchall():
+            attr = {'rank': str(rank)}
+            if rule: attr['rule'] = rule
+            ET.SubElement(ma_elem, "MasteryAbility", attr).text = brief
         
     fpath = os.path.join(out_path, out_file)
     ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)
@@ -244,7 +254,7 @@ def exp_weapons(db, out_file, out_path):
             d = db.cursor()
             d.execute('''select tag, desc from effects where uuid=?''', [effect_id])
             tag, desc = d.fetchone()
-            ET.SubElement(wp_def, 'Effect', {'tag': tag}).text = desc        
+            ET.SubElement(wp_def, 'Effect', {'id': tag})
         
     fpath = os.path.join(out_path, out_file)
     ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)    
@@ -286,6 +296,55 @@ def exp_tags(db, uuid, root):
     for uuid, tag in c.fetchall():
         ET.SubElement(root, "Tag").text = _lu(tag)
         
+def exp_perks(db, out_file, out_path, perktype):
+    c = db.cursor()
+    c.execute('''select uuid, name, subtype, rule
+                 from perks
+                 where type=?
+                 order by subtype, name asc''', [perktype])
+                 
+    elem_nm = perktype.capitalize()
+                 
+    root = ET.Element('L5RCM')
+    for uuid, name, type, rule in c.fetchall():
+        attr = {'id': _lu(name), 'name': name, 'type': type}                       
+        if rule: attr['rule'] = rule
+
+        merit = ET.SubElement(root, elem_nm, attr)
+        
+        c.execute('''select perk_rank, cost
+                    from perk_ranks
+                    where perk_uuid=?
+                    order by perk_rank''',[uuid])
+                    
+        for rank, cost in c.fetchall():
+            rank_elem = ET.SubElement(merit, "Rank", {'id': str(rank), 'value': str(cost)})
+            c.execute('''select tag, cost
+                        from perk_excepts
+                        where perk_uuid=? and perk_rank=?
+                        order by tag''',[uuid, rank])
+                        
+            for tag, ncost in c.fetchall():
+                if '-' in ncost or '+' in ncost:
+                    ncost = cost + int(ncost)
+                else:
+                    ncost = int(ncost)
+                ET.SubElement(rank_elem, "Exception", {'tag': tag, 'value': str(ncost)})                        
+        
+    fpath = os.path.join(out_path, out_file)
+    ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)
+
+def exp_effects(db, out_file, out_path):
+    c = db.cursor()
+    c.execute('''select tag, desc from effects''')
+                 
+    root = ET.Element('L5RCM')
+    for tag, desc in c.fetchall():                      
+        sp_def = ET.SubElement(root, "EffectDef", {'id': tag}).text = desc
+        
+    fpath = os.path.join(out_path, out_file)
+    ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)       
+        
 def main():
     db = sqlite3.connect(sys.argv[1])
     exp_clans   (db, "clans.xml", '../share/l5rcm/data')
@@ -294,6 +353,9 @@ def main():
     exp_skills  (db, "skills.xml", '../share/l5rcm/data')
     exp_weapons (db, "weapons.xml", '../share/l5rcm/data')
     exp_spells  (db, "spells.xml", '../share/l5rcm/data')
+    exp_perks   (db, "merits.xml", '../share/l5rcm/data', 'merit')
+    exp_perks   (db, "flaws.xml", '../share/l5rcm/data',  'flaw')
+    exp_effects (db, "weapon_effects.xml", '../share/l5rcm/data')
         
 if __name__ == '__main__':
     main()
