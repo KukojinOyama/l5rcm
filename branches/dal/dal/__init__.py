@@ -19,7 +19,8 @@
 from clan        import *
 from family      import *
 from school      import *
-from perk        import *
+from skill       import *
+from spell       import *
 
 import os
 import xml.etree.cElementTree as ET
@@ -32,6 +33,9 @@ class Data(object):
         self.clans    = []
         self.families = []
         self.schools  = []
+        
+        self.spells   = []
+        self.skills   = []        
         
         if data_dir and os.path.exists(data_dir):
             self.load_data(data_dir)
@@ -69,6 +73,10 @@ class Data(object):
                 self.families.append(Family.build_from_xml(elem))                
             elif elem.tag == 'School':
                 self.schools.append(School.build_from_xml(elem))
+            elif elem.tag == 'SkillDef':
+                self.skills.append(Skill.build_from_xml(elem))
+            elif elem.tag == 'SpellDef':
+                self.spells.append(Spell.build_from_xml(elem))                
                 
                 
                 

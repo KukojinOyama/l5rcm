@@ -48,8 +48,7 @@ class Sink1(QtCore.QObject):
         form.load_character_from(path)
         
     def save_character(self):
-        form = self.form
-        
+        form = self.form        
         if form.save_path == '' or not os.path.exists(form.save_path):
             form.save_path = form.select_save_path()
 

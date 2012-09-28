@@ -19,18 +19,25 @@
 import sqlite3
 import sys
 import os
+import string
 
 #import xml.etree.cElementTree as ET
 import lxml.etree as ET
 
-XML_HD = '''<?xml version="1.0" encoding="UTF-8" ?>'''
-
-def __write_hd(fobj):
-    fobj.write(XML_HD + "\n")
-    fobj.write("<L5RCM>\n")
-
-def __write_ft(fobj):
-    fobj.write("</L5RCM>")
+def _lu(s):
+    s1 = ''
+    flag = True
+    for c in s.strip():
+        if (c in string.punctuation):
+            continue
+        if (c in string.ascii_letters or
+            c in string.digits):
+            s1 += c.lower()
+            flag = True
+        elif flag:
+            s1 += '_'
+            flag = False
+    return s1
                
 def exp_clans(db, out_file, out_path):
     c = db.cursor()
@@ -45,9 +52,7 @@ def exp_clans(db, out_file, out_path):
     fpath = os.path.join(out_path, out_file)
     
     for uuid, name in scs:           
-        ec = ET.SubElement(root, 'Clan', {'name': name})
-        etags = ET.SubElement(ec, 'Tags')
-        ET.SubElement(etags, 'Tag').text = name.lower()
+        ec = ET.SubElement(root, 'Clan', {'name': name, 'id': _lu(name)})
 
     if root is not None: 
         ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)
@@ -71,11 +76,11 @@ def exp_families(db, out_file, out_path):
             root = ET.Element('L5RCM')
             cn    = clan
             
-        efam = ET.SubElement(root, 'Family', {'name': name})
-        ET.SubElement(efam, 'Clan').text = clan.lower()  # should be the clan tag here
-        if perk: ET.SubElement(efam, 'Trait').text      = perk.lower()
-        etags = ET.SubElement(efam, 'Tags')
-        ET.SubElement(etags, 'Tag').text = name.lower()            
+        if '(' in name:
+            name = name[0:name.find('(')].strip()
+            
+        efam = ET.SubElement(root, 'Family', {'name': name, 'id': _lu(clan + ' ' + name), 'clanid': _lu(clan)})
+        if perk: ET.SubElement(efam, 'Trait').text = _lu(perk)
     
     if root is not None: 
         fname = "{0}_{1}".format(cn, out_file)
@@ -107,19 +112,21 @@ def exp_schools(db, out_file, out_path):
             root = ET.Element('L5RCM')
             cn    = clan
             
-        efam = ET.SubElement(root, 'School', {'name': name})
-        ET.SubElement(efam, 'Clan').text = clan.lower() # should be a tag
-        if perk: ET.SubElement(efam, 'Trait').text = perk.lower()
-        if affi: ET.SubElement(efam, 'Affinity').text = affi.lower()
-        if defi: ET.SubElement(efam, 'Deficiency').text = defi.lower()
+        if '(' in name:
+            name = name[0:name.find('(')].strip()
+            
+        efam = ET.SubElement(root, 'School', {'name': name, 'id': _lu(clan + ' ' + name), 'clanid': _lu(clan)})
+        if perk: ET.SubElement(efam, 'Trait').text = _lu(perk)
+        if affi: ET.SubElement(efam, 'Affinity').text = _lu(affi)
+        if defi: ET.SubElement(efam, 'Deficiency').text = _lu(defi)
         if hon : ET.SubElement(efam, 'Honor').text = str(hon)
         etags = ET.SubElement(efam, 'Tags')
         for tag in tags.split(';'):
-            ET.SubElement(etags, 'Tag').text = tag.strip().lower()
+            ET.SubElement(etags, 'Tag').text = _lu(tag)
             
         exp_school_skills(db, uuid, ET.SubElement(efam, 'Skills'))
         exp_school_spells(db, uuid, ET.SubElement(efam, 'Spells'))
-        exp_school_techs (db, uuid, ET.SubElement(efam, 'Techs' ))
+        exp_school_techs (db, uuid, clan, ET.SubElement(efam, 'Techs' ))
         exp_school_requirements(db, uuid, ET.SubElement(efam, 'Requirements'))
     
     if root is not None: 
@@ -136,9 +143,9 @@ def exp_school_skills(db, uuid, root):
                  
     for name, emphases, rank in c.fetchall():
         if emphases:
-            ET.SubElement(root, "Skill", {'emphases': emphases, 'rank': str(rank) }).text = name
+            ET.SubElement(root, "Skill", {'id': _lu(name), 'emphases': emphases, 'rank': str(rank) })
         else:
-            ET.SubElement(root, "Skill", {'rank': str(rank) }).text = name
+            ET.SubElement(root, "Skill", {'id': _lu(name), 'rank': str(rank) })
 
     c.execute('''select wildcard, skill_rank
                  from school_skills 
@@ -148,7 +155,7 @@ def exp_school_skills(db, uuid, root):
     for wildcard, rank in c.fetchall():
         epc = ET.SubElement(root, "PlayerChoose", {'rank': str(rank) })
         for wc in wildcard.split(';'):
-            ET.SubElement(epc, "Wildcard").text = wc.strip()
+            ET.SubElement(epc, "Wildcard").text = _lu(wc)
 
 def exp_school_spells(db, uuid, root):
     c = db.cursor()
@@ -158,7 +165,7 @@ def exp_school_spells(db, uuid, root):
                  order by spells.name''', [uuid])
                  
     for sc, name in c.fetchall():
-        ET.SubElement(root, "Spell").text = name
+        ET.SubElement(root, "Spell", {'id': _lu(name)})
         
     c.execute('''select school_uuid, wildcard
                  from school_spells 
@@ -168,9 +175,9 @@ def exp_school_spells(db, uuid, root):
     for sc, wildcard in c.fetchall():
         elem, cnt = wildcard.split(' ')
         cnt = cnt.strip('()')
-        epc = ET.SubElement(root, "PlayerChoose", {'count': cnt, 'element': elem})
+        epc = ET.SubElement(root, "PlayerChoose", {'count': cnt, 'element': _lu(elem)})
 
-def exp_school_techs (db, uuid, root):
+def exp_school_techs (db, uuid, clan, root):
     c = db.cursor()
     c.execute('''select school_techs.name, rank, desc
                  from school_techs inner join schools on schools.uuid=school_uuid
@@ -178,8 +185,11 @@ def exp_school_techs (db, uuid, root):
                  order by rank''', [uuid])
                  
     for name, rank, desc in c.fetchall():
+        if '(' in name:
+            name = name[0:name.find('(')].strip()
+            
         if not desc: desc = ''
-        ET.SubElement(root, "Tech", {'name': name, 'rank': str(rank)}).text = desc
+        ET.SubElement(root, "Tech", {'name': name, 'id': _lu(clan + ' ' + name), 'rank': str(rank)}).text = desc
         
 def exp_school_requirements(db, uuid, root):        
     c = db.cursor()
@@ -200,8 +210,8 @@ def exp_skills(db, out_file, out_path):
                  from skills order by type''')
     root = ET.Element('L5RCM')
     for uuid, name, type, trait in c.fetchall():
-        attr = {'type': type, 'trait': trait.capitalize(), 'name': name}
-        sk_def = ET.SubElement(root, "SkillDef", attr)        
+        attr = {'type': type, 'trait': _lu(trait), 'id': _lu(name), 'name': name}
+        sk_def = ET.SubElement(root, "SkillDef", attr)
         exp_tags(db, uuid, ET.SubElement(sk_def, 'Tags'))
         
     fpath = os.path.join(out_path, out_file)
@@ -249,10 +259,10 @@ def exp_spells(db, out_file, out_path):
                  
     root = ET.Element('L5RCM')
     for uuid, name, ring, mastery, range, area, duration, raises in c.fetchall():
-        attr = {'name': name, 'ring': ring, 'mastery': str(mastery), 'range': range, 
+        attr = {'id': _lu(name), 'name': name, 'element': _lu(ring), 'mastery': str(mastery), 'range': range, 
                 'area': area, 'duration': duration}
                        
-        sp_def = ET.SubElement(root, "Spell", attr)
+        sp_def = ET.SubElement(root, "SpellDef", attr)
         tags = ET.SubElement(sp_def, 'Tags')
         exp_tags(db, uuid, tags)
         if raises:
@@ -262,7 +272,7 @@ def exp_spells(db, out_file, out_path):
                 
         # add maho tag
         if '[MAHO]' in name:
-            ET.SubElement(tags, 'Tag').text = 'Maho'            
+            ET.SubElement(tags, 'Tag').text = 'maho'            
         
     fpath = os.path.join(out_path, out_file)
     ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)    
@@ -274,7 +284,7 @@ def exp_tags(db, uuid, root):
                  where uuid=? order by tag''', [uuid])
                  
     for uuid, tag in c.fetchall():
-        ET.SubElement(root, "Tag").text = tag
+        ET.SubElement(root, "Tag").text = _lu(tag)
         
 def main():
     db = sqlite3.connect(sys.argv[1])

@@ -29,6 +29,8 @@ import tempfile
 import exporters
 import dbutil
 import sinks
+import dal
+import dal.query
 
 from PySide import QtGui, QtCore
 from models.chmodel import ATTRIBS, RINGS
@@ -1195,24 +1197,21 @@ class L5RMain(L5RCMCore):
         #self.cb_pc_family.clear()
         index = self.cb_pc_clan.currentIndex()
         if index < 0:
-            self.pc.clan = 0
+            self.pc.clan = None
         else:
             clan_id = self.cb_pc_clan.itemData(index)
-
-            #print 'set new clan. cur: %d new %d' % ( self.pc.clan, clan_id )
             self.pc.clan = clan_id
 
         self.load_families(self.pc.clan)
         if self.pc.unlock_schools:
             self.load_schools ()
-        else:
+        else:            
             self.load_schools(self.pc.clan)
         self.cb_pc_family.setCurrentIndex(0)
         self.cb_pc_school.setCurrentIndex(0)
 
     def on_family_change(self, text):
         index = self.cb_pc_family.currentIndex()
-        #print 'on family changed %s %d' % (text, index)
         if index <= 0:
             self.pc.set_family()
             self.update_from_model()
@@ -1223,19 +1222,15 @@ class L5RMain(L5RCMCore):
             return
         # should modify step_1 character
         # get family perk
-
-        c = self.db_conn.cursor()
-        c.execute('''select uuid, name from clans where uuid=?''', [self.pc.clan])
-        clan_uuid, clan_name = c.fetchone()
-
-        c.execute('''select name, perk, perkval from families
-                     where uuid=?''', [uuid])
-        for name, perk, perkval in c.fetchall():
-            self.pc.set_family( uuid, perk, perkval, [name.lower(), clan_name.lower()] )
-            self.update_from_model()
-            break
-
-        c.close()
+        
+        family = dal.query.get_family(self.dstore, uuid)
+        clan   = dal.query.get_clan  (self.dstore, family.clanid)
+        
+        if not family or not clan:
+            return
+        
+        self.pc.set_family( family.id , family.trait, 1, [family.id, clan.id] )
+        self.update_from_model()
 
     def on_school_change(self, text):
         index = self.cb_pc_school.currentIndex()
@@ -1250,73 +1245,49 @@ class L5RMain(L5RCMCore):
 
         # should modify step_2 character
         # get school perk
-
-        c = self.db_conn.cursor()
-        c.execute('''select name, perk, perkval, honor, tag from schools
-                     where uuid=?''', [uuid])
+        school = dal.query.get_school(self.dstore, uuid)
+        clan   = dal.query.get_clan  (self.dstore, school.clanid)
+        
         try:
-            name, perk, perkval, honor, tag = c.fetchone()
+            self.pc.set_school(school.id, school.trait, 1, school.honor, school.tags + [clan.id])
         except:
-            # no school
             self.pc.set_school(uuid, None, None, None)
-            return
 
-        school_tags = [ x.strip() for x in tag.split(';') ]
-        clan_tag = unicode.format(u'{0} {1}', self.cb_pc_clan.currentText(),
-                                         school_tags[0])
-        school_tags.append(clan_tag.lower())
-        school_tags.append(name.lower())
+        for sk in school.skills:
+            self.pc.add_school_skill(sk.id, sk.rank, sk.emph)
+            
+        # player choose ( aka wildcards )
+        for sk in school.skills_pc:
+            self.pc.add_pending_wc_skill(sk.wildcards, sk.rank)
 
-        self.pc.set_school( uuid, perk, perkval, honor, school_tags)
-
-        c.execute('''select skill_uuid, skill_rank, wildcard, emphases
-                     from school_skills
-                     where school_uuid=?''', [uuid])
-        for sk_uuid, sk_rank, wc, emph in c.fetchall():
-            if sk_uuid is not None:
-                self.pc.add_school_skill(sk_uuid, sk_rank, emph)
-            else:
-                self.pc.add_pending_wc_skill(wc, sk_rank)
-
-        # get school tech rank 1
-        c.execute('''select uuid, effect from school_techs
-                     where school_uuid=? and rank=1''', [uuid])
-
-        for th_uuid, rule in c.fetchall():
-            self.pc.set_free_school_tech( th_uuid, rule )
-            break
+        # get school tech rank 1                   
+        tech0 = dal.query.get_tech(school, 1)
+        # rule == techid ???
+        self.pc.set_free_school_tech(tech0.id, tech0.id)
 
         # if shugenja get universal spells
         # also player should choose some spells from list
 
-        if 'shugenja' in tag:
+        if 'shugenja' in school.tags:
             count = 0
-            c.execute('''select spell_uuid, wildcard from school_spells
-                      where school_uuid=?''', [uuid])
-            for sp_uuid, wc in c.fetchall():
-                if sp_uuid is None:
-                    ring, qty = rules.parse_spell_wildcard(wc)
-                    print 'add pending wc spell %s' % wc
-                    self.pc.add_pending_wc_spell(wc)
-                    count += qty
-                else:
-                    self.pc.add_free_spell(sp_uuid)
-                    count += 1
-
-            print 'starting spells count are %d' % count
+            for spell in school.spells:
+                self.pc.add_free_spell(spell.id)
+                count += 1
+                
+            for spell in school.spells_pc:
+                self.pc.add_pending_wc_spell((spell.element, spell.count))
+                count += spell.count
+            
+            print('starting spells count are {0}'.format(count))
             self.pc.set_school_spells_qty(count)
 
             # affinity / deficiency
-            c.execute('''select affinity, deficiency from schools
-                         where uuid=?''', [uuid])
+            print('school: {0}, affinity: {1}, deficiency: {2}'.format(school, school.affinity, school.deficiency))
+            self.pc.set_affinity(school.affinity)
+            self.pc.set_deficiency(school.deficiency)
+            self.pc.get_school().affinity = school.affinity
+            self.pc.get_school().deficiency = school.deficiency          
 
-            for affin, defic in c.fetchall():
-                self.pc.set_affinity(affin)
-                self.pc.set_deficiency(defic)
-                self.pc.get_school().affinity = affin
-                self.pc.get_school().deficiency = defic
-
-        c.close()
         self.update_from_model()
 
     def on_pc_name_change(self):
@@ -1546,7 +1517,7 @@ class L5RMain(L5RCMCore):
     def learn_next_school_spells(self):
         self.pc.recalc_ranks()
 
-        dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
+        dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
             self.update_from_model()
@@ -1618,23 +1589,8 @@ class L5RMain(L5RCMCore):
             except:
                 self.last_rank = self.pc.get_insight_rank()
 
-            if float(self.pc.version) < float(DB_VERSION):
-                # BACKUP CHARACTER
-                backup_path = self.save_path + '.bak'
-                self.pc.save_to(backup_path)
-                # CONVERT CHARACTER
-                import past
-                past_db = 'l5rdb_%s.sqlite' % self.pc.version
-                if not os.path.exists(get_app_file(past_db)):
-                    past_db = 'l5rdb_past.sqlite'
-                print 'converting character using database %s' % past_db
-                cc = past.CharConvert(self.pc, get_app_file(past_db), get_app_file('l5rdb.sqlite') )
-                cc.start()
-                # SAVE CHARACTER
-                self.sink1.save_character()
-                # ADVISE USER
-                self.advise_conversion(backup_path)
-
+            #TODO: checks for books / data extensions
+            
             self.load_families(self.pc.clan)
             if self.pc.unlock_schools:
                 self.load_schools ()
@@ -1650,59 +1606,47 @@ class L5RMain(L5RCMCore):
                         self.cb_pc_school] )
         resume_signals( self.pers_info_widgets )
 
-    def load_clans(self):
-        c = self.db_conn.cursor()
+    def load_clans(self):        
         # clans
         self.cb_pc_clan.clear()
-        self.cb_pc_clan.addItem( self.tr("No Clan"), 0 )
-        c.execute('''select uuid, name from clans order by name asc''')
-        for f in c.fetchall():
-            self.cb_pc_clan.addItem( f[1], f[0] )
-        c.close()
+        self.cb_pc_clan.addItem( self.tr("No Clan"), None )
+        
+        for c in self.dstore.clans:
+            self.cb_pc_clan.addItem( c.name, c.id )
 
-    def load_schools(self, clan_id = -1):
-        #print 'load schools for clan_id %d' % clan_id
-        c = self.db_conn.cursor()
+    def load_schools(self, clan_id = None):
+        print('load schools for clan_id {0}'.format(clan_id))
+                
         self.cb_pc_school.clear()
-        if clan_id <= 0:
-            c.execute('''select uuid, name from schools
-                         where NOT EXISTS (select ref_uuid from requirements
-                                           where ref_uuid=uuid)
-                         order by name asc''')
+        schools = []
+        
+        # TODO: Sort
+        if not clan_id:
+            schools = filter( lambda x: len(x.require) == 0, self.dstore.schools )
         else:
-            c.execute('''select uuid, name from schools where clan_id=?
-                         AND NOT EXISTS (select ref_uuid from requirements
-                                         where ref_uuid=uuid)
-                         order by name asc''',
-                         [clan_id])
-
-        self.cb_pc_school.addItem( self.tr("No School"), 0 )
-        for f in c.fetchall():
-            self.cb_pc_school.addItem( f[1], f[0] )
-        c.close()
+            schools = filter( lambda x: ( x.clanid == clan_id and
+                                          len(x.require) == 0 ), self.dstore.schools )
+                                            
+        self.cb_pc_school.addItem( self.tr("No School"), None )
+        for s in schools:
+            self.cb_pc_school.addItem( s.name, s.id )
 
     def load_families(self, clan_id):
-        #print 'load families for clan_id %d' % clan_id
+        print('load families for clan_id {0}'.format(clan_id))
 
-        c = self.db_conn.cursor()
         self.cb_pc_family.clear()
-        if clan_id <= 0:
+        if not clan_id:
             return
         else:
-            c.execute('''select uuid, name from families where clan_id=?
-                         order by name asc''',
-                         [clan_id])
+            families = filter( lambda x: x.clanid == clan_id, self.dstore.families )
 
-        self.cb_pc_family.addItem( self.tr("No Family"), 0 )
-        for f in c.fetchall():
-            self.cb_pc_family.addItem( f[1], f[0] )
-        c.close()
+        self.cb_pc_family.addItem( self.tr("No Family"), None )
+        for f in families:
+            self.cb_pc_family.addItem( f.name, f.id )
 
     def set_clan(self, clan_id):
         idx = self.cb_pc_clan.currentIndex()
         c_uuid = self.cb_pc_clan.itemData(idx)
-
-        #print 'set clan. cur: %d new: %d' % (c_uuid, clan_id)
 
         if c_uuid == clan_id:
             return
@@ -1739,11 +1683,9 @@ class L5RMain(L5RCMCore):
                 break
 
         if not found:
-            self.cb_pc_school.addItem(
-                 dbutil.get_school_name(self.db_conn, school_id),
-                 school_id)
-            #self.cb_pc_school.setCurrentIndex(self.cb_pc_school.count()-1)
-
+            school = dal.query.get_school(self.dstore, school_id)
+            if school:
+                self.cb_pc_school.addItem( school.name, school.id )
         self.cb_pc_school.blockSignals(False)
 
     def set_void_points(self, value):
@@ -1783,7 +1725,7 @@ class L5RMain(L5RCMCore):
         resume_signals( self.pers_info_widgets )
 
         pc_xp = self.pc.get_px()
-        self.tx_pc_exp.setText( '%d / %d' % ( pc_xp, self.pc.exp_limit ) )
+        self.tx_pc_exp.setText( '{0} / {0}'.format( pc_xp, self.pc.exp_limit ) )
 
         # rings
         for i in xrange(0, 5):
