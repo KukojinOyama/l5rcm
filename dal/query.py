@@ -42,13 +42,16 @@ def get_tech(school_obj, rank):
         tech = filter( lambda x: x.rank == rank, school_obj.techs )
         return tech[0]
     except:
-        return None   
+        return None
+
+def get_skill(storage, id):
+    try:
+        skill = filter( lambda x: x.id == id, storage.skills )
+        return skill[0]
+    except:
+        return None          
         
 def get_spells(storage, ring, mastery):
-    for s in storage.spells:
-        if s.element == ring and s.mastery == mastery:
-            print(s)
-            
     return filter( lambda x: x.element == ring and x.mastery == mastery, storage.spells )
 
 def get_maho_spells(storage, ring, mastery):

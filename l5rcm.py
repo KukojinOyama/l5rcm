@@ -623,7 +623,7 @@ class L5RMain(L5RCMCore):
         return view
 
     def build_ui_page_2(self):
-        self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
+        self.sk_view_model = models.SkillTableViewModel(self.dstore, self)
         self.ma_view_model = models.MaViewModel        (self.db_conn, self)
 
         # enable sorting through a proxy model

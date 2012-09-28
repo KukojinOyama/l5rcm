@@ -23,7 +23,7 @@ class SchoolSkill(object):
         f = SchoolSkill()
         f.id = elem.attrib['id']
         f.rank = int(elem.attrib['rank'])
-        f.emph = elem.attrib['emphases'] if 'emphases' in elem.attrib else None
+        f.emph = elem.attrib['emphases'] if ('emphases' in elem.attrib) else None
         return f
         
     def __eq__(self, obj):
@@ -84,9 +84,9 @@ class SchoolRequirement(object):
         f = SchoolRequirement()
         f.field = elem.attrib['field']
         f.type  = elem.attrib['type' ]
-        f.min = int(elem.attrib['min']) if 'min' in elem.attrib else None
-        f.max = int(elem.attrib['max']) if 'max' in elem.attrib else None
-        f.trg = elem.attrib['trg'] if 'trg' in elem.attrib else None
+        f.min = int(elem.attrib['min']) if ('min' in elem.attrib) else None
+        f.max = int(elem.attrib['max']) if ('max' in elem.attrib) else None
+        f.trg = elem.attrib['trg'] if ('trg' in elem.attrib) else None
         return f              
 
 class School(object):
@@ -97,7 +97,7 @@ class School(object):
         f.id = elem.attrib['id']
         f.name = elem.attrib['name']
         f.clanid = elem.attrib['clanid']
-        f.trait = elem.find('Trait').text if elem.find('Trait') else None
+        f.trait = elem.find('Trait').text if (elem.find('Trait') is not None) else None
         f.tags  = []
         for se in elem.find('Tags').iter():
             if se.tag == 'Tag':
@@ -107,7 +107,7 @@ class School(object):
         hon_tag = elem.find('Honor')
         f.affinity   = aff_tag.text if (aff_tag is not None) else None
         f.deficiency = def_tag.text if (def_tag is not None) else None
-        f.honor      = float(hon_tag) if hon_tag else 0.0  
+        f.honor      = float(hon_tag.text) if (hon_tag is not None) else 0.0  
         
         # school skills
         f.skills     = []

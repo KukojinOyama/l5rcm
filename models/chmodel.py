@@ -674,6 +674,7 @@ class AdvancedPcModel(BasePcModel):
             self.get_school().add_tag(t)
 
         # void ?
+        print('perk is: {0}'.format(perk))
         if perk == 'void':
             self.step_2.void += perkval
             return True

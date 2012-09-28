@@ -16,6 +16,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+class MasteryAbility(object):
+    
+    @staticmethod
+    def build_from_xml(elem):
+        f = MasteryAbility()
+        f.rank = int(elem.attrib['rank'])
+        f.rule = elem.attrib['rule'] if ('rule' in elem.attrib) else None
+        f.desc = elem.text
+        return f
+        
+    def __eq__(self, obj):
+        return obj and obj.id == self.id  
+
 class Skill(object):
 
     @staticmethod
@@ -25,10 +38,16 @@ class Skill(object):
         f.id    = elem.attrib['id']
         f.trait = elem.attrib['trait']
         f.type  = elem.attrib['type']
-        f.tags  = []
-        for se in elem.find('Tags').iter():
-            if se.tag == 'Tag':
-                f.tags.append(se.text)        
+        f.tags  = []        
+        if elem.find('Tags'):
+            for se in elem.find('Tags').iter():
+                if se.tag == 'Tag':
+                    f.tags.append(se.text)
+        f.mastery_abilities = []
+        if elem.find('MasteryAbilities'):
+            for se in elem.find('MasteryAbilities').iter():
+                if se.tag == 'MasteryAbility':
+                    f.mastery_abilities.append(MasteryAbility.build_from_xml(se))
         return f        
         
     def __str__(self):
@@ -36,3 +55,4 @@ class Skill(object):
 
     def __eq__(self, obj):
         return obj and obj.id == self.id
+
