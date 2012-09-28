@@ -22,10 +22,11 @@ class Clan(object):
     def build_from_xml(elem):
         c = Clan()
         c.name = elem.attrib['name']
+        c.id   = elem.attrib['id']
         return c        
         
     def __str__(self):
-        return self.name
+        return self.name or self.id
 
     def __eq__(self, obj):
-        return obj and obj.name == self.name
+        return obj and obj.id == self.id

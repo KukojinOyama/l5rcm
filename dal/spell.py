@@ -16,20 +16,32 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-class Family(object):
-        
+class Spell(object):
+
     @staticmethod
     def build_from_xml(elem):
-        f = Family()
-        f.name   = elem.attrib['name']
-        f.id     = elem.attrib['id']
-        f.clanid = elem.attrib['clanid']
-        f.trait  = elem.find('Trait').text
+        f = Spell()
+        f.name     = elem.attrib['name']
+        f.id       = elem.attrib['id']
+        f.area     = elem.attrib['area']
+        f.mastery  = int(elem.attrib['mastery'])
+        f.range    = elem.attrib['range']
+        f.duration = elem.attrib['duration']
+        f.element  = elem.attrib['element']
+        f.tags  = []
+        for se in elem.find('Tags').iter():
+            if se.tag == 'Tag':
+                f.tags.append(se.text)
+        f.raises = []
+        if elem.find('Raises') is not None:
+            for se in elem.find('Raises').iter():
+                if se.tag == 'Raise':
+                    f.raises.append(se.text) 
         return f
-    
+        
     def __str__(self):
         return self.name or self.id
-        
+
     def __eq__(self, obj):
         return obj and obj.id == self.id
 

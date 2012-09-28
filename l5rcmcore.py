@@ -30,10 +30,12 @@ import exporters
 import dbutil
 import dal
 
+from PySide import QtCore, QtGui
+
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.7'
-DB_VERSION  = '2.5'
+APP_VERSION = '2.8'
+DB_VERSION  = '2.6'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -68,6 +70,15 @@ def get_app_icon_path(size = (48,48)):
             return os.path.join( sys_path, APP_NAME + '.png' )
         return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, APP_NAME + '.png' )
 
+def get_tab_icon(name):        
+    if os.name == 'nt':
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/tabs/', name + '.png' )
+    else:
+        sys_path = '/usr/share/icons/l5rcm/tabs/'
+        if os.path.exists( sys_path ):
+            return os.path.join( sys_path, name + '.png' )
+        return os.path.join( MY_CWD, 'share/icons/l5rcm/tabs/', name + '.png' )
+        
 def get_icon_path(name, size = (48,48)):
     size_str = '%dx%d' % size
     if os.name == 'nt':
@@ -82,8 +93,10 @@ class CMErrors(object):
     NO_ERROR      = 'no_error'
     NOT_ENOUGH_XP = 'not_enough_xp'
 
-class L5RCMCore(object):
-    def __init__(self):        
+class L5RCMCore(QtGui.QMainWindow):
+    def __init__(self, locale, parent = None): 
+        super(L5RCMCore, self).__init__(parent)
+        #print(repr(self))
         self.pc = None
         
         # character stored insight rank
@@ -100,11 +113,20 @@ class L5RCMCore(object):
         # Data storage
         self.dstore = dal.Data( get_app_file('data') )
         
-        try:
-            self.db_conn = sqlite3.connect( get_app_file('l5rdb.sqlite') )
+        # current locale
+        self.locale = locale
+
+        db_name = 'l5rdb_{0}.sqlite'.format(locale)
+        if not os.path.exists( get_app_file(db_name) ):
+            db_name = 'l5rdb.sqlite'
+        
+        print("using database file: {0}".format(get_app_file(db_name)))
+        
+        try:            
+            self.db_conn = sqlite3.connect(  get_app_file(db_name) )
         except Exception as e:
             sys.stderr.write('unable to open database file %s\n' % get_app_file('l5rdb.sqlite'))
-            sys.stderr.write("current working dir : %s\n" % os.getcwd())
+            sys.stderr.write("current working dir : %s\n" % os.getcwd())           
         
     def update_from_model(self):
         pass
@@ -211,8 +233,9 @@ class L5RCMCore(object):
             cost -= 1
         text = models.attrib_name_from_id(attrib).capitalize()
         adv = models.AttribAdv(attrib, cost)
-        adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, 
-                                                        new_value, adv.cost )
+        adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
+                   .format( text, cur_value, new_value, adv.cost ))
+                   
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
 
@@ -228,9 +251,8 @@ class L5RCMCore(object):
         if self.pc.has_rule('enlightened'):
             cost -= 2
         adv = models.VoidAdv(cost)
-        adv.desc = 'Void Ring, Rank %d to %d. Cost: %d xp' % ( cur_value, 
-                                                               new_value, 
-                                                               adv.cost )
+        adv.desc = (self.tr('Void Ring, Rank {0} to {1}. Cost: {2} xp')
+                   .format( cur_value, new_value, adv.cost ))
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
 
@@ -256,26 +278,28 @@ class L5RCMCore(object):
         self.update_from_model()
     
     def buy_next_skill_rank(self, skill_id):
-        print 'buy skill rank %d' % skill_id
+        print('buy skill rank {0}'.format(skill_id))
         cur_value = self.pc.get_skill_rank(skill_id)
         new_value = cur_value + 1
 
         cost    = new_value
         sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
         text    = dbutil.get_skill_name(self.db_conn, skill_id)
-        
+               
         if (self.pc.has_rule('obtuse') and
             sk_type == 'high' and 
-            text != 'Investigation' and
-            text != 'Medicine'):
+            skill_id != 211   and # investitagion
+            skill_id != 234):     # medicine
+            
             # double the cost for high skill
             # other than medicine and investigation
             cost *= 2            
 
         adv = models.SkillAdv(skill_id, cost)
         adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
-        adv.desc = '%s, Rank %d to %d. Cost: %d xp' % ( text, cur_value, 
-                                                        new_value, adv.cost )
+        adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
+                   .format( text, cur_value, new_value, adv.cost ))
+                   
 
         if adv.cost + self.pc.get_px() > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
@@ -286,13 +310,14 @@ class L5RCMCore(object):
         return CMErrors.NO_ERROR
         
     def memo_spell(self, spell_id):
-        print 'memorize spell %d' % spell_id
+        print('memorize spell {0}'.format(spell_id))
         info_ = dbutil.get_spell_info(self.db_conn, spell_id)
         cost  = info_[3] # mastery
         text  = info_[0]
         
         adv = models.MemoSpellAdv(spell_id, cost)
-        adv.desc = '%s, Mastery %d. Cost: %d xp' % ( text, cost, adv.cost )
+        adv.desc = (self.tr('{0}, Mastery {1}. Cost: {2} xp')
+                   .format( text, cost, adv.cost ))
 
         if adv.cost + self.pc.get_px() > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP
@@ -308,7 +333,7 @@ class L5RCMCore(object):
 
     def buy_school_requirements(self):
         for skill_uuid in self.get_missing_school_requirements():
-            print 'buy requirement skill %d' % skill_uuid
+            print('buy requirement skill {0}'.format(skill_uuid))
             if self.buy_next_skill_rank(skill_uuid) != CMErrors.NO_ERROR:
                 return
         
@@ -331,10 +356,10 @@ class L5RCMCore(object):
         c = self.db_conn.cursor()
         c.execute("""SELECT skill_uuid, skill_rank FROM school_skills
                      WHERE school_uuid=?""", [school_id])
-        print 'check requirement for school %d' % school_id
+        print('check requirement for school {0}'.format(school_id))
         for uuid, rank in c.fetchall():
             if not uuid: continue
-            print 'needed %d, got rank %d' % (uuid, self.pc.get_skill_rank(uuid))            
+            print('needed {0}, got rank {1}'.format(uuid, self.pc.get_skill_rank(uuid)))
             if self.pc.get_skill_rank(uuid) < 1:
                 list_.append(uuid)
         c.close()

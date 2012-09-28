@@ -21,7 +21,13 @@ class SchoolSkill(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSkill()
+        f.id = elem.attrib['id']
+        f.rank = int(elem.attrib['rank'])
+        f.emph = elem.attrib['emphases'] if 'emphases' in elem.attrib else None
         return f
+        
+    def __eq__(self, obj):
+        return obj and obj.id == self.id          
         
 class SchoolSkillWildcard(object):
 
@@ -41,14 +47,34 @@ class SchoolTech(object):
     def build_from_xml(elem):
         f = SchoolTech()
         f.name = elem.attrib['name']
+        f.id = elem.attrib['id']
         f.rank = int(elem.attrib['rank'])
         return f
+     
+    def __str__(self):
+        return self.name or self.id
+
+    def __eq__(self, obj):
+        return obj and obj.id == self.id
+        
+class SchoolSpell(object):
+    
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolSpell()
+        f.id = elem.attrib['id']
+        return f
+        
+    def __eq__(self, obj):
+        return obj and obj.id == self.id         
         
 class SchoolSpellWildcard(object):
 
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSpellWildcard()
+        f.count = int(elem.attrib['count'])
+        f.element = elem.attrib['element']
         return f
         
 class SchoolRequirement(object):
@@ -60,7 +86,7 @@ class SchoolRequirement(object):
         f.type  = elem.attrib['type' ]
         f.min = int(elem.attrib['min']) if 'min' in elem.attrib else None
         f.max = int(elem.attrib['max']) if 'max' in elem.attrib else None
-        f.trg = int(elem.attrib['trg']) if 'trg' in elem.attrib else None
+        f.trg = elem.attrib['trg'] if 'trg' in elem.attrib else None
         return f              
 
 class School(object):
@@ -68,19 +94,20 @@ class School(object):
     @staticmethod
     def build_from_xml(elem):
         f = School()
+        f.id = elem.attrib['id']
         f.name = elem.attrib['name']
-        f.clan  = elem.find('Clan').text
-        f.trait = elem.find('Trait').text
+        f.clanid = elem.attrib['clanid']
+        f.trait = elem.find('Trait').text if elem.find('Trait') else None
         f.tags  = []
         for se in elem.find('Tags').iter():
             if se.tag == 'Tag':
-                f.tags.append(se.text.lower()) # Tags are lower case
+                f.tags.append(se.text)
         aff_tag = elem.find('Affinity')
         def_tag = elem.find('Deficiency')
         hon_tag = elem.find('Honor')
-        f.affinity   = aff_tag.text if aff_tag else None
-        f.deficiency = def_tag.text if def_tag else None
-        f.honor      = float(hon_tag) if hon_tag else 0.0
+        f.affinity   = aff_tag.text if (aff_tag is not None) else None
+        f.deficiency = def_tag.text if (def_tag is not None) else None
+        f.honor      = float(hon_tag) if hon_tag else 0.0  
         
         # school skills
         f.skills     = []
@@ -99,9 +126,12 @@ class School(object):
                 
         # school spells
         f.spells = []
+        f.spells_pc = []
         for se in elem.find('Spells').iter():
             if se.tag == 'PlayerChoose':
-                f.spells.append(SchoolSpellWildcard.build_from_xml(se))
+                f.spells_pc.append(SchoolSpellWildcard.build_from_xml(se))
+            elif se.tag == 'Spell':
+                f.spells.append(SchoolSpell.build_from_xml(se))
                 
         # requirements
         f.require = []
@@ -111,7 +141,10 @@ class School(object):
                 
         return f
 
+    def __str__(self):
+        return self.name or self.id
+        
     def __eq__(self, obj):
-        return obj and obj.name == self.name
+        return obj and obj.id == self.id
 
 

@@ -30,22 +30,22 @@ class NextRankDlg(QtGui.QDialog):
         self.connect_signals()
         
         #self.setWindowFlags(QtCore.Qt.Tool)
-        self.setWindowTitle('L5R: CM - Advance Rank')
+        self.setWindowTitle(self.tr("L5R: CM - Advance Rank"))
         
     def build_ui(self):
         vbox = QtGui.QVBoxLayout(self)
-        vbox.addWidget(QtGui.QLabel("""\
+        vbox.addWidget(QtGui.QLabel(self.tr("""\
 You can now advance your Rank,
 what would you want to do?
-                                    """))
+                                    """)))
         self.bt_go_on        = QtGui.QPushButton(
-                               "Advance in my current school"
+                               self.tr("Advance in my current school")
                                )
         self.bt_new_school_1 = QtGui.QPushButton(
-                               "Buy 'Multiple School' advantage\n"
-                               "and join a new school")
+                               self.tr("Buy 'Multiple School' advantage\n"
+                                       "and join a new school"))
         self.bt_new_school_2 = QtGui.QPushButton(
-                               "Just join a new school")
+                               self.tr("Just join a new school"))
                                
         for bt in [self.bt_go_on, self.bt_new_school_1, self.bt_new_school_2]:
             bt.setMinimumSize(QtCore.QSize(0, 38))
@@ -86,7 +86,7 @@ what would you want to do?
                    INNER JOIN perk_ranks ON perks.uuid=perk_ranks.perk_uuid
                    WHERE perk_ranks.perk_rank=1 AND perks.name=?'''
         
-        c.execute(query, ["Multiple Schools"])
+        c.execute(query, [self.tr("Multiple Schools")])
         try:
             uuid, name, rule, cost = c.fetchone()       
             c.close()
@@ -95,13 +95,13 @@ what would you want to do?
                 
             itm      = models.PerkAdv(uuid, 1, cost)
             itm.rule = rule
-            itm.desc = str.format("{0} Rank {1}, XP Cost: {2}",
-                                  "Multiple Schools",
-                                  1, itm.cost)
+            itm.desc = unicode.format(self.tr("{0} Rank {1}, XP Cost: {2}"),
+                                      self.tr("Multiple Schools"),
+                                      1, itm.cost)
                                   
             if (itm.cost + self.pc.get_px()) > self.pc.exp_limit:
-                QtGui.QMessageBox.warning(self, "Not enough XP",
-                "Cannot purchase.\nYou've reached the XP Limit.")                
+                QtGui.QMessageBox.warning(self, self.tr("Not enough XP"),
+                self.tr("Cannot purchase.\nYou've reached the XP Limit."))
                 self.reject()
                 return
                 
@@ -123,13 +123,13 @@ class SchoolChoiceDlg(QtGui.QDialog):
         self.school_tg = []
                 
         self.build_ui       ()
-        self.setWindowTitle('L5R: CM - Select School')
+        self.setWindowTitle(self.tr("L5R: CM - Select School"))
         
     def build_ui(self):
         vbox = QtGui.QVBoxLayout(self)
-        vbox.addWidget(QtGui.QLabel("Choose the school to join"))
+        vbox.addWidget(QtGui.QLabel(self.tr("Choose the school to join")))
         
-        grp_ = QtGui.QGroupBox("Clan", self)
+        grp_ = QtGui.QGroupBox(self.tr("Clan"), self)
         hb_  = QtGui.QHBoxLayout(grp_)
         self.cb_clan = QtGui.QComboBox(self)
         hb_.addWidget(self.cb_clan)        
@@ -137,7 +137,7 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
         self.cb_clan.currentIndexChanged.connect(self.on_clan_change)        
         
-        grp_ = QtGui.QGroupBox("School", self)
+        grp_ = QtGui.QGroupBox(self.tr("School"), self)
         hb_  = QtGui.QHBoxLayout(grp_)
         self.cb_school = QtGui.QComboBox(self)
         hb_.addWidget(self.cb_school)        
@@ -145,14 +145,14 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
         self.cb_school.currentIndexChanged.connect(self.on_school_change)        
 
-        grp_ = QtGui.QGroupBox("Notes", self)
+        grp_ = QtGui.QGroupBox(self.tr("Notes"), self)
         hb_  = QtGui.QHBoxLayout(grp_)
         self.te_notes = QtGui.QTextEdit(self)
         self.te_notes.setReadOnly(True)
         hb_.addWidget(self.te_notes)        
         vbox.addWidget(grp_)
         
-        self.bt_ok = QtGui.QPushButton("Confirm", self)
+        self.bt_ok = QtGui.QPushButton(self.tr("Confirm"), self)
         self.bt_ok.setMaximumSize(QtCore.QSize(200, 65000))        
         vbox.addWidget(self.bt_ok)
         
@@ -216,8 +216,9 @@ class SchoolChoiceDlg(QtGui.QDialog):
         c.execute(query, [school_id, 'more'])
         self.te_notes.setHtml("")
         for req_field, target_val in c.fetchall():
-            self.te_notes.setHtml(str.format(
-            "<em>{0}</em>", target_val))
+            self.te_notes.setHtml(
+            unicode.format(
+            u"<em>{0}</em>", target_val))
         
     def on_accept(self):
         idx_           = self.cb_school.currentIndex()
@@ -232,8 +233,8 @@ class SchoolChoiceDlg(QtGui.QDialog):
             else:
                 msgBox = QtGui.QMessageBox(self)
                 msgBox.setWindowTitle('L5R: CM')
-                msgBox.setText("You don't have the requirements to join this school.")
-                msgBox.setInformativeText("You miss the following requirements\n" +
+                msgBox.setText(self.tr("You don't have the requirements to join this school."))
+                msgBox.setInformativeText(self.tr("You miss the following requirements\n") +
                                           '\n'.join(unmatched))
                 msgBox.exec_()
                 
@@ -263,15 +264,15 @@ class SchoolChoiceDlg(QtGui.QDialog):
                 
         def wc_requirement_to_string(rtype, rfield, min_, max_, trgt):
             if rtype == 'ring' and rfield == '*any':
-                return 'Any ring: %s' % min_
+                return self.tr("Any ring: %s") % min_
             if rtype == 'trait' and rfield == '*any':
-                return 'Any trait: %s' % min_
+                return self.tr("Any trait: %s") % min_
             if rtype == 'skill' and rfield == '*any':
-                return 'Any skill: %s' % min_
+                return self.tr("Any skill: %s") % min_
             elif rtype == 'skill':
                 tag = rfield[1:].capitalize()
-                return 'Any %s skill: %s' % (tag, min_)
-            return "N/A"
+                return self.tr("Any %s skill: %s") % (tag, min_)
+            return self.tr("N/A")
                 
         unmatched = []
         
