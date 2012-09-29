@@ -22,6 +22,7 @@ from school      import *
 from skill       import *
 from spell       import *
 from perk        import *
+from powers      import *
 
 import os
 import xml.etree.cElementTree as ET
@@ -31,16 +32,20 @@ class Data(object):
         self.data_dir      = data_dir
         self.cust_data_dir = cust_data_dir
         
-        self.clans    = []
-        self.families = []
-        self.schools  = []
+        self.clans     = []
+        self.families  = []
+        self.schools   = []
         
-        self.spells   = []
-        self.skills   = []
-        self.merits   = []
-        self.flaws    = []
+        self.spells    = []
+        self.skills    = []
+        self.merits    = []
+        self.flaws     = []
+        self.katas     = []
+        self.kihos     = []
+        self.tattoos   = []
         
-        self.effects  = []
+        self.effects   = []
+        self.skcategs  = []
         
         if data_dir and os.path.exists(data_dir):
             self.load_data(data_dir)
@@ -86,6 +91,10 @@ class Data(object):
                 self.merits.append(Perk.build_from_xml(elem))
             elif elem.tag == 'Flaw':
                 self.flaws.append(Perk.build_from_xml(elem))
+            elif elem.tag == 'SkillCateg':
+                self.skcategs.append(SkillCateg.build_from_xml(elem))
+            elif elem.tag == 'KataDef':
+                self.katas.append(Kata.build_from_xml(elem))
                     
                 
                 

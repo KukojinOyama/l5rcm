@@ -87,6 +87,7 @@ class SchoolRequirement(object):
         f.min = int(elem.attrib['min']) if ('min' in elem.attrib) else None
         f.max = int(elem.attrib['max']) if ('max' in elem.attrib) else None
         f.trg = elem.attrib['trg'] if ('trg' in elem.attrib) else None
+        f.text = elem.text
         return f              
 
 class School(object):

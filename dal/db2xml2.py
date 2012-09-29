@@ -123,6 +123,7 @@ def exp_schools(db, out_file, out_path):
         etags = ET.SubElement(efam, 'Tags')
         for tag in tags.split(';'):
             ET.SubElement(etags, 'Tag').text = _lu(tag)
+            ET.SubElement(etags, 'Tag').text = _lu(clan + ' ' + tag)
             
         exp_school_skills(db, uuid, ET.SubElement(efam, 'Skills'))
         exp_school_spells(db, uuid, ET.SubElement(efam, 'Spells'))
@@ -198,11 +199,11 @@ def exp_school_requirements(db, uuid, root):
                  where ref_uuid=?''', [uuid])
                  
     for field, type, min, max, trg in c.fetchall():
-        attr = {'type': type, 'field': field }
+        attr = {'type': type, 'field': _lu(field) }
         if min: attr['min'] = str(min)
         if max: attr['min'] = str(max)
         if trg: attr['trg'] = str(trg)
-        ET.SubElement(root, "Requirement", attr)
+        ET.SubElement(root, "Requirement", attr).text = field.title()
         
 def exp_skills(db, out_file, out_path):  
     c = db.cursor()
@@ -344,6 +345,43 @@ def exp_effects(db, out_file, out_path):
         
     fpath = os.path.join(out_path, out_file)
     ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)       
+    
+def exp_skill_types(db, out_file, out_path):
+    c = db.cursor()
+    c.execute('''select distinct type from skills order by type''')   
+                 
+    root = ET.Element('L5RCM')
+    for sktype in c.fetchall():                      
+        ET.SubElement(root, "SkillCateg", {'id': _lu(sktype[0])}).text = sktype[0].capitalize()
+        
+    fpath = os.path.join(out_path, out_file)
+    ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)
+    
+def exp_katas(db, out_file, out_path):
+    c = db.cursor()
+    c.execute('''select uuid, name, ring, mastery, desc from kata order by ring, mastery, name asc''')   
+                 
+    root = ET.Element('L5RCM')
+    for uuid, name, ring, mastery, desc in c.fetchall():
+        elem_kata = ET.SubElement(root, "KataDef", {'id': _lu(name), 'name': name, 'element': _lu(ring), 'mastery': str(mastery)})
+        ET.SubElement(elem_kata, 'Description').text = desc
+        exp_kata_requirements(db, uuid, ET.SubElement(elem_kata, 'Requirements'))
+        
+    fpath = os.path.join(out_path, out_file)
+    ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)
+    
+def exp_kata_requirements(db, uuid, root):        
+    c = db.cursor()
+    c.execute('''select req_field, req_type, min_val, max_val, target_val
+                 from requirements inner join kata on kata.uuid=ref_uuid
+                 where ref_uuid=?''', [uuid])
+                 
+    for field, type, min, max, trg in c.fetchall():
+        attr = {'type': type, 'field': _lu(field) }
+        if min: attr['min'] = str(min)
+        if max: attr['min'] = str(max)
+        if trg: attr['trg'] = str(trg)
+        ET.SubElement(root, "Requirement", attr).text = field.title()   
         
 def main():
     db = sqlite3.connect(sys.argv[1])
@@ -356,6 +394,10 @@ def main():
     exp_perks   (db, "merits.xml", '../share/l5rcm/data', 'merit')
     exp_perks   (db, "flaws.xml", '../share/l5rcm/data',  'flaw')
     exp_effects (db, "weapon_effects.xml", '../share/l5rcm/data')
+    exp_katas   (db, "katas.xml", '../share/l5rcm/data')
+    
+    
+    exp_skill_types(db, "skill_categories.xml", '../share/l5rcm/data')
         
 if __name__ == '__main__':
     main()

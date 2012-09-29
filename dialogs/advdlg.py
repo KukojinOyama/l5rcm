@@ -28,12 +28,12 @@ from PySide import QtCore, QtGui
 import rules
 
 class BuyAdvDialog(QtGui.QDialog):
-    def __init__(self, pc, tag, conn, parent = None):
+    def __init__(self, pc, tag, dstore, parent = None):
         super(BuyAdvDialog, self).__init__(parent)
         self.tag = tag
         self.adv = None
         self.pc  = pc
-        self.dbconn = conn
+        self.dstore = dstore
         self.quit_on_accept = False
         self.build_ui()        
         self.connect_signals()
@@ -106,42 +106,34 @@ class BuyAdvDialog(QtGui.QDialog):
             cb.addItem(self.tr('Intelligence'), ATTRIBS.INTELLIGENCE)            
         elif self.tag == 'void':
             self.on_void_select()
-        elif self.tag == 'skill':
+        elif self.tag == 'skill':           
             cb = self.widgets[self.tag][0]
-            c = self.dbconn.cursor()
-            c.execute('''select distinct type from skills order by type''')
-            for t in c.fetchall():
-                cb.addItem( t[0].capitalize(), t[0] )
-            c.close()
+            for t in self.dstore.skcategs:
+                cb.addItem( t.name, t.id )
         elif self.tag == 'emph':
             cb = self.widgets[self.tag][0]
-            c = self.dbconn.cursor()
             for id in self.pc.get_skills():
-                c.execute('''select uuid, name from skills
-                             where uuid=? order by name''', [id])
-                for u, s in c.fetchall():
-                    cb.addItem(s, u)
+                sk = dal.query.get_skill(self.dstore, id)
+                cb.addItem(sk.name, sk.id)
+
             self.lb_cost.setText(self.tr('Cost: 2 exp'))
             self.lb_from.setVisible(False)
-            c.close()
         elif self.tag == 'kata':
             cb = self.widgets[self.tag][0]
             te = self.widgets[self.tag][1]
             
             te.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
             te.setReadOnly(True)
-            
-            c = self.dbconn.cursor()
-            c.execute('''select uuid, name from kata order by mastery asc''')            
-            for uuid, name in c.fetchall():
-                if not self.pc.has_kata(uuid):
-                    cb.addItem( name, uuid )
-            c.close()
+                       
+            for kata in self.dstore.katas:
+                if not self.pc.has_kata(kata.id):
+                    cb.addItem( kata.name, kata.id )
             
     def fix_skill_id(self, uuid):
         if self.tag == 'emph':
             cb = self.widgets[self.tag][0]
-            cb.addItem(dbutil.get_skill_name(self.dbconn, uuid), uuid)
+            sk = dal.query.get_skill(self.dstore, uuid)
+            cb.addItem(sk.name, sk.id)
             cb.setCurrentIndex(cb.count()-1)
             cb.setEnabled(False)
             
@@ -207,13 +199,13 @@ class BuyAdvDialog(QtGui.QDialog):
         cb2   = self.widgets['skill'][1]
         idx   = cb1.currentIndex()
         type_ = cb1.itemData(idx)
-        c     = self.dbconn.cursor()
-        c.execute('''select uuid, name from skills
-                     where type=? order by name''', [type_])
+        
+        avail_skills = dal.query.get_skills(self.dstore, type_)
         cb2.clear()
-        for u, s in c.fetchall():
-            cb2.addItem( s, u )
-        c.close()
+        
+        for sk in avail_skills:
+            if sk.id not in self.pc.get_skills():
+                cb2.addItem( sk.name, sk.id )
 
     def on_skill_select(self, text = ''):        
         cb2  = self.widgets['skill'][1]
@@ -232,8 +224,8 @@ class BuyAdvDialog(QtGui.QDialog):
         
         if (self.pc.has_rule('obtuse') and
             sk_type == 'high' and 
-            uuid != 211       and # investitagion
-            uuid != 234):         # medicine
+            uuid != 'investigation' and # investigation
+            uuid != 'medicine'):        # medicine
             
             # double the cost for high skill
             # other than medicine and investigation
@@ -243,7 +235,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_cost.setText(self.tr('Cost: {0} exp').format(cost))
 
         self.adv = advances.SkillAdv(uuid, cost)
-        self.adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, uuid, new_value)
+        self.adv.rule = dal.query.get_mastery_ability_rule(self.dstore, uuid, new_value)
         self.adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
                          .format( text, cur_value, new_value, self.adv.cost ))
         
@@ -254,24 +246,24 @@ class BuyAdvDialog(QtGui.QDialog):
         uuid = cb.itemData(idx)
         text = cb.itemText(idx)
         
-        name, ring, mastery, rule, desc = dbutil.get_kata_info(self.dbconn, uuid)
-        requirements = dbutil.get_requirements(self.dbconn, uuid, 'tag')
-        
-        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(ring, mastery))
-        self.lb_cost.setText(self.tr('Cost: %d exp').format(mastery))
+        kata = dal.query.get_kata(self.dstore, uuid)
+        requirements = kata.require
+               
+        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kata.element, kata.mastery))
+        self.lb_cost.setText(self.tr('Cost: {0} exp').format(kata.mastery))
         
         # te.setText("")
-        html = unicode.format(u"<p><em>{0}</em></p>", desc)        
+        html = unicode.format(u"<p><em>{0}</em></p>", kata.desc)        
         
         # CHECK REQUIREMENTS
-        ring_id  = models.ring_from_name(ring.lower())
+        ring_id  = models.ring_from_name(kata.element)
         ring_val = self.pc.get_ring_rank(ring_id)
         
         self.adv = None
         
         ok = len(requirements) == 0
         for req in requirements:
-            if self.pc.has_tag(req['field']):
+            if self.pc.has_tag(req.field):
                 ok = True
                 break        
         
@@ -283,16 +275,16 @@ class BuyAdvDialog(QtGui.QDialog):
                     "</strong></p>")
                     
             html += unicode.format(u"<p><ul>{0}</ul></p>", 
-                          ''.join(['<li>%s</li>' % string.capwords(x['field'])
+                          ''.join(['<li>{0}</li>'.format(x.text)
                                   for x in requirements]))
                      
-        ok = ok and ring_val >= mastery                     
+        ok = ok and ring_val >= kata.mastery                     
         if not ok:
             html += unicode.format(self.tr("\n<p>You need a value of {0} in your {1} Ring</p>"),
-                               mastery, ring)
+                               kata.mastery, kata.element)
         else:
-            self.adv = models.KataAdv(uuid, rule, mastery)
-            self.adv.desc = self.tr('{0}, Cost: {1} xp').format( name, self.adv.cost )
+            self.adv = models.KataAdv(uuid, kata.id, kata.mastery)
+            self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kata.name, self.adv.cost )
             
         self.bt_buy.setEnabled(ok)           
         te.setHtml(html)
@@ -370,10 +362,10 @@ def check_already_got(list1, list2):
     return False
 
 class SelWcSkills(QtGui.QDialog):
-    def __init__(self, pc, conn, parent = None):
+    def __init__(self, pc, dstore, parent = None):
         super(SelWcSkills, self).__init__(parent)
         self.pc  = pc
-        self.dbconn = conn
+        self.dstore = dstore
         self.cbs    = []
         self.les    = []
         self.error_bar = None
@@ -393,6 +385,8 @@ class SelWcSkills(QtGui.QDialog):
 
         self.bt_ok     = QtGui.QPushButton(self.tr('Ok'    ), self)
         self.bt_cancel = QtGui.QPushButton(self.tr('Cancel'), self)
+        
+        # TODO: translate skill category
 
         row_ = 2
         for w, r in self.pc.get_pending_wc_skills():            
@@ -407,12 +401,12 @@ class SelWcSkills(QtGui.QDialog):
 
             cb = QtGui.QComboBox(self)
             self.cbs.append(cb)
-            grid.addWidget( cb, row_, 1, 1, 2)
+            grid.addWidget(cb, row_, 1, 1, 2)
 
             row_ += 1
 
         for s in self.pc.get_pending_wc_emphs():
-            lb = self.tr("{0}'s Emphases: ").format(self.get_skill_name(s))
+            lb = self.tr("{0}'s Emphases: ").format(self.dstore.get_skill(self.dstore, s).name)
 
             grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
 
@@ -435,40 +429,22 @@ class SelWcSkills(QtGui.QDialog):
         self.error_bar = None    
 
     def load_data(self):
-        c = self.dbconn.cursor()
-
-        c.execute('''DROP TABLE IF EXISTS tmp_sc_sk_skills''')
-        c.execute('''CREATE TEMP TABLE tmp_sc_sk_skills
-           AS SELECT skills.uuid,
-           skills.name, skills.type, tags.tag FROM skills inner join tags
-           ON skills.uuid=tags.uuid
-           UNION SELECT uuid, name, type, type FROM skills''')
         i = 0
         for w, r in self.pc.get_pending_wc_skills():
-
             if w and len(w) and w[0] == 'any':
-                c.execute('''SELECT uuid, name FROM skills order by type, name''')
-                for uuid, name in c.fetchall():
-                    self.cbs[i].addItem( name, (uuid, r) )
+                for sk in self.dstore.skills:
+                    if sk.id not in self.pc.get_skills():
+                        self.cbs[i].addItem( sk.name, (sk.id, r) )
             else:
                 for w_ in w:
-                    c.execute('''SELECT uuid, name FROM tmp_sc_sk_skills
-                                 WHERE tag=? group by uuid order by name''', [w_])
-
-                    for uuid, name in c.fetchall():
-                        self.cbs[i].addItem( name, (uuid, r) )
+                    print('search skills with tag {0}'.format(w_))
+                    skills_by_tag = filter( lambda x: w_ in x.tags, self.dstore.skills )
+                    #for sk in self.dstore.skills:
+                    #    print(sk, sk.tags)
+                    for sk in skills_by_tag:
+                        if sk.id not in self.pc.get_skills():
+                            self.cbs[i].addItem( sk.name, (sk.id, r) )
             i += 1
-        c.close()
-
-    def get_skill_name(self, s_id):
-        c = self.dbconn.cursor()
-        c.execute('''SELECT uuid, name from skills where uuid=?''', [s_id])
-        sk_name = self.tr('N/A')
-        for uuid, name in c.fetchall():
-            sk_name = name
-            break
-        c.close()
-        return sk_name
         
     def connect_signals(self):
         self.bt_cancel.clicked.connect( self.close     )

@@ -29,6 +29,23 @@ class MasteryAbility(object):
     def __eq__(self, obj):
         return obj and obj.id == self.id  
 
+class SkillCateg(object):        
+    @staticmethod
+    def build_from_xml(elem):
+        f = SkillCateg()
+        f.id = elem.attrib['id']
+        f.name = elem.text
+        return f
+    
+    def __str__(self):
+        return self.name
+        
+    def __unicode__(self):
+        return self.name        
+        
+    def __eq__(self, obj):
+        return obj and obj.id == self.id
+        
 class Skill(object):
 
     @staticmethod
@@ -38,7 +55,7 @@ class Skill(object):
         f.id    = elem.attrib['id']
         f.trait = elem.attrib['trait']
         f.type  = elem.attrib['type']
-        f.tags  = []        
+        f.tags  = [f.type]        
         if elem.find('Tags'):
             for se in elem.find('Tags').iter():
                 if se.tag == 'Tag':
@@ -52,6 +69,9 @@ class Skill(object):
         
     def __str__(self):
         return self.name or self.id
+        
+    def __unicode__(self):
+        return self.name
 
     def __eq__(self, obj):
         return obj and obj.id == self.id

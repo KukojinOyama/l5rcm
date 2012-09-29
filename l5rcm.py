@@ -1357,7 +1357,7 @@ class L5RMain(L5RCMCore):
                                          QtGui.QItemSelectionModel.Rows))
 
     def act_choose_skills(self):
-        dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)
+        dlg = dialogs.SelWcSkills(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_skills()
             self.pc.clear_pending_wc_emphs ()
@@ -1530,7 +1530,7 @@ class L5RMain(L5RCMCore):
 
     def show_buy_skill_dlg(self):
         dlg = dialogs.BuyAdvDialog(self.pc, 'skill',
-                                   self.db_conn, self)
+                                   self.dstore, self)
         dlg.exec_()
         self.update_from_model()
 
@@ -1542,7 +1542,7 @@ class L5RMain(L5RCMCore):
             skill_id = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)
 
             dlg = dialogs.BuyAdvDialog(self.pc, 'emph',
-                                       self.db_conn, self)
+                                       self.dstore, self)
             dlg.fix_skill_id(skill_id)
             dlg.exec_()
             self.update_from_model()
@@ -1725,7 +1725,7 @@ class L5RMain(L5RCMCore):
         resume_signals( self.pers_info_widgets )
 
         pc_xp = self.pc.get_px()
-        self.tx_pc_exp.setText( '{0} / {0}'.format( pc_xp, self.pc.exp_limit ) )
+        self.tx_pc_exp.setText( '{0} / {1}'.format( pc_xp, self.pc.exp_limit ) )
 
         # rings
         for i in xrange(0, 5):
