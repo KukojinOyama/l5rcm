@@ -113,7 +113,7 @@ class Sink1(QtCore.QObject):
         form = self.form
         
         dlg = dialogs.BuyAdvDialog(form.pc, self.sender().property('tag'),
-                                   form.db_conn, form)
+                                   form.dstore, form)
         dlg.exec_()
         form.update_from_model()
         

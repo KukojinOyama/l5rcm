@@ -49,7 +49,10 @@ def get_skill(storage, id):
         skill = filter( lambda x: x.id == id, storage.skills )
         return skill[0]
     except:
-        return None          
+        return None
+
+def get_skills(storage, categ):
+    return filter( lambda x: x.type == categ, storage.skills )
         
 def get_spells(storage, ring, mastery):
     return filter( lambda x: x.element == ring and x.mastery == mastery, storage.spells )
@@ -57,3 +60,17 @@ def get_spells(storage, ring, mastery):
 def get_maho_spells(storage, ring, mastery):
     return filter( lambda x: x.element == ring and x.mastery == mastery and 'maho' in x.tags, storage.spells )
     
+def get_mastery_ability_rule(storage, id, value):
+    try:
+        skill = get_skill(storage, id)
+        rule  = filter( lambda x: x.rank == value, skill.mastery_abilities )
+        return rule[0]
+    except:
+        return None    
+        
+def get_kata(storage, id):
+    try:
+        kata = filter( lambda x: x.id == id, storage.katas )
+        return kata[0]
+    except:
+        return None        
