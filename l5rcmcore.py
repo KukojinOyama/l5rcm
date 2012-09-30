@@ -29,6 +29,7 @@ import tempfile
 import exporters
 import dbutil
 import dal
+import dal.query
 
 from PySide import QtCore, QtGui
 
@@ -283,20 +284,21 @@ class L5RCMCore(QtGui.QMainWindow):
         new_value = cur_value + 1
 
         cost    = new_value
-        sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
-        text    = dbutil.get_skill_name(self.db_conn, skill_id)
+        skill   = dal.query.get_skill(self.dstore, skill_id)
+        sk_type = skill.type
+        text    = skill.name
                
         if (self.pc.has_rule('obtuse') and
             sk_type == 'high' and 
-            skill_id != 211   and # investitagion
-            skill_id != 234):     # medicine
+            skill_id != 'investigation'   and # investigation
+            skill_id != 'medicine'):     # medicine
             
             # double the cost for high skill
             # other than medicine and investigation
             cost *= 2            
 
         adv = models.SkillAdv(skill_id, cost)
-        adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
+        adv.rule = dal.query.get_mastery_ability_rule(self.dstore, skill_id, new_value)
         adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
                    .format( text, cur_value, new_value, adv.cost ))
                    
@@ -311,9 +313,9 @@ class L5RCMCore(QtGui.QMainWindow):
         
     def memo_spell(self, spell_id):
         print('memorize spell {0}'.format(spell_id))
-        info_ = dbutil.get_spell_info(self.db_conn, spell_id)
-        cost  = info_[3] # mastery
-        text  = info_[0]
+        info_ = dal.query.get_spell(self.dstore, spell_id)
+        cost  = info_.mastery
+        text  = info_.name
         
         adv = models.MemoSpellAdv(spell_id, cost)
         adv.desc = (self.tr('{0}, Mastery {1}. Cost: {2} xp')

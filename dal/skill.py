@@ -25,9 +25,6 @@ class MasteryAbility(object):
         f.rule = elem.attrib['rule'] if ('rule' in elem.attrib) else None
         f.desc = elem.text
         return f
-        
-    def __eq__(self, obj):
-        return obj and obj.id == self.id  
 
 class SkillCateg(object):        
     @staticmethod

@@ -654,8 +654,8 @@ class L5RMain(L5RCMCore):
         self.tabs.addTab(frame_, self.tr("Skills"))
 
     def build_ui_page_3(self):
-        self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)
-        self.th_view_model = models.TechViewModel      (self.db_conn, self)
+        self.sp_view_model = models.SpellTableViewModel(self.dstore, self)
+        self.th_view_model = models.TechViewModel      (self.dstore, self)
 
         # enable sorting through a proxy model
         sp_sort_model = models.ColorFriendlySortProxyModel(self)
@@ -1261,7 +1261,7 @@ class L5RMain(L5RCMCore):
             self.pc.add_pending_wc_skill(sk.wildcards, sk.rank)
 
         # get school tech rank 1                   
-        tech0 = dal.query.get_tech(school, 1)
+        tech0 = dal.query.get_school_tech(school, 1)
         # rule == techid ???
         self.pc.set_free_school_tech(tech0.id, tech0.id)
 
