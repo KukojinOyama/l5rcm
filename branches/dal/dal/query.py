@@ -18,36 +18,37 @@
 
 def get_clan(storage, id):
     try:
-        clan = filter( lambda x: x.id == id, storage.clans )
-        return clan[0]
+        return filter( lambda x: x.id == id, storage.clans )[0]
     except:
         return None
         
 def get_family(storage, id):
     try:
-        family = filter( lambda x: x.id == id, storage.families )
-        return family[0]
+        return filter( lambda x: x.id == id, storage.families )[0]
     except:
         return None
         
 def get_school(storage, id):
     try:
-        school = filter( lambda x: x.id == id, storage.schools )
-        return school[0]
+        return filter( lambda x: x.id == id, storage.schools )[0]
     except:
         return None
         
-def get_tech(school_obj, rank):
+def get_school_tech(school_obj, rank):
     try:
-        tech = filter( lambda x: x.rank == rank, school_obj.techs )
-        return tech[0]
+        return filter( lambda x: x.rank == rank, school_obj.techs )[0]
     except:
-        return None
+        return None, None
+        
+def get_tech(storage, id):
+    for sc in storage.schools:
+        tech   = filter( lambda x: x.id == id, sc.techs )
+        if len(tech): return sc, tech[0]
+    return None        
 
 def get_skill(storage, id):
     try:
-        skill = filter( lambda x: x.id == id, storage.skills )
-        return skill[0]
+        return filter( lambda x: x.id == id, storage.skills )[0]
     except:
         return None
 
@@ -63,14 +64,18 @@ def get_maho_spells(storage, ring, mastery):
 def get_mastery_ability_rule(storage, id, value):
     try:
         skill = get_skill(storage, id)
-        rule  = filter( lambda x: x.rank == value, skill.mastery_abilities )
-        return rule[0]
+        return filter( lambda x: x.rank == value, skill.mastery_abilities )[0].rule        
     except:
         return None    
         
 def get_kata(storage, id):
     try:
-        kata = filter( lambda x: x.id == id, storage.katas )
-        return kata[0]
+        return filter( lambda x: x.id == id, storage.katas )[0]
     except:
-        return None        
+        return None
+        
+def get_spell(storage, id):
+    try:
+        return filter( lambda x: x.id == id, storage.spells )[0]
+    except:
+        return None                

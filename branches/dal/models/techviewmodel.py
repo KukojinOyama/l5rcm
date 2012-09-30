@@ -16,6 +16,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from PySide import QtGui, QtCore
+import dal
+import dal.query
 
 class TechItemModel(object):
     def __init__(self):
@@ -28,10 +30,10 @@ class TechItemModel(object):
         return self.name
 
 class TechViewModel(QtCore.QAbstractListModel):
-    def __init__(self, dbconn, parent = None):
+    def __init__(self, dstore, parent = None):
         super(TechViewModel, self).__init__(parent)
 
-        self.dbconn = dbconn
+        self.dstore = dstore
         self.items = []
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
@@ -42,22 +44,13 @@ class TechViewModel(QtCore.QAbstractListModel):
         return len(self.items)
         
     def build_item_model(self, tech_id):
-        c = self.dbconn.cursor()
         itm = TechItemModel()
         
-        #print 'tech_id: %s' % repr(tech_id)
-        
-        c.execute('''SELECT school_techs.name, school_techs.rank,
-                            schools.name
-                            FROM school_techs INNER JOIN schools ON
-                            schools.uuid == school_techs.school_uuid
-                            WHERE school_techs.uuid=?''', [tech_id])
-        for tech_nm, tech_rk, sc_nm in c.fetchall():
-            itm.name         = tech_nm
-            itm.school_name = sc_nm
-            itm.rank        = str(tech_rk)
-            break
-        c.close()
+        school, tech = dal.query.get_tech(self.dstore, tech_id)
+        if tech and school:          
+            itm.name         = tech.name
+            itm.school_name  = school.name
+            itm.rank         = str(tech.rank)
         return itm        
         
     def add_item(self, item_id):
