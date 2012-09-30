@@ -377,7 +377,7 @@ def exp_kata_requirements(db, uuid, root):
                  where ref_uuid=?''', [uuid])
                  
     for field, type, min, max, trg in c.fetchall():
-        attr = {'type': type, 'field': _lu(field) }
+        attr = {'type': type, 'field': _lu(field).replace('_school', '') }
         if min: attr['min'] = str(min)
         if max: attr['min'] = str(max)
         if trg: attr['trg'] = str(trg)

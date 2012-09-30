@@ -19,6 +19,8 @@ import string
 import models
 import rules
 import md5
+import dal
+import dal.query
 from datetime import datetime
 
 class FDFExporter(object):
@@ -276,10 +278,12 @@ class FDFExporterShugenja(FDFExporter):
             if def_.startswith('*'): # wildcard
                 def_ = m.get_affinity().capitalize()
                 
-            fields['SCHOOL_NM.%d'  % (i+1)    ] = f.get_school_name(schools[i].school_id)
+            school = dal.query.get_school(f.dstore, schools[i].school_id)
+            tech   = dal.query.get_school_tech(school, 1)
+            fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
             fields['AFFINITY.%d'  % (i+1)     ] = aff_
             fields['DEFICIENCY.%d'  % (i+1)   ] = def_
-            fields['SCHOOL_TECH_1.%d'  % (i+1)] = f.get_school_tech_name(schools[i].school_id)
+            fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
             
         # EXPORT FIELDS    
         for k in fields.iterkeys():

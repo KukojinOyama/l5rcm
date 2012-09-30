@@ -17,7 +17,6 @@
 
 import models.advances as advances
 import models
-import dbutil
 import string
 import dal
 import dal.query
@@ -512,10 +511,9 @@ class SelWcSkills(QtGui.QDialog):
         
 
 class SelWcSpells(QtGui.QDialog):
-    def __init__(self, pc, conn, store, parent = None):
+    def __init__(self, pc, store, parent = None):
         super(SelWcSpells, self).__init__(parent)
         self.pc  = pc
-        self.dbconn = conn
         self.dstore = store
         self.cbs_ring    = []
         self.cbs_mast    = []

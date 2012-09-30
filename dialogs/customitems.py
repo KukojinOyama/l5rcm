@@ -17,6 +17,9 @@
 
 import models
 import rules
+import dal
+import dal.query
+
 from PySide import QtCore, QtGui
 
 def grouped_widget(title, widget, parent = None):

@@ -27,7 +27,6 @@ import dialogs
 import autoupdate
 import tempfile
 import exporters
-import dbutil
 import dal
 import dal.query
 
@@ -340,12 +339,11 @@ class L5RCMCore(QtGui.QMainWindow):
                 return
         
     def check_if_tech_available(self):
-        c = self.db_conn.cursor()
-        c.execute('''select COUNT(uuid) from school_techs
-                     where school_uuid=?''', [self.pc.get_school_id()])
-        count_ = c.fetchone()[0]
-        c.close()
-        return count_ > self.pc.get_school_rank()
+        school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+        if school:
+            count  = len(school.techs)
+            return count > self.pc.get_school_rank()
+        return False        
 
     def check_tech_school_requirements(self):
         # one should have at least one rank in all school skills
@@ -354,17 +352,14 @@ class L5RCMCore(QtGui.QMainWindow):
         
     def get_missing_school_requirements(self):
         list_     = []
-        school_id = self.pc.get_school_id()        
-        c = self.db_conn.cursor()
-        c.execute("""SELECT skill_uuid, skill_rank FROM school_skills
-                     WHERE school_uuid=?""", [school_id])
-        print('check requirement for school {0}'.format(school_id))
-        for uuid, rank in c.fetchall():
-            if not uuid: continue
-            print('needed {0}, got rank {1}'.format(uuid, self.pc.get_skill_rank(uuid)))
-            if self.pc.get_skill_rank(uuid) < 1:
-                list_.append(uuid)
-        c.close()
+        school_id = self.pc.get_school_id()    
+        school = dal.query.get_school(self.dstore, school_id)
+        if school:
+            print('check requirement for school {0}'.format(school_id))
+            for sk in school.skills:
+                print('needed {0}, got rank {1}'.format(sk.id, self.pc.get_skill_rank(sk.id)))
+                if self.pc.get_skill_rank(sk.id) < 1:
+                    list_.append(sk.id)
         return list_
         
     def set_pc_affinity(self, affinity):
@@ -378,31 +373,3 @@ class L5RCMCore(QtGui.QMainWindow):
     def set_pc_deficiency(self, deficiency):
         self.pc.set_deficiency(deficiency.lower())      
         self.update_from_model()
-        
-    
-    def get_school_name(self, school_id):
-        c = self.db_conn.cursor()
-        c.execute('''select name from schools
-                     where uuid=?''', [school_id])
-        tmp = c.fetchone()
-        c.close()
-        return tmp[0] if tmp else ""
-        
-    def get_school_aff_def(self, school_id):
-        c = self.db_conn.cursor()
-        c.execute('''select affinity, deficiency from schools
-                     where uuid=?''', [school_id])
-        tmp = c.fetchone()
-        c.close()
-        if tmp:
-            return tmp[0], tmp[1]
-        return None, None
-        
-    def get_school_tech_name(self, school_id, rank = 1):
-        c = self.db_conn.cursor()
-        c.execute('''select name from school_techs
-                     where school_uuid=? and rank=?''', [school_id, rank])
-        tmp = c.fetchone()
-        c.close()
-        return tmp[0] if tmp else ""
-       

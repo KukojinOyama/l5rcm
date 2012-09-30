@@ -89,11 +89,11 @@ class MyJsonEncoder(json.JSONEncoder):
             return obj.__dict__
         return json.JSONEncoder.default(self, obj)
 
-def encode_pc_model(obj):
-    if isinstance(obj, BasePcModel) or \
-       isinstance(obj, AdvancedPcModel):
-        return obj.__dict__
-    return json.JSONEncoder.default(self, obj)
+    def encode_pc_model(self, obj):
+        if isinstance(obj, BasePcModel) or \
+           isinstance(obj, AdvancedPcModel):
+            return obj.__dict__
+        return json.JSONEncoder.default(self, obj)
 
 class BasePcModel(object):
     def __init__(self):
@@ -131,7 +131,7 @@ class BasePcModel(object):
 
     def del_tag(self, tag):
         if tag in self.tags:
-            self.tags.removeone(tag)
+            self.tags.remove(tag)
 
     def clear_tags(self):
         self.tags = []
@@ -158,7 +158,7 @@ class CharacterSchool(object):
 
     def del_tag(self, tag):
         if tag in self.tags:
-            self.tags.removeone(tag)
+            self.tags.remove(tag)
 
     def clear_tags(self):
         self.tags = []        
@@ -331,7 +331,7 @@ class AdvancedPcModel(BasePcModel):
             return 0
             
     def get_base_rd(self):
-        if self.has_rule('hida_bushi_2'):
+        if self.has_rule('crab_the_mountain_does_not_move'):
             return self.get_ring_rank(RINGS.EARTH)
         return 0
 
@@ -362,7 +362,7 @@ class AdvancedPcModel(BasePcModel):
         return self.get_ring_rank(RINGS.EARTH) * self.health_multiplier + self.get_health_rank_mod()
         
     def get_health_rank_mod(self):
-        if self.has_rule('daidoji_bushi_1'):
+        if self.has_rule('crane_the_force_of_honor'):
             return max(1, int(self.get_honor()-4))
         return 0
 
