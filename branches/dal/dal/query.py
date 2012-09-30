@@ -38,13 +38,13 @@ def get_school_tech(school_obj, rank):
     try:
         return filter( lambda x: x.rank == rank, school_obj.techs )[0]
     except:
-        return None, None
+        return None
         
 def get_tech(storage, id):
     for sc in storage.schools:
         tech   = filter( lambda x: x.id == id, sc.techs )
         if len(tech): return sc, tech[0]
-    return None        
+    return None, None 
 
 def get_skill(storage, id):
     try:
@@ -78,4 +78,16 @@ def get_spell(storage, id):
     try:
         return filter( lambda x: x.id == id, storage.spells )[0]
     except:
-        return None                
+        return None
+
+def get_merit(storage, id):
+    try:
+        return filter( lambda x: x.id == id, storage.merits)[0]
+    except:
+        return None
+        
+def get_flaw(storage, id):
+    try:
+        return filter( lambda x: x.id == id, storage.flaws)[0]
+    except:
+        return None        

@@ -16,6 +16,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from PySide import QtGui, QtCore
+import dal
+import dal.query
 
 class MaItemModel(object):
     def __init__(self):
@@ -27,10 +29,10 @@ class MaItemModel(object):
         return self.desc
 
 class MaViewModel(QtCore.QAbstractListModel):
-    def __init__(self, dbconn, parent = None):
+    def __init__(self, dstore, parent = None):
         super(MaViewModel, self).__init__(parent)
 
-        self.dbconn = dbconn
+        self.dstore = dstore
         self.items = []
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
@@ -57,23 +59,15 @@ class MaViewModel(QtCore.QAbstractListModel):
         self.items = []
         self.endResetModel()
 
-    def get_mastery_abilities(self, model):
-        c = self.dbconn.cursor()
-        
+    def get_mastery_abilities(self, model):       
         for sk_uuid in model.get_skills():
             sk_rank = model.get_skill_rank(sk_uuid)
-            
-            c.execute('''SELECT skills.name, mastery_abilities.skill_rank, mastery_abilities.brief
-                         FROM mastery_abilities INNER JOIN skills
-                         ON skills.uuid=mastery_abilities.skill_uuid
-                         WHERE skills.uuid=? and mastery_abilities.skill_rank<=?''', 
-                         [sk_uuid, sk_rank])
+            sk      = dal.query.get_skill(self.dstore, sk_uuid)
+            mas     = [ x for x in sk.mastery_abilities if x.rank <= sk_rank ]
                         
-            for name, rank, brief in c.fetchall():
-                yield name, rank, brief
-            
-        c.close()    
-        
+            for ma in mas:
+                yield ma.name, ma.rank, ma.desc
+
     def update_from_model(self, model):
         self.clean()
         for sk_name, sk_rnk, ma_brief in self.get_mastery_abilities(model):

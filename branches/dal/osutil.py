@@ -27,12 +27,13 @@ def detect_desktop_environment():
     elif os.environ.get('GNOME_DESKTOP_SESSION_ID'):
         desktop_environment = 'gnome'
     else:
-        try:
-            info = getoutput('xprop -root _DT_SAVE_MODE')
-            if ' = "xfce4"' in info:
-                desktop_environment = 'xfce'
-        except (OSError, RuntimeError):
-            pass
+        pass
+        #try:
+        #    info = getoutput('xprop -root _DT_SAVE_MODE')
+        #    if ' = "xfce4"' in info:
+        #        desktop_environment = 'xfce'
+        #except (OSError, RuntimeError):
+        #    pass
     return desktop_environment
 
 def portable_open(what):

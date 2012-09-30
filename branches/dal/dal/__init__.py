@@ -45,7 +45,8 @@ class Data(object):
         self.tattoos   = []
         
         self.effects   = []
-        self.skcategs  = []
+        self.skcategs  = []        
+        self.perktypes = []
         
         if data_dir and os.path.exists(data_dir):
             self.load_data(data_dir)
@@ -95,6 +96,9 @@ class Data(object):
                 self.skcategs.append(SkillCateg.build_from_xml(elem))
             elif elem.tag == 'KataDef':
                 self.katas.append(Kata.build_from_xml(elem))
+            elif elem.tag == 'PerkCateg':
+                self.perktypes.append(PerkCateg.build_from_xml(elem))
+                
                     
                 
                 

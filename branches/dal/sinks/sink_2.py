@@ -28,7 +28,7 @@ class Sink2(QtCore.QObject):
         form = self.form
         
         dlg = dialogs.BuyPerkDialog(form.pc, 'merit',
-                                    form.db_conn, form)
+                                    form.dstore, form)
         dlg.exec_()
         form.update_from_model()
         
@@ -36,7 +36,7 @@ class Sink2(QtCore.QObject):
         form = self.form
         
         dlg = dialogs.BuyPerkDialog(form.pc, 'flaw',
-                                    form.db_conn, form)
+                                    form.dstore, form)
         dlg.exec_()
         form.update_from_model() 
 
@@ -49,7 +49,7 @@ class Sink2(QtCore.QObject):
         sel_itm = form.merit_view.model().data(sel_idx, QtCore.Qt.UserRole)
         
         dlg = dialogs.BuyPerkDialog(form.pc, 'merit',
-                                    form.db_conn, form)
+                                    form.dstore, form)
 
         dlg.set_edit_mode(True)        
         dlg.load_item(sel_itm)
@@ -65,7 +65,7 @@ class Sink2(QtCore.QObject):
         sel_itm = self.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
         
         dlg = dialogs.BuyPerkDialog(self.pc, 'flaw',
-                                    self.db_conn, form)
+                                    self.dstore, form)
 
         dlg.load_item(sel_itm)
         dlg.set_edit_mode(True)        
