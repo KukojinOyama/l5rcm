@@ -98,10 +98,10 @@ class CustomArmorDialog(QtGui.QDialog):
         self.accept()
 
 class CustomWeaponDialog(QtGui.QDialog):
-    def __init__(self, pc, db, parent = None):
+    def __init__(self, pc, dstore, parent = None):
         super(CustomWeaponDialog, self).__init__(parent)
         self.pc  = pc
-        self.db  = db
+        self.dstore  = dstore
         self.item = None
         self.edit_mode = False
         self.build_ui()
@@ -155,9 +155,7 @@ class CustomWeaponDialog(QtGui.QDialog):
         
         lvbox.addWidget(self.btbox)
         
-    def load_data(self):
-        c = self.db.cursor()
-                            
+    def load_data(self):                            
         for weapon in self.dstore.weapons:
             self.cb_base_weap.addItem(weapon.name, weapon.name)
                 
@@ -178,7 +176,7 @@ class CustomWeaponDialog(QtGui.QDialog):
             return
             
         weap_uuid = self.cb_base_weap.itemData(selected)
-        self.item = itm = models.weapon_outfit_from_db(self.db, weap_uuid)
+        self.item = itm = models.weapon_outfit_from_db(self.dstore, weap_uuid)
         
         self.tx_str    .setText( str(itm.strength) )
         self.tx_min_str.setText( str(itm.min_str)  )

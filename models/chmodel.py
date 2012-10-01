@@ -178,9 +178,9 @@ class AdvancedPcModel(BasePcModel):
         self.version = '0.0'
 
         self.name      = ''
-        self.clan      = 0
-        self.school    = 0
-        self.family    = 0
+        self.clan      = None
+        self.school    = None
+        self.family    = None
 
         self.insight   = 0
         self.advans    = []
@@ -262,7 +262,7 @@ class AdvancedPcModel(BasePcModel):
         try:
             return self.get_school(index).school_id
         except:
-            return 0
+            return None
         
     def get_school_rank(self, index = -1):
         try:

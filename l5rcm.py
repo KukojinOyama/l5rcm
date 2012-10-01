@@ -1634,9 +1634,10 @@ class L5RMain(L5RCMCore):
                 self.cb_pc_clan.setCurrentIndex(i)
                 return
 
-    def set_family(self, family_id):
+    def set_family(self, family_id):        
         idx = self.cb_pc_family.currentIndex()
         f_uuid = self.cb_pc_family.itemData(idx)
+
         if f_uuid == family_id:
             return
         for i in xrange(0, self.cb_pc_family.count()):
