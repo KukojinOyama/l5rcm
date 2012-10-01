@@ -66,7 +66,7 @@ class MaViewModel(QtCore.QAbstractListModel):
             mas     = [ x for x in sk.mastery_abilities if x.rank <= sk_rank ]
                         
             for ma in mas:
-                yield ma.name, ma.rank, ma.desc
+                yield sk.name, ma.rank, ma.desc
 
     def update_from_model(self, model):
         self.clean()

@@ -25,7 +25,7 @@ class MasteryAbility(object):
         f.rule = elem.attrib['rule'] if ('rule' in elem.attrib) else None
         f.desc = elem.text
         return f
-
+        
 class SkillCateg(object):        
     @staticmethod
     def build_from_xml(elem):

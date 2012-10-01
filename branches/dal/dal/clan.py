@@ -28,5 +28,8 @@ class Clan(object):
     def __str__(self):
         return self.name or self.id
 
+    def __unicode__(self):
+        return self.name or self.id
+        
     def __eq__(self, obj):
         return obj and obj.id == self.id

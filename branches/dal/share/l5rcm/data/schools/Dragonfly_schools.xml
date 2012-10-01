@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="dragonfly" name="Tonbo Shugenja School" id="dragonfly_tonbo_shugenja_school">
+    <Trait>perception</Trait>
+    <Affinity>water</Affinity>
+    <Deficiency>fire</Deficiency>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>dragonfly_shugenja</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="calligraphy" rank="1"/>
+      <Skill id="courtier" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill rank="1" id="meditation" emphases="Void Recovery"/>
+      <Skill id="sincerity" rank="1"/>
+      <Skill id="spellcraft" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells>
+      <Spell id="commune"/>
+      <Spell id="sense"/>
+      <Spell id="summon"/>
+      <PlayerChoose count="2" element="air"/>
+      <PlayerChoose count="1" element="earth"/>
+      <PlayerChoose count="3" element="water"/>
+    </Spells>
+    <Techs>
+      <Tech name="Guided By Fate" rank="1" id="dragonfly_guided_by_fate"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+</L5RCM>

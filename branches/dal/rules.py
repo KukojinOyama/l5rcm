@@ -63,11 +63,7 @@ def get_random_name(path):
     
     i = ( ord(os.urandom(1)) + ( ord(os.urandom(1)) << 8) ) % len(names)
     return names[i]
-    
-def parse_spell_wildcard(wc):
-    ring, qty = wc.strip(' \r\n').split()
-    return ring, int(qty.strip('()'))
-    
+       
 def insight_calculation_1(model):
     '''Default insight calculation method = Rings*10+Skills+SpecialPerks'''
     n = 0

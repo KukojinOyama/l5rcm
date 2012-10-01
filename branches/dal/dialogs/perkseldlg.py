@@ -136,7 +136,7 @@ class BuyPerkDialog(QtGui.QDialog):
         type_ = self.cb_subtype.itemData(selected)
         
         # populate perks        
-        perks = self.dstore.merit if ( self.tag == 'merit' ) else self.dstore.flaws
+        perks = self.dstore.merits if ( self.tag == 'merit' ) else self.dstore.flaws
         perks = [ x for x in perks if x.type == type_ ]
         
         for p in perks:

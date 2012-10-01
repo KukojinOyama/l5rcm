@@ -157,14 +157,10 @@ class CustomWeaponDialog(QtGui.QDialog):
         
     def load_data(self):
         c = self.db.cursor()
-        
-        c.execute('''select uuid, name from weapons''')
-                     
-        for uuid, name in c.fetchall():
-            self.cb_base_weap.addItem(name, uuid)
-        
-        c.close()
-        
+                            
+        for weapon in self.dstore.weapons:
+            self.cb_base_weap.addItem(weapon.name, weapon.name)
+                
     def load_item(self, item):
         self.tx_name    .setText( item.name   )
         self.tx_dr      .setText( item.dr     )

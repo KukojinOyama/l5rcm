@@ -240,7 +240,7 @@ def exp_weapons(db, out_file, out_path):
     root = ET.Element('L5RCM')
     for uuid, name, skill, dr, dr_alt, range, strength, min_strength, effect_id, cost in c.fetchall():
         attr = {'name': name}
-        if skill: attr['skill'] = skill
+        if skill: attr['skill'] = _lu(skill)
         if dr: attr['dr'] = dr
         if dr_alt: attr['dr_alt'] = dr_alt
         if range: attr['range'] = str(range)
@@ -260,6 +260,24 @@ def exp_weapons(db, out_file, out_path):
     fpath = os.path.join(out_path, out_file)
     ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)    
     
+def exp_armors(db, out_file, out_path):
+    c = db.cursor()
+    c.execute('''select uuid, name, tn, rd,
+                 special, cost
+                 from armors
+                 order by name''')
+                 
+    root = ET.Element('L5RCM')
+    for uuid, name, tn, rd, special, cost in c.fetchall():
+        attr = {'name': name, 'tn': str(tn), 'rd': str(rd), 'cost': cost}        
+               
+        ar_def = ET.SubElement(root, "Armor", attr)        
+        
+        if special:
+            ET.SubElement(ar_def, 'Effect', {'id': special})
+        
+    fpath = os.path.join(out_path, out_file)
+    ET.ElementTree(root).write(fpath, pretty_print = True, encoding='UTF-8', xml_declaration=True)           
     
 def exp_spells(db, out_file, out_path):
     c = db.cursor()
@@ -390,6 +408,7 @@ def main():
     exp_schools (db, "schools.xml", '../share/l5rcm/data/schools')
     exp_skills  (db, "skills.xml", '../share/l5rcm/data')
     exp_weapons (db, "weapons.xml", '../share/l5rcm/data')
+    exp_armors  (db, "armors.xml", '../share/l5rcm/data')
     exp_spells  (db, "spells.xml", '../share/l5rcm/data')
     exp_perks   (db, "merits.xml", '../share/l5rcm/data', 'merit')
     exp_perks   (db, "flaws.xml", '../share/l5rcm/data',  'flaw')
