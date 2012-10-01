@@ -26,6 +26,7 @@ from powers      import *
 from weapon      import *
 
 import os
+import xml.etree.ElementTree
 import xml.etree.cElementTree as ET
 
 class Data(object):
