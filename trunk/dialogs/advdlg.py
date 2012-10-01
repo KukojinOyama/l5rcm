@@ -229,7 +229,7 @@ class BuyAdvDialog(QtGui.QDialog):
         cost = new_value
         
         if (self.pc.has_rule('obtuse') and
-            sk_type == 'high' and 
+            type_ == 'high' and 
             uuid != 211       and # investitagion
             uuid != 234):         # medicine
             
