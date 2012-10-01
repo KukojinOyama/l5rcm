@@ -33,7 +33,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.8'
+APP_VERSION = '2.9'
 DB_VERSION  = '2.6'
 APP_ORG     = 'openningia'
 
