@@ -1414,7 +1414,8 @@ class L5RMain(L5RCMCore):
         school = dal.query.get_school(self.dstore, self.pc.get_school_id())
 
         for tech in [ x for x in school.techs if x.rank == next_rank ]:
-            self.pc.add_tech(tech.id, tech.id)
+            self.pc.add_tech(tech.id, tech.id)            
+            print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
         self.sink1.switch_to_page_3()
@@ -1713,7 +1714,7 @@ class L5RMain(L5RCMCore):
 
         # attributes
         for i in xrange(0, 8):
-            self.attribs[i][1].setText( str(self.pc.get_attrib_rank(i)) )
+            self.attribs[i][1].setText( str(self.pc.get_mod_attrib_rank(i)) )
 
         # pc rank
         self.tx_pc_rank.setText( str(self.pc.get_insight_rank()) )

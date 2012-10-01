@@ -234,10 +234,24 @@ class AdvancedPcModel(BasePcModel):
                 continue
             if adv.attrib == attrib: d += 1
             
+        return d
+        
+    def get_mod_attrib_rank(self, attrib):
+        a = self.step_0.attribs[attrib]
+        b = self.step_1.attribs[attrib]
+        c = self.step_2.attribs[attrib]
+
+        d = a+b+c
+
+        for adv in self.advans:
+            if adv.type != 'attrib':
+                continue
+            if adv.attrib == attrib: d += 1
+            
         weakness_flaw = 'weak_%s' % attrib_name_from_id(attrib)
         if self.has_rule(weakness_flaw):
             return d-1
-        return d
+        return d        
 
     def get_void_rank(self):
         v = self.step_0.void + self.step_1.void + self.step_2.void
@@ -322,7 +336,7 @@ class AdvancedPcModel(BasePcModel):
 
     def get_base_tn(self):
         # reflexes * 5 + 5
-        return self.get_attrib_rank(ATTRIBS.REFLEXES)*5+5
+        return self.get_mod_attrib_rank(ATTRIBS.REFLEXES)*5+5
 
     def get_armor_tn(self):
         if self.armor is not None:
@@ -374,8 +388,8 @@ class AdvancedPcModel(BasePcModel):
 
     def get_base_initiative(self):
         return ( self.get_insight_rank() +
-                 self.get_attrib_rank(ATTRIBS.REFLEXES),
-                 self.get_attrib_rank(ATTRIBS.REFLEXES))
+                 self.get_mod_attrib_rank(ATTRIBS.REFLEXES),
+                 self.get_mod_attrib_rank(ATTRIBS.REFLEXES))
 
     def get_px(self):
         count = 0

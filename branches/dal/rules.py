@@ -129,7 +129,7 @@ def calculate_base_attack_roll(pc, weap):
     if weap.skill_nm == 'Kyujutsu':
         attrib = ATTRIBS.REFLEXES
     
-    trait   = pc.get_attrib_rank(attrib)
+    trait   = pc.get_mod_attrib_rank(attrib)
     skill   = 0
     if weap.skill_id:
         skill = pc.get_skill_rank(weap.skill_id)
@@ -166,7 +166,7 @@ def calculate_base_damage_roll(pc, weap):
     # and y is strength
     
     attrib   = ATTRIBS.STRENGTH   
-    trait    = pc.get_attrib_rank(attrib)
+    trait    = pc.get_mod_attrib_rank(attrib)
     weap_str = 0
     try:
         weap_str = int(weap.strength)
