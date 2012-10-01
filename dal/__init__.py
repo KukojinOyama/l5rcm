@@ -23,6 +23,7 @@ from skill       import *
 from spell       import *
 from perk        import *
 from powers      import *
+from weapon      import *
 
 import os
 import xml.etree.cElementTree as ET
@@ -44,15 +45,27 @@ class Data(object):
         self.kihos     = []
         self.tattoos   = []
         
-        self.effects   = []
-        self.skcategs  = []        
-        self.perktypes = []
+        self.weapons   = []
+        self.armors    = []
+        
+        self.skcategs       = []        
+        self.perktypes      = []
+        self.weapon_effects = []
         
         if data_dir and os.path.exists(data_dir):
             self.load_data(data_dir)
+            
+        print(cust_data_dir)
         if cust_data_dir and os.path.exists(cust_data_dir):
             self.load_data(cust_data_dir)
-        
+    
+    def append_to(self, collection, item):
+        if item in collection:
+            i = collection.index(item)
+            collection[i] = item
+        else:
+            collection.append(item)
+    
     def load_data(self, data_path):
         # iter through all the data tree and import all xml files
         for path, dirs, files in os.walk(data_path):
@@ -79,27 +92,32 @@ class Data(object):
             raise Exception("Not an L5RCM data file")
         for elem in list(root):
             if elem.tag == 'Clan':
-                self.clans.append(Clan.build_from_xml(elem))
+                self.append_to(self.clans, Clan.build_from_xml(elem))
             elif elem.tag == 'Family':
-                self.families.append(Family.build_from_xml(elem))                
+                self.append_to(self.families, Family.build_from_xml(elem))
             elif elem.tag == 'School':
-                self.schools.append(School.build_from_xml(elem))
+                self.append_to(self.schools, School.build_from_xml(elem))
             elif elem.tag == 'SkillDef':
-                self.skills.append(Skill.build_from_xml(elem))
+                self.append_to(self.skills, Skill.build_from_xml(elem))
             elif elem.tag == 'SpellDef':
-                self.spells.append(Spell.build_from_xml(elem))
+                self.append_to(self.spells, Spell.build_from_xml(elem))
             elif elem.tag == 'Merit':
-                self.merits.append(Perk.build_from_xml(elem))
+                self.append_to(self.merits, Perk.build_from_xml(elem))
             elif elem.tag == 'Flaw':
-                self.flaws.append(Perk.build_from_xml(elem))
+                self.append_to(self.flaws, Perk.build_from_xml(elem))
             elif elem.tag == 'SkillCateg':
-                self.skcategs.append(SkillCateg.build_from_xml(elem))
+                self.append_to(self.skcategs, SkillCateg.build_from_xml(elem))
             elif elem.tag == 'KataDef':
-                self.katas.append(Kata.build_from_xml(elem))
+                self.append_to(self.katas, Kata.build_from_xml(elem))
             elif elem.tag == 'PerkCateg':
-                self.perktypes.append(PerkCateg.build_from_xml(elem))
-                
-                    
+                self.append_to(self.perktypes, PerkCateg.build_from_xml(elem))
+            elif elem.tag == 'EffectDef':
+                self.append_to(self.weapon_effects, WeaponEffect.build_from_xml(elem))
+            elif elem.tag == 'Weapon':
+                self.append_to(self.weapons, Weapon.build_from_xml(elem))
+            elif elem.tag == 'Armor':
+                self.append_to(self.armors, Armor.build_from_xml(elem))
+                   
                 
                 
                 

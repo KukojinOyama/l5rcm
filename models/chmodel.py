@@ -497,13 +497,13 @@ class AdvancedPcModel(BasePcModel):
                self.step_1.has_tag(tag) or \
                tag in school_tags
 
-    def has_rule(self, rule):
+    def has_rule(self, rule):        
         school_rules = []
         for s in self.schools:
             school_rules += s.tech_rules
         
         for adv in self.advans:
-            if hasattr(adv, 'rule') and adv.rule == rule:
+            if hasattr(adv, 'rule') and adv.rule == rule:                
                 return True
         return rule in school_rules
         

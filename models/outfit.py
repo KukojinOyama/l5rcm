@@ -17,6 +17,8 @@
 
 from PySide import QtCore, QtGui
 import rules
+import dal
+import dal.query
 
 class ArmorOutfit(object):
     def __init__(self):
@@ -47,73 +49,41 @@ class WeaponOutfit(object):
         self.max_dmg  = ''
         self.tags     = []        
         
-def weapon_outfit_from_db(dbconn, weap_uuid, sk_uuid = None):
-    itm = WeaponOutfit()
+def weapon_outfit_from_db(dstore, weap_nm, sk_uuid = None):
+    itm       = WeaponOutfit()
+    weapon    = dal.query.get_weapon(dstore, weap_nm)
+    effect_tx = dal.query.get_weapon_effect(dstore, weapon.effectid).text if ( weapon.effectid is not None ) else ''
     
-    c = dbconn.cursor()
-    c.execute('''select name, dr, dr_alt, range, strength,
-                 min_strength, effect_id, cost
-                 from weapons
-                 where uuid=?''', [weap_uuid])
+    itm.name     = weapon.name
+    itm.dr       = weapon.dr           or 'N/A'
+    itm.dr_alt   = weapon.dr2          or 'N/A'
+    itm.rule     = effect_tx      
+    itm.cost     = weapon.cost         or 'N/A'
+    itm.range    = weapon.range        or 'N/A' 
+    itm.strength = weapon.strength     or 'N/A'
+    itm.min_str  = weapon.min_strength or 'N/A'    
+    itm.tags     = weapon.tags
     
-    for name, dr, dr_alt, rng, str_, mstr_, eff, cost in c.fetchall():
-        c.execute('''select desc from effects
-                     where uuid=?''', [eff])
-        rule_text = ''
-        for desc in c.fetchall():
-            rule_text = desc[0]
-            break
-       
-        itm.name     = name
-        itm.dr       = dr        or 'N/A'
-        itm.dr_alt   = dr_alt    or 'N/A'
-        itm.rule     = rule_text
-        itm.cost     = cost      or 'N/A'
-        itm.range    = rng       or 'N/A' 
-        itm.strength = str_      or 'N/A'
-        itm.min_str  = mstr_     or 'N/A'
-        break
-        
-    c.execute('''select uuid, tag from tags where uuid=?''', [weap_uuid])
-    for uuid, tag in c.fetchall():
-        print('weapon {0} has tag {1}'.format(name,tag))
-        itm.tags.append(tag)
-        
-    if sk_uuid:
-        itm.skill_id = sk_uuid        
-        c.execute('''select name from skills
-                     where uuid=?''', [sk_uuid])
-        itm.skill_nm = ''
-        for name in c.fetchall():
-            itm.skill_nm = name[0]
-            break        
-        
-    c.close()
+    try:
+        if sk_uuid:
+            itm.skill_id = sk_uuid
+            itm.skill_nm = dal.query.get_skill(dstore, sk_uuid).name
+    except:
+        pass
     return itm
             
-def armor_outfit_from_db(dbconn, armor_uuid):
+def armor_outfit_from_db(dstore, armor_nm):
     itm = ArmorOutfit()
     
-    c = dbconn.cursor()
-    c.execute('''select name, tn, rd, special, cost from armors
-                 where uuid=?''', [armor_uuid])
+    armor     = dal.query.get_armor(dstore, armor_nm)
+    effect_tx = dal.query.get_weapon_effect(dstore, armor.effectid).text if ( armor.effectid is not None ) else ''
+               
+    itm.name = armor.name
+    itm.tn   = armor.tn
+    itm.rd   = armor.rd
+    itm.rule = effect_tx
+    itm.cost = armor.cost
     
-    for name, tn, rd, special, cost in c.fetchall():
-        c.execute('''select desc from effects
-                     where tag=?''', [special])
-        rule_text = ''
-        for desc in c.fetchall():
-            rule_text = desc[0]
-            break
-            
-        itm.name = name
-        itm.tn   = tn
-        itm.rd   = rd
-        itm.rule = rule_text
-        itm.cost = cost
-        break
-        
-    c.close()
     return itm
 
 class WeaponTableViewModel(QtCore.QAbstractTableModel):

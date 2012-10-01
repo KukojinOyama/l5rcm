@@ -90,4 +90,22 @@ def get_flaw(storage, id):
     try:
         return filter( lambda x: x.id == id, storage.flaws)[0]
     except:
-        return None        
+        return None
+        
+def get_weapon(storage, name):
+    try:
+        return [x for x in storage.weapons if x.name == name][0]
+    except:
+        return None
+        
+def get_armor(storage, name):
+    try:
+        return [x for x in storage.armors if x.name == name][0]
+    except:
+        return None
+        
+def get_weapon_effect(storage, id):
+    try:
+        return [x for x in storage.weapon_effects if x.id == id][0]
+    except:
+        return None         

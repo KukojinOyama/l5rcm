@@ -18,7 +18,6 @@
 
 import sys
 import os
-import sqlite3
 
 import rules
 import models
@@ -29,13 +28,14 @@ import tempfile
 import exporters
 import dal
 import dal.query
+import osutil
 
 from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.8'
-DB_VERSION  = '2.6'
+APP_VERSION = '3.0'
+DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -107,26 +107,13 @@ class L5RCMCore(QtGui.QMainWindow):
         # Flag to lock advancment refunds in order        
         self.lock_advancements = True
         
-        # Connect to database
-        self.db_conn = None
-
         # Data storage
-        self.dstore = dal.Data( get_app_file('data') )
+        self.dstore = dal.Data( 
+            get_app_file('data'),
+            osutil.get_user_data_path('data') )
         
         # current locale
         self.locale = locale
-
-        db_name = 'l5rdb_{0}.sqlite'.format(locale)
-        if not os.path.exists( get_app_file(db_name) ):
-            db_name = 'l5rdb.sqlite'
-        
-        print("using database file: {0}".format(get_app_file(db_name)))
-        
-        try:            
-            self.db_conn = sqlite3.connect(  get_app_file(db_name) )
-        except Exception as e:
-            sys.stderr.write('unable to open database file %s\n' % get_app_file('l5rdb.sqlite'))
-            sys.stderr.write("current working dir : %s\n" % os.getcwd())           
         
     def update_from_model(self):
         pass

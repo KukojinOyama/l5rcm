@@ -221,6 +221,10 @@ class BuyAdvDialog(QtGui.QDialog):
 
         cost = new_value
         
+        print('pc is obtuse? {0}'.format(self.pc.has_rule('obtuse')))
+        print('skill type: {0}'.format(type_))
+        print('skill uuid: {0}'.format(uuid))
+        
         if (self.pc.has_rule('obtuse') and
             type_ == 'high' and 
             uuid != 'investigation' and # investigation
