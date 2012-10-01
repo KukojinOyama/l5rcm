@@ -177,7 +177,7 @@ class SchoolChoiceDlg(QtGui.QDialog):
             
         for school in schools:
             if not has_school(school.id):
-                self.cb_school.addItem(school.name, school.uuid)
+                self.cb_school.addItem(school.name, school.id)
         
     def on_school_change(self):
         idx_ = self.cb_school.currentIndex()       
@@ -185,22 +185,23 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
         clan_id = self.cb_clan.itemData(clan_idx_)        
         school_id = self.cb_school.itemData(idx_)
-        
+                
         clan   = dal.query.get_clan  (self.dstore, clan_id)
         school = dal.query.get_school(self.dstore, school_id)
         
-        self.school_tg = [clan.id] + school.tags
-                                
-        more = ''
-        try:
-            more = [ x for x in school.require if x.type == 'more' ][0]
-        except:
-            pass                   
+        if clan and school:
+            self.school_tg = [clan.id] + school.tags
+                                    
+            more = ''
+            try:
+                more = [ x for x in school.require if x.type == 'more' ][0]
+            except:
+                pass                   
 
-        self.te_notes.setHtml("")
-        self.te_notes.setHtml(
-            unicode.format(
-            u"<em>{0}</em>", more))
+            self.te_notes.setHtml("")
+            self.te_notes.setHtml(
+                unicode.format(
+                u"<em>{0}</em>", more))
         
     def on_accept(self):
         idx_           = self.cb_school.currentIndex()

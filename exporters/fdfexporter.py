@@ -108,7 +108,7 @@ class FDFExporterAll(FDFExporter):
         
         # TRAITS AND RINGS
         for i in xrange(0, 8):
-            fields[models.attrib_name_from_id(i).upper()] = m.get_attrib_rank(i)
+            fields[models.attrib_name_from_id(i).upper()] = m.get_mod_attrib_rank(i)
         for i in xrange(0, 5):
             fields[models.ring_name_from_id(i).upper()] = m.get_ring_rank(i)
         
@@ -159,7 +159,7 @@ class FDFExporterAll(FDFExporter):
         for i in xrange(0, len(w_labels)):
             fields[w_labels[i]] = str(m.get_health_rank(i))
             
-        fields['WOUND_HEAL_BASE'] = (m.get_attrib_rank(models.ATTRIBS.STAMINA)*2
+        fields['WOUND_HEAL_BASE'] = (m.get_mod_attrib_rank(models.ATTRIBS.STAMINA)*2
                                      + m.get_insight_rank())
         #fields['WOUND_HEAL_MOD' ] = ''
         fields['WOUND_HEAL_CUR' ] = fields['WOUND_HEAL_BASE']
