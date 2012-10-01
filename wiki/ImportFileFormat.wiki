@@ -1,5 +1,5 @@
 #summary Import File Format description
-#labels Featured,Phase-Design
+#labels Deprecated,Phase-Design
 
 = Introduction =
 
