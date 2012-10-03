@@ -2050,6 +2050,10 @@ def dump_slots(obj, out_file):
         for i in xrange( mobj.methodOffset(), mobj.methodCount() ):
             if mobj.method(i).methodType() == QtCore.QMetaMethod.Slot:
                 fobj.write(mobj.method(i).signature() + ' ' + mobj.method(i).tag() + '\n')
+                
+OPEN_CMD_SWITCH   = '--open'
+IMPORT_CMD_SWITCH = '--import'
+
 def main():
     app = QtGui.QApplication(sys.argv)
 
@@ -2099,8 +2103,13 @@ def main():
     l5rcm.create_new_character()
 
     if len(sys.argv) > 1:
-        #print 'load character file %s' % sys.argv[1]
-        l5rcm.load_character_from(sys.argv[1])
+        if OPEN_CMD_SWITCH in sys.argv:
+            of   = sys.argv.index(OPEN_CMD_SWITCH)
+            l5rcm.load_character_from(sys.argv[of+1])
+        elif IMPORT_CMD_SWITCH in sys.argv:
+            imf  = sys.argv.index(IMPORT_CMD_SWITCH)
+            l5rcm.import_data_pack(sys.argv[imf+1])
+            
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

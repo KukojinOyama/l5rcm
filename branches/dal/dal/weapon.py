@@ -66,7 +66,7 @@ class Weapon(object):
                 
         f.effectid = None    
         eff = elem.find('Effect')
-        if eff: f.effectid = eff.attrib['id']
+        if eff: f.effectid = eff.attrib['id']       
 
         return f
         
