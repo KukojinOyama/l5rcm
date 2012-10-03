@@ -1878,6 +1878,23 @@ class L5RMain(L5RCMCore):
         if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
             settings.setValue('advise_conversion', 'false')
             
+    def advise_successfull_import(self):
+        settings = QtCore.QSettings()
+        if settings.value('advise_successfull_import', 'true') == 'false':
+            return
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(self.tr("Data pack imported succesfully."))
+        do_not_prompt_again = QtGui.QCheckBox(self.tr("Do not prompt again"), msgBox)
+        do_not_prompt_again.blockSignals(True) # PREVENT MSGBOX TO CLOSE ON CLICK
+        msgBox.addButton(QtGui.QMessageBox.Ok)
+        msgBox.addButton(do_not_prompt_again, QtGui.QMessageBox.ActionRole)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+        msgBox.setIcon(QtGui.QMessageBox.Information)
+        msgBox.exec_()
+        if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
+            settings.setValue('advise_successfull_import', 'false')        
+            
     def advise_error(self, message, dtl = None):
         msgBox = QtGui.QMessageBox(self)
         msgBox.setWindowTitle('L5R: CM')

@@ -102,7 +102,7 @@ class Data(object):
                 print(ex)                
                                
             if dirn in self.blacklist:
-                print('{0} is blacklisted')
+                print('{0} is blacklisted'.format(dirn))
                 continue
                 
             for file_ in files:
