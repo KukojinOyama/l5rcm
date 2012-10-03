@@ -392,13 +392,23 @@ class SelWcSkills(QtGui.QDialog):
         # TODO: translate skill category
 
         row_ = 2
-        for w, r in self.pc.get_pending_wc_skills():            
+        for ws in self.pc.get_pending_wc_skills():                    
             lb = ''
-            if w and len(w) and w[0] == 'any':
-                lb = self.tr('Any one skill (rank {0}):').format(r)
-            else:
-                sw = ' or '.join(w)
-                lb = self.tr('Any {0} skill (rank {1}):').format(sw, r)
+            wl = ws.wildcards
+            if len(ws.wildcards):
+                or_wc  = [x.value for x in wl if not x.modifier or x.modifier == 'or']
+                not_wc = [x.value for x in wl if x.modifier and x.modifier == 'not'  ]
+                
+                sw1 = self.tr(' or ' ).join (or_wc)
+                sw2 = ', '.join(not_wc)
+                
+                if ( wl[0].value == 'any' ):
+                    sw1 = 'one'
+                
+                if len(not_wc):
+                    lb = self.tr('Any {0}, not {1} skill (rank {2}):').format(sw1, sw2, ws.rank)
+                else:
+                    lb = self.tr('Any {0} skill (rank {1}):').format(sw1, ws.rank)
 
             grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
 
@@ -409,7 +419,7 @@ class SelWcSkills(QtGui.QDialog):
             row_ += 1
 
         for s in self.pc.get_pending_wc_emphs():
-            lb = self.tr("{0}'s Emphases: ").format(self.dstore.get_skill(self.dstore, s).name)
+            lb = self.tr("{0}'s Emphases: ").format(dal.query.get_skill(self.dstore, s).name)
 
             grid.addWidget( QtGui.QLabel(lb, self), row_, 0 )
 
@@ -432,21 +442,26 @@ class SelWcSkills(QtGui.QDialog):
         self.error_bar = None    
 
     def load_data(self):
-        i = 0
-        for w, r in self.pc.get_pending_wc_skills():
-            if w and len(w) and w[0] == 'any':
-                for sk in self.dstore.skills:
-                    if sk.id not in self.pc.get_skills():
-                        self.cbs[i].addItem( sk.name, (sk.id, r) )
-            else:
-                for w_ in w:
-                    print('search skills with tag {0}'.format(w_))
-                    skills_by_tag = filter( lambda x: w_ in x.tags, self.dstore.skills )
-                    #for sk in self.dstore.skills:
-                    #    print(sk, sk.tags)
-                    for sk in skills_by_tag:
-                        if sk.id not in self.pc.get_skills():
-                            self.cbs[i].addItem( sk.name, (sk.id, r) )
+        i = 0        
+        for ws in self.pc.get_pending_wc_skills():
+            outcome = []
+            wl = ws.wildcards
+            
+            for w_ in wl:                    
+                if w_.value == 'any':
+                    outcome += self.dstore.skills
+                else:
+                    print('search skills with tag {0}'.format(w_.value))                    
+                    skills_by_tag = [x for x in self.dstore.skills if w_.value in x.tags]
+                    if not w_.modifier or w_.modifier == 'or':
+                        outcome += skills_by_tag
+                    elif w_.modifier == 'not':
+                        outcome = [x for x in outcome if x not in skills_by_tag]
+
+            for sk in outcome:
+                if sk.id not in self.pc.get_skills():
+                    self.cbs[i].addItem( sk.name, (sk.id, ws.rank) )
+
             i += 1
         
     def connect_signals(self):

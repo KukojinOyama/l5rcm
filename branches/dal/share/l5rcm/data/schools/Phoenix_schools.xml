@@ -140,6 +140,7 @@
       <Skill id="meditation" rank="2"/>
       <PlayerChoose rank="1">
         <Wildcard>any</Wildcard>
+		<Wildcard modifier="not">low</Wildcard>
       </PlayerChoose>
     </Skills>
     <Spells/>

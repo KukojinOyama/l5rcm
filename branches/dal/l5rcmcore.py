@@ -114,12 +114,16 @@ class L5RCMCore(QtGui.QMainWindow):
         # load data
         self.reload_data()
         
-    def reload_data(self):
+    def reload_data(self):        
+        settings = QtCore.QSettings()
+        self.data_pack_blacklist = settings.value('data_pack_blacklist', [])        
+    
         # Data storage
         self.dstore = dal.Data( 
             [get_app_file('data'),
              osutil.get_user_data_path('data'),
-             osutil.get_user_data_path('data_' + self.locale)])
+             osutil.get_user_data_path('data_' + self.locale)],
+             self.data_pack_blacklist)
         
     def update_from_model(self):
         pass
@@ -385,3 +389,7 @@ class L5RCMCore(QtGui.QMainWindow):
         except Exception as e:
             self.advise_error(self.tr("Cannot import data pack."), e.message)
             
+    def update_data_blacklist(self):
+        self.data_pack_blacklist = [ x.id for x in self.dstore.packs if x.active == False ]
+        settings = QtCore.QSettings()
+        settings.setValue('data_pack_blacklist', self.data_pack_blacklist)

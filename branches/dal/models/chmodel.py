@@ -18,6 +18,7 @@
 import advances as adv
 import outfit
 import modifiers
+import dal.school
 import json
 import os
 import rules
@@ -614,8 +615,8 @@ class AdvancedPcModel(BasePcModel):
 
         self.unsaved = True
 
-    def add_pending_wc_skill(self, wc, skill_rank):
-        self.step_2.pending_wc.append( (wc, skill_rank) )
+    def add_pending_wc_skill(self, wc):
+        self.step_2.pending_wc.append( wc )
         self.unsaved = True
 
     def add_pending_wc_spell(self, wc):
@@ -857,6 +858,19 @@ class AdvancedPcModel(BasePcModel):
             _load_obj(deepcopy(obj['step_0']), self.step_0)
             _load_obj(deepcopy(obj['step_1']), self.step_1)
             _load_obj(deepcopy(obj['step_2']), self.step_2)
+            
+            # pending wildcard object in step2
+            self.step_2.pending_wc = []
+            if 'pending_wc' in obj['step_2']:                
+                for m in obj['step_2']['pending_wc']:
+                    item = dal.school.SchoolSkillWildcardSet()                    
+                    _load_obj(deepcopy(m), item)
+                    for i in xrange(0, len(item.wildcards)):
+                        s_item = dal.school.SchoolSkillWildcard()
+                        _load_obj(deepcopy(item.wildcards[i]), s_item)
+                        item.wildcards[i] = s_item
+                        
+                    self.add_pending_wc_skill(item)
 
             # schools
             self.schools = []
