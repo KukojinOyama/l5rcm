@@ -1091,12 +1091,32 @@ class L5RMain(L5RCMCore):
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
 
-        set_exp_limit_act .triggered.connect( self.sink1.on_set_exp_limit       )
-        set_wound_mult_act.triggered.connect( self.sink1.on_set_wnd_mult        )
-        damage_act        .triggered.connect( self.sink1.on_damage_act          )
-        unlock_school_act .triggered.connect( self.sink1.on_unlock_school_act   )
-        unlock_advans_act .toggled  .connect( self.sink1.on_toggle_advans_act   )
-        buy_for_free_act .toggled   .connect( self.sink1.on_toggle_buy_for_free )
+        set_exp_limit_act .triggered.connect(self.sink1.on_set_exp_limit      )
+        set_wound_mult_act.triggered.connect(self.sink1.on_set_wnd_mult       )
+        damage_act        .triggered.connect(self.sink1.on_damage_act         )
+        unlock_school_act .triggered.connect(self.sink1.on_unlock_school_act  )
+        unlock_advans_act .toggled  .connect(self.sink1.on_toggle_advans_act  )
+        buy_for_free_act  .toggled  .connect(self.sink1.on_toggle_buy_for_free)
+        
+        # Data menu
+        m_data = self.menuBar().addMenu(self.tr("&Data"))
+
+        # rules actions
+        import_data_act   = QtGui.QAction(self.tr("Import Data pack..." ), self)
+        manage_data_act   = QtGui.QAction(self.tr("Manage Data packs..."), self)
+        open_data_dir_act = QtGui.QAction(self.tr("Open Data Directory" ), self)
+        reload_data_act   = QtGui.QAction(self.tr("Reload data"         ), self)
+        
+        m_data.addAction(import_data_act  )
+        m_data.addAction(manage_data_act  )
+        m_data.addAction(open_data_dir_act)
+        m_data.addSeparator()
+        m_data.addAction(reload_data_act  )
+        
+        import_data_act  .triggered.connect(self.sink4.import_data_act  )
+        manage_data_act  .triggered.connect(self.sink4.manage_data_act  )
+        open_data_dir_act.triggered.connect(self.sink4.open_data_dir_act)
+        reload_data_act  .triggered.connect(self.sink4.reload_data_act  )
 
     def connect_signals(self):
         # only user change
@@ -1854,6 +1874,16 @@ class L5RMain(L5RCMCore):
         msgBox.exec_()
         if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
             settings.setValue('advise_conversion', 'false')
+            
+    def advise_error(self, message, dtl = None):
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(message)
+        if dtl:
+            msgBox.setInformativeText(dtl)
+        msgBox.setIcon(QtGui.QMessageBox.Critical)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+        msgBox.exec_()
 
     def ask_to_save(self):
         msgBox = QtGui.QMessageBox(self)
@@ -1970,6 +2000,28 @@ class L5RMain(L5RCMCore):
         if fileName[0].endswith(file_ext):
             return fileName[0]
         return fileName[0] + file_ext
+        
+    def select_import_data_pack(self):
+        supported_ext     = ['.zip', '.l5rcmpack']
+        supported_filters = [self.tr("L5R:CM Data Pack(*.l5rcmpack;*.zip)"),
+                             self.tr("Zip Archive(*.zip)")]
+
+        settings = QtCore.QSettings()
+        last_data_dir = settings.value('last_open_data_dir', QtCore.QDir.homePath())
+        fileName = QtGui.QFileDialog.getOpenFileName(
+                                self,
+                                self.tr("Load data pack"),
+                                last_data_dir,
+                                ";;".join(supported_filters))
+                                
+        if len(fileName) != 2:
+            return None
+            
+        last_data_dir = os.path.dirname(fileName[0])
+        if last_data_dir != '':
+            #print 'save last_dir: %s' % last_dir
+            settings.setValue('last_open_data_dir', last_data_dir)
+        return fileName[0]
 
     def check_updates(self):
         update_info = autoupdate.get_last_version()

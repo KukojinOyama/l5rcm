@@ -28,6 +28,7 @@ import tempfile
 import exporters
 import dal
 import dal.query
+import dal.dataimport
 import osutil
 
 from PySide import QtCore, QtGui
@@ -106,14 +107,19 @@ class L5RCMCore(QtGui.QMainWindow):
         
         # Flag to lock advancment refunds in order        
         self.lock_advancements = True
-        
-        # Data storage
-        self.dstore = dal.Data( 
-            get_app_file('data'),
-            osutil.get_user_data_path('data') )
-        
+               
         # current locale
         self.locale = locale
+        
+        # load data
+        self.reload_data()
+        
+    def reload_data(self):
+        # Data storage
+        self.dstore = dal.Data( 
+            [get_app_file('data'),
+             osutil.get_user_data_path('data'),
+             osutil.get_user_data_path('data_' + self.locale)])
         
     def update_from_model(self):
         pass
@@ -360,3 +366,22 @@ class L5RCMCore(QtGui.QMainWindow):
     def set_pc_deficiency(self, deficiency):
         self.pc.set_deficiency(deficiency.lower())      
         self.update_from_model()
+
+    def import_data_pack(self, data_pack_file):
+        try:
+            pack = dal.dataimport.DataPack(data_pack_file)
+            if not pack.good():
+                self.advise_error(self.tr("Invalid data pack."))
+            else:
+                dest = osutil.get_user_data_path()
+                if pack.language:
+                    dest = os.path.join(dest, 'data_' + pack.language)
+                else:
+                    dest = os.path.join(dest, 'data')
+                    
+                pack.export_to  (dest)
+                self.reload_data()
+                self.create_new_character()
+        except Exception as e:
+            self.advise_error(self.tr("Cannot import data pack."), e.message)
+            

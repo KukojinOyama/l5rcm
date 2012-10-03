@@ -26,13 +26,31 @@ from powers      import *
 from weapon      import *
 
 import os
+import json
 import xml.etree.ElementTree
 import xml.etree.cElementTree as ET
 
+class DataManifest(object):
+    def __init__(self, d):
+        self.id           = d['id']
+        self.display_name = None
+        self.language     = None
+        self.authors      = []
+        self.active       = True
+        
+        if 'display_name' in d:
+            self.display_name = d['display_name']
+        if 'language' in d:
+            self.language = d['language']
+        if 'authors' in d:
+            self.authors = d['authors']        
+
 class Data(object):
-    def __init__(self, data_dir, cust_data_dir = None):
-        self.data_dir      = data_dir
-        self.cust_data_dir = cust_data_dir
+    def __init__(self, data_dirs = [], blacklist = []):
+        self.data_dirs = data_dirs
+
+        self.blacklist = blacklist       
+        self.packs     = []
         
         self.clans     = []
         self.families  = []
@@ -53,13 +71,10 @@ class Data(object):
         self.perktypes      = []
         self.weapon_effects = []
         
-        if data_dir and os.path.exists(data_dir):
-            self.load_data(data_dir)
-            
-        print(cust_data_dir)
-        if cust_data_dir and os.path.exists(cust_data_dir):
-            self.load_data(cust_data_dir)
-    
+        for d in data_dirs:
+            if d and os.path.exists(d):
+                self.load_data(d)
+                
     def append_to(self, collection, item):
         if item in collection:
             i = collection.index(item)
@@ -71,8 +86,25 @@ class Data(object):
         # iter through all the data tree and import all xml files
         for path, dirs, files in os.walk(data_path):
             dirn = os.path.basename(path)
+
             if dirn.startswith('.'):
                 continue
+                       
+            try:
+                manifest_path = os.path.join(path, 'manifest')                
+                if os.path.exists(manifest_path):
+                    with open(manifest_path, 'r') as manifest_fp:
+                        dm = DataManifest(json.load(manifest_fp))
+                        if dm.id in self.blacklist:
+                            dm.active = False
+                        self.packs.append(dm)                    
+            except Exception as ex:
+                print(ex)                
+                               
+            if dirn in self.blacklist:
+                print('{0} is blacklisted')
+                continue
+                
             for file_ in files:
                 if file_.startswith('.') or file_.endswith('~'):
                     continue
@@ -90,7 +122,7 @@ class Data(object):
         tree = ET.parse(xml_file)
         root = tree.getroot()
         if root is None or root.tag != 'L5RCM':
-            raise Exception("Not an L5RCM data file")
+            raise Exception("Not an L5RCM data file")       
         for elem in list(root):
             if elem.tag == 'Clan':
                 self.append_to(self.clans, Clan.build_from_xml(elem))
