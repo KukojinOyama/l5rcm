@@ -48,7 +48,8 @@ class Sink4(QtCore.QObject):
     def manage_data_act(self):
         dlg = dialogs.ManageDataPackDlg(self.form.dstore, self.form)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            print('save all')
+            self.form.update_data_blacklist()
+            self.reload_data_act           ()
     
     def open_data_dir_act(self):
         path = os.path.normpath(osutil.get_user_data_path())

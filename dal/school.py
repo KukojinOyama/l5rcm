@@ -28,17 +28,27 @@ class SchoolSkill(object):
         
     def __eq__(self, obj):
         return obj and obj.id == self.id          
-        
-class SchoolSkillWildcard(object):
 
+class SchoolSkillWildcard(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSkillWildcard()
+        f.value    = elem.text
+        f.modifier = 'or'
+        if 'modifier' in elem.attrib:
+            f.modifier = elem.attrib['modifier']           
+        return f 
+        
+class SchoolSkillWildcardSet(object):
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolSkillWildcardSet()
         f.rank = int(elem.attrib['rank'])
         f.wildcards = []
         for se in elem.iter():
             if se.tag == 'Wildcard':
-                f.wildcards.append(se.text)        
+                f.wildcards.append(SchoolSkillWildcard.build_from_xml(se))        
         return f  
         
 class SchoolTech(object):        
@@ -120,7 +130,7 @@ class School(object):
             if se.tag == 'Skill':
                 f.skills.append(SchoolSkill.build_from_xml(se))
             elif se.tag == 'PlayerChoose':
-                f.skills_pc.append(SchoolSkillWildcard.build_from_xml(se))
+                f.skills_pc.append(SchoolSkillWildcardSet.build_from_xml(se))
 
         # school techs
         f.techs = []

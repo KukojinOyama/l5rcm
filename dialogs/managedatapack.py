@@ -118,6 +118,8 @@ class ManageDataPackDlg(QtGui.QDialog):
         self.load_data()
         
     def build_ui(self):
+        self.setWindowTitle(self.tr("Data Pack Manager"))
+        
         vbox  = QtGui.QVBoxLayout(self)
         
         grp        = QtGui.QGroupBox  (self.tr("Available data packs"))
@@ -125,19 +127,22 @@ class ManageDataPackDlg(QtGui.QDialog):
         vbox2      = QtGui.QVBoxLayout(grp)
         vbox2.addWidget(self.view)
         
-        bts        = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Discard | 
-                                            QtGui.QDialogButtonBox.Save)
+        bts        = QtGui.QDialogButtonBox()
+
+        bts.addButton(self.tr("Discard"), QtGui.QDialogButtonBox.AcceptRole) 
+        bts.addButton(self.tr("Save"),    QtGui.QDialogButtonBox.AcceptRole) 
                                                             
         vbox.addWidget(grp)
         vbox.addWidget(bts)
         
         bts.accepted.connect( self.accept )
         bts.rejected.connect( self.reject )
+        
+        self.setMinimumSize( QtCore.QSize(440, 330) )
                 
     def load_data(self):
         model = DataPackModel(self)
         for pack in self.dstore.packs:
-            model.add_item(pack)
-            
+            model.add_item(pack)            
         self.view.setModel(model)
         

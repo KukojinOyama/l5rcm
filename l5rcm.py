@@ -1271,12 +1271,14 @@ class L5RMain(L5RCMCore):
             
         # player choose ( aka wildcards )
         for sk in school.skills_pc:
-            self.pc.add_pending_wc_skill(sk.wildcards, sk.rank)
+            self.pc.add_pending_wc_skill(sk)
 
         # get school tech rank 1                   
         tech0 = dal.query.get_school_tech(school, 1)
         # rule == techid ???
-        self.pc.set_free_school_tech(tech0.id, tech0.id)
+        
+        if tech0:
+            self.pc.set_free_school_tech(tech0.id, tech0.id)
 
         # if shugenja get universal spells
         # also player should choose some spells from list
@@ -1498,8 +1500,9 @@ class L5RMain(L5RCMCore):
     def check_affinity_wc(self):
         if self.nicebar: return
 
+        print('check affinity wc: {0}'.format(self.pc.get_affinity()))
         if (self.pc.get_affinity() and
-            self.pc.get_affinity().startswith('*')):
+            self.pc.get_affinity() == 'any'):
             lb = QtGui.QLabel(self.tr("You school grant you to choose an elemental affinity."), self)
             bt = QtGui.QPushButton(self.tr("Choose Affinity"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
