@@ -80,7 +80,7 @@ class DataPackModel(QtCore.QAbstractTableModel):
             item.active = (value == QtCore.Qt.Checked)
             ret = True
         else:
-            ret = super(ModifiersTableViewModel, self).setData(index, value, role)
+            ret = super(DataPackModel, self).setData(index, value, role)
         
         return ret        
 
@@ -129,20 +129,27 @@ class ManageDataPackDlg(QtGui.QDialog):
         
         bts        = QtGui.QDialogButtonBox()
 
-        bts.addButton(self.tr("Discard"), QtGui.QDialogButtonBox.AcceptRole) 
+        bts.addButton(self.tr("Discard"), QtGui.QDialogButtonBox.RejectRole) 
         bts.addButton(self.tr("Save"),    QtGui.QDialogButtonBox.AcceptRole) 
                                                             
         vbox.addWidget(grp)
         vbox.addWidget(bts)
         
-        bts.accepted.connect( self.accept )
+        bts.accepted.connect( self.on_accept )
         bts.rejected.connect( self.reject )
         
         self.setMinimumSize( QtCore.QSize(440, 330) )
-                
+                               
     def load_data(self):
+        from copy import deepcopy
+        self.packs = deepcopy(self.dstore.packs)
         model = DataPackModel(self)
-        for pack in self.dstore.packs:
-            model.add_item(pack)            
+        for pack in self.packs:
+            model.add_item(pack)
         self.view.setModel(model)
+        
+    def on_accept(self):
+        self.dstore.packs = self.packs    
+        self.accept()
+    
         

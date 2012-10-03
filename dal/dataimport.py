@@ -23,6 +23,10 @@ import zipfile
 class ManifestNotFound(Exception):
     def __init__(self, msg):
         super(ManifestNotFound, self).__init__(msg)
+        
+class InvalidDataPack(Exception):
+    def __init__(self, msg):
+        super(InvalidDataPack, self).__init__(msg)        
 
 class DataPack(object):
 
@@ -58,7 +62,7 @@ class DataPack(object):
                     self.language = manifest_js['language']
                 if 'authors' in manifest_js:
                     self.authors = manifest_js['authors']                
-            except zipfile.KeyError:
+            except:
                 print('manifest not found!')
                 raise ManifestNotFound('Not a valid Data pack file.')
     
