@@ -17,6 +17,8 @@
 
 from PySide import QtCore, QtGui
 import rules
+import dal
+import dal.query
 
 MOD_TYPES = {
     "none" : "Select a modifier",
@@ -165,9 +167,9 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
                         
 ## MODIFIER ITEM DELEGATE ##     
 class ModifierDelegate(QtGui.QStyledItemDelegate):    
-    def __init__(self, db, parent=None):
+    def __init__(self, dstore, parent=None):
         super(ModifierDelegate, self).__init__(parent)        
-        self.db = db
+        self.dstore = dstore
                     
     def createEditor(self, parent, option, index):
         if not index.isValid():            
@@ -193,10 +195,8 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
         
         def __skill_completer():
             all_skills = []
-            c = self.db.cursor()
-            c.execute('''select name from skills order by name''')
-            for t in c.fetchall():
-                all_skills.append(t[0])
+            for t in self.dstore.skills:
+                all_skills.append(t.name)
             return QtGui.QCompleter(all_skills)
             
         def __weap_completer():

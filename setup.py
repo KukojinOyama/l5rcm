@@ -21,8 +21,8 @@ setup(
     windows = [
         {
             "script": "l5rcm.py",
-            "icon_resources": [(0, "windows/l5rcm.ico")]
+            "icon_resources": [(0, "windows/l5rcm.ico"), (1, "windows/l5rcmpack.ico")]
         }
     ],
-    options={"py2exe": {"includes": ["PySide.QtGui"]}}
+    options={"py2exe": {"includes": ["PySide.QtGui"]}},
     )

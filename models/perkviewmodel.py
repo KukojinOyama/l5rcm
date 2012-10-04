@@ -16,6 +16,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from PySide import QtGui, QtCore
+import dal
+import dal.query
 
 class PerkItemModel(object):
     def __init__(self):
@@ -30,10 +32,10 @@ class PerkItemModel(object):
         return self.name
 
 class PerkViewModel(QtCore.QAbstractListModel):
-    def __init__(self, dbconn, type_, parent = None):
+    def __init__(self, dstore, type_, parent = None):
         super(PerkViewModel, self).__init__(parent)
 
-        self.dbconn = dbconn
+        self.dstore = dstore
         self.items = []
         self.type  = type_
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
@@ -45,21 +47,17 @@ class PerkViewModel(QtCore.QAbstractListModel):
         return len(self.items)       
         
     def build_item_model(self, model, perk_adv):
-        c = self.dbconn.cursor()
         itm = PerkItemModel()
-               
-        c.execute('''SELECT uuid, name FROM perks
-                     WHERE uuid=?''', [perk_adv.perk])
+        perk = dal.query.get_merit(self.dstore, perk_adv.perk) or dal.query.get_flaw(self.dstore, perk_adv.perk)
         
-        for uuid, perk_nm in c.fetchall():
+        if perk:
             itm.adv   = perk_adv
-            itm.name  = perk_nm
+            itm.name  = perk.name
             itm.rank  = perk_adv.rank
             itm.tag   = perk_adv.tag
             itm.cost  = perk_adv.cost
             itm.notes = perk_adv.extra
-            break
-        c.close()
+
         return itm        
         
     def add_item(self, model, item_id):

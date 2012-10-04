@@ -19,6 +19,8 @@ import string
 import models
 import rules
 import md5
+import dal
+import dal.query
 from datetime import datetime
 
 class FDFExporter(object):
@@ -106,7 +108,7 @@ class FDFExporterAll(FDFExporter):
         
         # TRAITS AND RINGS
         for i in xrange(0, 8):
-            fields[models.attrib_name_from_id(i).upper()] = m.get_attrib_rank(i)
+            fields[models.attrib_name_from_id(i).upper()] = m.get_mod_attrib_rank(i)
         for i in xrange(0, 5):
             fields[models.ring_name_from_id(i).upper()] = m.get_ring_rank(i)
         
@@ -157,7 +159,7 @@ class FDFExporterAll(FDFExporter):
         for i in xrange(0, len(w_labels)):
             fields[w_labels[i]] = str(m.get_health_rank(i))
             
-        fields['WOUND_HEAL_BASE'] = (m.get_attrib_rank(models.ATTRIBS.STAMINA)*2
+        fields['WOUND_HEAL_BASE'] = (m.get_mod_attrib_rank(models.ATTRIBS.STAMINA)*2
                                      + m.get_insight_rank())
         #fields['WOUND_HEAL_MOD' ] = ''
         fields['WOUND_HEAL_CUR' ] = fields['WOUND_HEAL_BASE']
@@ -276,10 +278,12 @@ class FDFExporterShugenja(FDFExporter):
             if def_.startswith('*'): # wildcard
                 def_ = m.get_affinity().capitalize()
                 
-            fields['SCHOOL_NM.%d'  % (i+1)    ] = f.get_school_name(schools[i].school_id)
+            school = dal.query.get_school(f.dstore, schools[i].school_id)
+            tech   = dal.query.get_school_tech(school, 1)
+            fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
             fields['AFFINITY.%d'  % (i+1)     ] = aff_
             fields['DEFICIENCY.%d'  % (i+1)   ] = def_
-            fields['SCHOOL_TECH_1.%d'  % (i+1)] = f.get_school_tech_name(schools[i].school_id)
+            fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
             
         # EXPORT FIELDS    
         for k in fields.iterkeys():

@@ -16,16 +16,18 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import models
-import dbutil
+import dal
+import dal.query
+
 from PySide import QtCore, QtGui
 
 class BuyPerkDialog(QtGui.QDialog):
-    def __init__(self, pc, tag, conn, parent = None):
+    def __init__(self, pc, tag, dstore, parent = None):
         super(BuyPerkDialog, self).__init__(parent)
         self.tag = tag
         self.adv = None
         self.pc  = pc
-        self.dbconn = conn
+        self.dstore = dstore
         self.perk_id   = 0
         self.perk_nm   = ''
         self.perk_rule = None
@@ -98,12 +100,10 @@ class BuyPerkDialog(QtGui.QDialog):
         lvbox.addWidget(self.btbox)
 
     def load_data(self):
-        # load subtypes
-        c = self.dbconn.cursor()        
-        c.execute('''select distinct subtype from perks''')
-        for typ in c.fetchall():
-            self.cb_subtype.addItem(typ[0].capitalize(), typ[0])
-        c.close()
+        # load subtypes       
+        for typ in self.dstore.perktypes:
+            self.cb_subtype.addItem(typ.name, typ.id)
+        
         
     def set_edit_mode(self, flag):
         self.edit_mode = flag
@@ -135,13 +135,12 @@ class BuyPerkDialog(QtGui.QDialog):
             return
         type_ = self.cb_subtype.itemData(selected)
         
-        # populate perks
-        c = self.dbconn.cursor()        
-        c.execute('''select name, uuid from perks
-                     where type=? and subtype=?''', [self.tag, type_])
-        for name, uuid in c.fetchall():
-            self.cb_perk.addItem(name, uuid)
-        c.close()        
+        # populate perks        
+        perks = self.dstore.merits if ( self.tag == 'merit' ) else self.dstore.flaws
+        perks = [ x for x in perks if x.type == type_ ]
+        
+        for p in perks:
+            self.cb_perk.addItem(p.name, p)        
         
     def on_perk_select(self, text = ''):
         self.item = None
@@ -151,33 +150,22 @@ class BuyPerkDialog(QtGui.QDialog):
         if selected < 0:
             return
         perk = self.cb_perk.itemData(selected)
-        self.perk_id = perk
-        self.perk_nm = self.cb_perk.itemText(selected)
-        
+        self.perk_id = perk.id
+        self.perk_nm = perk.name
+               
         # get perk rule
-        c = self.dbconn.cursor()        
-        c.execute('''select uuid, rule from perks
-                     where uuid=?''', [perk])
-        for uuid, rule in c.fetchall():
-            self.perk_rule = rule
-            break;
-        c.close()   
+        self.perk_rule = perk.rule
         
         # populate ranks
-        # populate perks
-        c = self.dbconn.cursor()        
-        c.execute('''select perk_rank, cost from perk_ranks
-                     where perk_uuid=?''', [perk])
-        for rank, cost in c.fetchall():
-            self.cb_rank.addItem(self.tr("Rank %d") % rank, 
-                                (rank, cost))
-        c.close() 
+        for rank in perk.ranks:
+            self.cb_rank.addItem(self.tr("Rank %d") % rank.id, rank)
         
     def on_rank_select(self, text = ''):
         selected = self.cb_rank.currentIndex()
         if selected < 0:
             return
-        rank, cost = self.cb_rank.itemData(selected)        
+        rank = self.cb_rank.itemData(selected)        
+        cost = rank.value
         tag  = None
         self.le_cost.setReadOnly( cost != 0 )
         if cost == 0:
@@ -185,26 +173,20 @@ class BuyPerkDialog(QtGui.QDialog):
             self.le_cost.setText('')
         else:
             # look for exceptions
-            c = self.dbconn.cursor() 
-            c.execute('''select tag, cost from perk_excepts
-                         where perk_uuid=? and perk_rank=?
-                         order by cost asc''', [self.perk_id, rank])            
             cost = abs(cost)
-            
-            for t, discounted in c.fetchall():
+            for discount in rank.exceptions:
+                t = discount.tag
+                discounted = discount.value
+                
                 if self.pc.has_tag(t):
-                    if discounted.startswith('-') or discounted.startswith('+'):
-                        cost += int(discounted)
-                    else:
-                        cost = int(discounted)
+                    cost = int(discounted)
                     tag  = t
                     break
+                    
             if cost <= 0:
                 cost = 1
-            
-            c.close()
-        
-        self.item = models.PerkAdv(self.perk_id, rank, cost, tag)
+                    
+        self.item = models.PerkAdv(self.perk_id, rank.id, cost, tag)
         
         text_ = '%d' % self.item.cost        
         if tag:
@@ -256,30 +238,30 @@ class BuyPerkDialog(QtGui.QDialog):
         self.accept()
         
     def process_special_effects(self, item):
-        def _add_free_skill_rank(skill_nm):
-            skill_id  = dbutil.get_skill_id_from_name(self.dbconn, skill_nm)
+        def _add_free_skill_rank(skill_id):
+            skill = dal.query.get_skill(self.dstore, skill_id)
 
             cur_value = self.pc.get_skill_rank(skill_id)
             new_value = cur_value + 1
             cost = 0
             adv = models.SkillAdv(skill_id, 0)
-            adv.rule = dbutil.get_mastery_ability_rule(self.dbconn, skill_id, new_value)
+            adv.rule = dal.query.get_mastery_ability_rule(self.dstore, skill_id, new_value)
             adv.desc = unicode.format(self.tr("{0}, Rank {1} to {2}. Gained by {3}"),
-                                      skill_nm, cur_value, new_value, self.perk_nm )
+                                      skill.name, cur_value, new_value, self.perk_nm )
             self.pc.add_advancement(adv)
             
         if item.rule == 'fk_gaijin_pepper':
             # add a rank in Craft (Explosives), zero cost :)
-            _add_free_skill_rank(self.tr("Craft (Explosives)"))
+            _add_free_skill_rank("craft_explosives")
         elif item.rule == 'fk_gozoku':
             # add a rank in Lore (Gozoku), zero cost :)
-            _add_free_skill_rank(self.tr("Lore (Gozoku)"))
+            _add_free_skill_rank("lore_gozoku")
         elif item.rule == 'fk_kolat':
             # add a rank in Lore (Kolat), zero cost :)
-            _add_free_skill_rank(self.tr("Lore (Kolat)"))
+            _add_free_skill_rank("lore_kolat")
         elif item.rule == 'fk_lying_darkness':
             # add a rank in Lore (Lying Darkness), zero cost :)
-            _add_free_skill_rank(self.tr("Lore (Lying Darkness)"))
+            _add_free_skill_rank("lore_lying_darkness")
         elif item.rule == 'fk_maho':
             # add a rank in Lore (Maho), zero cost :)
-            _add_free_skill_rank(self.tr("Lore (Maho)"))
+            _add_free_skill_rank("lore_maho")

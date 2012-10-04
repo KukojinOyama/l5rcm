@@ -18,14 +18,16 @@
 from PySide import QtCore, QtGui
 import rules
 import models
+import dal
+import dal.query
 
 class ChooseItemDialog(QtGui.QDialog):
-    def __init__(self, pc, tag, conn, parent = None):
+    def __init__(self, pc, tag, dstore, parent = None):
         super(ChooseItemDialog, self).__init__(parent)
         self.tag    = tag
         self.adv    = None
         self.pc     = pc
-        self.dbconn = conn
+        self.dstore = dstore
         self.item   = None
         self.filter = None
         self.weap_by_skill = {}
@@ -94,39 +96,30 @@ class ChooseItemDialog(QtGui.QDialog):
     def load_data(self):
         # RESET CACHE
         self.weap_by_skill = {}        
-        c = self.dbconn.cursor()
+        
         if self.tag == 'armor':
             self.cb.clear()
-            
-            c.execute('''select uuid, name from armors''')
-            for uuid, name in c.fetchall():
-                self.cb.addItem(name, uuid)
+
+            for armor in self.dstore.armors:
+                self.cb.addItem(armor.name, armor.name)
+                
         elif self.tag == 'weapon':
             self.cb1.clear()
-            c.execute('''select skills.uuid, name, tag from skills
-                         inner join tags on tags.uuid=skills.uuid
-                         where tag="weapon"''')
-            for uuid, name, tag in c.fetchall():
-                weaps = self.get_weapons_by_skill(uuid, self.filter)
+            skills = [ x for x in self.dstore.skills if 'weapon' in x.tags ]
+            for skill in skills:
+                weaps = self.get_weapons_by_skill(skill.id, self.filter)
                 if len(weaps) > 0:
-                    self.weap_by_skill[uuid] = weaps
-                    self.cb1.addItem(name, uuid)
+                    self.weap_by_skill[skill.id] = weaps
+                    self.cb1.addItem(skill.name, skill.id)
                 
     def get_weapons_by_skill(self, sk_uuid, filter):
         weapons = []
-        c = self.dbconn.cursor()
-        if self.filter is None:
-            c.execute('''select uuid, name from weapons
-                         where skill_uuid=?''', [sk_uuid])
-        else:
-            c.execute('''select weapons.uuid, name from weapons
-                         inner join tags on tags.uuid = weapons.uuid
-                         where skill_uuid=? and tag=?''', [sk_uuid, self.filter])
-                         
-        for uuid, name in c.fetchall():
-            weapons.append( (uuid, name) )
-        c.close()
         
+        if self.filter is None:
+            weapons = [ x for x in self.dstore.weapons if x.skill == sk_uuid ]
+        else:
+            weapons = [ x for x in self.dstore.weapons if x.skill == sk_uuid and self.filter in x.tags ]
+                                 
         return weapons
                 
     def on_armor_select(self, text = ''):
@@ -135,7 +128,7 @@ class ChooseItemDialog(QtGui.QDialog):
         if selected < 0:
             return
         armor_uuid = self.cb.itemData(selected)
-        self.item  = models.armor_outfit_from_db(self.dbconn, armor_uuid)
+        self.item  = models.armor_outfit_from_db(self.dstore, armor_uuid)
         
         stats_text = '''<p><pre>%-20s %s</pre></p>
                         <p><pre>%-20s %s</pre></p>
@@ -157,8 +150,8 @@ class ChooseItemDialog(QtGui.QDialog):
             return
         sk_uuid = self.cb1.itemData(selected)
                
-        for uuid, name in self.weap_by_skill[sk_uuid]:
-            self.cb2.addItem(name, uuid)            
+        for weap in self.weap_by_skill[sk_uuid]:
+            self.cb2.addItem(weap.name, weap.name)
         
     def on_weap_select(self, text = ''):
         # list stats
@@ -167,10 +160,10 @@ class ChooseItemDialog(QtGui.QDialog):
         selected = self.cb2.currentIndex()
         if selected < 0:
             return
-        weap_uuid = self.cb2.itemData(selected)
-        sk_uuid   = self.cb1.itemData(self.cb1.currentIndex())
+        weap_nm = self.cb2.itemData(selected)
+        sk_uuid = self.cb1.itemData(self.cb1.currentIndex())
         
-        self.item = models.weapon_outfit_from_db(self.dbconn, weap_uuid, sk_uuid)
+        self.item = models.weapon_outfit_from_db(self.dstore, weap_nm, sk_uuid)
         lines = []
                     
         if self.item.dr is not None:
