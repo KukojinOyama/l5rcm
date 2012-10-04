@@ -16,8 +16,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from PySide import QtGui, QtCore
-
 from l5rcmcore import get_icon_path
+import dal
+import dal.query
 
 class SpellItemModel(object):
     def __init__(self):
@@ -38,7 +39,7 @@ class SpellItemModel(object):
         return self.name
 
 class SpellTableViewModel(QtCore.QAbstractTableModel):
-    def __init__(self, dbconn, parent = None):
+    def __init__(self, dstore, parent = None):
         super(SpellTableViewModel, self).__init__(parent)
         self.items = []
         self.headers = ['Name', 'Ring', 'Mastery', 'Range', 'Area of Effect', 
@@ -51,7 +52,7 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
             self.bold_font = parent.font()
             self.bold_font.setBold(True)
 
-        self.dbconn = dbconn
+        self.dstore = dstore
         self.memo_icon = QtGui.QIcon(get_icon_path('book',(16,16)))
 
     def rowCount(self, parent = QtCore.QModelIndex()):
@@ -136,22 +137,18 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
 
 
     def build_item_model(self, sp_id):
-        c = self.dbconn.cursor()
-        itm = SpellItemModel()
-        c.execute('''SELECT * FROM spells
-                     WHERE uuid=?''', [sp_id])
+        itm = SpellItemModel()        
+        spell = dal.query.get_spell(self.dstore, sp_id)
            
-        for f in c.fetchall():
-            itm.name     = f[1]
-            itm.ring     = f[2]
-            itm.mastery  = f[3]
-            itm.range    = f[4]
-            itm.area     = f[5]
-            itm.duration = f[6]
-            itm.raises   = f[7]
-            itm.spell_id = sp_id
-            
-        c.close()
+        itm.name     = spell.name
+        itm.ring     = spell.element
+        itm.mastery  = spell.mastery
+        itm.range    = spell.range
+        itm.area     = spell.area
+        itm.duration = spell.duration
+        itm.raises   = ', '.join(spell.raises)
+        itm.spell_id = sp_id
+
         return itm
 
     def update_from_model(self, model):

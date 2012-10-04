@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Legend of the Five Rings: Character Manager"
-!define PRODUCT_VERSION "2.9"
+!define PRODUCT_VERSION "3.0"
 !define PRODUCT_PUBLISHER "openningia"
 !define PRODUCT_WEB_SITE "http://code.google.com/p/l5rcm/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\l5rcm.exe"
@@ -51,13 +51,18 @@ Section "MainSection" SEC01
   
   # Register File Extension
   WriteRegStr HKCR ".l5r" "" "L5Rcm.Character"
+  WriteRegStr HKCR ".l5rcmpack" "" "L5Rcm.Pack"
   
   # Register File Type and assign an Icon
   WriteRegStr HKCR "L5Rcm.Character" "" "L5R: CM - Character File"   
   WriteRegStr HKCR "L5Rcm.Character\DefaultIcon" "" "$INSTDIR\l5rcm.exe,0"  
   
+  WriteRegStr HKCR "L5Rcm.Pack" "" "L5R: CM - Data Pack File"   
+  WriteRegStr HKCR "L5Rcm.Pack\DefaultIcon" "" "$INSTDIR\l5rcm.exe,1"    
+  
   # Register the Verbs
-    WriteRegStr HKCR "L5Rcm.Character\shell\open\command" "" '"$INSTDIR\l5rcm.exe" "%1"'
+    WriteRegStr HKCR "L5Rcm.Character\shell\open\command" "" '"$INSTDIR\l5rcm.exe" "--open %1"'
+	WriteRegStr HKCR "L5Rcm.Pack\shell\open\command" "" '"$INSTDIR\l5rcm.exe" "--import %1"'
 SectionEnd
 
 Section -AdditionalIcons
@@ -101,6 +106,9 @@ Section Uninstall
   # Remove File Type and icon
   DeleteRegKey HKCR "L5Rcm.Character"
   DeleteRegKey HKCR ".l5r"
+   
+  DeleteRegKey HKCR "L5Rcm.Pack"
+  DeleteRegKey HKCR ".l5rcmpack"
    
   SetAutoClose true
 SectionEnd

@@ -17,7 +17,10 @@
 
 from PySide import QtCore, QtGui
 
+import os
 import models
+import dialogs
+import osutil
 
 class Sink4(QtCore.QObject):
     def __init__(self, parent = None):
@@ -35,3 +38,26 @@ class Sink4(QtCore.QObject):
         item = index.model().data(index, QtCore.Qt.UserRole)
         self.form.pc.modifiers.remove(item)
         self.form.update_from_model()
+        
+    # DATA MENU
+    def import_data_act(self):
+        data_pack_file = self.form.select_import_data_pack()
+        if data_pack_file:
+            self.form.import_data_pack(data_pack_file)
+        
+    def manage_data_act(self):
+        dlg = dialogs.ManageDataPackDlg(self.form.dstore, self.form)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.form.update_data_blacklist()
+            self.reload_data_act           ()
+    
+    def open_data_dir_act(self):
+        path = os.path.normpath(osutil.get_user_data_path())
+        if not os.path.exists(path):
+            os.makedirs(path)            
+        osutil.portable_open(path)
+        
+    def reload_data_act(self):
+        self.form.reload_data  ()
+        self.form.create_new_character()
+    

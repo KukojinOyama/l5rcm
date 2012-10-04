@@ -16,6 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from PySide import QtGui, QtCore
+import dal.query
 
 class SkillItemModel(object):
     def __init__(self):
@@ -30,7 +31,7 @@ class SkillItemModel(object):
         return self.name
 
 class SkillTableViewModel(QtCore.QAbstractTableModel):
-    def __init__(self, dbconn, parent = None):
+    def __init__(self, dstore, parent = None):
         super(SkillTableViewModel, self).__init__(parent)
         self.items = []
         self.headers = ['Name', 'Rank', 'Trait', 'Emphases']
@@ -42,7 +43,7 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
             self.bold_font = parent.font()
             self.bold_font.setBold(True)
 
-        self.dbconn = dbconn
+        self.dstore = dstore
 
     def rowCount(self, parent = QtCore.QModelIndex()):
         return len(self.items)
@@ -70,11 +71,6 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
                 return item.trait
             if index.column() == 3:
                 return ', '.join(item.emph)
-        #    elif role == QtCore.Qt.DecorationRole:
-        #        if index.column() == 0 and (item['epstatus'] & SHOW_STATUS_NEW == SHOW_STATUS_NEW):
-        #            return QtGui.QIcon(':/icons/label_new_red.png')
-        #    elif role == QtCore.Qt.UserRole:
-        #        return item['showid']
         elif role == QtCore.Qt.FontRole:
             if item.is_school and self.bold_font:
                 return self.bold_font
@@ -106,15 +102,16 @@ class SkillTableViewModel(QtCore.QAbstractTableModel):
         self.endResetModel()
 
     def build_item_model(self, sk_id):
-        c = self.dbconn.cursor()
         itm = SkillItemModel()
-        c.execute('''SELECT name, attribute FROM skills
-                     WHERE uuid=?''', [sk_id])
-        for f in c.fetchall():
-            itm.name = f[0]
-            itm.trait = f[1].capitalize()
-        itm.skill_id = sk_id
-        c.close()
+        sk = dal.query.get_skill(self.dstore, sk_id)
+        if sk:
+            itm.skill_id = sk.id
+            itm.name     = sk.name
+            itm.trait    = sk.trait
+        else:
+            print('cannot find skill: {0}'.format(sk_id))
+        
+        # TODO: translate trait
         return itm
 
     def update_from_model(self, model):

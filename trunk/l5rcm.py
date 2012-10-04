@@ -18,20 +18,18 @@
 
 import sys
 import os
-import sqlite3
 
 import rules
 import models
 import widgets
 import dialogs
 import autoupdate
-import tempfile
-import exporters
-import dbutil
 import sinks
+import dal
+import dal.query
 
 from PySide import QtGui, QtCore
-from models.chmodel import ATTRIBS, RINGS
+from models.chmodel import ATTRIBS
 
 from l5rcmcore import *
 
@@ -44,16 +42,16 @@ def new_small_le(parent = None, ro = True):
     return le
 
 def new_horiz_line(parent = None):
-    line = QtGui.QFrame(parent);
-    line.setObjectName("hline");
+    line = QtGui.QFrame(parent)
+    line.setObjectName("hline")
     line.setGeometry(QtCore.QRect(320, 150, 118, 3))
     line.setFrameShape(QtGui.QFrame.Shape.HLine)
     line.setFrameShadow(QtGui.QFrame.Sunken)
     return line
 
 def new_vert_line(parent = None):
-    line = QtGui.QFrame(parent);
-    line.setObjectName("vline");
+    line = QtGui.QFrame(parent)
+    line.setObjectName("vline")
     line.setGeometry(QtCore.QRect(320, 150, 118, 3))
     line.setFrameShape(QtGui.QFrame.Shape.VLine)
     line.setFrameShadow(QtGui.QFrame.Sunken)
@@ -73,11 +71,11 @@ def new_small_plus_bt(parent = None):
     bt.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
     return bt
 
-def pause_signals(widgets):
-    for w in widgets: w.blockSignals(True)
+def pause_signals(wdgs):
+    for w in wdgs: w.blockSignals(True)
 
-def resume_signals(widgets):
-    for w in widgets: w.blockSignals(False)
+def resume_signals(wdgs):
+    for w in wdgs: w.blockSignals(False)
 
 class L5RMain(L5RCMCore):
     def __init__(self, locale = None, parent = None):
@@ -223,7 +221,7 @@ class L5RMain(L5RCMCore):
             rings.append( ( self.tr("Void" ), new_small_le(self) ) )
 
             # keep reference to the rings
-            self.rings= rings
+            self.rings = rings
 
             for i in xrange(0, 4):
                 grid.addWidget( QtGui.QLabel( rings[i][0] ), i, 0 )
@@ -312,7 +310,6 @@ class L5RMain(L5RCMCore):
             vbox = QtGui.QVBoxLayout(fr)
             vbox.setContentsMargins(0,0,0,0)
             vbox.setSpacing(0)
-            row_ = 0
             for f in tx_flags:
                 fr_ = QtGui.QFrame(self)
                 lay = QtGui.QGridLayout(fr_)
@@ -326,7 +323,6 @@ class L5RMain(L5RCMCore):
                 ob_flags_p.append(w)
                 ob_flags_r.append(l)
                 vbox.addWidget(fr_)
-                row_ += 2
             self.pc_flags_points = ob_flags_p
             self.pc_flags_rank   = ob_flags_r
             mgrid.addWidget(fr, row, col)
@@ -512,7 +508,7 @@ class L5RMain(L5RCMCore):
             if t == 'table':
                 view  = QtGui.QTableView(self)
                 view.setSortingEnabled(True)
-                view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive);
+                view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive)
                 view.horizontalHeader().setStretchLastSection(True)
                 view.horizontalHeader().setCascadingSectionResizes(True)
                 if d is not None and len(d) == 2:
@@ -574,7 +570,7 @@ class L5RMain(L5RCMCore):
         view.setSizePolicy( QtGui.QSizePolicy.Expanding,
                               QtGui.QSizePolicy.Expanding )
         view.setSortingEnabled(True)
-        view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive);
+        view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive)
         view.horizontalHeader().setStretchLastSection(True)
         view.horizontalHeader().setCascadingSectionResizes(True)
         view.setModel(model)
@@ -621,8 +617,8 @@ class L5RMain(L5RCMCore):
         return view
 
     def build_ui_page_2(self):
-        self.sk_view_model = models.SkillTableViewModel(self.db_conn, self)
-        self.ma_view_model = models.MaViewModel        (self.db_conn, self)
+        self.sk_view_model = models.SkillTableViewModel(self.dstore, self)
+        self.ma_view_model = models.MaViewModel        (self.dstore, self)
 
         # enable sorting through a proxy model
         sk_sort_model = models.ColorFriendlySortProxyModel(self)
@@ -652,8 +648,8 @@ class L5RMain(L5RCMCore):
         self.tabs.addTab(frame_, self.tr("Skills"))
 
     def build_ui_page_3(self):
-        self.sp_view_model = models.SpellTableViewModel(self.db_conn, self)
-        self.th_view_model = models.TechViewModel      (self.db_conn, self)
+        self.sp_view_model = models.SpellTableViewModel(self.dstore, self)
+        self.th_view_model = models.TechViewModel      (self.dstore, self)
 
         # enable sorting through a proxy model
         sp_sort_model = models.ColorFriendlySortProxyModel(self)
@@ -699,8 +695,8 @@ class L5RMain(L5RCMCore):
             vtb.addStretch()
             return vtb
 
-        self.merits_view_model = models.PerkViewModel(self.db_conn, 'merit')
-        self.flaws_view_model  = models.PerkViewModel(self.db_conn, 'flaws')
+        self.merits_view_model = models.PerkViewModel(self.dstore, 'merit')
+        self.flaws_view_model  = models.PerkViewModel(self.dstore, 'flaws')
 
         merit_view = QtGui.QListView(self)
         merit_view.setModel(self.merits_view_model)
@@ -768,9 +764,9 @@ class L5RMain(L5RCMCore):
             return sort_model_
 
         # weapon vertical toolbar
-        def _make_vertical_tb(has_custom, has_edit, has_qty, filter):
+        def _make_vertical_tb(has_custom, has_edit, has_qty, filt):
             vtb = widgets.VerticalToolBar(self)
-            vtb.setProperty('filter', filter)
+            vtb.setProperty('filter', filt)
             vtb.addStretch()
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
                           self.tr("Add weapon"), self.sink3.show_add_weapon)
@@ -842,7 +838,7 @@ class L5RMain(L5RCMCore):
         frame_, views_ = self._build_generic_page(models_)
         self.mod_view = views_[0]
 
-        self.mod_view.setItemDelegate(models.ModifierDelegate(self.db_conn, self))
+        self.mod_view.setItemDelegate(models.ModifierDelegate(self.dstore, self))
         vtb .setProperty('source', self.mod_view)
         self.tabs.addTab(frame_, self.tr("Modifiers"))
 
@@ -864,7 +860,7 @@ class L5RMain(L5RCMCore):
         #hbox.setMargin   (30)
         hbox.setSpacing  (30)
 
-        logo = QtGui.QLabel(self);
+        logo = QtGui.QLabel(self)
         logo.setPixmap(QtGui.QPixmap(get_app_icon_path(( 64,64))))
         hbox.addWidget(logo, 0, QtCore.Qt.AlignTop)
 
@@ -896,16 +892,16 @@ class L5RMain(L5RCMCore):
                                         PROJECT_PAGE_LINK, PROJECT_PAGE_NAME,
                                         BUGTRAQ_LINK, L5R_RPG_HOME_PAGE,
                                         ALDERAC_HOME_PAGE, AUTHOR_NAME)
-        lb_info = QtGui.QLabel(info, self);
-        lb_info.setOpenExternalLinks(True);
-        lb_info.setWordWrap(True);
-        hbox.addWidget(lb_info);
+        lb_info = QtGui.QLabel(info, self)
+        lb_info.setOpenExternalLinks(True)
+        lb_info.setWordWrap(True)
+        hbox.addWidget(lb_info)
 
         self.tabs.addTab(mfr, self.tr("About"))
 
     def build_menu(self):
         # File Menu
-        m_file = self.menuBar().addMenu(self.tr("&File"));
+        m_file = self.menuBar().addMenu(self.tr("&File"))
         # actions: new, open, save
         new_act         = QtGui.QAction(self.tr("&New Character"), self)
         open_act        = QtGui.QAction(self.tr("&Open Character..."), self)
@@ -1095,12 +1091,32 @@ class L5RMain(L5RCMCore):
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
 
-        set_exp_limit_act .triggered.connect( self.sink1.on_set_exp_limit       )
-        set_wound_mult_act.triggered.connect( self.sink1.on_set_wnd_mult        )
-        damage_act        .triggered.connect( self.sink1.on_damage_act          )
-        unlock_school_act .triggered.connect( self.sink1.on_unlock_school_act   )
-        unlock_advans_act .toggled  .connect( self.sink1.on_toggle_advans_act   )
-        buy_for_free_act .toggled   .connect( self.sink1.on_toggle_buy_for_free )
+        set_exp_limit_act .triggered.connect(self.sink1.on_set_exp_limit      )
+        set_wound_mult_act.triggered.connect(self.sink1.on_set_wnd_mult       )
+        damage_act        .triggered.connect(self.sink1.on_damage_act         )
+        unlock_school_act .triggered.connect(self.sink1.on_unlock_school_act  )
+        unlock_advans_act .toggled  .connect(self.sink1.on_toggle_advans_act  )
+        buy_for_free_act  .toggled  .connect(self.sink1.on_toggle_buy_for_free)
+        
+        # Data menu
+        m_data = self.menuBar().addMenu(self.tr("&Data"))
+
+        # rules actions
+        import_data_act   = QtGui.QAction(self.tr("Import Data pack..." ), self)
+        manage_data_act   = QtGui.QAction(self.tr("Manage Data packs..."), self)
+        open_data_dir_act = QtGui.QAction(self.tr("Open Data Directory" ), self)
+        reload_data_act   = QtGui.QAction(self.tr("Reload data"         ), self)
+        
+        m_data.addAction(import_data_act  )
+        m_data.addAction(manage_data_act  )
+        m_data.addAction(open_data_dir_act)
+        m_data.addSeparator()
+        m_data.addAction(reload_data_act  )
+        
+        import_data_act  .triggered.connect(self.sink4.import_data_act  )
+        manage_data_act  .triggered.connect(self.sink4.manage_data_act  )
+        open_data_dir_act.triggered.connect(self.sink4.open_data_dir_act)
+        reload_data_act  .triggered.connect(self.sink4.reload_data_act  )
 
     def connect_signals(self):
         # only user change
@@ -1132,7 +1148,7 @@ class L5RMain(L5RCMCore):
 
         self.ic_act_grp.triggered.connect(self.on_change_insight_calculation)
 
-    def show_nicebar(self, widgets):
+    def show_nicebar(self, wdgs):
         self.nicebar = QtGui.QFrame(self)
         self.nicebar.setStyleSheet('''
         QWidget { background: beige;}
@@ -1165,7 +1181,7 @@ class L5RMain(L5RCMCore):
         hbox = QtGui.QHBoxLayout(self.nicebar)
         hbox.setContentsMargins(9,1,9,1)
 
-        for w in widgets:
+        for w in wdgs:
             hbox.addWidget(w)
 
         self.mvbox.insertWidget(1, self.nicebar)
@@ -1181,38 +1197,34 @@ class L5RMain(L5RCMCore):
     def on_trait_increase(self, tag):
         '''raised when user click on the small '+' button near traits'''
         print("increase trait: {0}", tag)
-        if ( self.increase_trait( int(tag) ) ==
-             CMErrors.NOT_ENOUGH_XP ):
-             self.not_enough_xp_advise(self)
+        if ( self.increase_trait( int(tag) ) == CMErrors.NOT_ENOUGH_XP ):
+            self.not_enough_xp_advise(self)
 
     def on_void_increase(self):
         '''raised when user click on the small '+' button near void ring'''
         if ( self.increase_void() == CMErrors.NOT_ENOUGH_XP ):
-             self.not_enough_xp_advise(self)
+            self.not_enough_xp_advise(self)
 
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
         #self.cb_pc_family.clear()
         index = self.cb_pc_clan.currentIndex()
         if index < 0:
-            self.pc.clan = 0
+            self.pc.clan = None
         else:
             clan_id = self.cb_pc_clan.itemData(index)
-
-            #print 'set new clan. cur: %d new %d' % ( self.pc.clan, clan_id )
             self.pc.clan = clan_id
 
         self.load_families(self.pc.clan)
         if self.pc.unlock_schools:
             self.load_schools ()
-        else:
+        else:            
             self.load_schools(self.pc.clan)
         self.cb_pc_family.setCurrentIndex(0)
         self.cb_pc_school.setCurrentIndex(0)
 
     def on_family_change(self, text):
         index = self.cb_pc_family.currentIndex()
-        #print 'on family changed %s %d' % (text, index)
         if index <= 0:
             self.pc.set_family()
             self.update_from_model()
@@ -1223,19 +1235,15 @@ class L5RMain(L5RCMCore):
             return
         # should modify step_1 character
         # get family perk
-
-        c = self.db_conn.cursor()
-        c.execute('''select uuid, name from clans where uuid=?''', [self.pc.clan])
-        clan_uuid, clan_name = c.fetchone()
-
-        c.execute('''select name, perk, perkval from families
-                     where uuid=?''', [uuid])
-        for name, perk, perkval in c.fetchall():
-            self.pc.set_family( uuid, perk, perkval, [name.lower(), clan_name.lower()] )
-            self.update_from_model()
-            break
-
-        c.close()
+        
+        family = dal.query.get_family(self.dstore, uuid)
+        clan   = dal.query.get_clan  (self.dstore, family.clanid)
+        
+        if not family or not clan:
+            return
+        
+        self.pc.set_family( family.id , family.trait, 1, [family.id, clan.id] )
+        self.update_from_model()
 
     def on_school_change(self, text):
         index = self.cb_pc_school.currentIndex()
@@ -1250,73 +1258,51 @@ class L5RMain(L5RCMCore):
 
         # should modify step_2 character
         # get school perk
-
-        c = self.db_conn.cursor()
-        c.execute('''select name, perk, perkval, honor, tag from schools
-                     where uuid=?''', [uuid])
+        school = dal.query.get_school(self.dstore, uuid)
+        clan   = dal.query.get_clan  (self.dstore, school.clanid)
+        
         try:
-            name, perk, perkval, honor, tag = c.fetchone()
+            self.pc.set_school(school.id, school.trait, 1, school.honor, school.tags + [clan.id])
         except:
-            # no school
             self.pc.set_school(uuid, None, None, None)
-            return
 
-        school_tags = [ x.strip() for x in tag.split(';') ]
-        clan_tag = unicode.format(u'{0} {1}', self.cb_pc_clan.currentText(),
-                                         school_tags[0])
-        school_tags.append(clan_tag.lower())
-        school_tags.append(name.lower())
+        for sk in school.skills:
+            self.pc.add_school_skill(sk.id, sk.rank, sk.emph)
+            
+        # player choose ( aka wildcards )
+        for sk in school.skills_pc:
+            self.pc.add_pending_wc_skill(sk)
 
-        self.pc.set_school( uuid, perk, perkval, honor, school_tags)
-
-        c.execute('''select skill_uuid, skill_rank, wildcard, emphases
-                     from school_skills
-                     where school_uuid=?''', [uuid])
-        for sk_uuid, sk_rank, wc, emph in c.fetchall():
-            if sk_uuid is not None:
-                self.pc.add_school_skill(sk_uuid, sk_rank, emph)
-            else:
-                self.pc.add_pending_wc_skill(wc, sk_rank)
-
-        # get school tech rank 1
-        c.execute('''select uuid, effect from school_techs
-                     where school_uuid=? and rank=1''', [uuid])
-
-        for th_uuid, rule in c.fetchall():
-            self.pc.set_free_school_tech( th_uuid, rule )
-            break
+        # get school tech rank 1                   
+        tech0 = dal.query.get_school_tech(school, 1)
+        # rule == techid ???
+        
+        if tech0:
+            self.pc.set_free_school_tech(tech0.id, tech0.id)
 
         # if shugenja get universal spells
         # also player should choose some spells from list
 
-        if 'shugenja' in tag:
+        if 'shugenja' in school.tags:
             count = 0
-            c.execute('''select spell_uuid, wildcard from school_spells
-                      where school_uuid=?''', [uuid])
-            for sp_uuid, wc in c.fetchall():
-                if sp_uuid is None:
-                    ring, qty = rules.parse_spell_wildcard(wc)
-                    print 'add pending wc spell %s' % wc
-                    self.pc.add_pending_wc_spell(wc)
-                    count += qty
-                else:
-                    self.pc.add_free_spell(sp_uuid)
-                    count += 1
-
-            print 'starting spells count are %d' % count
+            for spell in school.spells:
+                self.pc.add_free_spell(spell.id)
+                count += 1
+                
+            for spell in school.spells_pc:
+                self.pc.add_pending_wc_spell((spell.element, spell.count))
+                count += spell.count
+            
+            print('starting spells count are {0}'.format(count))
             self.pc.set_school_spells_qty(count)
 
             # affinity / deficiency
-            c.execute('''select affinity, deficiency from schools
-                         where uuid=?''', [uuid])
+            print('school: {0}, affinity: {1}, deficiency: {2}'.format(school, school.affinity, school.deficiency))
+            self.pc.set_affinity(school.affinity)
+            self.pc.set_deficiency(school.deficiency)
+            self.pc.get_school().affinity = school.affinity
+            self.pc.get_school().deficiency = school.deficiency          
 
-            for affin, defic in c.fetchall():
-                self.pc.set_affinity(affin)
-                self.pc.set_deficiency(defic)
-                self.pc.get_school().affinity = affin
-                self.pc.get_school().deficiency = defic
-
-        c.close()
         self.update_from_model()
 
     def on_pc_name_change(self):
@@ -1386,7 +1372,7 @@ class L5RMain(L5RCMCore):
                                          QtGui.QItemSelectionModel.Rows))
 
     def act_choose_skills(self):
-        dlg = dialogs.SelWcSkills(self.pc, self.db_conn, self)
+        dlg = dialogs.SelWcSkills(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_skills()
             self.pc.clear_pending_wc_emphs ()
@@ -1429,7 +1415,7 @@ class L5RMain(L5RCMCore):
         if sm_.hasSelection():
             model_    = self.spell_table_view.model()
             spell_itm = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)
-            err_ = CMErrors.NO_ERROR
+            
             if spell_itm.memo: return
             self.remove_spell(spell_itm.spell_id)
 
@@ -1447,14 +1433,11 @@ class L5RMain(L5RCMCore):
         # learn next technique for your school
 
         next_rank = self.pc.get_school_rank() + 1
+        school = dal.query.get_school(self.dstore, self.pc.get_school_id())
 
-        c = self.db_conn.cursor()
-        c.execute('''select uuid, name, effect from school_techs
-                     where school_uuid=? and rank=?''', [self.pc.get_school_id(), next_rank])
-        for uuid, name, rule in c.fetchall():
-            self.pc.add_tech(int(uuid), rule)
-
-        c.close()
+        for tech in [ x for x in school.techs if x.rank == next_rank ]:
+            self.pc.add_tech(tech.id, tech.id)            
+            print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
         self.sink1.switch_to_page_3()
@@ -1505,29 +1488,21 @@ class L5RMain(L5RCMCore):
             self.show_nicebar([lb, bt])
 
     def check_rules(self):
-        c = self.db_conn.cursor()
         for t in self.pc.get_techs():
-            c.execute('''select uuid, effect from school_techs
-                         where uuid=?''', [t])
-            for uuid, rule in c.fetchall():
-                self.pc.add_tech(int(uuid), rule)
-                break
+            school, tech = dal.query.get_tech(self.dstore, t)
+            self.pc.add_tech(tech.id, tech.id)
 
         for adv in self.pc.advans:
             if adv.type == 'perk':
-                c.execute('''select uuid, rule from perks
-                             where uuid=?''', [adv.perk])
-                for uuid, rule in c.fetchall():
-                    #print 'found character rule %s' % rule
-                    adv.rule = rule
-                    break
-        c.close()
+                perk = dal.query.get_merit(self.dstore, adv.perk) or dal.query.get_flaw(self.dstore, adv.perk)
+                adv.rule = perk.rule
 
     def check_affinity_wc(self):
         if self.nicebar: return
 
+        print('check affinity wc: {0}'.format(self.pc.get_affinity()))
         if (self.pc.get_affinity() and
-            self.pc.get_affinity().startswith('*')):
+            self.pc.get_affinity() == 'any'):
             lb = QtGui.QLabel(self.tr("You school grant you to choose an elemental affinity."), self)
             bt = QtGui.QPushButton(self.tr("Choose Affinity"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
@@ -1546,20 +1521,20 @@ class L5RMain(L5RCMCore):
     def learn_next_school_spells(self):
         self.pc.recalc_ranks()
 
-        dlg = dialogs.SelWcSpells(self.pc, self.db_conn, self)
+        dlg = dialogs.SelWcSpells(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
             self.update_from_model()
 
     def show_advance_rank_dlg(self):
-        dlg = dialogs.NextRankDlg(self.pc, self.db_conn, self)
+        dlg = dialogs.NextRankDlg(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.last_rank = self.pc.get_insight_rank()
             self.update_from_model()
 
     def show_buy_skill_dlg(self):
         dlg = dialogs.BuyAdvDialog(self.pc, 'skill',
-                                   self.db_conn, self)
+                                   self.dstore, self)
         dlg.exec_()
         self.update_from_model()
 
@@ -1571,7 +1546,7 @@ class L5RMain(L5RCMCore):
             skill_id = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)
 
             dlg = dialogs.BuyAdvDialog(self.pc, 'emph',
-                                       self.db_conn, self)
+                                       self.dstore, self)
             dlg.fix_skill_id(skill_id)
             dlg.exec_()
             self.update_from_model()
@@ -1618,23 +1593,8 @@ class L5RMain(L5RCMCore):
             except:
                 self.last_rank = self.pc.get_insight_rank()
 
-            if float(self.pc.version) < float(DB_VERSION):
-                # BACKUP CHARACTER
-                backup_path = self.save_path + '.bak'
-                self.pc.save_to(backup_path)
-                # CONVERT CHARACTER
-                import past
-                past_db = 'l5rdb_%s.sqlite' % self.pc.version
-                if not os.path.exists(get_app_file(past_db)):
-                    past_db = 'l5rdb_past.sqlite'
-                print 'converting character using database %s' % past_db
-                cc = past.CharConvert(self.pc, get_app_file(past_db), get_app_file('l5rdb.sqlite') )
-                cc.start()
-                # SAVE CHARACTER
-                self.sink1.save_character()
-                # ADVISE USER
-                self.advise_conversion(backup_path)
-
+            #TODO: checks for books / data extensions
+            
             self.load_families(self.pc.clan)
             if self.pc.unlock_schools:
                 self.load_schools ()
@@ -1650,59 +1610,46 @@ class L5RMain(L5RCMCore):
                         self.cb_pc_school] )
         resume_signals( self.pers_info_widgets )
 
-    def load_clans(self):
-        c = self.db_conn.cursor()
+    def load_clans(self):        
         # clans
         self.cb_pc_clan.clear()
-        self.cb_pc_clan.addItem( self.tr("No Clan"), 0 )
-        c.execute('''select uuid, name from clans order by name asc''')
-        for f in c.fetchall():
-            self.cb_pc_clan.addItem( f[1], f[0] )
-        c.close()
+        self.cb_pc_clan.addItem( self.tr("No Clan"), None )
+        
+        for c in self.dstore.clans:
+            self.cb_pc_clan.addItem( c.name, c.id )
 
-    def load_schools(self, clan_id = -1):
-        #print 'load schools for clan_id %d' % clan_id
-        c = self.db_conn.cursor()
+    def load_schools(self, clan_id = None):
+        print('load schools for clan_id {0}'.format(clan_id))
+                
         self.cb_pc_school.clear()
-        if clan_id <= 0:
-            c.execute('''select uuid, name from schools
-                         where NOT EXISTS (select ref_uuid from requirements
-                                           where ref_uuid=uuid)
-                         order by name asc''')
+        schools = []
+        
+        # TODO: Sort
+        if not clan_id:
+            schools = [ x for x in self.dstore.schools if len(x.require) == 0 ]
         else:
-            c.execute('''select uuid, name from schools where clan_id=?
-                         AND NOT EXISTS (select ref_uuid from requirements
-                                         where ref_uuid=uuid)
-                         order by name asc''',
-                         [clan_id])
-
-        self.cb_pc_school.addItem( self.tr("No School"), 0 )
-        for f in c.fetchall():
-            self.cb_pc_school.addItem( f[1], f[0] )
-        c.close()
+            schools = [ x for x in self.dstore.schools if (len(x.require) == 0 and x.clanid == clan_id) ]
+                                            
+        self.cb_pc_school.addItem( self.tr("No School"), None )
+        for s in schools:
+            self.cb_pc_school.addItem( s.name, s.id )
 
     def load_families(self, clan_id):
-        #print 'load families for clan_id %d' % clan_id
+        print('load families for clan_id {0}'.format(clan_id))
 
-        c = self.db_conn.cursor()
         self.cb_pc_family.clear()
-        if clan_id <= 0:
+        if not clan_id:
             return
         else:
-            c.execute('''select uuid, name from families where clan_id=?
-                         order by name asc''',
-                         [clan_id])
+            families = [ x for x in self.dstore.families if x.clanid == clan_id ]
 
-        self.cb_pc_family.addItem( self.tr("No Family"), 0 )
-        for f in c.fetchall():
-            self.cb_pc_family.addItem( f[1], f[0] )
-        c.close()
+        self.cb_pc_family.addItem( self.tr("No Family"), None )
+        for f in families:
+            self.cb_pc_family.addItem( f.name, f.id )
 
     def set_clan(self, clan_id):
         idx = self.cb_pc_clan.currentIndex()
         c_uuid = self.cb_pc_clan.itemData(idx)
-
-        #print 'set clan. cur: %d new: %d' % (c_uuid, clan_id)
 
         if c_uuid == clan_id:
             return
@@ -1711,9 +1658,10 @@ class L5RMain(L5RCMCore):
                 self.cb_pc_clan.setCurrentIndex(i)
                 return
 
-    def set_family(self, family_id):
+    def set_family(self, family_id):        
         idx = self.cb_pc_family.currentIndex()
         f_uuid = self.cb_pc_family.itemData(idx)
+
         if f_uuid == family_id:
             return
         for i in xrange(0, self.cb_pc_family.count()):
@@ -1739,11 +1687,9 @@ class L5RMain(L5RCMCore):
                 break
 
         if not found:
-            self.cb_pc_school.addItem(
-                 dbutil.get_school_name(self.db_conn, school_id),
-                 school_id)
-            #self.cb_pc_school.setCurrentIndex(self.cb_pc_school.count()-1)
-
+            school = dal.query.get_school(self.dstore, school_id)
+            if school:
+                self.cb_pc_school.addItem( school.name, school.id )
         self.cb_pc_school.blockSignals(False)
 
     def set_void_points(self, value):
@@ -1783,7 +1729,7 @@ class L5RMain(L5RCMCore):
         resume_signals( self.pers_info_widgets )
 
         pc_xp = self.pc.get_px()
-        self.tx_pc_exp.setText( '%d / %d' % ( pc_xp, self.pc.exp_limit ) )
+        self.tx_pc_exp.setText( '{0} / {1}'.format( pc_xp, self.pc.exp_limit ) )
 
         # rings
         for i in xrange(0, 5):
@@ -1791,7 +1737,7 @@ class L5RMain(L5RCMCore):
 
         # attributes
         for i in xrange(0, 8):
-            self.attribs[i][1].setText( str(self.pc.get_attrib_rank(i)) )
+            self.attribs[i][1].setText( str(self.pc.get_mod_attrib_rank(i)) )
 
         # pc rank
         self.tx_pc_rank.setText( str(self.pc.get_insight_rank()) )
@@ -1931,27 +1877,54 @@ class L5RMain(L5RCMCore):
         msgBox.exec_()
         if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
             settings.setValue('advise_conversion', 'false')
+            
+    def advise_successfull_import(self):
+        settings = QtCore.QSettings()
+        if settings.value('advise_successfull_import', 'true') == 'false':
+            return
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(self.tr("Data pack imported succesfully."))
+        do_not_prompt_again = QtGui.QCheckBox(self.tr("Do not prompt again"), msgBox)
+        do_not_prompt_again.blockSignals(True) # PREVENT MSGBOX TO CLOSE ON CLICK
+        msgBox.addButton(QtGui.QMessageBox.Ok)
+        msgBox.addButton(do_not_prompt_again, QtGui.QMessageBox.ActionRole)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+        msgBox.setIcon(QtGui.QMessageBox.Information)
+        msgBox.exec_()
+        if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
+            settings.setValue('advise_successfull_import', 'false')        
+            
+    def advise_error(self, message, dtl = None):
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(message)
+        if dtl:
+            msgBox.setInformativeText(dtl)
+        msgBox.setIcon(QtGui.QMessageBox.Critical)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+        msgBox.exec_()
 
     def ask_to_save(self):
-         msgBox = QtGui.QMessageBox(self)
-         msgBox.setWindowTitle('L5R: CM')
-         msgBox.setText(self.tr("The character has been modified."))
-         msgBox.setInformativeText(self.tr("Do you want to save your changes?"))
-         msgBox.addButton( QtGui.QMessageBox.Save )
-         msgBox.addButton( QtGui.QMessageBox.Discard )
-         msgBox.addButton( QtGui.QMessageBox.Cancel )
-         msgBox.setDefaultButton(QtGui.QMessageBox.Save)
-         return msgBox.exec_()
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(self.tr("The character has been modified."))
+        msgBox.setInformativeText(self.tr("Do you want to save your changes?"))
+        msgBox.addButton( QtGui.QMessageBox.Save )
+        msgBox.addButton( QtGui.QMessageBox.Discard )
+        msgBox.addButton( QtGui.QMessageBox.Cancel )
+        msgBox.setDefaultButton(QtGui.QMessageBox.Save)
+        return msgBox.exec_()
 
     def ask_to_upgrade(self, target_version):
-         msgBox = QtGui.QMessageBox(self)
-         msgBox.setWindowTitle('L5R: CM')
-         msgBox.setText(self.tr("L5R: CM v%s is available for download.") % target_version)
-         msgBox.setInformativeText(self.tr("Do you want to open the download page?"))
-         msgBox.addButton( QtGui.QMessageBox.Yes )
-         msgBox.addButton( QtGui.QMessageBox.No )
-         msgBox.setDefaultButton(QtGui.QMessageBox.No)
-         return msgBox.exec_()
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(self.tr("L5R: CM v%s is available for download.") % target_version)
+        msgBox.setInformativeText(self.tr("Do you want to open the download page?"))
+        msgBox.addButton( QtGui.QMessageBox.Yes )
+        msgBox.addButton( QtGui.QMessageBox.No )
+        msgBox.setDefaultButton(QtGui.QMessageBox.No)
+        return msgBox.exec_()
 
     def not_enough_xp_advise(self, parent = None):
         if parent == None: parent = self
@@ -1981,7 +1954,6 @@ class L5RMain(L5RCMCore):
             resp = self.ask_to_save()
             if resp == QtGui.QMessageBox.Save:
                 self.sink1.save_character()
-                pass
             elif resp == QtGui.QMessageBox.Cancel:
                 ev.ignore()
             else:
@@ -2030,7 +2002,7 @@ class L5RMain(L5RCMCore):
         char_name = self.pc.name
         supported_ext     = ['.pdf']
         supported_filters = [self.tr("PDF Files(*.pdf)")]
-        selected_filter   = supported_ext.index(file_ext)
+
         settings = QtCore.QSettings()
         last_dir = settings.value('last_open_dir', QtCore.QDir.homePath())
         fileName = QtGui.QFileDialog.getSaveFileName(
@@ -2048,6 +2020,28 @@ class L5RMain(L5RCMCore):
         if fileName[0].endswith(file_ext):
             return fileName[0]
         return fileName[0] + file_ext
+        
+    def select_import_data_pack(self):
+        supported_ext     = ['.zip', '.l5rcmpack']
+        supported_filters = [self.tr("L5R:CM Data Pack(*.l5rcmpack;*.zip)"),
+                             self.tr("Zip Archive(*.zip)")]
+
+        settings = QtCore.QSettings()
+        last_data_dir = settings.value('last_open_data_dir', QtCore.QDir.homePath())
+        fileName = QtGui.QFileDialog.getOpenFileName(
+                                self,
+                                self.tr("Load data pack"),
+                                last_data_dir,
+                                ";;".join(supported_filters))
+                                
+        if len(fileName) != 2:
+            return None
+            
+        last_data_dir = os.path.dirname(fileName[0])
+        if last_data_dir != '':
+            #print 'save last_dir: %s' % last_dir
+            settings.setValue('last_open_data_dir', last_data_dir)
+        return fileName[0]
 
     def check_updates(self):
         update_info = autoupdate.get_last_version()
@@ -2073,6 +2067,10 @@ def dump_slots(obj, out_file):
         for i in xrange( mobj.methodOffset(), mobj.methodCount() ):
             if mobj.method(i).methodType() == QtCore.QMetaMethod.Slot:
                 fobj.write(mobj.method(i).signature() + ' ' + mobj.method(i).tag() + '\n')
+                
+OPEN_CMD_SWITCH   = '--open'
+IMPORT_CMD_SWITCH = '--import'
+
 def main():
     app = QtGui.QApplication(sys.argv)
 
@@ -2122,8 +2120,13 @@ def main():
     l5rcm.create_new_character()
 
     if len(sys.argv) > 1:
-        #print 'load character file %s' % sys.argv[1]
-        l5rcm.load_character_from(sys.argv[1])
+        if OPEN_CMD_SWITCH in sys.argv:
+            of   = sys.argv.index(OPEN_CMD_SWITCH)
+            l5rcm.load_character_from(sys.argv[of+1])
+        elif IMPORT_CMD_SWITCH in sys.argv:
+            imf  = sys.argv.index(IMPORT_CMD_SWITCH)
+            l5rcm.import_data_pack(sys.argv[imf+1])
+            
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

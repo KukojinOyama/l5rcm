@@ -17,14 +17,15 @@
 
 from PySide import QtGui, QtCore
 
-import dbutil
+import dal
+import dal.query
 import models
 
 class NextRankDlg(QtGui.QDialog):
-    def __init__(self, pc, conn, parent = None):
+    def __init__(self, pc, dstore, parent = None):
         super(NextRankDlg, self).__init__(parent)        
         self.pc     = pc
-        self.dbconn = conn
+        self.dstore = dstore
         
         self.build_ui()
         self.connect_signals()
@@ -62,41 +63,37 @@ what would you want to do?
         self.bt_new_school_2.clicked.connect(self.join_new_school   )
     
     def join_new_school(self):
-        dlg = SchoolChoiceDlg(self.pc, self.dbconn, self)
+        dlg = SchoolChoiceDlg(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.Rejected:
             #self.reject()
             return
-                   
-        school_nm  = dlg.get_school_name()
-        school_obj = models.CharacterSchool(dlg.get_school_id())        
-        school_obj.tags = dlg.get_school_tags()
+        sc = dal.query.get_school(self.dstore, dlg.get_school_id())
+        
+        school_nm  = sc.name
+        school_obj = models.CharacterSchool(sc.id)
+        school_obj.tags = sc.tags
         school_obj.school_rank = 0
-        aff_def = self.parent().get_school_aff_def(school_obj.school_id)
-        school_obj.affinity   = aff_def[0]
-        school_obj.deficiency = aff_def[1]        
+
+        school_obj.affinity   = sc.affinity
+        school_obj.deficiency = sc.deficiency       
         
         self.pc.schools.append(school_obj)
         self.accept()
         
-    def merit_plus_school(self):
-        c = self.dbconn.cursor()
-        
-        query = '''SELECT perks.uuid, perks.name, perks.rule, perk_ranks.cost
-                   FROM perks
-                   INNER JOIN perk_ranks ON perks.uuid=perk_ranks.perk_uuid
-                   WHERE perk_ranks.perk_rank=1 AND perks.name=?'''
-        
-        c.execute(query, [self.tr("Multiple Schools")])
+    def merit_plus_school(self):       
+        mult_school_merit = dal.query.get_merit(self.dstore, 'multiple_schools')
         try:
-            uuid, name, rule, cost = c.fetchone()       
-            c.close()
+            uuid = mult_school_merit.id
+            name = mult_school_merit.name
+            rule = mult_school_merit.id            
+            cost = mult_school_merit.get_rank_value(1)
             
             if not uuid or not cost: self.reject()            
                 
             itm      = models.PerkAdv(uuid, 1, cost)
             itm.rule = rule
             itm.desc = unicode.format(self.tr("{0} Rank {1}, XP Cost: {2}"),
-                                      self.tr("Multiple Schools"),
+                                      name,
                                       1, itm.cost)
                                   
             if (itm.cost + self.pc.get_px()) > self.pc.exp_limit:
@@ -106,17 +103,16 @@ what would you want to do?
                 return
                 
             self.pc.add_advancement(itm)
-
             self.join_new_school()
         except:
             self.reject()
 
 class SchoolChoiceDlg(QtGui.QDialog):
-    def __init__(self, pc, dbconn, parent = None):
+    def __init__(self, pc, dstore, parent = None):
         super(SchoolChoiceDlg,self).__init__(parent)
         
         self.pc     = pc
-        self.dbconn = dbconn
+        self.dstore = dstore
         
         self.school_nm = ''
         self.school_id = 0
@@ -158,28 +154,19 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
         self.bt_ok.clicked.connect(self.on_accept)
         
-        c = self.dbconn.cursor()
-        c.execute('''SELECT uuid, name from clans''')
-        for uuid, name in c.fetchall():
-            self.cb_clan.addItem(name, uuid)
-        c.close()
+        for clan in self.dstore.clans:
+            self.cb_clan.addItem(clan.name, clan.id)
                         
     def on_clan_change(self):    
         idx_ = self.cb_clan.currentIndex()
-        
-        c = self.dbconn.cursor()
-        
-        query = """SELECT uuid, name FROM schools
-                   WHERE clan_id=?"""
+               
+        clan_id = self.cb_clan.itemData(idx_)
+        schools = [ x for x in self.dstore.schools if x.clanid == clan_id ]
         
         if self.pc.has_tag('bushi'):
-            query += """ AND tag NOT LIKE '%shugenja%'"""
+            schools = [ x for x in schools if 'shugenja' not in x.tags ]
         elif self.pc.has_tag('shugenja'):
-            query += """ AND tag NOT LIKE '%bushi%'"""
-        
-        query += """ order by name asc"""
-        
-        c.execute(query, [self.cb_clan.itemData(idx_)])
+            schools = [ x for x in schools if 'bushi' not in x.tags ]
         
         self.cb_school.clear()
         def has_school(uuid):
@@ -188,37 +175,33 @@ class SchoolChoiceDlg(QtGui.QDialog):
                     return True
             return False
             
-        for uuid, name in c.fetchall():
-            if not has_school(uuid):
-                self.cb_school.addItem(name, uuid)
-            
-        c.close()
+        for school in schools:
+            if not has_school(school.id):
+                self.cb_school.addItem(school.name, school.id)
         
     def on_school_change(self):
         idx_ = self.cb_school.currentIndex()       
-        clan_idx_ = self.cb_clan.currentIndex()       
-        c = self.dbconn.cursor()
+        clan_idx_ = self.cb_clan.currentIndex()
         
+        clan_id = self.cb_clan.itemData(clan_idx_)        
         school_id = self.cb_school.itemData(idx_)
-        self.school_tg = [self.cb_clan.itemText(clan_idx_).lower()]
+                
+        clan   = dal.query.get_clan  (self.dstore, clan_id)
+        school = dal.query.get_school(self.dstore, school_id)
         
-        c.execute('''select tag from schools
-                     where uuid=?''', [school_id])
-        tag = c.fetchone()
-        if tag:
-            self.school_tg.append(tag[0])            
-        
-        query = """SELECT req_field, target_val
-                   FROM requirements WHERE
-                   ref_uuid=? AND req_type=? 
-                   order by req_type asc"""
-                   
-        c.execute(query, [school_id, 'more'])
-        self.te_notes.setHtml("")
-        for req_field, target_val in c.fetchall():
+        if clan and school:
+            self.school_tg = [clan.id] + school.tags
+                                    
+            more = ''
+            try:
+                more = [ x for x in school.require if x.type == 'more' ][0]
+            except:
+                pass                   
+
+            self.te_notes.setHtml("")
             self.te_notes.setHtml(
-            unicode.format(
-            u"<em>{0}</em>", target_val))
+                unicode.format(
+                u"<em>{0}</em>", more))
         
     def on_accept(self):
         idx_           = self.cb_school.currentIndex()
@@ -276,15 +259,8 @@ class SchoolChoiceDlg(QtGui.QDialog):
                 
         unmatched = []
         
-        c = self.dbconn.cursor()
-        
-        query = """SELECT req_type, req_field,
-                   min_val, max_val, target_val
-                   FROM requirements WHERE
-                   ref_uuid=? order by req_type asc"""
-                   
-        c.execute(query, [school_id])
-        
+        school = dal.query.get_school(self.dstore, school_id)
+               
         self.pc_skills = {}
         self.pc_rings  = []
         self.pc_traits = []
@@ -298,17 +274,20 @@ class SchoolChoiceDlg(QtGui.QDialog):
         for i in xrange(0, 8):
             self.pc_traits.append((i, self.pc.get_attrib_rank(i)))
         
-        for rtype, rfield, min_, max_, trgt in c.fetchall():
-            print (rtype, rfield, min_, max_, trgt)
+        for req in school.require:
+            rtype  = req.type
+            rfield = req.field
+            min_   = req.min
+            max_   = req.max
+            trgt   = req.trg
+            
             if rfield.startswith('*'):            
                 if not self.match_wc_requirement(rtype, rfield, min_, max_, trgt):                     
                     unmatched.append( wc_requirement_to_string(rtype, rfield, min_, max_, trgt) )
             else:
                 if not self.match_requirement(rtype, rfield, min_, max_, trgt):
                     unmatched.append( requirement_to_string(rtype, rfield, min_, max_, trgt) )
-        
-        c.close()
-        
+                
         return unmatched
         
     def match_requirement(self, rtype, rfield, min_, max_, trgt):
@@ -333,7 +312,7 @@ class SchoolChoiceDlg(QtGui.QDialog):
                     if ret: return True
                 return False
                 
-            skill_id = dbutil.get_skill_id_from_name(self.dbconn, rfield)
+            skill_id = rfield
             if not skill_id: return True
             if trgt and trgt not in self.pc.get_skill_emphases(skill_id):
                 return False # missing emphases
@@ -377,7 +356,8 @@ class SchoolChoiceDlg(QtGui.QDialog):
             else:
                 tag = rfield[1:]
                 for k in self.pc_skills.iterkeys():
-                    if not dbutil.has_tag(self.dbconn, k, tag):
+                    sk = dal.query.get_skill(self.dstore, k)
+                    if tag not in sk.tags:
                         continue
                     if self.pc_skills[k] >= min_:
                         got_req = k

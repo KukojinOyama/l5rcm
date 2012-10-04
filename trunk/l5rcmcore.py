@@ -18,7 +18,6 @@
 
 import sys
 import os
-import sqlite3
 
 import rules
 import models
@@ -27,14 +26,17 @@ import dialogs
 import autoupdate
 import tempfile
 import exporters
-import dbutil
+import dal
+import dal.query
+import dal.dataimport
+import osutil
 
 from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '2.9'
-DB_VERSION  = '2.6'
+APP_VERSION = '3.0'
+DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
@@ -105,25 +107,23 @@ class L5RCMCore(QtGui.QMainWindow):
         
         # Flag to lock advancment refunds in order        
         self.lock_advancements = True
-        
-        # Connect to database
-        self.db_conn = None
-        
+               
         # current locale
         self.locale = locale
-
-        db_name = 'l5rdb_{0}.sqlite'.format(locale)
-        if not os.path.exists( get_app_file(db_name) ):
-            db_name = 'l5rdb.sqlite'
         
-        print("using database file: {0}".format(get_app_file(db_name)))
+        # load data
+        self.reload_data()
         
-        try:
-            
-            self.db_conn = sqlite3.connect(  get_app_file(db_name) )
-        except Exception as e:
-            sys.stderr.write('unable to open database file %s\n' % get_app_file('l5rdb.sqlite'))
-            sys.stderr.write("current working dir : %s\n" % os.getcwd())
+    def reload_data(self):        
+        settings = QtCore.QSettings()
+        self.data_pack_blacklist = settings.value('data_pack_blacklist', [])        
+    
+        # Data storage
+        self.dstore = dal.Data( 
+            [get_app_file('data'),
+             osutil.get_user_data_path('data'),
+             osutil.get_user_data_path('data_' + self.locale)],
+             self.data_pack_blacklist)
         
     def update_from_model(self):
         pass
@@ -275,25 +275,26 @@ class L5RCMCore(QtGui.QMainWindow):
         self.update_from_model()
     
     def buy_next_skill_rank(self, skill_id):
-        print 'buy skill rank %d' % skill_id
+        print('buy skill rank {0}'.format(skill_id))
         cur_value = self.pc.get_skill_rank(skill_id)
         new_value = cur_value + 1
 
         cost    = new_value
-        sk_type = dbutil.get_skill_type(self.db_conn, skill_id)
-        text    = dbutil.get_skill_name(self.db_conn, skill_id)
+        skill   = dal.query.get_skill(self.dstore, skill_id)
+        sk_type = skill.type
+        text    = skill.name
                
         if (self.pc.has_rule('obtuse') and
             sk_type == 'high' and 
-            skill_id != 211   and # investitagion
-            skill_id != 234):     # medicine
+            skill_id != 'investigation'   and # investigation
+            skill_id != 'medicine'):     # medicine
             
             # double the cost for high skill
             # other than medicine and investigation
             cost *= 2            
 
         adv = models.SkillAdv(skill_id, cost)
-        adv.rule = dbutil.get_mastery_ability_rule(self.db_conn, skill_id, new_value)
+        adv.rule = dal.query.get_mastery_ability_rule(self.dstore, skill_id, new_value)
         adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
                    .format( text, cur_value, new_value, adv.cost ))
                    
@@ -307,10 +308,10 @@ class L5RCMCore(QtGui.QMainWindow):
         return CMErrors.NO_ERROR
         
     def memo_spell(self, spell_id):
-        print 'memorize spell %d' % spell_id
-        info_ = dbutil.get_spell_info(self.db_conn, spell_id)
-        cost  = info_[3] # mastery
-        text  = info_[0]
+        print('memorize spell {0}'.format(spell_id))
+        info_ = dal.query.get_spell(self.dstore, spell_id)
+        cost  = info_.mastery
+        text  = info_.name
         
         adv = models.MemoSpellAdv(spell_id, cost)
         adv.desc = (self.tr('{0}, Mastery {1}. Cost: {2} xp')
@@ -330,17 +331,16 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def buy_school_requirements(self):
         for skill_uuid in self.get_missing_school_requirements():
-            print 'buy requirement skill %d' % skill_uuid
+            print('buy requirement skill {0}'.format(skill_uuid))
             if self.buy_next_skill_rank(skill_uuid) != CMErrors.NO_ERROR:
                 return
         
     def check_if_tech_available(self):
-        c = self.db_conn.cursor()
-        c.execute('''select COUNT(uuid) from school_techs
-                     where school_uuid=?''', [self.pc.get_school_id()])
-        count_ = c.fetchone()[0]
-        c.close()
-        return count_ > self.pc.get_school_rank()
+        school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+        if school:
+            count  = len(school.techs)
+            return count > self.pc.get_school_rank()
+        return False        
 
     def check_tech_school_requirements(self):
         # one should have at least one rank in all school skills
@@ -349,17 +349,14 @@ class L5RCMCore(QtGui.QMainWindow):
         
     def get_missing_school_requirements(self):
         list_     = []
-        school_id = self.pc.get_school_id()        
-        c = self.db_conn.cursor()
-        c.execute("""SELECT skill_uuid, skill_rank FROM school_skills
-                     WHERE school_uuid=?""", [school_id])
-        print 'check requirement for school %d' % school_id
-        for uuid, rank in c.fetchall():
-            if not uuid: continue
-            print 'needed %d, got rank %d' % (uuid, self.pc.get_skill_rank(uuid))            
-            if self.pc.get_skill_rank(uuid) < 1:
-                list_.append(uuid)
-        c.close()
+        school_id = self.pc.get_school_id()    
+        school = dal.query.get_school(self.dstore, school_id)
+        if school:
+            print('check requirement for school {0}'.format(school_id))
+            for sk in school.skills:
+                print('needed {0}, got rank {1}'.format(sk.id, self.pc.get_skill_rank(sk.id)))
+                if self.pc.get_skill_rank(sk.id) < 1:
+                    list_.append(sk.id)
         return list_
         
     def set_pc_affinity(self, affinity):
@@ -373,31 +370,27 @@ class L5RCMCore(QtGui.QMainWindow):
     def set_pc_deficiency(self, deficiency):
         self.pc.set_deficiency(deficiency.lower())      
         self.update_from_model()
-        
-    
-    def get_school_name(self, school_id):
-        c = self.db_conn.cursor()
-        c.execute('''select name from schools
-                     where uuid=?''', [school_id])
-        tmp = c.fetchone()
-        c.close()
-        return tmp[0] if tmp else ""
-        
-    def get_school_aff_def(self, school_id):
-        c = self.db_conn.cursor()
-        c.execute('''select affinity, deficiency from schools
-                     where uuid=?''', [school_id])
-        tmp = c.fetchone()
-        c.close()
-        if tmp:
-            return tmp[0], tmp[1]
-        return None, None
-        
-    def get_school_tech_name(self, school_id, rank = 1):
-        c = self.db_conn.cursor()
-        c.execute('''select name from school_techs
-                     where school_uuid=? and rank=?''', [school_id, rank])
-        tmp = c.fetchone()
-        c.close()
-        return tmp[0] if tmp else ""
-       
+
+    def import_data_pack(self, data_pack_file):
+        try:
+            pack = dal.dataimport.DataPack(data_pack_file)
+            if not pack.good():
+                self.advise_error(self.tr("Invalid data pack."))
+            else:
+                dest = osutil.get_user_data_path()
+                if pack.language:
+                    dest = os.path.join(dest, 'data_' + pack.language)
+                else:
+                    dest = os.path.join(dest, 'data')
+                    
+                pack.export_to  (dest)
+                self.reload_data()
+                self.create_new_character()
+                self.advise_successfull_import()
+        except Exception as e:
+            self.advise_error(self.tr("Cannot import data pack."), e.message)
+            
+    def update_data_blacklist(self):
+        self.data_pack_blacklist = [ x.id for x in self.dstore.packs if x.active == False ]
+        settings = QtCore.QSettings()
+        settings.setValue('data_pack_blacklist', self.data_pack_blacklist)
