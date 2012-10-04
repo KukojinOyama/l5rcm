@@ -19,6 +19,7 @@
 import os
 import json
 import zipfile
+import shutil 
 
 class ManifestNotFound(Exception):
     def __init__(self, msg):
@@ -74,8 +75,16 @@ class DataPack(object):
         
         if not os.path.exists(data_path):
             os.makedirs(data_path)
-                   
+            
+        dest_dir = os.path.join(data_path, self.id)
+            
         try:
+            if os.path.exists(dest_dir):
+                shutil.rmtree(dest_dir, ignore_errors=True)
+        except:
+            print("cannot delete old data pack")            
+            
+        try:       
             with zipfile.ZipFile(self.archive_path, 'r') as dz:
                 dz.extractall(data_path)
         except:

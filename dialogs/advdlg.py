@@ -266,7 +266,7 @@ class BuyAdvDialog(QtGui.QDialog):
         
         ok = len(requirements) == 0
         for req in requirements:
-            if self.pc.has_tag(req.field):
+            if self.pc.has_tag(req.field) or self.pc.has_rule(req.field):
                 ok = True
                 break        
         
