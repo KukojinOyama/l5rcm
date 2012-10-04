@@ -1262,7 +1262,7 @@ class L5RMain(L5RCMCore):
         clan   = dal.query.get_clan  (self.dstore, school.clanid)
         
         try:
-            self.pc.set_school(school.id, school.trait, 1, school.honor, school.tags + [clan.id])
+            self.pc.set_school(school.id, school.trait, 1, school.honor, school.tags + [school.id, clan.id])
         except:
             self.pc.set_school(uuid, None, None, None)
 
