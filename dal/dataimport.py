@@ -63,8 +63,9 @@ class DataPack(object):
                     self.language = manifest_js['language']
                 if 'authors' in manifest_js:
                     self.authors = manifest_js['authors']                
-            except:
+            except Exception as e:
                 print('manifest not found!')
+                print(e.message)
                 raise ManifestNotFound('Not a valid Data pack file.')
     
     def export_to(self, data_path):        

@@ -121,8 +121,9 @@ class L5RCMCore(QtGui.QMainWindow):
         # Data storage
         self.dstore = dal.Data( 
             [get_app_file('data'),
+             osutil.get_user_data_path('core.data'),
              osutil.get_user_data_path('data'),
-             osutil.get_user_data_path('data_' + self.locale)],
+             osutil.get_user_data_path('data.' + self.locale)],
              self.data_pack_blacklist)
         
     def update_from_model(self):
@@ -378,8 +379,10 @@ class L5RCMCore(QtGui.QMainWindow):
                 self.advise_error(self.tr("Invalid data pack."))
             else:
                 dest = osutil.get_user_data_path()
-                if pack.language:
-                    dest = os.path.join(dest, 'data_' + pack.language)
+                if pack.id == 'core':
+                    dest = os.path.join(dest, 'core.data')
+                elif pack.language:
+                    dest = os.path.join(dest, 'data.' + pack.language)
                 else:
                     dest = os.path.join(dest, 'data')
                     
