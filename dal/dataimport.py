@@ -32,14 +32,17 @@ class InvalidDataPack(Exception):
 class DataPack(object):
 
     def __init__(self, archive_path):    
-        self.authors  = []
-        self.id       = None
-        self.dsp_name = None
-        self.language = None
+        self.authors      = []        
+        self.id           = None
+        self.dsp_name     = None
+        self.language     = None
+        self.version      = None
+        self.update_uri   = None
+        self.download_uri = None
         
         self.archive_path = archive_path
         
-        # todo: look for "manifest" file in root directory
+        # look for "manifest" file in root directory
         # no manifest file == no valid archive
         # read manifest file and extract:
         # 1. data target language ( es. us_US )
@@ -62,7 +65,13 @@ class DataPack(object):
                 if 'language' in manifest_js:
                     self.language = manifest_js['language']
                 if 'authors' in manifest_js:
-                    self.authors = manifest_js['authors']                
+                    self.authors = manifest_js['authors']
+                if 'version' in manifest_js:
+                    self.version = manifest_js['version']
+                if 'update-uri' in manifest_js:
+                    self.update_uri = manifest_js['update-uri']
+                if 'download-uri' in manifest_js:
+                    self.download_uri = manifest_js['download-uri']                    
             except Exception as e:
                 print('manifest not found!')
                 print(e.message)

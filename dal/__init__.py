@@ -35,6 +35,9 @@ class DataManifest(object):
         self.id           = d['id']
         self.display_name = None
         self.language     = None
+        self.version      = None
+        self.update_uri   = None
+        self.download_uri = None        
         self.authors      = []
         self.active       = True
         
