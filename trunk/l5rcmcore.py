@@ -120,8 +120,7 @@ class L5RCMCore(QtGui.QMainWindow):
     
         # Data storage
         self.dstore = dal.Data( 
-            [get_app_file('data'),
-             osutil.get_user_data_path('core.data'),
+            [osutil.get_user_data_path('core.data'),
              osutil.get_user_data_path('data'),
              osutil.get_user_data_path('data.' + self.locale)],
              self.data_pack_blacklist)
