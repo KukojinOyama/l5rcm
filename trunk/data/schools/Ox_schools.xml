@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="ox" name="Morito Bushi School" id="ox_morito_bushi_school">
+    <Trait>agility</Trait>
+    <Honor>3.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>ox_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="defense" rank="1"/>
+      <Skill id="horsemanship" rank="1"/>
+      <Skill rank="1" id="hunting" emphases="Tracking"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <Skill id="lore_kolat" rank="1"/>
+      <Skill id="lore_underworld" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Legacy Of The Four Winds" rank="1" id="ox_legacy_of_the_four_winds"></Tech>
+      <Tech name="The Wind Blows Many Ways" rank="2" id="ox_the_wind_blows_many_ways"></Tech>
+      <Tech name="Thunder And Fury" rank="3" id="ox_thunder_and_fury"></Tech>
+      <Tech name="The Blade Upon The Wind" rank="4" id="ox_the_blade_upon_the_wind"></Tech>
+      <Tech name="Fast And Furious" rank="5" id="ox_fast_and_furious"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+</L5RCM>
