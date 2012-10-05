@@ -25,6 +25,7 @@ class DataPackModel(QtCore.QAbstractTableModel):
         self.items = []
         self.headers = [self.tr('Name'    ), 
                         self.tr('Language'), 
+                        self.tr('Version'),
                         self.tr('Authors' ) ]
                         
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
@@ -55,6 +56,8 @@ class DataPackModel(QtCore.QAbstractTableModel):
             if index.column() == 1:
                 return item.language or self.tr("All")
             if index.column() == 2:
+                return item.version or self.tr("N/A")
+            if index.column() == 3:
                 return ", ".join(item.authors) if ( item.authors is not None ) else ""
         elif role == QtCore.Qt.ForegroundRole:
             return self.text_color
