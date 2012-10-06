@@ -97,15 +97,16 @@ class L5RMain(L5RCMCore):
         self.build_menu()
 
         # Build page 1
-        self.build_ui_page_1()
-        self.build_ui_page_2()
-        self.build_ui_page_3()
-        self.build_ui_page_4()
-        self.build_ui_page_5()
-        self.build_ui_page_6()
-        self.build_ui_page_7()
-        self.build_ui_page_8()
-        self.build_ui_page_9()
+        self.build_ui_page_1 ()
+        self.build_ui_page_2 ()
+        self.build_ui_page_3 ()
+        self.build_ui_page_4 ()
+        self.build_ui_page_5 ()
+        self.build_ui_page_6 ()
+        self.build_ui_page_7 ()
+        self.build_ui_page_8 ()
+        self.build_ui_page_9 ()
+        self.build_ui_page_10()
         
         self.tabs.setIconSize(QtCore.QSize(24,24))
         tabs_icons = ['samurai', 'music', 'burn', 'userinfo', 'book', 'katana', 'disk', 'text']
@@ -615,6 +616,106 @@ class L5RMain(L5RCMCore):
         if layout: layout.addWidget(grp)
 
         return view
+        
+    def _build_kata_frame(self, model, layout = None):
+        grp    = QtGui.QGroupBox(self.tr("Kata"), self)
+        hbox   = QtGui.QHBoxLayout(grp)
+
+        fr_    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(fr_)
+        vbox.setContentsMargins(3,3,3,3)
+
+        # advantages/disadvantage vertical toolbar
+        def _make_vertical_tb():
+            vtb = widgets.VerticalToolBar(self)
+            vtb.addStretch()
+
+            cb_buy    = self.sink2.act_buy_kata
+            cb_remove = self.sink2.act_del_kata
+
+            self.add_kata_bt = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('buy',(16,16))),
+                                self.tr("Add new Kata"), cb_buy)
+
+            self.del_kata_bt  = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('minus',(16,16))),
+                                self.tr("Remove Kata"), cb_remove)
+
+            self.add_kata_bt.setEnabled(True)
+            self.del_kata_bt.setEnabled(True)
+
+            vtb.addStretch()
+            return vtb
+
+        # View
+        view  = QtGui.QTableView(self)
+        view.setSizePolicy( QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Expanding )
+        view.setSortingEnabled(True)
+        view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive)
+        view.horizontalHeader().setStretchLastSection(True)
+        view.horizontalHeader().setCascadingSectionResizes(True)
+        view.setModel(model)
+        self.ka_table_view = view
+
+        vbox.addWidget(view)
+
+        hbox.addWidget(_make_vertical_tb())
+        hbox.addWidget(fr_)
+
+        if layout: layout.addWidget(grp)
+
+        return view
+
+    def _build_kiho_frame(self, model, layout = None):
+        grp    = QtGui.QGroupBox(self.tr("Kiho"), self)
+        hbox   = QtGui.QHBoxLayout(grp)
+
+        fr_    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(fr_)
+        vbox.setContentsMargins(3,3,3,3)
+
+        # advantages/disadvantage vertical toolbar
+        def _make_vertical_tb():
+            vtb = widgets.VerticalToolBar(self)
+            vtb.addStretch()
+
+            cb_buy    = self.sink2.act_buy_kiho
+            cb_remove = self.sink2.act_del_kiho
+
+            self.add_kiho_bt = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('buy',(16,16))),
+                                self.tr("Add new Kiho"), cb_buy)
+
+            self.del_kiho_bt  = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('minus',(16,16))),
+                                self.tr("Remove Kiho"), cb_remove)
+
+            self.add_kiho_bt.setEnabled(True)
+            self.del_kiho_bt.setEnabled(True)
+
+            vtb.addStretch()
+            return vtb
+
+        # View
+        view  = QtGui.QTableView(self)
+        view.setSizePolicy( QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Expanding )
+        view.setSortingEnabled(True)
+        view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive)
+        view.horizontalHeader().setStretchLastSection(True)
+        view.horizontalHeader().setCascadingSectionResizes(True)
+        view.setModel(model)        
+        self.ki_table_view = view
+
+        vbox.addWidget(view)
+
+        hbox.addWidget(_make_vertical_tb())
+        hbox.addWidget(fr_)
+
+        if layout: layout.addWidget(grp)
+
+        return view            
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.dstore, self)
@@ -664,8 +765,30 @@ class L5RMain(L5RCMCore):
         self._build_tech_frame (self.th_view_model, vbox)
 
         self.tabs.addTab(frame_, self.tr("Techniques"))
-
+        
     def build_ui_page_4(self):
+        self.ka_view_model = models.KataTableViewModel(self.dstore, self)
+        self.ki_view_model = models.KihoTableViewModel      (self.dstore, self)
+
+        # enable sorting through a proxy model
+        ka_sort_model = models.ColorFriendlySortProxyModel(self)
+        ka_sort_model.setDynamicSortFilter(True)
+        ka_sort_model.setSourceModel(self.ka_view_model)
+        
+        ki_sort_model = models.ColorFriendlySortProxyModel(self)
+        ki_sort_model.setDynamicSortFilter(True)
+        ki_sort_model.setSourceModel(self.ki_view_model)        
+
+        frame_ = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(frame_)
+        #views_ = []
+
+        self._build_kata_frame(ka_sort_model     , vbox)
+        self._build_kiho_frame(ki_sort_model, vbox)
+
+        self.tabs.addTab(frame_, self.tr("Powers"))        
+
+    def build_ui_page_5(self):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
@@ -725,7 +848,7 @@ class L5RMain(L5RCMCore):
 
         self.tabs.addTab(mfr, self.tr("Perks"))
 
-    def build_ui_page_5(self):
+    def build_ui_page_6(self):
         mfr    = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(mfr)
 
@@ -751,7 +874,7 @@ class L5RMain(L5RCMCore):
 
         self.tabs.addTab(mfr, self.tr("Advancements"))
 
-    def build_ui_page_6(self):
+    def build_ui_page_7(self):
         self.melee_view_model  = models.WeaponTableViewModel('melee' , self)
         self.ranged_view_model = models.WeaponTableViewModel('ranged', self)
         self.arrow_view_model  = models.WeaponTableViewModel('arrow' , self)
@@ -806,7 +929,7 @@ class L5RMain(L5RCMCore):
 
         self.tabs.addTab(frame_, self.tr("Weapons"))
 
-    def build_ui_page_7(self):
+    def build_ui_page_8(self):
         # modifiers
         self.mods_view_model  = models.ModifiersTableViewModel(self)
         self.mods_view_model.user_change.connect(self.update_from_model)
@@ -842,7 +965,7 @@ class L5RMain(L5RCMCore):
         vtb .setProperty('source', self.mod_view)
         self.tabs.addTab(frame_, self.tr("Modifiers"))
 
-    def build_ui_page_8(self):
+    def build_ui_page_9(self):
         mfr  = QtGui.QFrame(self)
         vbox = QtGui.QVBoxLayout(mfr)
         #vbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -853,7 +976,7 @@ class L5RMain(L5RCMCore):
 
         self.tabs.addTab(mfr, self.tr("Notes"))
 
-    def build_ui_page_9(self):
+    def build_ui_page_10(self):
         mfr    = QtGui.QFrame(self)
         hbox   = QtGui.QHBoxLayout(mfr)
         hbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -1843,6 +1966,8 @@ class L5RMain(L5RCMCore):
         self.ranged_view_model.update_from_model(self.pc)
         self.arrow_view_model .update_from_model(self.pc)
         self.mods_view_model  .update_from_model(self.pc)
+        self.ka_view_model    .update_from_model(self.pc)
+        #self.ki_view_model    .update_from_model(self.pc)
 
     def update_wound_penalties(self):
         penalties = [0, 3, 5, 10, 15, 20, 40]

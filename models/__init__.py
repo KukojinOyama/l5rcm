@@ -25,3 +25,5 @@ from models.maviewmodel    import *
 from models.spellmodel     import *
 from models.sortproxymodel import *
 from models.modifiers      import *
+from models.katamodel      import *
+from models.kihomodel      import *
