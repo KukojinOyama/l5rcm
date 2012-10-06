@@ -88,4 +88,38 @@ class Sink2(QtCore.QObject):
         if not sel_idx.isValid():
             return
         sel_itm = form.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
+        form.remove_advancement_item(sel_itm.adv)       
+
+    def act_buy_kata(self):
+        form = self.form
+        
+        dlg = dialogs.BuyAdvDialog (form.pc, 'kata',
+                                    form.dstore, form)
+        dlg.exec_()
+        form.update_from_model()      
+
+    def act_buy_kiho(self):
+        form = self.form
+        
+        dlg = dialogs.BuyAdvDialog (form.pc, 'kiho',
+                                    form.dstore, form)
+        dlg.exec_()
+        form.update_from_model()
+        
+    def act_del_kata(self):
+        form = self.form
+        
+        sel_idx = form.flaw_view.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = form.ka_table_view.model().data(sel_idx, QtCore.Qt.UserRole)
+        form.remove_advancement_item(sel_itm.adv)
+        
+    def act_del_kiho(self):
+        form = self.form
+        
+        sel_idx = form.flaw_view.selectionModel().currentIndex()
+        if not sel_idx.isValid():
+            return
+        sel_itm = form.ki_table_view.model().data(sel_idx, QtCore.Qt.UserRole)
         form.remove_advancement_item(sel_itm.adv)        

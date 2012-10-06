@@ -70,9 +70,15 @@ def get_mastery_ability_rule(storage, id, value):
         
 def get_kata(storage, id):
     try:
-        return filter( lambda x: x.id == id, storage.katas )[0]
+        return [x for x in storage.katas if x.id == id][0]
     except:
         return None
+        
+def get_kiho(storage, id):
+    try:
+        return [x for x in storage.kihos if x.id == id][0]
+    except:
+        return None        
         
 def get_spell(storage, id):
     try:
@@ -82,13 +88,13 @@ def get_spell(storage, id):
 
 def get_merit(storage, id):
     try:
-        return filter( lambda x: x.id == id, storage.merits)[0]
+        return [x for x in storage.merits if x.id == id][0]
     except:
         return None
         
 def get_flaw(storage, id):
     try:
-        return filter( lambda x: x.id == id, storage.flaws)[0]
+        return [x for x in storage.flaws if x.id == id][0]
     except:
         return None
         
