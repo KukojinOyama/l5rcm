@@ -109,14 +109,14 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_10()
         
         self.tabs.setIconSize(QtCore.QSize(24,24))
-        tabs_icons = ['samurai', 'music', 'burn', 'userinfo', 'book', 'katana', 'disk', 'text']
-        for i in xrange(0, 8):
+        tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text']
+        for i in xrange(0, 9):
             self.tabs.setTabIcon(i, QtGui.QIcon(get_tab_icon(tabs_icons[i])))
             self.tabs.setTabText(i, '')
             
         # about = app_icon
-        self.tabs.setTabIcon(8, QtGui.QIcon(get_app_icon_path()))
-        self.tabs.setTabText(8, '')
+        self.tabs.setTabIcon(9, QtGui.QIcon(get_app_icon_path()))
+        self.tabs.setTabText(9, '')
 
         self.connect_signals()
 
