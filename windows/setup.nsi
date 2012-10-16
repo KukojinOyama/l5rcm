@@ -61,8 +61,8 @@ Section "MainSection" SEC01
   WriteRegStr HKCR "L5Rcm.Pack\DefaultIcon" "" "$INSTDIR\l5rcm.exe,1"    
   
   # Register the Verbs
-    WriteRegStr HKCR "L5Rcm.Character\shell\open\command" "" '"$INSTDIR\l5rcm.exe" "--open %1"'
-	WriteRegStr HKCR "L5Rcm.Pack\shell\open\command" "" '"$INSTDIR\l5rcm.exe" "--import %1"'
+    WriteRegStr HKCR "L5Rcm.Character\shell\open\command" "" '"$INSTDIR\l5rcm.exe" --open "%1"'
+	WriteRegStr HKCR "L5Rcm.Pack\shell\open\command" "" '"$INSTDIR\l5rcm.exe" --import "%1"'
 SectionEnd
 
 Section -AdditionalIcons
