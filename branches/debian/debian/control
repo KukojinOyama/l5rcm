@@ -10,7 +10,7 @@ Vcs-Svn: http://l5rcm.googlecode.com/svn/trunk/
 
 Package: l5rcm
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-pyside.qtcore, python-pyside.qtgui, python-pyside.qtnetwork 
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-pyside.qtcore, python-pyside.qtgui, python-pyside.qtnetwork pdftk
 Description: L5R 4th Edition Character Manager
  L5R: CM is a Character manager for
  "Legend of the Five Rings RPG" 4th Edition
