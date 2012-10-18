@@ -1,3 +1,2 @@
 #!/bin/bash
-pyside-rcc -o widgets/toolbar_rc.py widgets/toolbar.qrc
-LIBOVERLAY_SCROLLBAR=0 python l5rcm.py
+LIBOVERLAY_SCROLLBAR=0 python /usr/lib/l5rcm/src/l5rcm.py
