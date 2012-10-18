@@ -1,2 +1,2 @@
 #!/bin/bash
-LIBOVERLAY_SCROLLBAR=0 python /usr/lib/l5rcm/src/l5rcm.py
+python /usr/lib/l5rcm/l5rcm.py
