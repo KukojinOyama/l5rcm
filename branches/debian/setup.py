@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
@@ -14,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+import os
 from distutils.core import setup
-import py2exe
+if os.name == 'nt':
+    import py2exe
 
 setup(
     windows = [
