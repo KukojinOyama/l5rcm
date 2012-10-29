@@ -768,7 +768,7 @@ class L5RMain(L5RCMCore):
         
     def build_ui_page_4(self):
         self.ka_view_model = models.KataTableViewModel(self.dstore, self)
-        self.ki_view_model = models.KihoTableViewModel      (self.dstore, self)
+        self.ki_view_model = models.KihoTableViewModel(self.dstore, self)
 
         # enable sorting through a proxy model
         ka_sort_model = models.ColorFriendlySortProxyModel(self)
@@ -1072,7 +1072,7 @@ class L5RMain(L5RCMCore):
         buymerit_act = QtGui.QAction(self.tr("Advantage..."           ), self)
         buyflaw_act  = QtGui.QAction(self.tr("Disadvantage..."        ), self)
         buykata_act  = QtGui.QAction(self.tr("Kata..."                ), self)
-        # buykiho_act  = QtGui.QAction(u'Kiho..."), self)
+        buykiho_act  = QtGui.QAction(self.tr("Kiho..."                ), self)
 
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
@@ -1083,7 +1083,7 @@ class L5RMain(L5RCMCore):
         buymerit_act.setProperty('tag', 'merit' )
         buyflaw_act .setProperty('tag', 'flaw'  )
         buykata_act .setProperty('tag', 'kata'  )
-        # buykiho_act .setProperty('tag', 'kiho'  )
+        buykiho_act .setProperty('tag', 'kiho'  )
 
         m_buy_adv.addAction(buyattr_act )
         m_buy_adv.addAction(buyvoid_act )
@@ -1092,6 +1092,7 @@ class L5RMain(L5RCMCore):
         m_buy_adv.addAction(buymerit_act)
         m_buy_adv.addAction(buyflaw_act )
         m_buy_adv.addAction(buykata_act )
+        m_buy_adv.addAction(buykiho_act )
 
         m_adv    .addSeparator()
         m_adv    .addAction(viewadv_act )
@@ -1109,7 +1110,7 @@ class L5RMain(L5RCMCore):
         buyskill_act.triggered.connect( self.sink1.act_buy_advancement )
         buyemph_act .triggered.connect( self.sink1.act_buy_advancement )
         buykata_act .triggered.connect( self.sink1.act_buy_advancement )
-        # buykiho_act .triggered.connect( self.act_buy_advancement )
+        buykiho_act .triggered.connect( self.sink1.act_buy_advancement )
 
         buymerit_act.triggered.connect( self.sink1.act_buy_perk )
         buyflaw_act .triggered.connect( self.sink1.act_buy_perk )
@@ -1151,10 +1152,6 @@ class L5RMain(L5RCMCore):
         add_weap_act       = QtGui.QAction(self.tr("Add Weapon..."       ), self)
         add_cust_weap_act  = QtGui.QAction(self.tr("Add Custom Weapon..."), self)
         # add_misc_item_act  = QtGui.QAction(self.tr("Add Misc Item...")    , self)
-
-        #add_weap_act     .setEnabled(False)
-        #add_cust_weap_act.setEnabled(False)
-        # add_misc_item_act.setEnabled(False)
 
         m_outfit.addAction(sel_armor_act     )
         m_outfit.addAction(sel_cust_armor_act)
@@ -1967,7 +1964,7 @@ class L5RMain(L5RCMCore):
         self.arrow_view_model .update_from_model(self.pc)
         self.mods_view_model  .update_from_model(self.pc)
         self.ka_view_model    .update_from_model(self.pc)
-        #self.ki_view_model    .update_from_model(self.pc)
+        self.ki_view_model    .update_from_model(self.pc)
 
     def update_wound_penalties(self):
         penalties = [0, 3, 5, 10, 15, 20, 40]
