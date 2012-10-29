@@ -262,8 +262,15 @@ class BuyAdvDialog(QtGui.QDialog):
         idx  = cb.currentIndex()
         uuid = cb.itemData(idx)
         text = cb.itemText(idx)
+        
+        self.lb_from.setText("")
+        self.lb_cost.setText("")
+        te.setHtml("")       
 
         kata = dal.query.get_kata(self.dstore, uuid)
+        if not kata:
+            return
+            
         requirements = kata.require
 
         self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kata.element, kata.mastery))
@@ -313,7 +320,14 @@ class BuyAdvDialog(QtGui.QDialog):
         uuid = cb.itemData(idx)
         text = cb.itemText(idx)
 
+        self.lb_from.setText("")
+        self.lb_cost.setText("")
+        te.setHtml("")
+        
         kiho = dal.query.get_kiho(self.dstore, uuid)
+        
+        if not kiho:
+            return
 
         self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kiho.element, kiho.mastery))
         self.lb_cost.setText(self.tr('Cost: {0} exp').format(kiho.mastery))
@@ -376,6 +390,10 @@ class BuyAdvDialog(QtGui.QDialog):
             self.pc.add_advancement( self.adv )
             cb = self.widgets[self.tag][0]
             cb.removeItem(cb.currentIndex())
+        elif self.tag == 'kiho':
+            self.pc.add_advancement( self.adv )
+            cb = self.widgets[self.tag][0]
+            cb.removeItem(cb.currentIndex())            
 
         if self.quit_on_accept:
             self.close()
