@@ -151,6 +151,8 @@ class Data(object):
                 self.append_to(self.skcategs, SkillCateg.build_from_xml(elem))
             elif elem.tag == 'KataDef':
                 self.append_to(self.katas, Kata.build_from_xml(elem))
+            elif elem.tag == 'KihoDef':
+                self.append_to(self.kihos, Kiho.build_from_xml(elem))
             elif elem.tag == 'PerkCateg':
                 self.append_to(self.perktypes, PerkCateg.build_from_xml(elem))
             elif elem.tag == 'EffectDef':

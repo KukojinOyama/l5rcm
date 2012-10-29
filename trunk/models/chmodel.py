@@ -498,6 +498,12 @@ class AdvancedPcModel(BasePcModel):
                 continue
             yield adv
             
+    def has_kiho(self, kiho_id):
+        for adv in self.advans:
+            if adv.type == 'kiho' and kiho_id == adv.kiho:
+                return True
+        return False
+        
     def has_kata(self, kata_id):
         for adv in self.advans:
             if adv.type == 'kata' and kata_id == adv.kata:

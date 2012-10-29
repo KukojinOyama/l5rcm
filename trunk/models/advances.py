@@ -76,6 +76,12 @@ class KataAdv(Advancement):
         self.kata = kata_id
         self.rule = rule
         
+class KihoAdv(Advancement):        
+    def __init__(self, kiho_id, rule, cost):
+        super(KihoAdv, self).__init__('kiho', cost)        
+        self.kiho = kiho_id
+        self.rule = rule        
+        
 class MemoSpellAdv(Advancement):        
     def __init__(self, spell_id, cost):
         super(MemoSpellAdv, self).__init__('memo_spell', cost)        
