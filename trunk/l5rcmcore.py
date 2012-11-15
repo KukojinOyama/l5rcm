@@ -198,7 +198,7 @@ class L5RCMCore(QtGui.QMainWindow):
         _flatten_pdf(source_fdf, source_pdf, fpath)        
         
         temp_files.append(fpath)
-        # SHUGENJA SHEET
+        # SHUGENJA/BUSHI SHEET
         if self.pc.has_tag('shugenja'):
             source_pdf = get_app_file('sheet_shugenja.pdf')
             source_fdf = _create_fdf(exporters.FDFExporterShugenja())
@@ -206,6 +206,13 @@ class L5RCMCore(QtGui.QMainWindow):
             os.fdopen(fd, 'wt').close()
             _flatten_pdf(source_fdf, source_pdf, fpath)
             temp_files.append(fpath)
+        elif self.pc.has_tag('bushi'):
+            source_pdf = get_app_file('sheet_bushi.pdf')
+            source_fdf = _create_fdf(exporters.FDFExporterBushi())
+            fd, fpath = mkstemp(suffix='.pdf');
+            os.fdopen(fd, 'wt').close()
+            _flatten_pdf(source_fdf, source_pdf, fpath)
+            temp_files.append(fpath)        
         
         if os.path.exists(export_file):
             os.remove(export_file)

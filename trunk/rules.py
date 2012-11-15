@@ -34,14 +34,14 @@ def format_rtk_t(rtk):
     
 def format_rtk(r, k):
     bonus = 0
-    if r > 10:
-        k += (r-10)
-        r = 10
-    if k > 10:
-        bonus = (k-10)*2
-        k = 10
-    sign = -1 if r < 0 else 1
-    sign_chr = '-' if sign < 0 else '+'
+    #if r > 10:
+    #    k += (r-10)
+    #    r = 10
+    #if k > 10:
+    #    bonus = (k-10)*2
+    #    k = 10
+    #sign = -1 if r < 0 else 1
+    #sign_chr = '-' if sign < 0 else '+'
     if bonus:        
         return '%dk%d %s %d' % (r, abs(k), sign_chr, abs(bonus))
     else:

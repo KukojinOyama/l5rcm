@@ -108,6 +108,8 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_9 ()
         self.build_ui_page_10()
         
+        self.scroll.setWidget(self.widgets)
+        
         self.tabs.setIconSize(QtCore.QSize(24,24))
         tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text']
         for i in xrange(0, 9):
@@ -122,21 +124,22 @@ class L5RMain(L5RCMCore):
 
     def build_ui(self):
         # Main interface widgets
+        self.scroll  = QtGui.QScrollArea(self)
+        self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.widgets = QtGui.QWidget(self)
         self.tabs = QtGui.QTabWidget(self)
-        #self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
-        self.setCentralWidget(self.widgets)
+        self.setCentralWidget(self.scroll)
 
         self.nicebar = None
 
-        mvbox = QtGui.QVBoxLayout(self.centralWidget())
+        mvbox = QtGui.QVBoxLayout(self.widgets)
         logo = QtGui.QLabel(self)
         logo.setScaledContents(True)
         logo.setPixmap( QtGui.QPixmap( get_app_file('banner_s.png') ) )
         mvbox.addWidget(logo)
         mvbox.addWidget(self.tabs)
 
-        self.mvbox = mvbox
+        self.mvbox = mvbox        
 
         # LOAD SETTINGS
         settings = QtCore.QSettings()
