@@ -1,4 +1,5 @@
 #summary How to add a new clan
+#labels Deprecated
 
 = Open the Clans table =
 
