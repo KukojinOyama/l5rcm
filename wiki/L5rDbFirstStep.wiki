@@ -1,4 +1,5 @@
 #summary Open the database using the suggested tool.
+#labels Deprecated
 
 = Let's start =
 
