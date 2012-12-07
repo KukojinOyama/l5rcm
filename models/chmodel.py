@@ -377,9 +377,14 @@ class AdvancedPcModel(BasePcModel):
         return self.get_ring_rank(RINGS.EARTH) * self.health_multiplier + self.get_health_rank_mod()
         
     def get_health_rank_mod(self):
+        mod = 0
         if self.has_rule('crane_the_force_of_honor'):
-            return max(1, int(self.get_honor()-4))
-        return 0
+            mod = max(1, int(self.get_honor()-4))
+
+        for x in self.get_modifiers('hrnk'):
+            if x.active and len(x.value) > 2:
+                mod += x.value[2]
+        return mod
 
     def get_max_wounds(self):
         max_ = 0
