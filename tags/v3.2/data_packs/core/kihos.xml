@@ -1,0 +1,10 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <KihoDef mastery="5" element="void" type="mystical" id="eight_directions_awareness" name="Eight Directions Awareness">
+    <Description>
+    While this Kiho is active, you become aware of all living things within a distance equal to your Void Ring x10 feet.
+    You are also aware of any object or individual within that range that has been deliberately concealed, including secret doors, hidden compartments, buried objects, etc.
+    </Description>
+    <Tags/>
+  </KihoDef>
+</L5RCM>  
