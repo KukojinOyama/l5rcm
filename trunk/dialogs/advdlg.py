@@ -21,6 +21,8 @@ import string
 import dal
 import dal.query
 
+from math import ceil
+
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
 
@@ -329,31 +331,61 @@ class BuyAdvDialog(QtGui.QDialog):
         if not kiho:
             return
 
-        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kiho.element, kiho.mastery))
-        self.lb_cost.setText(self.tr('Cost: {0} exp').format(kiho.mastery))
-
         # te.setText("")
         html = unicode.format(u"<p><b>{0} kiho</b></p>".format(kiho.type)) # TODO: translate kiho type
         html += unicode.format(u"<p><em>{0}</em></p>", kiho.desc)
-
-        self.adv = models.KihoAdv(uuid, kiho.id, kiho.mastery)
-        self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, self.adv.cost )
-        
+       
         # check eligibility
-        against_mastery    = 0                
-        monk_schools       = [ x for x in self.pc.schools if x.has_tag('brotherhood') ]        
-        monk_school_rank   = 0
-        relevant_ring      = models.ring_from_name(kiho.element)
-        ring_rank          = self.pc.get_ring_rank(relevant_ring)
+        against_mastery     = 0
+        cost_mult           = 1
+        eligible            = False
+        monk_schools        = [ x for x in self.pc.schools if x.has_tag('monk') ]
+        brotherhood_schools = [ x for x in monk_schools if x.has_tag('brotherhood') ]
+        school_bonus        = 0        
+        is_brotherhood      = len(brotherhood_schools) > 0
+        is_monk             = len(monk_schools) > 0
+        relevant_ring       = models.ring_from_name(kiho.element)
+        ring_rank           = self.pc.get_ring_rank(relevant_ring)
+        ninja_schools       = [ x for x in self.pc.schools if x.has_tag('ninja') ]
+        is_ninja            = len(ninja_schools) > 0
+        shugenja_schools    = [ x for x in self.pc.schools if x.has_tag('shugenja') ]
+        is_shugenja         = len(shugenja_schools) > 0
         
-        if len(monk_schools):
-            monk_school_rank = sum( [x.school_rank for x in monk_schools ] )
+        if is_ninja:
+            ninja_rank = sum( [x.school_rank for x in ninja_schools ] )        
             
-        against_mastery = monk_school_rank + ring_rank
-        eligible        = against_mastery >= kiho.mastery
-        
+        if is_monk:
+            school_bonus = sum( [x.school_rank for x in monk_schools ] )
+            
+        against_mastery = school_bonus + ring_rank
+        if is_brotherhood:
+            eligible        = against_mastery >= kiho.mastery # 1px / mastery
+        elif is_monk:
+            cost_mult = 1.5
+            eligible        = against_mastery >= kiho.mastery # 1.5px / mastery
+        elif is_shugenja:
+            cost_mult = 2
+            eligible = ring_rank >= kiho.mastery
+        elif is_ninja:
+            cost_mult = 2
+            eligible = ninja_rank >= kiho.mastery
+        else:
+            eligible = False
+            
+        print('is_brotherhood? ' + repr(is_brotherhood))
+        print('is_monk? ' + repr(is_monk))
+        print('is_shugenja? ' + repr(is_shugenja))
+        print('is_ninja? ' + repr(is_ninja))
+        print('cost_mult? ' + repr(cost_mult))
+            
         if not eligible:
             html += self.tr("<p><b>You're not eligible to learn this Kiho</b></p>")
+            
+        self.adv = models.KihoAdv(uuid, kiho.id, int(ceil(kiho.mastery*cost_mult)))
+        self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, self.adv.cost )
+        
+        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kiho.element, kiho.mastery))
+        self.lb_cost.setText(self.tr('Cost: {0} exp').format(self.adv.cost))       
 
         self.bt_buy.setEnabled(eligible)
         te.setHtml(html)        
