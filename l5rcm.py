@@ -1424,7 +1424,7 @@ class L5RMain(L5RCMCore):
             self.pc.set_affinity(school.affinity)
             self.pc.set_deficiency(school.deficiency)
             self.pc.get_school().affinity = school.affinity
-            self.pc.get_school().deficiency = school.deficiency          
+            self.pc.get_school().deficiency = school.deficiency
 
         self.update_from_model()
 
@@ -1563,7 +1563,7 @@ class L5RMain(L5RCMCore):
             print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
-        self.sink1.switch_to_page_3()
+        #self.sink1.switch_to_page_3()
         self.update_from_model()
 
     def check_rank_advancement(self):
@@ -1597,7 +1597,7 @@ class L5RMain(L5RCMCore):
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_spells )
             self.show_nicebar([lb, bt])
-
+            
     def check_missing_requirements(self):
         if self.nicebar: return
 
@@ -1644,7 +1644,12 @@ class L5RMain(L5RCMCore):
     def learn_next_school_spells(self):
         self.pc.recalc_ranks()
 
-        dlg = dialogs.SelWcSpells(self.pc, self.dstore, self)
+        #dlg = dialogs.SelWcSpells(self.pc, self.dstore, self)
+        dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, self)
+        dlg.setWindowTitle(self.tr('Choose School Spells'))
+        dlg.set_header_text(self.tr("<center><h2>Your school has granted you \
+                                     the right to choose some spells.</h2> \
+                                     <h3><i>Choose with care.</i></h3></center>"))
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
             self.update_from_model()
