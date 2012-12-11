@@ -40,6 +40,9 @@ class SpellItemSelection(QtGui.QWidget):
    
     pc         = None
     
+    # spell blacklist
+    blacklist  = None
+    
     def __init__(self, pc, dstore, parent = None):
         super(SpellItemSelection, self).__init__(parent)
         
@@ -72,6 +75,10 @@ class SpellItemSelection(QtGui.QWidget):
         self.cb_element.addItem(self.tr('Fire' ), 'fire')
         self.cb_element.addItem(self.tr('Void' ), 'void')        
 
+    def set_blacklist(self, bk):
+        self.blacklist = bk
+        self.update_spell_list()
+        
     def set_maho_filter(self, filter):        
         self.maho_flt = filter
         self.update_spell_list()
@@ -79,6 +86,14 @@ class SpellItemSelection(QtGui.QWidget):
     def set_no_defic(self, flag):
         self.no_deficiency = flag
         self.update_spell_list()
+        
+    def set_fixed_ring(self, ring):
+        self.cb_element.setEnabled(ring is None)
+        if ring:
+            for i in xrange(0, self.cb_element.count()):
+                if self.cb_element.itemData(i) == ring:
+                    self.cb_element.setCurrentIndex(i)
+                    break
        
     def on_ring_change(self, index):
     
@@ -162,7 +177,8 @@ class SpellItemSelection(QtGui.QWidget):
             self.cb_spell.addItem(self.tr('No spell available'), None)
         else:
             for spell in avail_spells:
-                self.cb_spell.addItem(spell.name, spell)
+                if not self.blacklist or spell not in self.blacklist:
+                    self.cb_spell.addItem(spell.name, spell)
              
     def set_spell(self, spell):        
         if spell:        

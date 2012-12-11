@@ -165,7 +165,7 @@ class BuyAdvDialog(QtGui.QDialog):
         elif self.tag == 'kiho':
             cb = self.widgets[self.tag][0]
             cb.currentIndexChanged.connect( self.on_kiho_select )
-        
+
 
         self.bt_buy.clicked.connect  ( self.buy_advancement )
         self.bt_close.clicked.connect( self.close           )
@@ -264,15 +264,15 @@ class BuyAdvDialog(QtGui.QDialog):
         idx  = cb.currentIndex()
         uuid = cb.itemData(idx)
         text = cb.itemText(idx)
-        
+
         self.lb_from.setText("")
         self.lb_cost.setText("")
-        te.setHtml("")       
+        te.setHtml("")
 
         kata = dal.query.get_kata(self.dstore, uuid)
         if not kata:
             return
-            
+
         requirements = kata.require
 
         self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kata.element, kata.mastery))
@@ -314,7 +314,7 @@ class BuyAdvDialog(QtGui.QDialog):
 
         self.bt_buy.setEnabled(ok)
         te.setHtml(html)
-        
+
     def on_kiho_select(self, text = ''):
         cb  = self.widgets['kiho'][0]
         te  = self.widgets['kiho'][1]
@@ -325,23 +325,23 @@ class BuyAdvDialog(QtGui.QDialog):
         self.lb_from.setText("")
         self.lb_cost.setText("")
         te.setHtml("")
-        
+
         kiho = dal.query.get_kiho(self.dstore, uuid)
-        
+
         if not kiho:
             return
 
         # te.setText("")
         html = unicode.format(u"<p><b>{0} kiho</b></p>".format(kiho.type)) # TODO: translate kiho type
         html += unicode.format(u"<p><em>{0}</em></p>", kiho.desc)
-       
+
         # check eligibility
         against_mastery     = 0
         cost_mult           = 1
         eligible            = False
         monk_schools        = [ x for x in self.pc.schools if x.has_tag('monk') ]
         brotherhood_schools = [ x for x in monk_schools if x.has_tag('brotherhood') ]
-        school_bonus        = 0        
+        school_bonus        = 0
         is_brotherhood      = len(brotherhood_schools) > 0
         is_monk             = len(monk_schools) > 0
         relevant_ring       = models.ring_from_name(kiho.element)
@@ -350,13 +350,13 @@ class BuyAdvDialog(QtGui.QDialog):
         is_ninja            = len(ninja_schools) > 0
         shugenja_schools    = [ x for x in self.pc.schools if x.has_tag('shugenja') ]
         is_shugenja         = len(shugenja_schools) > 0
-        
+
         if is_ninja:
-            ninja_rank = sum( [x.school_rank for x in ninja_schools ] )        
-            
+            ninja_rank = sum( [x.school_rank for x in ninja_schools ] )
+
         if is_monk:
             school_bonus = sum( [x.school_rank for x in monk_schools ] )
-            
+
         against_mastery = school_bonus + ring_rank
         if is_brotherhood:
             eligible        = against_mastery >= kiho.mastery # 1px / mastery
@@ -371,24 +371,24 @@ class BuyAdvDialog(QtGui.QDialog):
             eligible = ninja_rank >= kiho.mastery
         else:
             eligible = False
-            
+
         print('is_brotherhood? ' + repr(is_brotherhood))
         print('is_monk? ' + repr(is_monk))
         print('is_shugenja? ' + repr(is_shugenja))
         print('is_ninja? ' + repr(is_ninja))
         print('cost_mult? ' + repr(cost_mult))
-            
+
         if not eligible:
             html += self.tr("<p><b>You're not eligible to learn this Kiho</b></p>")
-            
+
         self.adv = models.KihoAdv(uuid, kiho.id, int(ceil(kiho.mastery*cost_mult)))
         self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, self.adv.cost )
-        
+
         self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kiho.element, kiho.mastery))
-        self.lb_cost.setText(self.tr('Cost: {0} exp').format(self.adv.cost))       
+        self.lb_cost.setText(self.tr('Cost: {0} exp').format(self.adv.cost))
 
         self.bt_buy.setEnabled(eligible)
-        te.setHtml(html)        
+        te.setHtml(html)
 
     def buy_advancement(self):
 
@@ -425,7 +425,7 @@ class BuyAdvDialog(QtGui.QDialog):
         elif self.tag == 'kiho':
             self.pc.add_advancement( self.adv )
             cb = self.widgets[self.tag][0]
-            cb.removeItem(cb.currentIndex())            
+            cb.removeItem(cb.currentIndex())
 
         if self.quit_on_accept:
             self.close()
