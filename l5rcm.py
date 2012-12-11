@@ -1645,7 +1645,7 @@ class L5RMain(L5RCMCore):
         self.pc.recalc_ranks()
 
         #dlg = dialogs.SelWcSpells(self.pc, self.dstore, self)
-        dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, self)
+        dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, 'bounded', self)
         dlg.setWindowTitle(self.tr('Choose School Spells'))
         dlg.set_header_text(self.tr("<center><h2>Your school has granted you \
                                      the right to choose some spells.</h2> \
