@@ -24,16 +24,17 @@ import dal.query
 MOD_TYPES = {
     "none" : "Select a modifier",
     "wdmg" : "Damage Roll",
-    "spcr" : "Spell Casting Roll",
+    #"spcr" : "Spell Casting Roll",
     "anyr" : "Any Roll",
     "skir" : "Skill Roll",
-    #"rdmg" : "Ranged Damage Roll",    
+    "hrnk" : "Health Rank",
     #"init" : "Initiative"
 }
 
 MOD_DTLS = {
     "none": ("none", "N/A"),
     "anyr": ("none", "N/A"),
+    "hrnk": ("none", "N/A"),
     "skir": ("skill", "Select Skill"),
     "wdmg": ("aweap", "Select Weapon"),
 }
@@ -107,7 +108,7 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
             elif index.column() == 1:
                 item.dtl = value
             elif index.column() == 2:
-                item.value = rules.parse_rtk(value)
+                item.value = rules.parse_rtk_with_bonus(value)
             elif index.column() == 3:
                 item.reason = value
             else:

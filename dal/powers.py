@@ -30,7 +30,26 @@ class PowerRequirement(object):
         return f  
 
 class Kiho(object):
-	pass
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = Kiho()
+        f.name    = elem.attrib['name']
+        f.id      = elem.attrib['id']
+        f.element = elem.attrib['element']
+        f.type    = elem.attrib['type']
+        f.mastery = int(elem.attrib['mastery'])
+        f.desc    = elem.find('Description').text if (elem.find('Description') is not None) else ''
+        return f        
+        
+    def __str__(self):
+        return self.name or self.id
+        
+    def __unicode__(self):
+        return self.name
+
+    def __eq__(self, obj):
+        return obj and obj.id == self.id
 
 class Kata(object):
 

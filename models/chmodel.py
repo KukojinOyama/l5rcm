@@ -378,9 +378,14 @@ class AdvancedPcModel(BasePcModel):
         return self.get_ring_rank(RINGS.EARTH) * self.health_multiplier + self.get_health_rank_mod()
         
     def get_health_rank_mod(self):
+        mod = 0
         if self.has_rule('crane_the_force_of_honor'):
-            return max(1, int(self.get_honor()-4))
-        return 0
+            mod = max(1, int(self.get_honor()-4))
+
+        for x in self.get_modifiers('hrnk'):
+            if x.active and len(x.value) > 2:
+                mod += x.value[2]
+        return mod
 
     def get_max_wounds(self):
         max_ = 0
@@ -499,6 +504,12 @@ class AdvancedPcModel(BasePcModel):
                 continue
             yield adv
             
+    def has_kiho(self, kiho_id):
+        for adv in self.advans:
+            if adv.type == 'kiho' and kiho_id == adv.kiho:
+                return True
+        return False
+        
     def has_kata(self, kata_id):
         for adv in self.advans:
             if adv.type == 'kata' and kata_id == adv.kata:
@@ -688,7 +699,7 @@ class AdvancedPcModel(BasePcModel):
 
         for t in tags:
             self.get_school().add_tag(t)
-
+            
         # void ?
         print('perk is: {0}'.format(perk))
         if perk == 'void':

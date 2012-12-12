@@ -108,6 +108,8 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_9 ()
         self.build_ui_page_10()
         
+        self.scroll.setWidget(self.widgets)
+        
         self.tabs.setIconSize(QtCore.QSize(24,24))
         tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text']
         for i in xrange(0, 9):
@@ -122,21 +124,22 @@ class L5RMain(L5RCMCore):
 
     def build_ui(self):
         # Main interface widgets
+        self.scroll  = QtGui.QScrollArea(self)
+        self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.widgets = QtGui.QWidget(self)
         self.tabs = QtGui.QTabWidget(self)
-        #self.tabs.setTabPosition( QtGui.QTabWidget.TabPosition.West )
-        self.setCentralWidget(self.widgets)
+        self.setCentralWidget(self.scroll)
 
         self.nicebar = None
 
-        mvbox = QtGui.QVBoxLayout(self.centralWidget())
+        mvbox = QtGui.QVBoxLayout(self.widgets)
         logo = QtGui.QLabel(self)
         logo.setScaledContents(True)
         logo.setPixmap( QtGui.QPixmap( get_app_file('banner_s.png') ) )
         mvbox.addWidget(logo)
         mvbox.addWidget(self.tabs)
 
-        self.mvbox = mvbox
+        self.mvbox = mvbox        
 
         # LOAD SETTINGS
         settings = QtCore.QSettings()
@@ -768,7 +771,7 @@ class L5RMain(L5RCMCore):
         
     def build_ui_page_4(self):
         self.ka_view_model = models.KataTableViewModel(self.dstore, self)
-        self.ki_view_model = models.KihoTableViewModel      (self.dstore, self)
+        self.ki_view_model = models.KihoTableViewModel(self.dstore, self)
 
         # enable sorting through a proxy model
         ka_sort_model = models.ColorFriendlySortProxyModel(self)
@@ -1072,7 +1075,7 @@ class L5RMain(L5RCMCore):
         buymerit_act = QtGui.QAction(self.tr("Advantage..."           ), self)
         buyflaw_act  = QtGui.QAction(self.tr("Disadvantage..."        ), self)
         buykata_act  = QtGui.QAction(self.tr("Kata..."                ), self)
-        # buykiho_act  = QtGui.QAction(u'Kiho..."), self)
+        buykiho_act  = QtGui.QAction(self.tr("Kiho..."                ), self)
 
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
@@ -1083,7 +1086,7 @@ class L5RMain(L5RCMCore):
         buymerit_act.setProperty('tag', 'merit' )
         buyflaw_act .setProperty('tag', 'flaw'  )
         buykata_act .setProperty('tag', 'kata'  )
-        # buykiho_act .setProperty('tag', 'kiho'  )
+        buykiho_act .setProperty('tag', 'kiho'  )
 
         m_buy_adv.addAction(buyattr_act )
         m_buy_adv.addAction(buyvoid_act )
@@ -1092,6 +1095,7 @@ class L5RMain(L5RCMCore):
         m_buy_adv.addAction(buymerit_act)
         m_buy_adv.addAction(buyflaw_act )
         m_buy_adv.addAction(buykata_act )
+        m_buy_adv.addAction(buykiho_act )
 
         m_adv    .addSeparator()
         m_adv    .addAction(viewadv_act )
@@ -1109,7 +1113,7 @@ class L5RMain(L5RCMCore):
         buyskill_act.triggered.connect( self.sink1.act_buy_advancement )
         buyemph_act .triggered.connect( self.sink1.act_buy_advancement )
         buykata_act .triggered.connect( self.sink1.act_buy_advancement )
-        # buykiho_act .triggered.connect( self.act_buy_advancement )
+        buykiho_act .triggered.connect( self.sink1.act_buy_advancement )
 
         buymerit_act.triggered.connect( self.sink1.act_buy_perk )
         buyflaw_act .triggered.connect( self.sink1.act_buy_perk )
@@ -1151,10 +1155,6 @@ class L5RMain(L5RCMCore):
         add_weap_act       = QtGui.QAction(self.tr("Add Weapon..."       ), self)
         add_cust_weap_act  = QtGui.QAction(self.tr("Add Custom Weapon..."), self)
         # add_misc_item_act  = QtGui.QAction(self.tr("Add Misc Item...")    , self)
-
-        #add_weap_act     .setEnabled(False)
-        #add_cust_weap_act.setEnabled(False)
-        # add_misc_item_act.setEnabled(False)
 
         m_outfit.addAction(sel_armor_act     )
         m_outfit.addAction(sel_cust_armor_act)
@@ -1424,7 +1424,7 @@ class L5RMain(L5RCMCore):
             self.pc.set_affinity(school.affinity)
             self.pc.set_deficiency(school.deficiency)
             self.pc.get_school().affinity = school.affinity
-            self.pc.get_school().deficiency = school.deficiency          
+            self.pc.get_school().deficiency = school.deficiency
 
         self.update_from_model()
 
@@ -1563,7 +1563,7 @@ class L5RMain(L5RCMCore):
             print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
-        self.sink1.switch_to_page_3()
+        #self.sink1.switch_to_page_3()
         self.update_from_model()
 
     def check_rank_advancement(self):
@@ -1597,7 +1597,7 @@ class L5RMain(L5RCMCore):
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_spells )
             self.show_nicebar([lb, bt])
-
+            
     def check_missing_requirements(self):
         if self.nicebar: return
 
@@ -1644,7 +1644,12 @@ class L5RMain(L5RCMCore):
     def learn_next_school_spells(self):
         self.pc.recalc_ranks()
 
-        dlg = dialogs.SelWcSpells(self.pc, self.dstore, self)
+        #dlg = dialogs.SelWcSpells(self.pc, self.dstore, self)
+        dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, 'bounded', self)
+        dlg.setWindowTitle(self.tr('Choose School Spells'))
+        dlg.set_header_text(self.tr("<center><h2>Your school has granted you \
+                                     the right to choose some spells.</h2> \
+                                     <h3><i>Choose with care.</i></h3></center>"))
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
             self.update_from_model()
@@ -1967,7 +1972,7 @@ class L5RMain(L5RCMCore):
         self.arrow_view_model .update_from_model(self.pc)
         self.mods_view_model  .update_from_model(self.pc)
         self.ka_view_model    .update_from_model(self.pc)
-        #self.ki_view_model    .update_from_model(self.pc)
+        self.ki_view_model    .update_from_model(self.pc)
 
     def update_wound_penalties(self):
         penalties = [0, 3, 5, 10, 15, 20, 40]
