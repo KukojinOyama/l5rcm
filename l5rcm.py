@@ -79,8 +79,6 @@ def resume_signals(wdgs):
 
 class L5RMain(L5RCMCore):
     def __init__(self, locale = None, parent = None):
-        #QtGui.QMainWindow.__init__(self)
-        #L5RCMCore.__init__(self, locale)
         super(L5RMain, self).__init__(locale)
 
         # character file save path
@@ -492,8 +490,6 @@ class L5RMain(L5RCMCore):
                                  self.tr("Memorize/Forget spell"), cb_memo)
 
 
-            # TODO: enable these buttons eventually
-            self.add_spell_bt.setEnabled(False)
             self.del_spell_bt.setEnabled(False)
 
             vtb.addStretch()
@@ -1049,7 +1045,6 @@ class L5RMain(L5RCMCore):
         m_file.addAction(open_act)
         m_file.addAction(save_act)
         m_file.addSeparator()
-        #m_file.addAction(export_text_act)
         m_file.addAction(export_pdf_act )
         m_file.addSeparator()
         m_file.addAction(exit_act)
@@ -1059,69 +1054,29 @@ class L5RMain(L5RCMCore):
         save_act.triggered.connect( self.sink1.save_character )
         exit_act.triggered.connect( self.close )
 
-        #export_text_act.triggered.connect( self.export_character_as_text )
         export_pdf_act .triggered.connect( self.sink1.export_character_as_pdf  )
 
         self.m_file = m_file
 
         # Advancement menu
         m_adv = self.menuBar().addMenu(self.tr("A&dvancement"))
-        # submenut
-        m_buy_adv = m_adv.addMenu(self.tr("&Buy"))
 
         # actions buy advancement, view advancements
         viewadv_act  = QtGui.QAction(self.tr("&View advancements..."  ), self)
         resetadv_act = QtGui.QAction(self.tr("&Reset advancements"    ), self)
         refund_act   = QtGui.QAction(self.tr("Refund last advancement"), self)
-        buyattr_act  = QtGui.QAction(self.tr("Attribute rank..."      ), self)
-        buyvoid_act  = QtGui.QAction(self.tr("Void ring..."           ), self)
-        buyskill_act = QtGui.QAction(self.tr("Skill rank..."          ), self)
-        buyemph_act  = QtGui.QAction(self.tr("Skill emphasis..."      ), self)
-        buymerit_act = QtGui.QAction(self.tr("Advantage..."           ), self)
-        buyflaw_act  = QtGui.QAction(self.tr("Disadvantage..."        ), self)
-        buykata_act  = QtGui.QAction(self.tr("Kata..."                ), self)
-        buykiho_act  = QtGui.QAction(self.tr("Kiho..."                ), self)
 
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
-        buyattr_act .setProperty('tag', 'attrib')
-        buyvoid_act .setProperty('tag', 'void'  )
-        buyskill_act.setProperty('tag', 'skill' )
-        buyemph_act .setProperty('tag', 'emph'  )
-        buymerit_act.setProperty('tag', 'merit' )
-        buyflaw_act .setProperty('tag', 'flaw'  )
-        buykata_act .setProperty('tag', 'kata'  )
-        buykiho_act .setProperty('tag', 'kiho'  )
-
-        m_buy_adv.addAction(buyattr_act )
-        m_buy_adv.addAction(buyvoid_act )
-        m_buy_adv.addAction(buyskill_act)
-        m_buy_adv.addAction(buyemph_act )
-        m_buy_adv.addAction(buymerit_act)
-        m_buy_adv.addAction(buyflaw_act )
-        m_buy_adv.addAction(buykata_act )
-        m_buy_adv.addAction(buykiho_act )
-
-        m_adv    .addSeparator()
         m_adv    .addAction(viewadv_act )
         m_adv.addAction(refund_act)
         m_adv.addAction(resetadv_act)
 
         self.m_adv = m_adv
-        self.m_buy = m_buy_adv
 
         viewadv_act .triggered.connect( self.sink1.switch_to_page_5    )
         resetadv_act.triggered.connect( self.sink1.reset_adv           )
         refund_act  .triggered.connect( self.sink1.refund_last_adv     )
-        buyattr_act .triggered.connect( self.sink1.act_buy_advancement )
-        buyvoid_act .triggered.connect( self.sink1.act_buy_advancement )
-        buyskill_act.triggered.connect( self.sink1.act_buy_advancement )
-        buyemph_act .triggered.connect( self.sink1.act_buy_advancement )
-        buykata_act .triggered.connect( self.sink1.act_buy_advancement )
-        buykiho_act .triggered.connect( self.sink1.act_buy_advancement )
-
-        buymerit_act.triggered.connect( self.sink1.act_buy_perk )
-        buyflaw_act .triggered.connect( self.sink1.act_buy_perk )
 
         # Tools menu
         m_tools = self.menuBar().addMenu(self.tr("&Tools"))
@@ -1535,7 +1490,11 @@ class L5RMain(L5RCMCore):
                                          QtGui.QItemSelectionModel.Rows))
 
     def act_buy_spell(self):
-        pass
+        dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, 'freeform', self)
+        dlg.setWindowTitle(self.tr('Add New Spell'))
+        dlg.set_header_text(self.tr("<center><h2>Select the spell to learn</h2></center>"))
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+            self.update_from_model()
 
     def act_del_spell(self):
         # get selected spell

@@ -39,7 +39,7 @@ class SpellAdvDialog(QtGui.QDialog):
     bt_next        = None
     bt_back        = None    
     # page counter and current page pointer
-    page_count     = 0
+    page_count     = 1
     current_page   = 0
     # radio buttons for maho options
     grp_maho       = None
@@ -60,7 +60,8 @@ class SpellAdvDialog(QtGui.QDialog):
         self.pc  = pc
         self.mode = mode
         self.dstore = dstore
-        self.page_count = self.pc.get_how_many_spell_i_miss()
+        if mode == 'bounded':
+            self.page_count = self.pc.get_how_many_spell_i_miss()
         self.selected   = [None]*self.page_count
         self.properties = [None]*self.page_count
         self.build_ui()
