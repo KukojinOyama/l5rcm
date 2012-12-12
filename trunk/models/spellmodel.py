@@ -87,9 +87,6 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
                 return item.duration
             if index.column() == 6:
                 return item.raises
-        #    elif role == QtCore.Qt.DecorationRole:
-        #        if index.column() == 0 and (item['epstatus'] & SHOW_STATUS_NEW == SHOW_STATUS_NEW):
-        #            return QtGui.QIcon(':/icons/label_new_red.png')
         elif role == QtCore.Qt.UserRole:
             return item
         elif role == QtCore.Qt.FontRole:
