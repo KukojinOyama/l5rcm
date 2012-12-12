@@ -22,6 +22,8 @@ import string
 import dal
 import dal.query
 
+from math import ceil
+
 from models.chmodel import ATTRIBS, RINGS
 from PySide import QtCore, QtGui
 
@@ -35,9 +37,9 @@ class BuyAdvDialog(QtGui.QDialog):
         self.pc  = pc
         self.dstore = dstore
         self.quit_on_accept = False
-        self.build_ui()        
+        self.build_ui()
         self.connect_signals()
-        self.load_data()        
+        self.load_data()
 
     def build_ui(self):
         grid = QtGui.QGridLayout(self)
@@ -54,7 +56,7 @@ class BuyAdvDialog(QtGui.QDialog):
                       skill= (self.tr('Choose Skill Type'), self.tr('Choose Skill'   )),
                       emph=  (self.tr('Choose Skill'     ), self.tr('Choose Emphasis')),
                       kata=  (self.tr('Choose Kata'      ), self.tr('Description'    )),
-                      kiho=  (self.tr('Choose Kiho'      ), None),
+                      kiho=  (self.tr('Choose Kiho'      ), self.tr('Description'    )),
                       spell= (self.tr('Choose Spell'     ), None))
 
         self.setWindowTitle( titles[self.tag] )
@@ -63,7 +65,7 @@ class BuyAdvDialog(QtGui.QDialog):
                             skill =(QtGui.QComboBox(self), QtGui.QComboBox(self)),
                             emph  =(QtGui.QComboBox(self), QtGui.QLineEdit(self)),
                             kata  =(QtGui.QComboBox(self), QtGui.QTextEdit(self)),
-                            kiho  =(None, None),
+                            kiho  =(QtGui.QComboBox(self), QtGui.QTextEdit(self)),
                             spell =(None, None))
 
         for t in self.widgets.itervalues():
@@ -89,9 +91,9 @@ class BuyAdvDialog(QtGui.QDialog):
         grid.addWidget(self.lb_cost, 4, 0, 1, 3)
         grid.addWidget(self.bt_buy,  5, 2, 1, 1)
         grid.addWidget(self.bt_close,  5, 3, 1, 1)
-        
+
     def cleanup(self):
-        self.widgets = {}        
+        self.widgets = {}
 
     def load_data(self):
         if self.tag == 'attrib':
@@ -103,10 +105,10 @@ class BuyAdvDialog(QtGui.QDialog):
             cb.addItem(self.tr('Strength'    ), ATTRIBS.STRENGTH    )
             cb.addItem(self.tr('Perception'  ), ATTRIBS.PERCEPTION  )
             cb.addItem(self.tr('Agility'     ), ATTRIBS.AGILITY     )
-            cb.addItem(self.tr('Intelligence'), ATTRIBS.INTELLIGENCE)            
+            cb.addItem(self.tr('Intelligence'), ATTRIBS.INTELLIGENCE)
         elif self.tag == 'void':
             self.on_void_select()
-        elif self.tag == 'skill':           
+        elif self.tag == 'skill':
             cb = self.widgets[self.tag][0]
             for t in self.dstore.skcategs:
                 cb.addItem( t.name, t.id )
@@ -121,14 +123,24 @@ class BuyAdvDialog(QtGui.QDialog):
         elif self.tag == 'kata':
             cb = self.widgets[self.tag][0]
             te = self.widgets[self.tag][1]
-            
+
             te.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
             te.setReadOnly(True)
-                       
+
             for kata in self.dstore.katas:
                 if not self.pc.has_kata(kata.id):
                     cb.addItem( kata.name, kata.id )
-            
+        elif self.tag == 'kiho':
+            cb = self.widgets[self.tag][0]
+            te = self.widgets[self.tag][1]
+
+            te.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
+            te.setReadOnly(True)
+
+            for kiho in self.dstore.kihos:
+                if not self.pc.has_kiho(kiho.id):
+                    cb.addItem( kiho.name, kiho.id )
+
     def fix_skill_id(self, uuid):
         if self.tag == 'emph':
             cb = self.widgets[self.tag][0]
@@ -136,7 +148,7 @@ class BuyAdvDialog(QtGui.QDialog):
             cb.addItem(sk.name, sk.id)
             cb.setCurrentIndex(cb.count()-1)
             cb.setEnabled(False)
-            
+
             self.quit_on_accept = True
 
     def connect_signals(self):
@@ -151,6 +163,10 @@ class BuyAdvDialog(QtGui.QDialog):
         elif self.tag == 'kata':
             cb = self.widgets[self.tag][0]
             cb.currentIndexChanged.connect( self.on_kata_select )
+        elif self.tag == 'kiho':
+            cb = self.widgets[self.tag][0]
+            cb.currentIndexChanged.connect( self.on_kiho_select )
+
 
         self.bt_buy.clicked.connect  ( self.buy_advancement )
         self.bt_close.clicked.connect( self.close           )
@@ -199,21 +215,21 @@ class BuyAdvDialog(QtGui.QDialog):
         cb2   = self.widgets['skill'][1]
         idx   = cb1.currentIndex()
         type_ = cb1.itemData(idx)
-        
+
         avail_skills = dal.query.get_skills(self.dstore, type_)
         cb2.clear()
-        
+
         for sk in avail_skills:
             if sk.id not in self.pc.get_skills():
                 cb2.addItem( sk.name, sk.id )
 
-    def on_skill_select(self, text = ''):        
+    def on_skill_select(self, text = ''):
         cb2  = self.widgets['skill'][1]
         idx  = cb2.currentIndex()
-        
+
         uuid = cb2.itemData(idx)
         text = cb2.itemText(idx)
-        
+
         cb1  = self.widgets['skill'][0]
         type_= cb1.itemData(cb1.currentIndex())
 
@@ -221,20 +237,20 @@ class BuyAdvDialog(QtGui.QDialog):
         new_value = cur_value + 1
 
         cost = new_value
-        
+
         print('pc is obtuse? {0}'.format(self.pc.has_rule('obtuse')))
         print('skill type: {0}'.format(type_))
         print('skill uuid: {0}'.format(uuid))
-        
+
         if (self.pc.has_rule('obtuse') and
-            type_ == 'high' and 
+            type_ == 'high' and
             uuid != 'investigation' and # investigation
             uuid != 'medicine'):        # medicine
-            
+
             # double the cost for high skill
             # other than medicine and investigation
-            cost *= 2   
-                
+            cost *= 2
+
         self.lb_from.setText(self.tr('From {0} to {1}').format(cur_value, new_value))
         self.lb_cost.setText(self.tr('Cost: {0} exp').format(cost))
 
@@ -242,60 +258,142 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv.rule = dal.query.get_mastery_ability_rule(self.dstore, uuid, new_value)
         self.adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
                          .format( text, cur_value, new_value, self.adv.cost ))
-        
+
     def on_kata_select(self, text = ''):
         cb  = self.widgets['kata'][0]
         te  = self.widgets['kata'][1]
         idx  = cb.currentIndex()
         uuid = cb.itemData(idx)
         text = cb.itemText(idx)
-        
+
+        self.lb_from.setText("")
+        self.lb_cost.setText("")
+        te.setHtml("")
+
         kata = dal.query.get_kata(self.dstore, uuid)
+        if not kata:
+            return
+
         requirements = kata.require
-               
+
         self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kata.element, kata.mastery))
         self.lb_cost.setText(self.tr('Cost: {0} exp').format(kata.mastery))
-        
+
         # te.setText("")
-        html = unicode.format(u"<p><em>{0}</em></p>", kata.desc)        
-        
+        html = unicode.format(u"<p><em>{0}</em></p>", kata.desc)
+
         # CHECK REQUIREMENTS
         ring_id  = models.ring_from_name(kata.element)
         ring_val = self.pc.get_ring_rank(ring_id)
-        
+
         self.adv = None
-        
+
         ok = len(requirements) == 0
         for req in requirements:
             if self.pc.has_tag(req.field) or self.pc.has_rule(req.field):
                 ok = True
-                break        
-        
+                break
+
         if not ok:
             html += self.tr(
                     "<p><strong>"
                     "To Buy this kata you need to match "
                     "at least one of there requirements:"
                     "</strong></p>")
-                    
-            html += unicode.format(u"<p><ul>{0}</ul></p>", 
+
+            html += unicode.format(u"<p><ul>{0}</ul></p>",
                           ''.join(['<li>{0}</li>'.format(x.text)
                                   for x in requirements]))
-                     
-        ok = ok and ring_val >= kata.mastery                     
+
+        ok = ok and ring_val >= kata.mastery
         if not ok:
             html += unicode.format(self.tr("\n<p>You need a value of {0} in your {1} Ring</p>"),
                                kata.mastery, kata.element)
         else:
             self.adv = models.KataAdv(uuid, kata.id, kata.mastery)
             self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kata.name, self.adv.cost )
-            
-        self.bt_buy.setEnabled(ok)           
+
+        self.bt_buy.setEnabled(ok)
+        te.setHtml(html)
+
+    def on_kiho_select(self, text = ''):
+        cb  = self.widgets['kiho'][0]
+        te  = self.widgets['kiho'][1]
+        idx  = cb.currentIndex()
+        uuid = cb.itemData(idx)
+        text = cb.itemText(idx)
+
+        self.lb_from.setText("")
+        self.lb_cost.setText("")
+        te.setHtml("")
+
+        kiho = dal.query.get_kiho(self.dstore, uuid)
+
+        if not kiho:
+            return
+
+        # te.setText("")
+        html = unicode.format(u"<p><b>{0} kiho</b></p>".format(kiho.type)) # TODO: translate kiho type
+        html += unicode.format(u"<p><em>{0}</em></p>", kiho.desc)
+
+        # check eligibility
+        against_mastery     = 0
+        cost_mult           = 1
+        eligible            = False
+        monk_schools        = [ x for x in self.pc.schools if x.has_tag('monk') ]
+        brotherhood_schools = [ x for x in monk_schools if x.has_tag('brotherhood') ]
+        school_bonus        = 0
+        is_brotherhood      = len(brotherhood_schools) > 0
+        is_monk             = len(monk_schools) > 0
+        relevant_ring       = models.ring_from_name(kiho.element)
+        ring_rank           = self.pc.get_ring_rank(relevant_ring)
+        ninja_schools       = [ x for x in self.pc.schools if x.has_tag('ninja') ]
+        is_ninja            = len(ninja_schools) > 0
+        shugenja_schools    = [ x for x in self.pc.schools if x.has_tag('shugenja') ]
+        is_shugenja         = len(shugenja_schools) > 0
+
+        if is_ninja:
+            ninja_rank = sum( [x.school_rank for x in ninja_schools ] )
+
+        if is_monk:
+            school_bonus = sum( [x.school_rank for x in monk_schools ] )
+
+        against_mastery = school_bonus + ring_rank
+        if is_brotherhood:
+            eligible        = against_mastery >= kiho.mastery # 1px / mastery
+        elif is_monk:
+            cost_mult = 1.5
+            eligible        = against_mastery >= kiho.mastery # 1.5px / mastery
+        elif is_shugenja:
+            cost_mult = 2
+            eligible = ring_rank >= kiho.mastery
+        elif is_ninja:
+            cost_mult = 2
+            eligible = ninja_rank >= kiho.mastery
+        else:
+            eligible = False
+
+        print('is_brotherhood? ' + repr(is_brotherhood))
+        print('is_monk? ' + repr(is_monk))
+        print('is_shugenja? ' + repr(is_shugenja))
+        print('is_ninja? ' + repr(is_ninja))
+        print('cost_mult? ' + repr(cost_mult))
+
+        if not eligible:
+            html += self.tr("<p><b>You're not eligible to learn this Kiho</b></p>")
+
+        self.adv = models.KihoAdv(uuid, kiho.id, int(ceil(kiho.mastery*cost_mult)))
+        self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, self.adv.cost )
+
+        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kiho.element, kiho.mastery))
+        self.lb_cost.setText(self.tr('Cost: {0} exp').format(self.adv.cost))
+
+        self.bt_buy.setEnabled(eligible)
         te.setHtml(html)
 
     def buy_advancement(self):
 
-        if self.adv and ((self.adv.cost + self.pc.get_px()) > 
+        if self.adv and ((self.adv.cost + self.pc.get_px()) >
                          self.pc.exp_limit):
             QtGui.QMessageBox.warning(self, self.tr("Not enough XP"),
             self.tr("Cannot purchase.\nYou've reached the XP Limit."))
@@ -325,10 +423,14 @@ class BuyAdvDialog(QtGui.QDialog):
             self.pc.add_advancement( self.adv )
             cb = self.widgets[self.tag][0]
             cb.removeItem(cb.currentIndex())
-            
+        elif self.tag == 'kiho':
+            self.pc.add_advancement( self.adv )
+            cb = self.widgets[self.tag][0]
+            cb.removeItem(cb.currentIndex())
+
         if self.quit_on_accept:
             self.close()
-            
+
     def closeEvent(self, event):
         self.cleanup()
 
@@ -389,23 +491,23 @@ class SelWcSkills(QtGui.QDialog):
 
         self.bt_ok     = QtGui.QPushButton(self.tr('Ok'    ), self)
         self.bt_cancel = QtGui.QPushButton(self.tr('Cancel'), self)
-        
+
         # TODO: translate skill category
 
         row_ = 2
-        for ws in self.pc.get_pending_wc_skills():                    
+        for ws in self.pc.get_pending_wc_skills():
             lb = ''
             wl = ws.wildcards
             if len(ws.wildcards):
                 or_wc  = [x.value for x in wl if not x.modifier or x.modifier == 'or']
                 not_wc = [x.value for x in wl if x.modifier and x.modifier == 'not'  ]
-                
+
                 sw1 = self.tr(' or ' ).join (or_wc)
                 sw2 = ', '.join(not_wc)
-                
+
                 if ( wl[0].value == 'any' ):
                     sw1 = 'one'
-                
+
                 if len(not_wc):
                     lb = self.tr('Any {0}, not {1} skill (rank {2}):').format(sw1, sw2, ws.rank)
                 else:
@@ -436,23 +538,23 @@ class SelWcSkills(QtGui.QDialog):
 
         grid.addWidget( self.bt_ok,     row_+1, 1)
         grid.addWidget( self.bt_cancel, row_+1, 2)
-      
+
     def cleanup(self):
         self.cbs    = []
         self.les    = []
-        self.error_bar = None    
+        self.error_bar = None
 
     def load_data(self):
-        i = 0        
+        i = 0
         for ws in self.pc.get_pending_wc_skills():
             outcome = []
             wl = ws.wildcards
-            
-            for w_ in wl:                    
+
+            for w_ in wl:
                 if w_.value == 'any':
                     outcome += self.dstore.skills
                 else:
-                    print('search skills with tag {0}'.format(w_.value))                    
+                    print('search skills with tag {0}'.format(w_.value))
                     skills_by_tag = [x for x in self.dstore.skills if w_.value in x.tags]
                     if not w_.modifier or w_.modifier == 'or':
                         outcome += skills_by_tag
@@ -464,7 +566,7 @@ class SelWcSkills(QtGui.QDialog):
                     self.cbs[i].addItem( sk.name, (sk.id, ws.rank) )
 
             i += 1
-        
+
     def connect_signals(self):
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )
@@ -525,10 +627,10 @@ class SelWcSkills(QtGui.QDialog):
             self.pc.add_school_skill(s_id, 0, emph)
 
         self.accept()
-        
+
     def closeEvent(self, event):
         self.cleanup()
-        
+
 
 class SelWcSpells(QtGui.QDialog):
     def __init__(self, pc, store, parent = None):
@@ -539,9 +641,9 @@ class SelWcSpells(QtGui.QDialog):
         self.cbs_mast    = []
         self.cbs_spell   = []
         self.error_bar = None
-        self.build_ui()        
+        self.build_ui()
         self.connect_signals()
-        self.load_data()        
+        self.load_data()
 
     def build_ui(self):
         self.setWindowTitle(self.tr('Choose School Spells'))
@@ -598,8 +700,8 @@ class SelWcSpells(QtGui.QDialog):
         grid.addWidget( buttonBox, max_row+1, max_col)
         #grid.addWidget( self.bt_cancel, max_row+1, max_col+1)
 
-    def load_data(self):           
-        for cb in self.cbs_ring:            
+    def load_data(self):
+        for cb in self.cbs_ring:
             cb.blockSignals(True)
             cb.addItem(self.tr('Earth'), 'earth')
             cb.addItem(self.tr('Air'  ), 'air')
@@ -608,7 +710,7 @@ class SelWcSpells(QtGui.QDialog):
             cb.addItem(self.tr('Void' ), 'void')
 
         max_mastery = self.pc.get_insight_rank()
-        
+
         idx = 0
         for wc in self.pc.get_pending_wc_spells():
             ring, qty = wc
@@ -627,15 +729,15 @@ class SelWcSpells(QtGui.QDialog):
                     self.cbs_mast[i].setProperty('no_defic', True)
                     self.cbs_ring[i].setProperty('no_defic', True)
             idx += qty
-        
+
         # HACK: might be needed for a good layout
         for cb in self.cbs_spell:
             cb.addItem('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-        
+
         # resume signals
-        for cb in self.cbs_ring:            
+        for cb in self.cbs_ring:
             self.do_ring_change(cb)
-            cb.blockSignals(False)       
+            cb.blockSignals(False)
 
     def connect_signals(self):
         for cb in self.cbs_ring:
@@ -646,49 +748,49 @@ class SelWcSpells(QtGui.QDialog):
 
         self.bt_cancel.clicked.connect( self.close     )
         self.bt_ok    .clicked.connect( self.on_accept )
-        
+
     def cleanup(self):
         self.cbs_ring    = []
         self.cbs_mast    = []
         self.cbs_spell   = []
         self.error_bar = None
-        
-    def do_ring_change(self, cb_ring):        
+
+    def do_ring_change(self, cb_ring):
         ring  = cb_ring.itemData( cb_ring.currentIndex() )
         which = self.cbs_ring.index( cb_ring )
         cb_mast = self.cbs_mast[which]
         cb_spell = self.cbs_spell[which]
-        
+
         # SPECIAL FLAGS
         only_maho = cb_ring.property('only_maho') or False
-        no_defic  = cb_ring.property('no_defic' ) or False       
-        
+        no_defic  = cb_ring.property('no_defic' ) or False
+
         # UPDATE MASTERY COMBOBOX BASED ON AFFINITY/DEFICIENCY
         affin = self.pc.get_affinity  ()
         defic = self.pc.get_deficiency()
-        
+
         print("affinity: {0}, deficiency: {1}, element: {2}".format(affin, defic, ring))
-               
+
         cb_mast.blockSignals(True)
         cb_mast.clear()
         mod_ = 0
         if affin == ring or ring in affin:  mod_ = 1
-        if defic == ring and not only_maho: mod_ = -1        
-        
+        if defic == ring and not only_maho: mod_ = -1
+
         for x in xrange(0,self.pc.get_insight_rank()+mod_):
-            cb_mast.addItem(self.tr('Mastery Level {0}').format(x+1), x+1)   
+            cb_mast.addItem(self.tr('Mastery Level {0}').format(x+1), x+1)
         cb_mast.blockSignals(False)
-        
+
         if cb_mast.currentIndex() < 0:
             cb_mast.setCurrentIndex(0)
-            
-        mastery = cb_mast.itemData( cb_mast.currentIndex() ) or 0            
-        
+
+        mastery = cb_mast.itemData( cb_mast.currentIndex() ) or 0
+
         if defic == ring and no_defic:
             cb_spell.clear()
         else:
             self.do_update_spells(cb_spell, ring, mastery, only_maho)
-            
+
     def on_ring_change(self, text = ''):
         self.do_ring_change(self.sender())
 
@@ -697,36 +799,36 @@ class SelWcSpells(QtGui.QDialog):
         which = self.cbs_mast.index( cb_mast )
         cb_ring = self.cbs_ring[which]
         ring = cb_ring.itemData( cb_ring.currentIndex() )
-        cb_spell = self.cbs_spell[which]       
+        cb_spell = self.cbs_spell[which]
 
         affin = self.pc.get_affinity  ()
         defic = self.pc.get_deficiency()
-               
+
         only_maho = cb_mast.property('only_maho') or False
         no_defic  = cb_mast.property('no_defic' ) or False
-                
+
         if defic == ring and no_defic:
             cb_spell.clear()
         else:
-            self.do_update_spells(cb_spell, ring, mastery, only_maho)               
-        
+            self.do_update_spells(cb_spell, ring, mastery, only_maho)
+
     def on_mastery_change(self, text = ''):
         self.do_mastery_change(self.sender())
-        
-    def do_update_spells(self, cb_spell, ring, mastery, only_maho):  
-        print('update spells for ring {0}, mastery {1}, only_maho {2}'.format(ring, mastery, only_maho))        
-        cb_spell.clear()        
+
+    def do_update_spells(self, cb_spell, ring, mastery, only_maho):
+        print('update spells for ring {0}, mastery {1}, only_maho {2}'.format(ring, mastery, only_maho))
+        cb_spell.clear()
         if mastery <= 0:
-            return        
+            return
         avail_spells = []
         if only_maho:
             avail_spells = dal.query.get_maho_spells(self.dstore, ring, mastery)
         else:
-            avail_spells = dal.query.get_spells(self.dstore, ring, mastery)                
-        
+            avail_spells = dal.query.get_spells(self.dstore, ring, mastery)
+
         for spell in avail_spells:
             cb_spell.addItem(spell.name, spell.id)
-        
+
     def on_accept(self):
         # check if all selected
         done = check_all_done(self.cbs_spell)
@@ -739,10 +841,10 @@ class SelWcSpells(QtGui.QDialog):
                </b>
                </p>
             '''))
-            
+
             self.error_bar.setVisible(True)
             return
-        
+
         # check if all different
         all_different = check_all_different(self.cbs_spell)
 
@@ -768,7 +870,7 @@ class SelWcSpells(QtGui.QDialog):
                </b>
                </p>
             '''))
-            
+
             self.error_bar.setVisible(True)
             return
 

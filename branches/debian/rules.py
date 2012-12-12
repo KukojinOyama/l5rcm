@@ -17,6 +17,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
+import re
 from models.chmodel import ATTRIBS
 
 # global cache
@@ -29,21 +30,44 @@ def parse_rtk(rtk):
     # the sign of the first commands
     sign = -1 if int(tk[0]) < 0 else 1
     return int(tk[0]), int(tk[1])*sign
+    
+def parse_rtk_with_bonus(rtk):
+    # 3k2+1
+    rtk = rtk.replace(' ', '')
+    print('parsing ' + rtk);
+    if 'k' not in rtk:
+        irtk = int(rtk)
+        if irtk != 0:
+            sign = '+' if irtk > 0 else '-'
+            return parse_rtk_with_bonus('0k0'+sign+str(abs(irtk)))
+        return 0, 0, 0
+    m = re.match('([+-]?\\d{1,2})k(\\d{1,2})([+-]?\\d*)', rtk)
+    if not m:
+        return 0, 0, 0
+    r, k, b = m.groups(1)
+    sign = -1 if int(r) < 0 else 1
+    try:
+        return int(r), int(k)*sign, int(b)
+    except:
+        return int(r), int(k)*sign, 0
 
 def format_rtk_t(rtk):    
-    return format_rtk(rtk[0], rtk[1])
+    if len(rtk) == 3:
+        return format_rtk(rtk[0], rtk[1], rtk[2])
+    else:
+        return format_rtk(rtk[0], rtk[1])     
     
-def format_rtk(r, k):
-    bonus = 0
-    if r > 10:
-        k += (r-10)
-        r = 10
-    if k > 10:
-        bonus = (k-10)*2
-        k = 10
-    sign = -1 if r < 0 else 1
-    sign_chr = '-' if sign < 0 else '+'
+def format_rtk(r, k, bonus = 0):
+    #if r > 10:
+    #    k += (r-10)
+    #    r = 10
+    #if k > 10:
+    #    bonus = (k-10)*2
+    #    k = 10
+    #sign = -1 if r < 0 else 1
+    #sign_chr = '-' if sign < 0 else '+'
     if bonus:        
+        sign_chr = '-' if bonus < 0 else '+'   
         return '%dk%d %s %d' % (r, abs(k), sign_chr, abs(bonus))
     else:
         return '%dk%d' % (r, abs(k))

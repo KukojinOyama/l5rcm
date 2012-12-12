@@ -46,7 +46,13 @@ class DataManifest(object):
         if 'language' in d:
             self.language = d['language']
         if 'authors' in d:
-            self.authors = d['authors']        
+            self.authors = d['authors']
+        if 'version' in d:
+            self.version = d['version']
+        if 'update-uri' in d:
+            self.update_uri = d['update-uri']
+        if 'download-uri' in d:
+            self.download_uri = d['download-uri']        
 
 class Data(object):
     def __init__(self, data_dirs = [], blacklist = []):
@@ -145,6 +151,8 @@ class Data(object):
                 self.append_to(self.skcategs, SkillCateg.build_from_xml(elem))
             elif elem.tag == 'KataDef':
                 self.append_to(self.katas, Kata.build_from_xml(elem))
+            elif elem.tag == 'KihoDef':
+                self.append_to(self.kihos, Kiho.build_from_xml(elem))
             elif elem.tag == 'PerkCateg':
                 self.append_to(self.perktypes, PerkCateg.build_from_xml(elem))
             elif elem.tag == 'EffectDef':

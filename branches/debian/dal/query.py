@@ -78,6 +78,7 @@ def get_kiho(storage, id):
     try:
         return [x for x in storage.kihos if x.id == id][0]
     except:
+        print(id)
         return None        
         
 def get_spell(storage, id):
