@@ -18,8 +18,8 @@
 import dal
 import dal.query
 import models
+import widgets
 from PySide import QtCore, QtGui
-from widgets.spell_item_selection import SpellItemSelection
 
 class SpellAdvDialog(QtGui.QDialog):
 
@@ -73,7 +73,7 @@ class SpellAdvDialog(QtGui.QDialog):
         self.bt_next  = QtGui.QPushButton(self.tr('Next'), self)
         self.bt_back  = QtGui.QPushButton(self.tr('Back'), self)        
         self.lb_pgcnt = QtGui.QLabel(self)                
-        self.spell_wdg = SpellItemSelection(self.pc, self.dstore, self)        
+        self.spell_wdg = widgets.SpellItemSelection(self.pc, self.dstore, self)        
         self.header    = QtGui.QLabel(self)                
         self.error_bar = QtGui.QLabel(self)
         

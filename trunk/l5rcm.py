@@ -127,6 +127,7 @@ class L5RMain(L5RCMCore):
         self.scroll  = QtGui.QScrollArea(self)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.widgets = QtGui.QWidget(self)
+        self.widgets.setMaximumSize( QtCore.QSize(9999, 680) ) 
         self.tabs = QtGui.QTabWidget(self)
         self.setCentralWidget(self.scroll)
 
@@ -146,6 +147,8 @@ class L5RMain(L5RCMCore):
         geo = settings.value('geometry')
         if geo is not None:
             self.restoreGeometry(geo)
+        else:
+            self.setGeometry( QtCore.QRect(100, 100, 820, 720) )
 
         self.ic_idx = int(settings.value('insight_calculation', 1))-1
         ic_calcs    = [rules.insight_calculation_1,
@@ -417,88 +420,15 @@ class L5RMain(L5RCMCore):
             hbox.addWidget(grp, 2)
 
             mgrid.addWidget(fr, row, col, 1, 2)
-
-        def add_pers_info(row, col):
-            grp  = QtGui.QGroupBox(self.tr("Personal Informations"), self)
-            grp.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                              QtGui.QSizePolicy.Preferred)
-
-            hgrp = QtGui.QHBoxLayout(grp)
-
-            # anagraphic
-
-            afr = QtGui.QFrame(self)
-            afl = QtGui.QFormLayout(afr)
-
-            self.tx_pc_sex    = QtGui.QLineEdit(self)
-            self.tx_pc_age    = QtGui.QLineEdit(self)
-            self.tx_pc_height = QtGui.QLineEdit(self)
-            self.tx_pc_weight = QtGui.QLineEdit(self)
-            self.tx_pc_hair   = QtGui.QLineEdit(self)
-            self.tx_pc_eyes   = QtGui.QLineEdit(self)
-
-            afl.addRow( self.tr("Sex"    ), self.tx_pc_sex   )
-            afl.addRow( self.tr("Age"    ), self.tx_pc_age   )
-            afl.addRow( self.tr("Height" ), self.tx_pc_height)
-            afl.addRow( self.tr("Weight" ), self.tx_pc_weight)
-            afl.addRow( self.tr("Hair"   ), self.tx_pc_hair  )
-            afl.addRow( self.tr("Eyes"   ), self.tx_pc_eyes  )
-            hgrp.addWidget(afr)
-
-            # separator
-            hgrp.addWidget(new_vert_line())
-
-            # parents
-            bfr = QtGui.QFrame(self)
-            bfl = QtGui.QFormLayout(bfr)
-
-            self.tx_pc_father   = QtGui.QLineEdit(self)
-            self.tx_pc_mother   = QtGui.QLineEdit(self)
-            self.tx_pc_brosis   = QtGui.QLineEdit(self)
-            self.tx_pc_marsta   = QtGui.QLineEdit(self)
-            self.tx_pc_spouse   = QtGui.QLineEdit(self)
-            self.tx_pc_childr   = QtGui.QLineEdit(self)
-
-            bfl.addRow( self.tr("Father"            ), self.tx_pc_father)
-            bfl.addRow( self.tr("Mother"            ), self.tx_pc_mother)
-            bfl.addRow( self.tr("Brothers, Sisters" ), self.tx_pc_brosis)
-            bfl.addRow( self.tr("Marital Status"    ), self.tx_pc_marsta)
-            bfl.addRow( self.tr("Spouse"            ), self.tx_pc_spouse)
-            bfl.addRow( self.tr("Children"          ), self.tx_pc_childr)
-            hgrp.addWidget(bfr)
-
-            self.pers_info_widgets = [
-                         self.tx_pc_sex, self.tx_pc_age,
-                         self.tx_pc_height, self.tx_pc_weight,
-                         self.tx_pc_hair, self.tx_pc_eyes,
-                         self.tx_pc_father, self.tx_pc_mother,
-                         self.tx_pc_brosis, self.tx_pc_marsta,
-                         self.tx_pc_spouse, self.tx_pc_childr]
-
-            # link personal information widgets
-            self.tx_pc_sex.link    = 'sex'
-            self.tx_pc_age.link    = 'age'
-            self.tx_pc_height.link = 'height'
-            self.tx_pc_weight.link = 'weight'
-            self.tx_pc_hair.link   = 'hair'
-            self.tx_pc_eyes.link   = 'eyes'
-            self.tx_pc_father.link = 'father'
-            self.tx_pc_mother.link = 'mother'
-            self.tx_pc_brosis.link = 'brosis'
-            self.tx_pc_marsta.link = 'marsta'
-            self.tx_pc_spouse.link = 'spouse'
-            self.tx_pc_childr.link = 'childr'
-
-            mgrid.addWidget(grp, row, col, 1, 3)
-
+        
         add_pc_info(0, 0)
         mgrid.addWidget(new_horiz_line(self), 1, 0, 1, 3)
         add_pc_attribs(2, 0)
         add_pc_flags(2, 1)
         mgrid.addWidget(new_horiz_line(self), 3, 0, 1, 3)
         add_pc_quantities(4, 0)
-        mgrid.addWidget(new_horiz_line(self), 5, 0, 1, 3)
-        add_pers_info(6, 0)
+        #mgrid.addWidget(new_horiz_line(self), 5, 0, 1, 3)
+        #add_pers_info(6, 0)
 
     def _build_generic_page(self, models_):
         mfr    = QtGui.QFrame(self)
@@ -976,6 +906,81 @@ class L5RMain(L5RCMCore):
 
         self.tx_pc_notes = widgets.SimpleRichEditor(self)
         vbox.addWidget(self.tx_pc_notes)
+        
+        def build_pers_info():
+            grp  = QtGui.QGroupBox(self.tr("Personal Informations"), self)
+            grp.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Preferred)
+
+            hgrp = QtGui.QHBoxLayout(grp)
+
+            # anagraphic
+
+            afr = QtGui.QFrame(self)
+            afl = QtGui.QFormLayout(afr)
+
+            self.tx_pc_sex    = QtGui.QLineEdit(self)
+            self.tx_pc_age    = QtGui.QLineEdit(self)
+            self.tx_pc_height = QtGui.QLineEdit(self)
+            self.tx_pc_weight = QtGui.QLineEdit(self)
+            self.tx_pc_hair   = QtGui.QLineEdit(self)
+            self.tx_pc_eyes   = QtGui.QLineEdit(self)
+
+            afl.addRow( self.tr("Sex"    ), self.tx_pc_sex   )
+            afl.addRow( self.tr("Age"    ), self.tx_pc_age   )
+            afl.addRow( self.tr("Height" ), self.tx_pc_height)
+            afl.addRow( self.tr("Weight" ), self.tx_pc_weight)
+            afl.addRow( self.tr("Hair"   ), self.tx_pc_hair  )
+            afl.addRow( self.tr("Eyes"   ), self.tx_pc_eyes  )
+            hgrp.addWidget(afr)
+
+            # separator
+            hgrp.addWidget(new_vert_line())
+
+            # parents
+            bfr = QtGui.QFrame(self)
+            bfl = QtGui.QFormLayout(bfr)
+
+            self.tx_pc_father   = QtGui.QLineEdit(self)
+            self.tx_pc_mother   = QtGui.QLineEdit(self)
+            self.tx_pc_brosis   = QtGui.QLineEdit(self)
+            self.tx_pc_marsta   = QtGui.QLineEdit(self)
+            self.tx_pc_spouse   = QtGui.QLineEdit(self)
+            self.tx_pc_childr   = QtGui.QLineEdit(self)
+
+            bfl.addRow( self.tr("Father"            ), self.tx_pc_father)
+            bfl.addRow( self.tr("Mother"            ), self.tx_pc_mother)
+            bfl.addRow( self.tr("Brothers, Sisters" ), self.tx_pc_brosis)
+            bfl.addRow( self.tr("Marital Status"    ), self.tx_pc_marsta)
+            bfl.addRow( self.tr("Spouse"            ), self.tx_pc_spouse)
+            bfl.addRow( self.tr("Children"          ), self.tx_pc_childr)
+            hgrp.addWidget(bfr)
+
+            self.pers_info_widgets = [
+                         self.tx_pc_sex, self.tx_pc_age,
+                         self.tx_pc_height, self.tx_pc_weight,
+                         self.tx_pc_hair, self.tx_pc_eyes,
+                         self.tx_pc_father, self.tx_pc_mother,
+                         self.tx_pc_brosis, self.tx_pc_marsta,
+                         self.tx_pc_spouse, self.tx_pc_childr]
+
+            # link personal information widgets
+            self.tx_pc_sex.link    = 'sex'
+            self.tx_pc_age.link    = 'age'
+            self.tx_pc_height.link = 'height'
+            self.tx_pc_weight.link = 'weight'
+            self.tx_pc_hair.link   = 'hair'
+            self.tx_pc_eyes.link   = 'eyes'
+            self.tx_pc_father.link = 'father'
+            self.tx_pc_mother.link = 'mother'
+            self.tx_pc_brosis.link = 'brosis'
+            self.tx_pc_marsta.link = 'marsta'
+            self.tx_pc_spouse.link = 'spouse'
+            self.tx_pc_childr.link = 'childr'
+
+            return grp
+        
+        vbox.addWidget(build_pers_info())
 
         self.tabs.addTab(mfr, self.tr("Notes"))
 

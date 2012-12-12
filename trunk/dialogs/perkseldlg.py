@@ -18,21 +18,27 @@
 import models
 import dal
 import dal.query
+import widgets
 
 from PySide import QtCore, QtGui
 
 class BuyPerkDialog(QtGui.QDialog):
+    
+    tag       = None
+    adv       = None
+    pc        = None
+    dstore    = None
+    perk_id   = 0
+    perk_nm   = ''
+    perk_rule = None
+    item      = None
+    edit_mode = False    
+
     def __init__(self, pc, tag, dstore, parent = None):
         super(BuyPerkDialog, self).__init__(parent)
         self.tag = tag
-        self.adv = None
         self.pc  = pc
         self.dstore = dstore
-        self.perk_id   = 0
-        self.perk_nm   = ''
-        self.perk_rule = None
-        self.item = None
-        self.edit_mode = False
         self.build_ui()
         self.load_data()
         
@@ -85,8 +91,8 @@ class BuyPerkDialog(QtGui.QDialog):
         else:
             grp     = QtGui.QGroupBox(self.tr("XP Gain"), self)
         vbox    = QtGui.QVBoxLayout(grp)
-        self.le_cost = QtGui.QLineEdit(self)
-        vbox.addWidget(self.le_cost)
+        self.cost_widget = widgets.CostSelection(self)
+        vbox.addWidget(self.cost_widget)
         lvbox.addWidget(grp)       
         
         
@@ -166,12 +172,10 @@ class BuyPerkDialog(QtGui.QDialog):
             return
         rank = self.cb_rank.itemData(selected)        
         cost = rank.value
-        tag  = None
-        self.le_cost.setReadOnly( cost != 0 )
-        if cost == 0:
-            self.le_cost.setPlaceholderText(self.tr("Insert XP"))
-            self.le_cost.setText('')
-        else:
+        tag  = None  
+        self.cost_widget.set_manual_only(cost == 0)
+        #self.set_manual_cost(0)
+        if cost != 0:
             # look for exceptions
             cost = abs(cost)
             for discount in rank.exceptions:
@@ -186,12 +190,11 @@ class BuyPerkDialog(QtGui.QDialog):
             if cost <= 0:
                 cost = 1
                     
-        self.item = models.PerkAdv(self.perk_id, rank.id, cost, tag)
-        
-        text_ = '%d' % self.item.cost        
+        self.item = models.PerkAdv(self.perk_id, rank.id, cost, tag)       
         if tag:
-            text_ += ' (%s)' % tag.capitalize()
-        self.le_cost.setText(text_)
+            self.cost_widget.set_discount_reason(tag)
+        self.cost_widget.set_suggested_cost(self.item.cost)
+        
                 
     def update_perk(self):
         self.item.extra = self.tx_notes.toPlainText()
@@ -209,16 +212,7 @@ class BuyPerkDialog(QtGui.QDialog):
         
         self.item.rule  = self.perk_rule
         self.item.extra = self.tx_notes.toPlainText()
-        if self.item.cost == 0:
-            if self.le_cost.text() != '':
-                try:
-                    self.item.cost = int(self.le_cost.text())
-                except:
-                    self.item.cost = 0
-            if self.item.cost < 0:
-                QtGui.QMessageBox.warning(self, self.tr("Invalid XP Cost"),
-                                          self.tr("Please specify a number greater than 0."))
-                return
+        self.item.cost  = abs(self.cost_widget.get_cost())
 
         if self.tag == 'merit':
             self.item.desc = self.tr("%s Rank %d, XP Cost: %d") % ( self.perk_nm, self.item.rank, self.item.cost )
