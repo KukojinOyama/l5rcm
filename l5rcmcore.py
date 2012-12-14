@@ -95,6 +95,9 @@ class CMErrors(object):
     NOT_ENOUGH_XP = 'not_enough_xp'
 
 class L5RCMCore(QtGui.QMainWindow):
+
+    dstore = None
+    
     def __init__(self, locale, parent = None): 
         super(L5RCMCore, self).__init__(parent)
         #print(repr(self))
@@ -119,12 +122,26 @@ class L5RCMCore(QtGui.QMainWindow):
         self.data_pack_blacklist = settings.value('data_pack_blacklist', [])        
     
         # Data storage
-        self.dstore = dal.Data( 
-            [osutil.get_user_data_path('core.data'),
-             osutil.get_user_data_path('data'),
-             osutil.get_user_data_path('data.' + self.locale)],
-             self.data_pack_blacklist)
-        
+        if not self.dstore:
+            self.dstore = dal.Data( 
+                [osutil.get_user_data_path('core.data'),
+                 osutil.get_user_data_path('data'),
+                 osutil.get_user_data_path('data.' + self.locale)],
+                 self.data_pack_blacklist)
+        else:
+            self.dstore.rebuild(
+                    [osutil.get_user_data_path('core.data'),
+                    osutil.get_user_data_path('data'),
+                    osutil.get_user_data_path('data.' + self.locale)],
+                    self.data_pack_blacklist)        
+
+    def check_datapacks(self):
+        if len(self.dstore.get_packs()) == 0:
+            self.advise_warning(self.tr("No Datapacks installed"),
+                                self.tr("Without data packs the software will be of little use."
+                                        "<p>Download a datapack from <a href=\"{0}\">{0}</a>.</p>"
+                                        .format(PROJECT_PAGE_LINK)))
+             
     def update_from_model(self):
         pass
         
@@ -392,10 +409,10 @@ class L5RCMCore(QtGui.QMainWindow):
                 else:
                     dest = os.path.join(dest, 'data')
                     
-                pack.export_to  (dest)
+                pack.export_to  (dest)          
                 self.reload_data()
                 self.create_new_character()
-                self.advise_successfull_import()
+                self.advise_successfull_import()                
         except Exception as e:
             self.advise_error(self.tr("Cannot import data pack."), e.message)
             
