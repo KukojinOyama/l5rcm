@@ -54,16 +54,20 @@ class SpellAdvDialog(QtGui.QDialog):
     mode           = None
     # array of properties per page, each property is a dictionary
     properties     = None    
+    # max pages
+    max_page_count = 50
     
     def __init__(self, pc, dstore, mode = 'bounded', parent = None):
         super(SpellAdvDialog, self).__init__(parent)
         self.pc  = pc
         self.mode = mode
         self.dstore = dstore
+        
+        
+        
         if mode == 'bounded':
             self.page_count = self.pc.get_how_many_spell_i_miss()
-        self.selected   = [None]*self.page_count
-        self.properties = [None]*self.page_count
+        self.properties = [None]*self.max_page_count
         self.build_ui()
         self.connect_signals()
         self.setup()
@@ -176,8 +180,12 @@ class SpellAdvDialog(QtGui.QDialog):
                     if 'nodefic' in ring:
                         self.properties[i]['no_defic'] = True
                 idx += qty
+                
+            self.page_count = max(idx, self.page_count)
         else:
             self.properties = [None]*self.page_count
+            
+        self.selected = [None]*self.page_count
         
     def set_header_text(self, text):
         self.header.setText(text)
@@ -201,7 +209,7 @@ class SpellAdvDialog(QtGui.QDialog):
     def on_maho_toggled(self):
         self.spell_wdg.set_maho_filter( self.sender().property('tag') )
             
-    def accept(self):        
+    def accept(self): 
         for s in self.selected:
             self.pc.add_spell(s.id)
         super(SpellAdvDialog, self).accept()

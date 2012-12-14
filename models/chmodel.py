@@ -196,6 +196,7 @@ class AdvancedPcModel(BasePcModel):
         self.void_cost    = 6
         self.health_multiplier = 2
         self.spells_per_rank = 3
+        self.pending_spells_count = 0;
         self.exp_limit = 40
         self.wounds = 0
         self.mod_init = (0, 0)
@@ -211,7 +212,7 @@ class AdvancedPcModel(BasePcModel):
         self.step_0.load_default()
 
     def is_dirty(self):
-        return self.unsaved
+        return self.unsaved       
 
     def get_ring_rank(self, idx):
         if idx == RINGS.VOID:
@@ -557,19 +558,41 @@ class AdvancedPcModel(BasePcModel):
 
     def can_get_other_spells(self):
         if not self.has_tag('shugenja'):
-            return
-
-        # must count also the school spells
-        target_spells = self.get_school_spells_qty() + (self.get_insight_rank()-1) * self.spells_per_rank
-        return len(self.get_spells()) < target_spells
+            return False
+        return self.get_pending_spells_count() > 0 or len(self.get_pending_wc_spells())
 
     def get_how_many_spell_i_miss(self):
         if not self.has_tag('shugenja'):
-            return 0
+            return 0      
+        return self.get_pending_spells_count()
+    
+    def get_spells_per_rank(self):
+        return self.spells_per_rank
+        
+    def set_spells_per_rank(self, value):
+        self.spells_per_rank = value
+        
+    def set_pending_spells_count(self, value):
+        self.pending_spells_count = value
+        
+    def get_pending_spells_count(self):
+        return self.pending_spells_count
+        
+    def set_pending_kiho_count(self, value):
+        self.pending_kiho_count = value
+        
+    def get_pending_kiho_count(self):
+        return self.pending_kiho_count  
 
-        # must count also the school spells
-        target_spells = self.get_school_spells_qty() + (self.get_insight_rank()-1) * self.spells_per_rank
-        return target_spells - len(self.get_spells())
+    def can_get_other_kiho(self):
+        if not self.has_tag('monk'):
+            return False
+        return self.get_pending_kiho_count() > 0
+
+    def get_how_many_kiho_i_miss(self):
+        if not self.has_tag('monk'):
+            return 0      
+        return self.get_pending_kiho_count()        
 
     def pop_spells(self, count):
         print('pop {0} spells'.format(count))
@@ -721,7 +744,7 @@ class AdvancedPcModel(BasePcModel):
         school_.tech_rules.append(rule or 'N/A')
 
     def add_tech(self, tech_uuid, rule = None):
-        school_ = self.get_school(0)
+        school_ = self.get_school()
         if school_ is None:
             return
         #print 'add tech %s, rule %s' % ( repr(tech_uuid), rule )
@@ -788,6 +811,7 @@ class AdvancedPcModel(BasePcModel):
         
     def recalc_ranks(self):
         insight_ = self.get_insight_rank()
+        schools_to_remove = []
         print('I got {0} schools'.format(len(self.schools)))
         for s in self.schools:
             print('school {0}, rank {1}'.format( s.school_id, s.school_rank ))
@@ -812,9 +836,14 @@ class AdvancedPcModel(BasePcModel):
                     
                     diff_         -= 1
                     s.school_rank -= 1
-
+                    
+                    if s.school_rank == 0:
+                        schools_to_remove.append(s)                
                 if diff_ <= 0:
-                    return
+                    break
+            for s in schools_to_remove:
+                print('remove school', s)
+                self.schools.remove(s)
                     
         elif tot_rank < insight_:
             if self.get_school() is not None:
