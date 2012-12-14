@@ -1533,8 +1533,13 @@ class L5RMain(L5RCMCore):
     def check_rank_advancement(self):
         if self.nicebar: return
 
-        if self.pc.get_insight_rank() > self.last_rank:
+        if self.pc.get_insight_rank() > self.last_rank:           
             # HEY, NEW RANK DUDE!
+            
+            # get 3 spells each rank
+            if self.pc.has_tag('shugenja'):
+                self.pc.set_pending_spells_count( self.pc.get_spells_per_rank() )
+            
             lb = QtGui.QLabel(self.tr("You reached the next rank, you have an opportunity"
                                       " to decide your destiny."), self)
             bt = QtGui.QPushButton(self.tr("Advance rank"), self)
@@ -1616,6 +1621,7 @@ class L5RMain(L5RCMCore):
                                      <h3><i>Choose with care.</i></h3></center>"))
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
+            self.pc.set_pending_spells_count(0)            
             self.update_from_model()
 
     def show_advance_rank_dlg(self):
