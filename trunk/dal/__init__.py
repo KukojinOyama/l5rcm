@@ -56,6 +56,9 @@ class DataManifest(object):
 
 class Data(object):
     def __init__(self, data_dirs = [], blacklist = []):
+        self.rebuild(data_dirs, blacklist)
+                
+    def rebuild(self, data_dirs = [], blacklist = []):
         self.data_dirs = data_dirs
 
         self.blacklist = blacklist       
@@ -90,6 +93,9 @@ class Data(object):
             collection[i] = item
         else:
             collection.append(item)
+            
+    def get_packs(self):
+        return self.packs
     
     def load_data(self, data_path):
         # iter through all the data tree and import all xml files
@@ -125,9 +131,10 @@ class Data(object):
                     print("cannot parse file {0}".format(file_))
                     import traceback
                     traceback.print_exc()
+        self.__log_imported_data()
         
     def __load_xml(self, xml_file):
-        print('load data from {0}'.format(xml_file))
+        #print('load data from {0}'.format(xml_file))
         tree = ET.parse(xml_file)
         root = tree.getroot()
         if root is None or root.tag != 'L5RCM':
@@ -161,7 +168,25 @@ class Data(object):
                 self.append_to(self.weapons, Weapon.build_from_xml(elem))
             elif elem.tag == 'Armor':
                 self.append_to(self.armors, Armor.build_from_xml(elem))
-                   
                 
-                
-                
+    def __log_imported_data(self):
+        map = {}
+        map['clans'] = self.clans
+        map['families'] = self.families
+        map['schools'] = self.schools
+        map['spells'] = self.spells
+        map['skills'] = self.skills
+        map['merits'] = self.merits
+        map['flaws'] = self.flaws
+        map['katas'] = self.katas
+        map['kihos'] = self.kihos
+        map['tattoos'] = self.tattoos
+        map['weapons'] = self.weapons
+        map['armors'] = self.armors
+        map['skcategs'] = self.skcategs
+        map['perktypes'] = self.perktypes
+        map['weapon_effects'] = self.weapon_effects  
+        
+        print('IMPORTED DATA')
+        for k in map:
+            print("imported {0} {1}".format( len(map[k]), k))

@@ -1998,12 +1998,24 @@ class L5RMain(L5RCMCore):
     def advise_error(self, message, dtl = None):
         msgBox = QtGui.QMessageBox(self)
         msgBox.setWindowTitle('L5R: CM')
+        msgBox.setTextFormat(QtCore.Qt.RichText)
         msgBox.setText(message)
         if dtl:
             msgBox.setInformativeText(dtl)
         msgBox.setIcon(QtGui.QMessageBox.Critical)
         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
         msgBox.exec_()
+        
+    def advise_warning(self, message, dtl = None):
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setTextFormat(QtCore.Qt.RichText)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(message)
+        if dtl:
+            msgBox.setInformativeText(dtl)
+        msgBox.setIcon(QtGui.QMessageBox.Warning)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+        msgBox.exec_()        
 
     def ask_to_save(self):
         msgBox = QtGui.QMessageBox(self)
@@ -2031,7 +2043,6 @@ class L5RMain(L5RCMCore):
         QtGui.QMessageBox.warning(parent, self.tr("Not enough XP"),
         self.tr("Cannot purchase.\nYou've reached the XP Limit."))
         return
-
 
     def closeEvent(self, ev):
         # update interface last time, to set unsaved states
@@ -2151,7 +2162,7 @@ class L5RMain(L5RCMCore):
 
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
-
+            
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
         self.pc.set_insight_calc_method(method)
@@ -2215,7 +2226,7 @@ def main():
 
     # check for updates
     l5rcm.check_updates()
-
+    
     # initialize new character
     l5rcm.create_new_character()
 
@@ -2226,6 +2237,9 @@ def main():
         elif IMPORT_CMD_SWITCH in sys.argv:
             imf  = sys.argv.index(IMPORT_CMD_SWITCH)
             l5rcm.import_data_pack(sys.argv[imf+1])
+            
+    # alert if not datapacks are installed
+    l5rcm.check_datapacks()          
             
     sys.exit(app.exec_())
 
