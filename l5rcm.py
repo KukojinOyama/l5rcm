@@ -1567,6 +1567,18 @@ class L5RMain(L5RCMCore):
             bt.clicked.connect( self.learn_next_school_spells )
             self.show_nicebar([lb, bt])
             
+    def check_free_kihos(self):
+        if self.nicebar: return
+
+        # Show nicebar if can get another school tech
+        if self.pc.get_free_kiho_count():
+            lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.get_free_kiho_count()), self)
+            bt = QtGui.QPushButton(self.tr("Learn Kihos"), self)
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.learn_next_free_kiho )
+            self.show_nicebar([lb, bt])
+            
     def check_missing_requirements(self):
         if self.nicebar: return
 
@@ -1624,6 +1636,13 @@ class L5RMain(L5RCMCore):
             self.pc.set_pending_spells_count(0)            
             self.update_from_model()
 
+    def learn_next_free_kiho(self):
+        dlg = dialogs.BuyAdvDialog(self.pc, 'kiho', self.dstore, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+            self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
+            print('remaing free kihos', self.pc.get_free_kiho_count())
+            self.update_from_model()
+            
     def show_advance_rank_dlg(self):
         dlg = dialogs.NextRankDlg(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
@@ -1918,6 +1937,7 @@ class L5RMain(L5RCMCore):
         self.check_rank_advancement()
         self.check_missing_requirements()
         self.check_school_tech_and_spells()
+        self.check_free_kihos()
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0

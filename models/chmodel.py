@@ -204,6 +204,7 @@ class AdvancedPcModel(BasePcModel):
         self.unlock_schools = False
         self.extra_notes = ''
         self.insight_calculation = None
+        self.free_kiho_count = 3
         
         self.modifiers  = []       
         self.properties = {}
@@ -224,6 +225,14 @@ class AdvancedPcModel(BasePcModel):
 
         return min(a, b)
 
+    def get_free_kiho_count(self):
+        if not self.has_tag('monk'):
+            return 0
+        return self.free_kiho_count
+        
+    def set_free_kiho_count(self, value):
+        self.free_kiho_count = value
+        
     def get_attrib_rank(self, attrib):
         a = self.step_0.attribs[attrib]
         b = self.step_1.attribs[attrib]
