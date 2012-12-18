@@ -35,7 +35,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv = None
         self.pc  = pc
         self.dstore = dstore
-        self.quit_on_accept = False
+        self.quit_on_accept = True
         self.build_ui()
         self.connect_signals()
         self.load_data()
@@ -147,8 +147,6 @@ class BuyAdvDialog(QtGui.QDialog):
             cb.addItem(sk.name, sk.id)
             cb.setCurrentIndex(cb.count()-1)
             cb.setEnabled(False)
-
-            self.quit_on_accept = True
 
     def connect_signals(self):
         if self.tag == 'attrib':
@@ -382,6 +380,11 @@ class BuyAdvDialog(QtGui.QDialog):
             html += self.tr("<p><b>You're not eligible to learn this Kiho</b></p>")
 
         self.adv = models.KihoAdv(uuid, kiho.id, int(ceil(kiho.mastery*cost_mult)))
+        
+        # monks can get free kihos
+        if self.pc.get_free_kiho_count() > 0:
+            self.adv.cost = 0
+            
         self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, self.adv.cost )
 
         self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kiho.element, kiho.mastery))
@@ -428,7 +431,7 @@ class BuyAdvDialog(QtGui.QDialog):
             cb.removeItem(cb.currentIndex())
 
         if self.quit_on_accept:
-            self.close()
+            self.accept()
 
     def closeEvent(self, event):
         self.cleanup()
