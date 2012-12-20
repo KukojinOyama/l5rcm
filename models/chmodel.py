@@ -370,8 +370,14 @@ class AdvancedPcModel(BasePcModel):
         return self.armor.rd if self.armor else 0
         
     def get_full_rd(self):
-        return self.get_armor_rd() + self.get_base_rd()
+        return self.get_armor_rd() + self.get_base_rd() + self.get_armor_rd_mod()
+        
+    def get_armor_tn_mod(self):
+        return sum( x.value[2] for x in self.get_modifiers('artn') if x.active and len(x.value) > 2)
 
+    def get_armor_rd_mod(self):
+        return sum( x.value[2] for x in self.get_modifiers('arrd') if x.active and len(x.value) > 2)
+        
     def get_armor_name(self):
         if self.armor is not None:
             return self.armor.name
@@ -385,7 +391,7 @@ class AdvancedPcModel(BasePcModel):
             return ''      
 
     def get_cur_tn(self):
-        return self.get_base_tn() + self.get_armor_tn()
+        return self.get_base_tn() + self.get_armor_tn() + self.get_armor_tn_mod()
 
     def get_health_rank(self, idx):
         if idx == 0:
