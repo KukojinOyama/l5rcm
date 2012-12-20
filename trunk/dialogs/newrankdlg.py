@@ -47,20 +47,25 @@ what would you want to do?
                                        "and join a new school"))
         self.bt_new_school_2 = QtGui.QPushButton(
                                self.tr("Just join a new school"))
+
+        self.bt_alt_path     = QtGui.QPushButton(
+                               self.tr("Follow an Alternate Path"))
                                
-        for bt in [self.bt_go_on, self.bt_new_school_1, self.bt_new_school_2]:
+        for bt in [self.bt_go_on, self.bt_new_school_1, self.bt_new_school_2, self.bt_alt_path]:
             bt.setMinimumSize(QtCore.QSize(0, 38))
         
         vbox.addWidget(self.bt_go_on       )
         vbox.addWidget(self.bt_new_school_1)
         vbox.addWidget(self.bt_new_school_2)
+        vbox.addWidget(self.bt_alt_path)
         
         vbox.setSpacing(12)
         
     def connect_signals(self):
         self.bt_go_on.clicked.connect(self.accept)
-        self.bt_new_school_1.clicked.connect(self.merit_plus_school )
-        self.bt_new_school_2.clicked.connect(self.join_new_school   )
+        self.bt_new_school_1.clicked.connect(self.merit_plus_school)
+        self.bt_new_school_2.clicked.connect(self.join_new_school)
+        self.bt_alt_path.clicked.connect(self.follow_alternate_path)
     
     def join_new_school(self):
         dlg = SchoolChoiceDlg(self.pc, self.dstore, self)
@@ -78,6 +83,25 @@ what would you want to do?
         school_obj.deficiency = sc.deficiency       
         
         self.pc.schools.append(school_obj)
+        self.accept()
+        
+    def follow_alternate_path(self):
+        dlg = SchoolChoiceDlg(self.pc, self.dstore, self)
+        dlg.set_tag_filter('alternate')
+        if dlg.exec_() == QtGui.QDialog.Rejected:
+            #self.reject()
+            return
+        sc = dal.query.get_school(self.dstore, dlg.get_school_id())
+        
+        school_nm  = sc.name
+        path_obj = models.CharacterPath(sc.id, self.pc.get_insight_rank())
+        path_obj.tags = sc.tags
+        path_obj.school_rank = 0
+        
+        #school_obj.affinity   = sc.affinity
+        #school_obj.deficiency = sc.deficiency
+        
+        self.pc.paths.append(path_obj)
         self.accept()
         
     def merit_plus_school(self):       
@@ -114,9 +138,10 @@ class SchoolChoiceDlg(QtGui.QDialog):
         self.pc     = pc
         self.dstore = dstore
         
-        self.school_nm = ''
-        self.school_id = 0
-        self.school_tg = []
+        self.school_nm  = ''
+        self.school_id  = 0
+        self.school_tg  = []
+        self.tag_filter = None
                 
         self.build_ui       ()
         self.setWindowTitle(self.tr("L5R: CM - Select School"))
@@ -156,6 +181,11 @@ class SchoolChoiceDlg(QtGui.QDialog):
         
         for clan in self.dstore.clans:
             self.cb_clan.addItem(clan.name, clan.id)
+            
+    def set_tag_filter(self, filter):
+        self.tag_filter = filter
+        # refresh
+        self.on_clan_change()
                         
     def on_clan_change(self):    
         idx_ = self.cb_clan.currentIndex()
@@ -175,6 +205,9 @@ class SchoolChoiceDlg(QtGui.QDialog):
                     return True
             return False
             
+        if self.tag_filter:
+            schools = [x for x in schools if self.tag_filter in x.tags]
+        
         for school in schools:
             if not has_school(school.id):
                 self.cb_school.addItem(school.name, school.id)

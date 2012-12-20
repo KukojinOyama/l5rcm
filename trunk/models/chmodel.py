@@ -162,7 +162,12 @@ class CharacterSchool(object):
             self.tags.remove(tag)
 
     def clear_tags(self):
-        self.tags = []        
+        self.tags = []
+        
+class CharacterPath(CharacterSchool):
+    def __init__(self, school_id = 0, target_rank = 0):
+        super(CharacterPath, self).__init__(school_id)
+        self.target_rank = target_rank
                       
 class AdvancedPcModel(BasePcModel):
     def __init__(self):
@@ -189,6 +194,7 @@ class AdvancedPcModel(BasePcModel):
         self.armor      = None
         self.weapons    = []
         self.schools    = []
+        self.paths      = []
 
         self.mastery_abilities = []
 
@@ -465,6 +471,8 @@ class AdvancedPcModel(BasePcModel):
     def get_techs(self):                
         ls = []
         for s in self.schools:
+            ls += s.techs
+        for s in self.paths:
             ls += s.techs
         if self.step_2.school_tech is not None and \
            self.step_2.school_tech not in ls:

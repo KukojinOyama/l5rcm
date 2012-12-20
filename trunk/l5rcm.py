@@ -1519,12 +1519,23 @@ class L5RMain(L5RCMCore):
         # for now do not support multiple school advantage
         # learn next technique for your school
 
-        next_rank = self.pc.get_school_rank() + 1
-        school = dal.query.get_school(self.dstore, self.pc.get_school_id())
-
-        for tech in [ x for x in school.techs if x.rank == next_rank ]:
-            self.pc.add_tech(tech.id, tech.id)            
-            print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
+        next_rank = self.pc.get_school_rank() + 1        
+        
+        # first of all let's check if the pc has a path for
+        # that target rank
+        # otherwise proceed with the current school
+        path = [x for x in self.pc.paths if x.target_rank == next_rank]
+        if len(path):
+            path   = path[0]
+            school = dal.query.get_school(self.dstore, path.school_id)
+            for tech in [ x for x in school.techs if x.rank == 0 ]:
+                path.techs.append(tech.id)
+                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))            
+        else:
+            school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+            for tech in [ x for x in school.techs if x.rank == next_rank ]:
+                self.pc.add_tech(tech.id, tech.id)            
+                print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
         #self.sink1.switch_to_page_3()
