@@ -47,17 +47,13 @@ what would you want to do?
                                        "and join a new school"))
         self.bt_new_school_2 = QtGui.QPushButton(
                                self.tr("Just join a new school"))
-
-        self.bt_alt_path     = QtGui.QPushButton(
-                               self.tr("Follow an Alternate Path"))
                                
-        for bt in [self.bt_go_on, self.bt_new_school_1, self.bt_new_school_2, self.bt_alt_path]:
+        for bt in [self.bt_go_on, self.bt_new_school_1, self.bt_new_school_2]:
             bt.setMinimumSize(QtCore.QSize(0, 38))
         
         vbox.addWidget(self.bt_go_on       )
         vbox.addWidget(self.bt_new_school_1)
         vbox.addWidget(self.bt_new_school_2)
-        vbox.addWidget(self.bt_alt_path)
         
         vbox.setSpacing(12)
         
@@ -65,7 +61,6 @@ what would you want to do?
         self.bt_go_on.clicked.connect(self.accept)
         self.bt_new_school_1.clicked.connect(self.merit_plus_school)
         self.bt_new_school_2.clicked.connect(self.join_new_school)
-        self.bt_alt_path.clicked.connect(self.follow_alternate_path)
     
     def join_new_school(self):
         dlg = SchoolChoiceDlg(self.pc, self.dstore, self)
@@ -80,30 +75,22 @@ what would you want to do?
         school_obj.school_rank = 0
 
         school_obj.affinity   = sc.affinity
-        school_obj.deficiency = sc.deficiency       
+        school_obj.deficiency = sc.deficiency
+        
+        #current_school_id = self.pc.get_current_school_id()
         
         self.pc.schools.append(school_obj)
+        
+        # check for alternate path
+        if school_obj.has_tag('alternate'):
+            school_obj.is_path = True
+            school_obj.path_rank = self.pc.get_insight_rank()
+            #self.pc.set_current_school_id(current_school_id)
+        #else:
+        self.pc.set_current_school_id(sc.id)
+        
         self.accept()
-        
-    def follow_alternate_path(self):
-        dlg = SchoolChoiceDlg(self.pc, self.dstore, self)
-        dlg.set_tag_filter('alternate')
-        if dlg.exec_() == QtGui.QDialog.Rejected:
-            #self.reject()
-            return
-        sc = dal.query.get_school(self.dstore, dlg.get_school_id())
-        
-        school_nm  = sc.name
-        path_obj = models.CharacterPath(sc.id, self.pc.get_insight_rank())
-        path_obj.tags = sc.tags
-        path_obj.school_rank = 0
-        
-        #school_obj.affinity   = sc.affinity
-        #school_obj.deficiency = sc.deficiency
-        
-        self.pc.paths.append(path_obj)
-        self.accept()
-        
+               
     def merit_plus_school(self):       
         mult_school_merit = dal.query.get_merit(self.dstore, 'multiple_schools')
         try:
@@ -141,14 +128,14 @@ class SchoolChoiceDlg(QtGui.QDialog):
         self.school_nm  = ''
         self.school_id  = 0
         self.school_tg  = []
-        self.tag_filter = None
+        self.schools    = []
                 
         self.build_ui       ()
         self.setWindowTitle(self.tr("L5R: CM - Select School"))
         
     def build_ui(self):
         vbox = QtGui.QVBoxLayout(self)
-        vbox.addWidget(QtGui.QLabel(self.tr("Choose the school to join")))
+        vbox.addWidget(QtGui.QLabel(self.tr("Choose the school or path to join")))
         
         grp_ = QtGui.QGroupBox(self.tr("Clan"), self)
         hb_  = QtGui.QHBoxLayout(grp_)
@@ -164,8 +151,22 @@ class SchoolChoiceDlg(QtGui.QDialog):
         hb_.addWidget(self.cb_school)        
         vbox.addWidget(grp_)
         
-        self.cb_school.currentIndexChanged.connect(self.on_school_change)        
-
+        self.cb_school.currentIndexChanged.connect(self.on_school_change)
+        
+        grp_ = QtGui.QGroupBox(self.tr("Filters"), self)
+        vb_  = QtGui.QVBoxLayout(grp_)
+        self.cx_base_schools = QtGui.QCheckBox(self.tr("Base schools"), self)
+        self.cx_advc_schools = QtGui.QCheckBox(self.tr("Advanced schools"), self)
+        self.cx_path_schools = QtGui.QCheckBox(self.tr("Alternate paths"), self)
+        vb_.addWidget(self.cx_base_schools)
+        vb_.addWidget(self.cx_advc_schools)
+        vb_.addWidget(self.cx_path_schools)
+        vbox.addWidget(grp_)
+        
+        self.cx_base_schools.toggled.connect(self.refresh_data)
+        self.cx_advc_schools.toggled.connect(self.refresh_data)
+        self.cx_path_schools.toggled.connect(self.refresh_data)
+        
         grp_ = QtGui.QGroupBox(self.tr("Notes"), self)
         hb_  = QtGui.QHBoxLayout(grp_)
         self.te_notes = QtGui.QTextEdit(self)
@@ -174,24 +175,40 @@ class SchoolChoiceDlg(QtGui.QDialog):
         vbox.addWidget(grp_)
         
         self.bt_ok = QtGui.QPushButton(self.tr("Confirm"), self)
-        self.bt_ok.setMaximumSize(QtCore.QSize(200, 65000))        
+        #self.bt_ok.setMaximumSize(QtCore.QSize(200, 65000))
         vbox.addWidget(self.bt_ok)
+        
+        self.setContentsMargins(12,0,12,0)
         
         self.bt_ok.clicked.connect(self.on_accept)
         
-        for clan in self.dstore.clans:
-            self.cb_clan.addItem(clan.name, clan.id)
-            
-    def set_tag_filter(self, filter):
-        self.tag_filter = filter
-        # refresh
-        self.on_clan_change()
-                        
+        self.cx_base_schools.setChecked(True)
+                    
+    def refresh_data(self):
+        clans   = []
+        schools = []
+        
+        if self.cx_base_schools.isChecked():
+            schools += dal.query.get_base_schools(self.dstore)
+        if self.cx_advc_schools.isChecked():
+            schools += [x for x in self.dstore.schools if 'advanced' in x.tags]
+        if self.cx_path_schools.isChecked():
+            schools += [x for x in self.dstore.schools if 'alternate' in x.tags]
+        
+        self.schools = schools
+        
+        self.cb_clan.clear()
+        for c in [x.clanid for x in schools]:
+            if c not in clans:
+                clans.append(c)
+                clan = dal.query.get_clan(self.dstore, c)
+                self.cb_clan.addItem(clan.name, clan.id)
+                                        
     def on_clan_change(self):    
         idx_ = self.cb_clan.currentIndex()
                
         clan_id = self.cb_clan.itemData(idx_)
-        schools = [ x for x in self.dstore.schools if x.clanid == clan_id ]
+        schools = [ x for x in self.schools if x.clanid == clan_id ]
         
         if self.pc.has_tag('bushi'):
             schools = [ x for x in schools if 'shugenja' not in x.tags ]
@@ -204,10 +221,7 @@ class SchoolChoiceDlg(QtGui.QDialog):
                 if s.school_id == uuid:
                     return True
             return False
-            
-        if self.tag_filter:
-            schools = [x for x in schools if self.tag_filter in x.tags]
-        
+                    
         for school in schools:
             if not has_school(school.id):
                 self.cb_school.addItem(school.name, school.id)

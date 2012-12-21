@@ -308,16 +308,15 @@ class FDFExporterBushi(FDFExporter):
             school = dal.query.get_school(f.dstore, schools[i].school_id)
             fields['BUSHI_SCHOOL_NM.%d'  % i ] = school.name
             
-            j = 0
             for t in techs:
                 #tech   = dal.query.get_school_tech(school, j+1)
-                thsc, tech = dal.query.get_tech(f.dstore, t)
+                thsc, tech = dal.query.get_tech(f.dstore, t)                
                 if not tech:
                     break
                 if thsc != school:
                     continue
-                fields['BUSHI_TECH.%d.%d' % (j, i)] = tech.name
-                j += 1
+                rank = tech.rank-1 if tech.rank > 0 else 0
+                fields['BUSHI_TECH.%d.%d' % (rank, i)] = tech.name
                 
         # kata
         katas = [x.kata for x in m.get_kata()]        
@@ -332,3 +331,7 @@ class FDFExporterBushi(FDFExporter):
         # EXPORT FIELDS    
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)               
+            
+class FDFExporterMonk(FDFExporter):
+    def __init__(self):
+        super(FDFExporterMonk, self).__init__()            
