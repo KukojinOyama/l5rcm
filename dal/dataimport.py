@@ -28,7 +28,26 @@ class ManifestNotFound(Exception):
 class InvalidDataPack(Exception):
     def __init__(self, msg):
         super(InvalidDataPack, self).__init__(msg)        
+        
+class VersionMismatch(Exception):
+    def __init__(self, msg):
+        super(VersionMismatch, self).__init__(msg)           
 
+def cmp_versions(v1, v2):
+    t1 = v1.split('.')
+    t2 = v2.split('.')
+    i = 0
+    r = 0
+    e = max( len(t1), len(t2) )
+    while True:
+        n1 = int(t1[i]) if len(t1) > i else 0
+        n2 = int(t2[i]) if len(t2) > i else 0
+        if n1 > n2: return 1
+        if n2 > n1: return -1
+        i+=1
+        if i == e: break
+    return 0
+        
 class DataPack(object):
 
     def __init__(self, archive_path):    
@@ -87,19 +106,29 @@ class DataPack(object):
             os.makedirs(data_path)
             
         dest_dir = os.path.join(data_path, self.id)
-            
-        try:
-            if os.path.exists(dest_dir):
-                shutil.rmtree(dest_dir, ignore_errors=True)
-        except:
-            print("cannot delete old data pack")            
-            
+        if os.path.exists(dest_dir):
+            if self.is_older_or_same(data_path):
+                try:
+                    shutil.rmtree(dest_dir, ignore_errors=True)
+                except:
+                    print("cannot delete old data pack")                               
+            else:
+                raise VersionMismatch("A new version of this Data pack is already installed.")
         try:       
             with zipfile.ZipFile(self.archive_path, 'r') as dz:
                 dz.extractall(data_path)
         except:
             raise InvalidDataPack('Cannot extract. Not a valid Data pack file.')
-        
+    
+    def is_older_or_same(self, src_dir):
+        try:
+            with open( os.path.join(src_dir, 'manifest'), 'rt' ) as fp:
+                js = json.load(fp)
+                #print('datapack version {0} vs {1}'.format(self.version, js['version']))
+                #print('result', cmp_versions(self.version, js['version']))
+                return cmp_versions(self.version, js['version']) >= 0
+        except Exception as e:
+            return True
     def good(self):
         return self.id is not None
                 
@@ -119,5 +148,11 @@ def test():
     
     importer.export_to('./test_out')
     
+def test2():    
+    v1 = '1.9.1.0'
+    v2 = '1.9.1'
+    print(cmp_versions(v1,v2))
+    
 if __name__ == '__main__':
-    test()
+    #test()
+    test2()
