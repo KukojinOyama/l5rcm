@@ -1516,21 +1516,28 @@ class L5RMain(L5RCMCore):
 
 
     def learn_next_school_tech(self):
-        # for now do not support multiple school advantage
-        # learn next technique for your school
-
-        next_rank = self.pc.get_school_rank() + 1        
+        self.pc.recalc_ranks()
+        next_rank = self.pc.get_school_rank() + 1
         
         # first of all let's check if the pc has a path for
         # that target rank
         # otherwise proceed with the current school
-        path = [x for x in self.pc.paths if x.target_rank == next_rank]
+        path = [x for x in self.pc.schools if x.is_path and x.path_rank == next_rank]
+        print('next_rank', next_rank)
+        print('path', path)
         if len(path):
             path   = path[0]
             school = dal.query.get_school(self.dstore, path.school_id)
             for tech in [ x for x in school.techs if x.rank == 0 ]:
                 path.techs.append(tech.id)
-                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))            
+                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))
+            
+            try:
+                # should turn back to old school
+                past_school = self.pc.schools[ len(self.pc.schools) - 2 ]
+                self.pc.set_current_school_id( past_school.school_id )
+            except:
+                print('cannot go back to old school after alternate path')
         else:
             school = dal.query.get_school(self.dstore, self.pc.get_school_id())
             for tech in [ x for x in school.techs if x.rank == next_rank ]:
@@ -1753,10 +1760,9 @@ class L5RMain(L5RCMCore):
         schools = []
         
         # TODO: Sort
-        if not clan_id:
-            schools = [ x for x in self.dstore.schools if len(x.require) == 0 ]
-        else:
-            schools = [ x for x in self.dstore.schools if (len(x.require) == 0 and x.clanid == clan_id) ]
+        schools = dal.query.get_base_schools(self.dstore)
+        if clan_id is not None:
+            schools = [x for x in schools if x.clanid == clan_id]
                                             
         self.cb_pc_school.addItem( self.tr("No School"), None )
         for s in schools:

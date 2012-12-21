@@ -77,15 +77,15 @@ class TechViewModel(QtCore.QAbstractListModel):
         self.clean()
         print('got {0} techs'.format( len(model.get_techs()) ))
         for tech in model.get_techs():
-            adjusted_rank = self.check_alternate_path(model, tech)                
+            adjusted_rank = self.adjust_tech_rank(model, tech)                
             self.add_item(tech, adjusted_rank)
         # sort by rank
         self.items.sort()
             
-    def check_alternate_path(self, model, tech_id):
-        paths = [x for x in model.paths if tech_id in x.techs]
+    def adjust_tech_rank(self, model, tech_id):
+        paths = [x for x in model.schools if x.is_path and tech_id in x.techs]
         if len(paths):
-            return paths[0].target_rank
+            return paths[0].path_rank
         return 0
         
     def data(self, index, role):

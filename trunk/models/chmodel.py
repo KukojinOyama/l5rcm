@@ -149,6 +149,10 @@ class CharacterSchool(object):
         self.tags        = []
         self.affinity    = None
         self.deficiency  = None
+        
+        # alternate path
+        self.is_path     = False
+        self.path_rank   = 0
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -163,11 +167,6 @@ class CharacterSchool(object):
 
     def clear_tags(self):
         self.tags = []
-        
-class CharacterPath(CharacterSchool):
-    def __init__(self, school_id = 0, target_rank = 0):
-        super(CharacterPath, self).__init__(school_id)
-        self.target_rank = target_rank
                       
 class AdvancedPcModel(BasePcModel):
     def __init__(self):
@@ -194,9 +193,9 @@ class AdvancedPcModel(BasePcModel):
         self.armor      = None
         self.weapons    = []
         self.schools    = []
-        self.paths      = []
 
         self.mastery_abilities = []
+        self.current_school_id = ''
 
         self.attrib_costs = [4, 4, 4, 4, 4, 4, 4, 4]
         self.void_cost    = 6
@@ -283,10 +282,23 @@ class AdvancedPcModel(BasePcModel):
     def get_family(self):
         return self.family
         
+    def set_current_school_id(self, school_id):
+        self.current_school_id = school_id
+        
+    def get_current_school_id(self):
+        return self.current_school_id
+        
+    def get_current_school(self):
+        school = [x for x in self.schools if x.school_id == self.current_school_id]
+        if len(school):
+            return school[0]
+        return None
+               
     def get_school(self, index = -1):
         if len(self.schools) == 0 or index >= len(self.schools):
             return None
-        if index < 0: index = len(self.schools)-1
+        if index < 0: 
+            return self.get_current_school()
         return self.schools[index]
         
     def get_school_id(self, index = -1):
@@ -477,8 +489,6 @@ class AdvancedPcModel(BasePcModel):
     def get_techs(self):                
         ls = []
         for s in self.schools:
-            ls += s.techs
-        for s in self.paths:
             ls += s.techs
         if self.step_2.school_tech is not None and \
            self.step_2.school_tech not in ls:
@@ -741,6 +751,7 @@ class AdvancedPcModel(BasePcModel):
             
         self.schools = [ CharacterSchool(school_id) ]
         self.step_2.honor = honor
+        self.set_current_school_id(school_id)
 
         for t in tags:
             self.get_school().add_tag(t)
