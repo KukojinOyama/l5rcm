@@ -89,7 +89,8 @@ what would you want to do?
             school_obj.is_path = True
             school_obj.path_rank = self.pc.get_insight_rank()
 
-        self.pc.set_current_school_id(sc.id)
+        self.pc.set_current_school_id(sc.id)        
+        self.pc.set_can_get_other_tech(True)
         
         self.accept()        
                
@@ -128,6 +129,8 @@ what would you want to do?
             for s in reversed(self.pc.schools):
                 if not s.is_path:
                     self.pc.set_current_school_id(s.school_id)
+                    
+        self.pc.set_can_get_other_tech(True)
         self.accept()
 
 class SchoolChoiceDlg(QtGui.QDialog):
@@ -292,36 +295,8 @@ class SchoolChoiceDlg(QtGui.QDialog):
         return self.school_tg
         
     def check_requirements(self, school_id):
-        def requirement_to_string(rtype, rfield, min_, max_, trgt):
-            if rtype == 'ring' or rtype == 'trait':
-                return '%s: %s' % (rfield.capitalize(), min_)
-            if rtype == 'skill':
-                rfield = rfield.replace(';', ' or ')
-                if trgt:
-                    return '%s (%s): %s' % (rfield.capitalize(), trgt, min_)
-                else:
-                    return '%s %s' % (rfield.capitalize(), min_)
-            if rtype == 'tag' or rtype == 'rule':
-                return rfield.replace('_' , ' ').capitalize()
-                
-        def wc_requirement_to_string(rtype, rfield, min_, max_, trgt):
-            if rtype == 'ring' and rfield == '*any':
-                return self.tr("Any ring: %s") % min_
-            if rtype == 'trait' and rfield == '*any':
-                return self.tr("Any trait: %s") % min_
-            if rtype == 'skill' and rfield == '*any':
-                return self.tr("Any skill: %s") % min_
-            elif rtype == 'skill':
-                tag = rfield[1:].capitalize()
-                return self.tr("Any %s skill: %s") % (tag, min_)
-            return self.tr("N/A")
             
         def req_to_string(req):
-            #if not hasattr(req, 'field'):
-            #    return 'TODO'
-            #if req.field.startswith('*'):
-            #    return wc_requirement_to_string(req.type, req.field, req.min, req.max, req.trg)
-            #return requirement_to_string(req.type, req.field, req.min, req.max, req.trg)
             return unicode(req)
             
         unmatched = []

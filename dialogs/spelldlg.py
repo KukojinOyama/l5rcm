@@ -211,6 +211,7 @@ class SpellAdvDialog(QtGui.QDialog):
             
     def accept(self): 
         for s in self.selected:
+            if not s: return False # do not exit the form!!!
             self.pc.add_spell(s.id)
         super(SpellAdvDialog, self).accept()
             
