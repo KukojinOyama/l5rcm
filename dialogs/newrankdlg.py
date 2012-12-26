@@ -57,8 +57,13 @@ what would you want to do?
         
         vbox.setSpacing(12)
         
+        # check if the PC is following an alternate path
+        if self.pc.get_school().is_path:
+            # offer to going back
+            self.bt_go_on.setText( self.tr("Go back to your old school"))            
+        
     def connect_signals(self):
-        self.bt_go_on.clicked.connect(self.accept)
+        self.bt_go_on.clicked.connect(self.simply_go_on)
         self.bt_new_school_1.clicked.connect(self.merit_plus_school)
         self.bt_new_school_2.clicked.connect(self.join_new_school)
     
@@ -76,20 +81,17 @@ what would you want to do?
 
         school_obj.affinity   = sc.affinity
         school_obj.deficiency = sc.deficiency
-        
-        #current_school_id = self.pc.get_current_school_id()
-        
+               
         self.pc.schools.append(school_obj)
         
         # check for alternate path
         if school_obj.has_tag('alternate'):
             school_obj.is_path = True
             school_obj.path_rank = self.pc.get_insight_rank()
-            #self.pc.set_current_school_id(current_school_id)
-        #else:
+
         self.pc.set_current_school_id(sc.id)
         
-        self.accept()
+        self.accept()        
                
     def merit_plus_school(self):       
         mult_school_merit = dal.query.get_merit(self.dstore, 'multiple_schools')
@@ -117,6 +119,16 @@ what would you want to do?
             self.join_new_school()
         except:
             self.reject()
+            
+    def simply_go_on(self):
+        # check if the PC is following an alternate path
+        if self.pc.get_school().is_path:
+            # the PC want to go back to the old school.
+            # find the first school that is not a path
+            for s in reversed(self.pc.schools):
+                if not s.is_path:
+                    self.pc.set_current_school_id(s.school_id)
+        self.accept()
 
 class SchoolChoiceDlg(QtGui.QDialog):
     def __init__(self, pc, dstore, parent = None):
@@ -303,117 +315,25 @@ class SchoolChoiceDlg(QtGui.QDialog):
                 tag = rfield[1:].capitalize()
                 return self.tr("Any %s skill: %s") % (tag, min_)
             return self.tr("N/A")
-                
+            
+        def req_to_string(req):
+            #if not hasattr(req, 'field'):
+            #    return 'TODO'
+            #if req.field.startswith('*'):
+            #    return wc_requirement_to_string(req.type, req.field, req.min, req.max, req.trg)
+            #return requirement_to_string(req.type, req.field, req.min, req.max, req.trg)
+            return unicode(req)
+            
         unmatched = []
         
         school = dal.query.get_school(self.dstore, school_id)
                
-        self.pc_skills = {}
-        self.pc_rings  = []
-        self.pc_traits = []
+        pc = models.CharacterSnapshot(self.pc)
         
-        for sk_id in self.pc.get_skills():
-            self.pc_skills[sk_id] = self.pc.get_skill_rank(sk_id)
-            
-        for i in xrange(0, 5):
-            self.pc_rings.append((i, self.pc.get_ring_rank(i)))
-            
-        for i in xrange(0, 8):
-            self.pc_traits.append((i, self.pc.get_attrib_rank(i)))
-        
-        for req in school.require:
-            rtype  = req.type
-            rfield = req.field
-            min_   = req.min
-            max_   = req.max
-            trgt   = req.trg
-            
-            if rfield.startswith('*'):            
-                if not self.match_wc_requirement(rtype, rfield, min_, max_, trgt):                     
-                    unmatched.append( wc_requirement_to_string(rtype, rfield, min_, max_, trgt) )
-            else:
-                if not self.match_requirement(rtype, rfield, min_, max_, trgt):
-                    unmatched.append( requirement_to_string(rtype, rfield, min_, max_, trgt) )
-                
-        return unmatched
-        
-    def match_requirement(self, rtype, rfield, min_, max_, trgt):
-        if rfield == 'honor':
-            return self.pc.get_honor() > min_
-        if rfield == 'status':
-            return self.pc.get_status() > min_
-        if rfield == 'glory':
-            return self.pc.get_glory() > min_        
-        if rtype == 'ring':
-            ring_id = models.ring_from_name(rfield)
-            return self.pc.get_ring_rank(ring_id) >= min_
-        if rtype == 'trait':
-            trait_id = models.attrib_from_name(rfield)
-            return self.pc.get_attrib_rank(trait_id) >= min_
-        if rtype == 'skill':
-            or_skills = rfield.split(';')
-            if len(or_skills) > 1:
-                ret = False
-                for sk in or_skills:
-                    ret = self.match_requirement(rtype, sk, min_, max_, trgt)
-                    if ret: return True
-                return False
-                
-            skill_id = rfield
-            if not skill_id: return True
-            if trgt and trgt not in self.pc.get_skill_emphases(skill_id):
-                return False # missing emphases
-            if (skill_id not in self.pc_skills or
-                self.pc_skills[skill_id] < min_):
-                return False
-            
-            self.pc_skills.pop(skill_id)
-            return True
-        if rtype == 'tag':
-            return self.pc.has_tag(rfield)
-        if rtype == 'rule':
-            return self.pc.has_rule(rfield)
-        return True
-            
-    def match_wc_requirement(self, rtype, rfield, min_, max_, trgt):
-        got_req = -1
-        if rtype == 'ring':
-            if rfield == '*any': # any ring                
-                for i in xrange(0, len(self.pc_rings)):
-                    if self.pc_rings[i][1] >= min_:
-                        got_req = i
-            if got_req >= 0:
-                del self.pc_rings[got_req]
-                return True            
-            return False
-        if rtype == 'trait':
-            if rfield == '*any': # any trait
-                for i in xrange(0, len(self.pc_traits)):
-                    if self.pc_traits[i][1] >= min_:
-                        got_req = i
-            if got_req >= 0:
-                del self.pc_traits[got_req]
-                return True                 
-            return False
-        if rtype == 'skill':
-            if rfield == '*any': # any skills
-                for k in self.pc_skills.iterkeys():
-                    if self.pc_skills[k] >= min_:
-                        got_req = k
-            else:
-                tag = rfield[1:]
-                for k in self.pc_skills.iterkeys():
-                    sk = dal.query.get_skill(self.dstore, k)
-                    if tag not in sk.tags:
-                        continue
-                    if self.pc_skills[k] >= min_:
-                        got_req = k
-                        
-            if got_req >= 0:
-                self.pc_skills.pop(got_req)
-                return True  
-            return False
-        return True
+        for req in school.require:                                   
+            if not req.match(pc, self.dstore):
+                unmatched.append( req_to_string(req) )                
+        return unmatched        
         
 def test():
     import sys

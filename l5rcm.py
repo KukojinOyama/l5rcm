@@ -1516,36 +1516,41 @@ class L5RMain(L5RCMCore):
 
 
     def learn_next_school_tech(self):
-        self.pc.recalc_ranks()
-        next_rank = self.pc.get_school_rank() + 1
+        #self.pc.recalc_ranks()
+        
         
         # first of all let's check if the pc has a path for
         # that target rank
         # otherwise proceed with the current school
-        path = [x for x in self.pc.schools if x.is_path and x.path_rank == next_rank]
-        print('next_rank', next_rank)
-        print('path', path)
+        path = [x for x in self.pc.schools if x.is_path and x.path_rank == self.pc.get_insight_rank()]
+
         if len(path):
             path   = path[0]
-            school = dal.query.get_school(self.dstore, path.school_id)
-            for tech in [ x for x in school.techs if x.rank == 0 ]:
-                path.techs.append(tech.id)
-                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))
+            print('path', path.school_id)
+            # get last learned techs
+            last_tech_id = self.pc.get_techs()[-1]
+            last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
             
-            try:
-                # should turn back to old school
-                past_school = self.pc.schools[ len(self.pc.schools) - 2 ]
-                self.pc.set_current_school_id( past_school.school_id )
-            except:
-                print('cannot go back to old school after alternate path')
-        else:
+            school = dal.query.get_school(self.dstore, path.school_id)
+            for tech in [ x for x in school.techs if x.rank == (last_tech.rank+1) ]:
+                path.techs.append(tech.id)
+                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))        
+        else:            
+            next_rank = self.pc.get_school_rank() + 1
             school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+            
+            # going back from a path?
+            last_ch_school = self.pc.schools[-1]
+            if last_ch_school and last_ch_school.is_path:
+                last_tech_id = self.pc.get_techs()[-1]
+                last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)                
+                next_rank = last_tech.rank+1
+            
             for tech in [ x for x in school.techs if x.rank == next_rank ]:
                 self.pc.add_tech(tech.id, tech.id)            
                 print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
-        #self.sink1.switch_to_page_3()
         self.update_from_model()
 
     def check_rank_advancement(self):

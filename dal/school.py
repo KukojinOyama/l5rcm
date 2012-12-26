@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import models
+
 class SchoolSkill(object):
     
     @staticmethod
@@ -101,7 +103,122 @@ class SchoolRequirement(object):
         f.max = int(elem.attrib['max']) if ('max' in elem.attrib) else None
         f.trg = elem.attrib['trg'] if ('trg' in elem.attrib) else None
         f.text = elem.text
-        return f              
+        return f
+        
+    def __str__(self):
+        return self.text
+        
+    def __unicode__(self):
+        return self.text        
+        
+    def match(self, pc, dstore):
+        import models
+        
+        if self.field.startswith('*'):
+            return self.match_wildcard(pc, dstore)        
+        if self.field == 'honor':
+            return pc.get_honor() > self.min
+        if self.field == 'status':
+            return pc.get_status() > self.min
+        if self.field == 'glory':
+            return pc.get_glory() > self.min        
+        if self.type == 'ring':
+            return pc.get_ring_rank(self.field) >= self.min
+        if self.type == 'trait':
+            return pc.get_trait_rank(self.field) >= self.min
+        if self.type == 'skill':
+            skill_id = self.field
+            if not skill_id: return True
+            if self.trg and self.trg not in pc.get_skill_emphases(skill_id):
+                return False # missing emphases
+            if (skill_id not in pc.get_skills() or
+                pc.get_skill_rank(skill_id) < self.min):
+                return False
+            pc.set_skill_rank(skill_id, 0)
+            return True
+        if self.type == 'tag':
+            return pc.has_tag(self.field)
+        if self.type == 'rule':
+            return pc.has_rule(self.field)
+        return True
+        
+    def match_wc_ring(self, pc, dstore):
+        r = False
+        if self.field == '*any': # any ring 
+            for i in xrange(0, 5):
+                ring_id = models.ring_name_from_id(i)
+                if pc.get_ring_rank(ring_id) >= self.min:
+                    pc.set_ring_rank(ring_id, 0)
+                    r = True
+                    break
+        return r
+        
+    def match_wc_trait(self, pc, dstore):
+        r = False
+        if self.field == '*any': # any trait 
+            for i in xrange(0, 8):
+                trait_id = models.attrib_name_from_id(i)
+                if pc.get_trait_rank(trait_id) >= self.min:
+                    pc.get_attrib_rank(trait_id, 0)
+                    r = True
+                    break
+        return r
+        
+    def match_wc_skill(self, model, dstore):
+        r = False
+        if self.field == '*any': # any skills
+            for k in pc.get_skills():
+                if pc.get_skill_rank(k) >= self.min:
+                    r = True
+                    pc.set_skill_rank(k, 0)
+        else:
+            import dal
+            import dal.query
+            
+            tag = self.field[1:]
+            for k in pc.get_skills():
+                sk = dal.query.get_skill(dstore, k)
+                if tag not in sk.tags:
+                    continue                    
+                if pc.get_skill_rank(k) >= self.min:
+                    r = True
+                    pc.set_skill_rank(k, 0)
+                    break
+        return r    
+
+    def match_wildcard(self, model):
+        got_req = -1
+        if self.type == 'ring':
+            return self.match_wc_ring(model)
+        if self.type == 'trait':
+            return self.match_wc_trait(model)
+        if self.type == 'skill':
+            return self.match_wc_skill(model)
+        return True    
+        
+class SchoolRequirementOption(object):
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolRequirementOption()
+        f.require = []
+        f.text = elem.attrib['text'] if ('text' in elem.attrib) else ''
+        for se in elem.iter():
+            if se.tag == 'Requirement':
+                f.require.append(SchoolRequirement.build_from_xml(se))
+        return f
+        
+    def match(self, model, dstore):
+        # at least one should match
+        for r in self.require:
+            if r.match(model, dstore):
+                return True
+        return False
+
+    def __str__(self):
+        return self.text
+        
+    def __unicode__(self):
+        return self.text
 
 class School(object):
 
@@ -148,11 +265,14 @@ class School(object):
                 f.spells.append(SchoolSpell.build_from_xml(se))
                 
         # requirements
-        f.require = []
-        for se in elem.find('Requirements').iter():
+        f.require = []        
+        
+        for se in elem.find('Requirements'):
             if se.tag == 'Requirement':
                 f.require.append(SchoolRequirement.build_from_xml(se))        
-                
+            if se.tag == 'RequirementOption':
+                f.require.append(SchoolRequirementOption.build_from_xml(se))        
+        
         return f
 
     def __str__(self):

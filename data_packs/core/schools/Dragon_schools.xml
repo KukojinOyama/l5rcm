@@ -242,7 +242,9 @@
       <Requirement field="kenjutsu" type="skill" min="5">Kenjutsu</Requirement>
       <Requirement field="meditation" type="skill" min="6">Meditation</Requirement>
       <Requirement field="dragon" type="tag">Dragon</Requirement>
-      <Requirement field="rpg" type="more" trg="Must be chosen or taught by another Master Sensei and cannot be Brash or Proud">Rpg</Requirement>
+      <Requirement field="rpg" type="more">
+	  You must be chosen or taught by another Master Sensei and cannot be Brash or Proud.	  
+	  </Requirement>
     </Requirements>
   </School>
   <School clanid="dragon" name="Tamori Master Of The Mountains" id="dragon_tamori_master_of_the_mountains">

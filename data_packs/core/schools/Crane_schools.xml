@@ -234,7 +234,9 @@
       <Requirement field="lore_bushido" type="skill" min="4">Lore (Bushido)</Requirement>
       <Requirement field="meditation" type="skill" min="5">Meditation</Requirement>
       <Requirement field="crane" type="tag">Crane</Requirement>
-      <Requirement field="rpg" type="more" trg="Must defeat a current member of the Kenshinzen in a legal Iaijutsu duel">Rpg</Requirement>
+      <Requirement field="rpg" type="more">
+	  You must defeat a current member of the Kenshinzen in a legal Iaijutsu duel
+	  </Requirement>
     </Requirements>
   </School>
   <School clanid="crane" name="Kakita Master Artisan" id="crane_kakita_master_artisan">
@@ -255,7 +257,9 @@
       <Requirement field="void" type="ring" min="5">Void</Requirement>
       <Requirement field="awareness" type="trait" min="5">Awareness</Requirement>
       <Requirement field="crane" type="tag">Crane</Requirement>
-      <Requirement field="rpg" type="more" trg="If you are trained as a Kakita Artisan, you must have the Great Potential in the Skill of one of your chosen arts.  If you are not trained as a Kakita Artisan, you must be a Crane with both the Prodigy advantage and Great Potential advantage in either Acting, an Artisan skill, or a Perform skill.  This single skill becomes your chosen art for the purposes of this school's techniques.">Rpg</Requirement>
+      <Requirement field="rpg" type="more">
+		If you are trained as a Kakita Artisan, you must have the Great Potential in the Skill of one of your chosen arts.  If you are not trained as a Kakita Artisan, you must be a Crane with both the Prodigy advantage and Great Potential advantage in either Acting, an Artisan skill, or a Perform skill.  This single skill becomes your chosen art for the purposes of this school's techniques.	  
+	  </Requirement>
     </Requirements>
   </School>
 </L5RCM>
