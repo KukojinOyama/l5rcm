@@ -1515,10 +1515,7 @@ class L5RMain(L5RCMCore):
         self.del_spell_bt.setEnabled(not spell_itm.memo)
 
 
-    def learn_next_school_tech(self):
-        #self.pc.recalc_ranks()
-        
-        
+    def learn_next_school_tech(self):               
         # first of all let's check if the pc has a path for
         # that target rank
         # otherwise proceed with the current school
@@ -1551,6 +1548,7 @@ class L5RMain(L5RCMCore):
                 print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
+        self.pc.set_can_get_other_tech(False)
         self.update_from_model()
 
     def check_rank_advancement(self):

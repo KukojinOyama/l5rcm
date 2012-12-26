@@ -269,12 +269,12 @@
       <Tech name="The Crab Are The Wall" rank="3" id="crab_the_crab_are_the_wall"></Tech>
     </Techs>
     <Requirements>
-      <Requirement field="earth" type="ring" min="4">Earth</Requirement>
-      <Requirement field="strength" type="trait" min="5">Strength</Requirement>
-      <Requirement field="defense" type="skill" min="4">Defense</Requirement>
-      <Requirement field="heavy_weapons" type="skill" min="4">Heavy Weapons</Requirement>
-      <Requirement field="lore_shadowlands" type="skill" min="5">Lore (Shadowlands)</Requirement>
-      <Requirement field="crab" type="tag">Crab</Requirement>
+      <Requirement field="earth" type="ring" min="4">Earth Ring: 4</Requirement>
+      <Requirement field="strength" type="trait" min="5">Strength: 5</Requirement>
+      <Requirement field="defense" type="skill" min="4">Defense: 4</Requirement>
+      <Requirement field="heavy_weapons" type="skill" min="4">Heavy Weapons: 4</Requirement>
+      <Requirement field="lore_shadowlands" type="skill" min="5">Lore (Shadowlands): 5</Requirement>
+      <Requirement field="crab" type="tag">Be a member of Crab clan</Requirement>
     </Requirements>
   </School>
 </L5RCM>

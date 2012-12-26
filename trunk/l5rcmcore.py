@@ -361,8 +361,9 @@ class L5RCMCore(QtGui.QMainWindow):
         
     def check_if_tech_available(self):
         school = dal.query.get_school(self.dstore, self.pc.get_school_id())
-        if school:
+        if school:            
             count  = len(school.techs)
+            print('check_if_tech_available', school.id, count, self.pc.get_school_rank())
             return count > self.pc.get_school_rank()
         return False        
 

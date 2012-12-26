@@ -210,6 +210,7 @@ class AdvancedPcModel(BasePcModel):
         self.extra_notes = ''
         self.insight_calculation = None
         self.free_kiho_count = 3
+        self.can_get_another_tech = False
         
         self.modifiers  = []       
         self.properties = {}
@@ -584,7 +585,11 @@ class AdvancedPcModel(BasePcModel):
         #   not self.has_tag('ninja'):
         #   return False
 
-        return len(self.get_techs()) < self.get_insight_rank()
+        #return len(self.get_techs()) < self.get_insight_rank()
+        return self.can_get_another_tech
+        
+    def set_can_get_other_tech(self, flag):
+        self.can_get_another_tech = flag
 
     def get_school_spells_qty(self):
         return self.step_2.start_spell_count
