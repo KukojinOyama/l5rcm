@@ -328,10 +328,15 @@ class AdvancedPcModel(BasePcModel):
     def get_honor(self):
         return self.step_2.honor + self.honor
 
-    def get_glory(self):
+    def get_base_glory(self):
         if self.has_tag('monk'):
             return self.glory
         return self.step_0.glory + self.glory
+        
+    def get_glory(self):
+        if self.has_rule('fame'):
+            return self.get_base_glory() + 1
+        return self.get_base_glory()
 
     def get_status(self):
         if self.has_rule('social_disadvantage'):
@@ -579,13 +584,6 @@ class AdvancedPcModel(BasePcModel):
         return count
         
     def can_get_other_techs(self):
-        #if not self.has_tag('bushi') and \
-        #   not self.has_tag('monk') and \
-        #   not self.has_tag('courtier') and \
-        #   not self.has_tag('ninja'):
-        #   return False
-
-        #return len(self.get_techs()) < self.get_insight_rank()
         return self.can_get_another_tech
         
     def set_can_get_other_tech(self, flag):
@@ -988,3 +986,4 @@ class AdvancedPcModel(BasePcModel):
             self.unsaved  = False
             return True
         return False
+       

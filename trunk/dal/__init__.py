@@ -24,6 +24,7 @@ from spell       import *
 from perk        import *
 from powers      import *
 from weapon      import *
+from generic     import *
 
 import os
 import json
@@ -82,6 +83,9 @@ class Data(object):
         self.skcategs       = []        
         self.perktypes      = []
         self.weapon_effects = []
+        
+        self.rings  = []
+        self.traits = []
         
         for d in data_dirs:
             if d and os.path.exists(d):
@@ -168,6 +172,10 @@ class Data(object):
                 self.append_to(self.weapons, Weapon.build_from_xml(elem))
             elif elem.tag == 'Armor':
                 self.append_to(self.armors, Armor.build_from_xml(elem))
+            elif elem.tag == 'RingDef':
+                self.append_to(self.rings, GenericId.build_from_xml(elem))
+            elif elem.tag == 'TraitDef':
+                self.append_to(self.traits, GenericId.build_from_xml(elem))
                 
     def __log_imported_data(self):
         map = {}
