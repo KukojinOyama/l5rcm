@@ -306,8 +306,10 @@ class L5RMain(L5RCMCore):
             mgrid.addWidget(fr, row, col)
 
         def add_pc_flags(row, col):
-            tx_flags = [self.tr("Honor" ), self.tr("Glory"           ),
-                        self.tr("Status"), self.tr("Shadowland Taint")]
+            tx_flags = [self.tr("Honor" ), self.tr("Glory"           ),                        
+                        self.tr("Status"), self.tr("Shadowland Taint"),
+                        self.tr("Infamy"           )]
+                                    
             ob_flags_p = []
             ob_flags_r = []
             fr = QtGui.QFrame(self)
@@ -1408,9 +1410,12 @@ class L5RMain(L5RCMCore):
         elif fl == self.pc_flags_points[2]:
             val = int(self.pc_flags_rank[2].text())
             self.pc.set_status( float(val + float(pt)/10 ) )
-        else:
+        elif fl == self.pc_flags_points[3]:
             val = int(self.pc_flags_rank[3].text())
-            self.pc.set_taint( float(val + float(pt)/10 ) )
+            self.pc.set_taint( float(val + float(pt)/10 ) )            
+        else:
+            val = int(self.pc_flags_rank[4].text())
+            self.pc.set_infamy( float(val + float(pt)/10 ) )
 
     def on_flag_rank_change(self):
         fl  = self.sender()
@@ -1424,9 +1429,12 @@ class L5RMain(L5RCMCore):
         elif fl == self.pc_flags_rank[2]:
             pt = self.pc_flags_points[2].value
             self.pc.set_status( float(val + float(pt)/10 ) )
-        else:
-            pt = self.pc_flags_points[3].value
+        elif fl == self.pc_flags_rank[3]:
+            pt = self.pc_flags_points[3].value            
             self.pc.set_taint( float(val + float(pt)/10 ) )
+        else:
+            pt = self.pc_flags_points[4].value
+            self.pc.set_infamy( float(val + float(pt)/10 ) )                       
 
     def on_void_points_change(self):
         val = self.void_points.value
@@ -1841,10 +1849,11 @@ class L5RMain(L5RCMCore):
         # set points
         self.pc_flags_points[flag].set_value( int(points*10) )
 
-    def set_honor (self, value): self.set_flag(0, value)
-    def set_glory (self, value): self.set_flag(1, value)
-    def set_status(self, value): self.set_flag(2, value)
-    def set_taint (self, value): self.set_flag(3, value)
+    def set_honor  (self, value): self.set_flag(0, value)
+    def set_glory  (self, value): self.set_flag(1, value)
+    def set_status (self, value): self.set_flag(2, value)
+    def set_taint  (self, value): self.set_flag(3, value)
+    def set_infamy (self, value): self.set_flag(4, value)
 
     def update_from_model(self):
 
@@ -1885,10 +1894,11 @@ class L5RMain(L5RCMCore):
         pause_signals( self.pc_flags_rank   )
         pause_signals( [self.void_points]   )
 
-        self.set_honor ( self.pc.get_honor()  )
-        self.set_glory ( self.pc.get_glory()  )
-        self.set_status( self.pc.get_status() )
-        self.set_taint ( self.pc.get_taint()  )
+        self.set_honor  ( self.pc.get_honor()  )
+        self.set_glory  ( self.pc.get_glory()  )
+        self.set_infamy ( self.pc.get_infamy() )
+        self.set_status ( self.pc.get_status() )
+        self.set_taint  ( self.pc.get_taint()  )
 
         self.set_void_points( self.pc.void_points )
 
