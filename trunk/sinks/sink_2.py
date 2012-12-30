@@ -59,13 +59,13 @@ class Sink2(QtCore.QObject):
     def act_edit_flaw(self):   
         form = self.form    
         
-        sel_idx = self.flaw_view.selectionModel().currentIndex()
+        sel_idx = form.flaw_view.selectionModel().currentIndex()
         if not sel_idx.isValid():
             return
-        sel_itm = self.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
+        sel_itm = form.flaw_view.model().data(sel_idx, QtCore.Qt.UserRole)
         
-        dlg = dialogs.BuyPerkDialog(self.pc, 'flaw',
-                                    self.dstore, form)
+        dlg = dialogs.BuyPerkDialog(form.pc, 'flaw',
+                                    form.dstore, form)
 
         dlg.load_item(sel_itm)
         dlg.set_edit_mode(True)        
@@ -78,8 +78,8 @@ class Sink2(QtCore.QObject):
         sel_idx = form.merit_view.selectionModel().currentIndex()
         if not sel_idx.isValid():
             return
-        sel_itm = self.merit_view.model().data(sel_idx, QtCore.Qt.UserRole)        
-        self.remove_advancement_item(sel_itm.adv)        
+        sel_itm = form.merit_view.model().data(sel_idx, QtCore.Qt.UserRole)        
+        form.remove_advancement_item(sel_itm.adv)        
         
     def act_del_flaw(self):
         form = self.form

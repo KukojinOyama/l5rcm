@@ -108,6 +108,7 @@ class BasePcModel(object):
         self.tags               = []
         self.honor              = 0.0
         self.glory              = 0.0
+        self.infamy             = 0.0
         self.status             = 0.0
         self.taint              = 0.0
         self.affinity           = None
@@ -337,6 +338,9 @@ class AdvancedPcModel(BasePcModel):
         if self.has_rule('fame'):
             return self.get_base_glory() + 1
         return self.get_base_glory()
+        
+    def get_infamy(self):
+        return self.infamy
 
     def get_status(self):
         if self.has_rule('social_disadvantage'):
@@ -820,6 +824,10 @@ class AdvancedPcModel(BasePcModel):
         self.glory = value - self.step_0.glory
         self.unsaved = True
 
+    def set_infamy(self, value):
+        self.infamy = value
+        self.unsaved = True
+        
     def set_status(self, value):
         self.status = value - self.step_0.status
         self.unsaved = True
