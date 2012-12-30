@@ -172,7 +172,7 @@ class FDFExporterAll(FDFExporter):
             fields['SKILL_IS_SCHOOL.%d' % i] = sk.is_school
             fields['SKILL_NAME.%d'    % i  ] = sk.name
             fields['SKILL_RANK.%d'    % i  ] = sk.rank
-            fields['SKILL_TRAIT.%d'   % i  ] = sk.trait
+            fields['SKILL_TRAIT.%d'   % i  ] = dal.query.get_trait(f.dstore, sk.trait)
             fields['SKILL_EMPH_MA.%d' % i  ] = ', '.join(sk.emph)            
         
         # MERITS AND FLAWS
@@ -258,7 +258,7 @@ class FDFExporterShugenja(FDFExporter):
             fields['SPELL_RANGE.%d.%d'  % (r, c)    ] = spell.range
             fields['SPELL_AREA.%d.%d'  % (r, c)     ] = spell.area
             fields['SPELL_DURATION.%d.%d'  % (r, c) ] = spell.duration
-            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = spell.ring           
+            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = dal.query.get_ring(f.dstore, spell.ring)
             
             c += 1
             if c == 3:
@@ -334,4 +334,74 @@ class FDFExporterBushi(FDFExporter):
             
 class FDFExporterMonk(FDFExporter):
     def __init__(self):
-        super(FDFExporterMonk, self).__init__()            
+        super(FDFExporterMonk, self).__init__()
+        
+    def export_body(self, io):
+        m = self.model
+        f = self.form
+        
+        fields = {}
+                               
+        # schools
+        schools = filter(lambda x: 'monk' in x.tags, m.schools)
+        count = min(3, len(schools))
+        for i in xrange(0, count):               
+            school = dal.query.get_school(f.dstore, schools[i].school_id)
+            tech   = dal.query.get_school_tech(school, 1)
+            
+            fields['MONK_SCHOOL.%d'  % (i+1) ] = school.name         
+            fields['MONK_TECH.%d' % (i+1)] = tech.name
+                
+        # kiho
+        kihos = [x.kiho for x in m.get_kiho()]
+        count = min(12, len(kihos))
+
+        for i in xrange(0, count):
+            kiho = dal.query.get_kiho(f.dstore, kihos[i])
+            if not kiho:
+                break            
+            fields['KIHO_NM.%d' % (i+1)] = kiho.name
+            fields['KIHO_MASTERY.%d'% (i+1)] = str(kiho.mastery)
+            fields['KIHO_ELEM.%d'% (i+1)] = dal.query.get_ring(f.dstore, kiho.element)
+            fields['KIHO_TYPE.%d'% (i+1)] = kiho.type
+            lines = self.split_in_parts(kiho.desc) or []
+            lc    = min(6, len(lines))
+            for j in xrange(0, lc):
+                fields['KIHO_EFFECT.%d.%d' % (i+1, j)] = lines[j]
+            
+        # EXPORT FIELDS    
+        for k in fields.iterkeys():
+            self.export_field(k, fields[k], io)     
+
+    def split_in_parts(self, text, max_lines = 6):        
+        try:
+            words = text.split(' ')            
+            tl    = len(text)
+            avg_chars_per_line = int(tl / max_lines)
+
+            lines = []
+            
+            cl = 0
+            i  = 0
+            line = ''
+            while True:
+                if i >= len(words):
+                    break
+                if cl < (avg_chars_per_line-3):
+                    line += words[i]+ ' '
+                    cl = len(line)
+                    i += 1
+                else:
+                    cl = 0
+                    lines.append(line)
+                    line = ''
+
+            if len(line):
+                lines.append(line)
+
+            return lines
+            
+        except Exception as e:
+            print( repr(e) )
+            return None
+        

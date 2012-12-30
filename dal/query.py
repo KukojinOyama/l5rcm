@@ -126,3 +126,15 @@ def get_weapon_effect(storage, id):
         return [x for x in storage.weapon_effects if x.id == id][0]
     except:
         return None         
+        
+def get_ring(storage, id):
+    try:
+        return [x for x in storage.rings if x.id == id][0]
+    except:
+        return None
+        
+def get_trait(storage, id):
+    try:
+        return [x for x in storage.traits if x.id == id][0]
+    except:
+        return None        

@@ -35,7 +35,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.3'
+APP_VERSION = '3.4'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -215,7 +215,7 @@ class L5RCMCore(QtGui.QMainWindow):
         _flatten_pdf(source_fdf, source_pdf, fpath)        
         
         temp_files.append(fpath)
-        # SHUGENJA/BUSHI SHEET
+        # SHUGENJA/BUSHI/MONK SHEET
         if self.pc.has_tag('shugenja'):
             source_pdf = get_app_file('sheet_shugenja.pdf')
             source_fdf = _create_fdf(exporters.FDFExporterShugenja())
@@ -229,7 +229,14 @@ class L5RCMCore(QtGui.QMainWindow):
             fd, fpath = mkstemp(suffix='.pdf');
             os.fdopen(fd, 'wt').close()
             _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)        
+            temp_files.append(fpath)
+        elif self.pc.has_tag('monk'):
+            source_pdf = get_app_file('sheet_monk.pdf')
+            source_fdf = _create_fdf(exporters.FDFExporterMonk())
+            fd, fpath = mkstemp(suffix='.pdf');
+            os.fdopen(fd, 'wt').close()
+            _flatten_pdf(source_fdf, source_pdf, fpath)
+            temp_files.append(fpath)
         
         if os.path.exists(export_file):
             os.remove(export_file)
