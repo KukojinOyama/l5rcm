@@ -2248,7 +2248,7 @@ class L5RMain(L5RCMCore):
     # zooooooom
     def smart_resize(self, size, point_size):
         self.scroll.hide()
-        
+
         font = QtGui.QApplication.instance().font()
         font.setPointSizeF(point_size)        
         

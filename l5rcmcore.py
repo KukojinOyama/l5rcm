@@ -108,7 +108,7 @@ class L5RCMCore(QtGui.QMainWindow):
         # get new insight rank
         self.last_rank = 1
         
-        # Flag to lock advancment refunds in order        
+        # Flag to lock advancement refunds in order
         self.lock_advancements = True
                
         # current locale
