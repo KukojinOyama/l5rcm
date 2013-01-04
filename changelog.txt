@@ -1,4 +1,5 @@
 === L5RCM v3.4 ===
+* [NEW] Added Infamy counter
 * [FIX] Fixed "Remove Perk" (minus) button
 * [NEW] Added PDF sheet for monk characters with Monk schools and Kihos
 * [FIX] Fixed "Fame" advantage ( +1 starting glory )
