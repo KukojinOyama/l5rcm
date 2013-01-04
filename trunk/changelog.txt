@@ -1,0 +1,12 @@
+=== L5RCM v3.4 ===
+* [NEW] Implemented simple UI ZOOM (CTRL+Mousewheel)
+* [FIX] Fixed "Remove Perk" (minus) button
+* [NEW] Added PDF sheet for monk characters with Monk schools and Kihos
+* [FIX] Fixed "Fame" advantage ( +1 starting glory )
+* [NEW] [DATAPACK] Added Rings/Traits data, usefull for translations
+* [NEW] [DATAPACK] Normalized whitespace in kiho descriptions
+* [FIX] Fix for Shugenja rank advancement
+* [NEW] [DATAPACK] Changed the way requirements for schools are specified in the XML
+* [NEW] Support for Alternate Paths / Techniques replacements
+* [NEW] The system will forbid to downgrade a datapack
+* [NEW] Added modifiers for Armor TN, Armor RD and Attack Roll ( specific to a weapon )
