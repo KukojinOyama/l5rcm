@@ -2275,7 +2275,11 @@ class L5RMain(L5RCMCore):
     def wheelEvent (self, event):
         if (event.orientation() == QtCore.Qt.Vertical and
             event.modifiers() == QtCore.Qt.ControlModifier):
-            self.zoom_self(event.delta())
+            
+            settings = QtCore.QSettings()
+            enable_ui_zoom = settings.value('enable_ui_zoom', 0)            
+            if enable_ui_zoom:
+                self.zoom_self(event.delta())
 
 ### MAIN ###
 def dump_slots(obj, out_file):
