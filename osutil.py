@@ -95,8 +95,8 @@ def get_user_data_path(rel_path = ''):
     if os.name == 'posix':
         user_data = '%s/.config' % (os.environ['HOME'])
     elif os.name == 'nt':
-        user_data = os.environ['APPDATA']
-        
+        user_data = os.environ['APPDATA'].decode('latin-1')
+
     user_data = os.path.join(user_data,\
         QtCore.QCoreApplication.organizationName(),\
         QtCore.QCoreApplication.applicationName())

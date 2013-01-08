@@ -1,11 +1,7 @@
-- Finire di inserire i Kiho
-- Disegnare l'interfaccia per acquistare i Kiho
-* Aggiungere la pagina di gestione Kiho / Kata
 ? Aggiungere bottone "Rimuovi" dalla gestione dei pacchetti
 ? Aggiungere funzionalità di rimozione pacchetti ( vedi sopra )
-* Aggiungere versionamento pacchetti
-* Aggiungere url di aggiornamento al manifesto dei pacchetti
-* Aggiungere url di download al manifesto dei pacchetti
 ? Dopo qualche secondo dalla partenza il sistema controlla la versione dei pacchetti
-* E' possibile fare in modo che un determinato pacchetto ( e.g. id=core ) non sovrascriva altri?
-* Come si comporta il sistema senza dati?
+
+
+? Salvare il personaggio con tutti i dati dentro
+- Redesign interfaccia dialogo

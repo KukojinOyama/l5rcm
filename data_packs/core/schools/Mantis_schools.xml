@@ -256,15 +256,15 @@
       <Tech name="Child Of Osano-Wo" rank="3" id="mantis_child_of_osanowo"></Tech>
     </Techs>
     <Requirements>
-      <Requirement field="air" type="ring" min="3">Air</Requirement>
-      <Requirement field="fire" type="ring" min="3">Fire</Requirement>
-      <Requirement field="water" type="ring" min="5">Water</Requirement>
-      <Requirement field="lore_the_sea" type="skill" min="5">Lore (The Sea)</Requirement>
-      <Requirement field="sailing" type="skill" min="3">Sailing</Requirement>
-      <Requirement field="spellcraft" type="skill" min="3">Spellcraft</Requirement>
-      <Requirement field="lore_theology" type="skill" min="3">Lore (Theology)</Requirement>
-      <Requirement field="mantis" type="tag">Mantis</Requirement>
-      <Requirement field="elemblesswater" type="rule">Elem_Bless_Water</Requirement>
+      <Requirement field="air" type="ring" min="3">Air Ring: 3</Requirement>
+      <Requirement field="fire" type="ring" min="3">Fire Ring: 3</Requirement>
+      <Requirement field="water" type="ring" min="5">Water Ring: 5</Requirement>
+      <Requirement field="lore_the_sea" type="skill" min="5">Lore (The Sea): 5</Requirement>
+      <Requirement field="sailing" type="skill" min="3">Sailing: 3</Requirement>
+      <Requirement field="spellcraft" type="skill" min="3">Spellcraft: 3</Requirement>
+      <Requirement field="lore_theology" type="skill" min="3">Lore (Theology): 3</Requirement>
+      <Requirement field="mantis" type="tag">Be a member of the Mantis clan</Requirement>
+      <Requirement field="elem_bless_water" type="rule">Advantage: Elemental Blessing (Water)</Requirement>
     </Requirements>
   </School>
 </L5RCM>

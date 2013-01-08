@@ -109,6 +109,7 @@ class BasePcModel(object):
         self.tags               = []
         self.honor              = 0.0
         self.glory              = 0.0
+        self.infamy             = 0.0
         self.status             = 0.0
         self.taint              = 0.0
         self.affinity           = None
@@ -150,6 +151,10 @@ class CharacterSchool(object):
         self.tags        = []
         self.affinity    = None
         self.deficiency  = None
+        
+        # alternate path
+        self.is_path     = False
+        self.path_rank   = 0
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -163,7 +168,7 @@ class CharacterSchool(object):
             self.tags.remove(tag)
 
     def clear_tags(self):
-        self.tags = []        
+        self.tags = []
                       
 class AdvancedPcModel(BasePcModel):
     def __init__(self):
@@ -192,11 +197,13 @@ class AdvancedPcModel(BasePcModel):
         self.schools    = []
 
         self.mastery_abilities = []
+        self.current_school_id = ''
 
         self.attrib_costs = [4, 4, 4, 4, 4, 4, 4, 4]
         self.void_cost    = 6
         self.health_multiplier = 2
         self.spells_per_rank = 3
+        self.pending_spells_count = 0;
         self.exp_limit = 40
         self.wounds = 0
         self.mod_init = (0, 0)
@@ -204,6 +211,8 @@ class AdvancedPcModel(BasePcModel):
         self.unlock_schools = False
         self.extra_notes = ''
         self.insight_calculation = None
+        self.free_kiho_count = 3
+        self.can_get_another_tech = False
         
         self.modifiers  = []       
         self.properties = {}
@@ -212,7 +221,7 @@ class AdvancedPcModel(BasePcModel):
         self.step_0.load_default()
 
     def is_dirty(self):
-        return self.unsaved
+        return self.unsaved       
 
     def get_ring_rank(self, idx):
         if idx == RINGS.VOID:
@@ -224,6 +233,14 @@ class AdvancedPcModel(BasePcModel):
 
         return min(a, b)
 
+    def get_free_kiho_count(self):
+        if not self.has_tag('monk'):
+            return 0
+        return self.free_kiho_count
+        
+    def set_free_kiho_count(self, value):
+        self.free_kiho_count = value
+        
     def get_attrib_rank(self, attrib):
         a = self.step_0.attribs[attrib]
         b = self.step_1.attribs[attrib]
@@ -268,10 +285,23 @@ class AdvancedPcModel(BasePcModel):
     def get_family(self):
         return self.family
         
+    def set_current_school_id(self, school_id):
+        self.current_school_id = school_id
+        
+    def get_current_school_id(self):
+        return self.current_school_id
+        
+    def get_current_school(self):
+        school = [x for x in self.schools if x.school_id == self.current_school_id]
+        if len(school):
+            return school[0]
+        return None
+               
     def get_school(self, index = -1):
         if len(self.schools) == 0 or index >= len(self.schools):
             return None
-        if index < 0: index = len(self.schools)-1
+        if index < 0: 
+            return self.get_current_school()
         return self.schools[index]
         
     def get_school_id(self, index = -1):
@@ -300,10 +330,18 @@ class AdvancedPcModel(BasePcModel):
     def get_honor(self):
         return self.step_2.honor + self.honor
 
-    def get_glory(self):
+    def get_base_glory(self):
         if self.has_tag('monk'):
             return self.glory
         return self.step_0.glory + self.glory
+        
+    def get_glory(self):
+        if self.has_rule('fame'):
+            return self.get_base_glory() + 1
+        return self.get_base_glory()
+        
+    def get_infamy(self):
+        return self.infamy
 
     def get_status(self):
         if self.has_rule('social_disadvantage'):
@@ -355,8 +393,14 @@ class AdvancedPcModel(BasePcModel):
         return self.armor.rd if self.armor else 0
         
     def get_full_rd(self):
-        return self.get_armor_rd() + self.get_base_rd()
+        return self.get_armor_rd() + self.get_base_rd() + self.get_armor_rd_mod()
+        
+    def get_armor_tn_mod(self):
+        return sum( x.value[2] for x in self.get_modifiers('artn') if x.active and len(x.value) > 2)
 
+    def get_armor_rd_mod(self):
+        return sum( x.value[2] for x in self.get_modifiers('arrd') if x.active and len(x.value) > 2)
+        
     def get_armor_name(self):
         if self.armor is not None:
             return self.armor.name
@@ -370,7 +414,7 @@ class AdvancedPcModel(BasePcModel):
             return ''      
 
     def get_cur_tn(self):
-        return self.get_base_tn() + self.get_armor_tn()
+        return self.get_base_tn() + self.get_armor_tn() + self.get_armor_tn_mod()
 
     def get_health_rank(self, idx):
         if idx == 0:
@@ -545,32 +589,51 @@ class AdvancedPcModel(BasePcModel):
         return count
         
     def can_get_other_techs(self):
-        #if not self.has_tag('bushi') and \
-        #   not self.has_tag('monk') and \
-        #   not self.has_tag('courtier') and \
-        #   not self.has_tag('ninja'):
-        #   return False
-
-        return len(self.get_techs()) < self.get_insight_rank()
+        return self.can_get_another_tech
+        
+    def set_can_get_other_tech(self, flag):
+        self.can_get_another_tech = flag
 
     def get_school_spells_qty(self):
         return self.step_2.start_spell_count
 
     def can_get_other_spells(self):
         if not self.has_tag('shugenja'):
-            return
-
-        # must count also the school spells
-        target_spells = self.get_school_spells_qty() + (self.get_insight_rank()-1) * self.spells_per_rank
-        return len(self.get_spells()) < target_spells
+            return False
+        return self.get_pending_spells_count() > 0 or len(self.get_pending_wc_spells())
 
     def get_how_many_spell_i_miss(self):
         if not self.has_tag('shugenja'):
-            return 0
+            return 0      
+        return self.get_pending_spells_count()
+    
+    def get_spells_per_rank(self):
+        return self.spells_per_rank
+        
+    def set_spells_per_rank(self, value):
+        self.spells_per_rank = value
+        
+    def set_pending_spells_count(self, value):
+        self.pending_spells_count = value
+        
+    def get_pending_spells_count(self):
+        return self.pending_spells_count
+        
+    def set_pending_kiho_count(self, value):
+        self.pending_kiho_count = value
+        
+    def get_pending_kiho_count(self):
+        return self.pending_kiho_count  
 
-        # must count also the school spells
-        target_spells = self.get_school_spells_qty() + (self.get_insight_rank()-1) * self.spells_per_rank
-        return target_spells - len(self.get_spells())
+    def can_get_other_kiho(self):
+        if not self.has_tag('monk'):
+            return False
+        return self.get_pending_kiho_count() > 0
+
+    def get_how_many_kiho_i_miss(self):
+        if not self.has_tag('monk'):
+            return 0      
+        return self.get_pending_kiho_count()        
 
     def pop_spells(self, count):
         print('pop {0} spells'.format(count))
@@ -696,6 +759,7 @@ class AdvancedPcModel(BasePcModel):
             
         self.schools = [ CharacterSchool(school_id) ]
         self.step_2.honor = honor
+        self.set_current_school_id(school_id)
 
         for t in tags:
             self.get_school().add_tag(t)
@@ -722,7 +786,7 @@ class AdvancedPcModel(BasePcModel):
         school_.tech_rules.append(rule or 'N/A')
 
     def add_tech(self, tech_uuid, rule = None):
-        school_ = self.get_school(0)
+        school_ = self.get_school()
         if school_ is None:
             return
         #print 'add tech %s, rule %s' % ( repr(tech_uuid), rule )
@@ -761,6 +825,10 @@ class AdvancedPcModel(BasePcModel):
         self.glory = value - self.step_0.glory
         self.unsaved = True
 
+    def set_infamy(self, value):
+        self.infamy = value
+        self.unsaved = True
+        
     def set_status(self, value):
         self.status = value - self.step_0.status
         self.unsaved = True
@@ -789,6 +857,7 @@ class AdvancedPcModel(BasePcModel):
         
     def recalc_ranks(self):
         insight_ = self.get_insight_rank()
+        schools_to_remove = []
         print('I got {0} schools'.format(len(self.schools)))
         for s in self.schools:
             print('school {0}, rank {1}'.format( s.school_id, s.school_rank ))
@@ -813,9 +882,14 @@ class AdvancedPcModel(BasePcModel):
                     
                     diff_         -= 1
                     s.school_rank -= 1
-
+                    
+                    if s.school_rank == 0:
+                        schools_to_remove.append(s)                
                 if diff_ <= 0:
-                    return
+                    break
+            for s in schools_to_remove:
+                print('remove school', s)
+                self.schools.remove(s)
                     
         elif tot_rank < insight_:
             if self.get_school() is not None:
@@ -921,3 +995,4 @@ class AdvancedPcModel(BasePcModel):
             self.unsaved  = False
             return True
         return False
+       

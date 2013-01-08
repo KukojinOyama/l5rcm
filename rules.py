@@ -67,7 +67,9 @@ def format_rtk(r, k, bonus = 0):
     #sign = -1 if r < 0 else 1
     #sign_chr = '-' if sign < 0 else '+'
     if bonus:        
-        sign_chr = '-' if bonus < 0 else '+'   
+        sign_chr = '-' if bonus < 0 else '+'  
+        if r == k == 0:
+            return '%s%d' % (sign_chr, abs(bonus))
         return '%dk%d %s %d' % (r, abs(k), sign_chr, abs(bonus))
     else:
         return '%dk%d' % (r, abs(k))
@@ -178,11 +180,17 @@ def calculate_mod_attack_roll(pc, weap):
     # skill roll bonuses
     skir = pc.get_modifiers('skir')    
     for x in skir:
-        if x.active and x.dtl == weap.skill_nm:
-            print('yai modifier!')
+        if x.active and x.dtl == weap.skill_nm:            
             r_mod += x.value[0]
             k_mod += x.value[1]
-    
+            
+    # weapon only modifiers to attack roll
+    atkr = pc.get_modifiers('atkr')
+    for x in atkr:
+        if x.active and x.dtl == weap.name:            
+            r_mod += x.value[0]
+            k_mod += x.value[1]
+            
     return atk_r+r_mod, atk_k+k_mod
     
 def calculate_base_damage_roll(pc, weap):

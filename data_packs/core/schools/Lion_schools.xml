@@ -193,16 +193,16 @@
       <Tech name="Matsu's Technique" rank="3" id="lion_matsus_technique"></Tech>
     </Techs>
     <Requirements>
-      <Requirement field="agility" type="trait" min="5">Agility</Requirement>
-      <Requirement field="strength" type="trait" min="5">Strength</Requirement>
-      <Requirement field="honor" type="trait" min="6">Honor</Requirement>
-      <Requirement field="battle" type="skill" min="5">Battle</Requirement>
-      <Requirement field="weapon" type="skill" min="3">*Weapon</Requirement>
-      <Requirement field="weapon" type="skill" min="3">*Weapon</Requirement>
-      <Requirement field="weapon" type="skill" min="3">*Weapon</Requirement>
-      <Requirement field="weapon" type="skill" min="3">*Weapon</Requirement>
-      <Requirement field="lion" type="tag">Lion</Requirement>
-      <Requirement field="matsu" type="tag">Matsu</Requirement>
+      <Requirement field="agility" type="trait" min="5">Agility: 5</Requirement>
+      <Requirement field="strength" type="trait" min="5">Strength: 5</Requirement>
+      <Requirement field="honor" type="trait" min="6">Honor: 6</Requirement>
+      <Requirement field="battle" type="skill" min="5">Battle: 5</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="lion" type="tag">Be a member of the Lion clan</Requirement>
+      <Requirement field="lion_matsu" type="tag">Be a member of the Matsu family</Requirement>
     </Requirements>
   </School>
   <School clanid="lion" name="Akodo Tactical Masters" id="lion_akodo_tactical_masters">
@@ -220,11 +220,14 @@
       <Tech name="The Soul Of The Army" rank="3" id="lion_the_soul_of_the_army"></Tech>
     </Techs>
     <Requirements>
-      <Requirement field="water" type="ring" min="4">Water</Requirement>
-      <Requirement field="intelligence" type="trait" min="5">Intelligence</Requirement>
-      <Requirement field="battle" type="skill" trg="Mass Combat" min="5">Battle</Requirement>
-      <Requirement field="games_shogigames_go" type="skill" min="4">Games (Shogi);Games (Go)</Requirement>
-      <Requirement field="lion" type="tag">Lion</Requirement>
+      <Requirement field="water" type="ring" min="4">Water Ring: 4</Requirement>
+      <Requirement field="intelligence" type="trait" min="5">Intelligence: 5</Requirement>
+      <Requirement field="battle" type="skill" trg="Mass Combat" min="5">Battle (Mass Combat): 5</Requirement>
+	  <RequirementOption text="Games (Shoji) or Games (Go): 4">
+		<Requirement field="games_shogi" type="skill" min="4"/>
+		<Requirement field="games_go" type="skill" min="4"/>
+	  </RequirementOption>
+      <Requirement field="lion" type="tag">Be a member of the Lion clan</Requirement>
     </Requirements>
   </School>
 </L5RCM>
