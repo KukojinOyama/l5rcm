@@ -44,9 +44,10 @@ def new_small_le(parent = None, ro = True):
 def new_horiz_line(parent = None):
     line = QtGui.QFrame(parent)
     line.setObjectName("hline")
-    line.setGeometry(QtCore.QRect(320, 150, 118, 3))
+    line.setGeometry(QtCore.QRect(3, 3, 3, 3))
     line.setFrameShape(QtGui.QFrame.Shape.HLine)
     line.setFrameShadow(QtGui.QFrame.Sunken)
+    line.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
     return line
 
 def new_vert_line(parent = None):
@@ -78,13 +79,15 @@ def resume_signals(wdgs):
     for w in wdgs: w.blockSignals(False)
 
 class L5RMain(L5RCMCore):
+
+    default_size = QtCore.QSize(820, 720)
+    default_point_size = 8.25
+    
     def __init__(self, locale = None, parent = None):
-        #QtGui.QMainWindow.__init__(self)
-        #L5RCMCore.__init__(self, locale)
         super(L5RMain, self).__init__(locale)
 
         # character file save path
-        self.save_path = ''
+        self.save_path = ''        
 
         # slot sinks
         self.sink1 = sinks.Sink1(self) # Menu Sink
@@ -125,8 +128,10 @@ class L5RMain(L5RCMCore):
     def build_ui(self):
         # Main interface widgets
         self.scroll  = QtGui.QScrollArea(self)
-        self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        #self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.widgets = QtGui.QWidget(self)
+        self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) ) 
+        #self.widgets.resize( QtCore.QSize(400, 680) ) 
         self.tabs = QtGui.QTabWidget(self)
         self.setCentralWidget(self.scroll)
 
@@ -146,6 +151,10 @@ class L5RMain(L5RCMCore):
         geo = settings.value('geometry')
         if geo is not None:
             self.restoreGeometry(geo)
+        else:
+            self.setGeometry( QtCore.QRect(100, 100, 820, 720) )
+            
+        self.reset_zoom()
 
         self.ic_idx = int(settings.value('insight_calculation', 1))-1
         ic_calcs    = [rules.insight_calculation_1,
@@ -160,9 +169,8 @@ class L5RMain(L5RCMCore):
         mfr = QtGui.QFrame(self)
         self.tabs.addTab(mfr, self.tr("Character"))
 
-        mgrid = QtGui.QGridLayout(mfr)
-        mgrid.setColumnStretch(0, 2)
-        mgrid.setColumnStretch(1, 1)
+        mvbox = QtGui.QVBoxLayout(mfr)
+        mvbox.setContentsMargins(0,0,0,0)
 
         def add_pc_info(row, col):
             fr_pc_info   = QtGui.QFrame(self)
@@ -205,9 +213,9 @@ class L5RMain(L5RCMCore):
             self.tx_pc_ins.setReadOnly(True)
 
             fr_pc_info.setLayout(grid)
-            mgrid.addWidget(fr_pc_info, row, col, 1, 3)
-
-        def add_pc_attribs(row, col):
+            mvbox.addWidget(fr_pc_info)
+        
+        def build_trait_frame():
             fr = QtGui.QFrame(self)
             fr.setSizePolicy(QtGui.QSizePolicy.Preferred,
                             QtGui.QSizePolicy.Maximum)
@@ -302,11 +310,13 @@ class L5RMain(L5RCMCore):
 
             hbox.addWidget(grp)
 
-            mgrid.addWidget(fr, row, col)
+            return fr
 
-        def add_pc_flags(row, col):
-            tx_flags = [self.tr("Honor" ), self.tr("Glory"           ),
-                        self.tr("Status"), self.tr("Shadowland Taint")]
+        def build_flags_frame():
+            tx_flags = [self.tr("Honor" ), self.tr("Glory"           ),                        
+                        self.tr("Status"), self.tr("Shadowland Taint"),
+                        self.tr("Infamy"           )]
+                                    
             ob_flags_p = []
             ob_flags_r = []
             fr = QtGui.QFrame(self)
@@ -314,6 +324,7 @@ class L5RMain(L5RCMCore):
             vbox = QtGui.QVBoxLayout(fr)
             vbox.setContentsMargins(0,0,0,0)
             vbox.setSpacing(0)
+            row = 1
             for f in tx_flags:
                 fr_ = QtGui.QFrame(self)
                 lay = QtGui.QGridLayout(fr_)
@@ -329,12 +340,28 @@ class L5RMain(L5RCMCore):
                 vbox.addWidget(fr_)
             self.pc_flags_points = ob_flags_p
             self.pc_flags_rank   = ob_flags_r
-            mgrid.addWidget(fr, row, col)
+
+            return fr
+            
+        def add_traits_and_flags():
+            trait_frame = build_trait_frame()
+            flags_frame = build_flags_frame()
+            
+            fr   = QtGui.QFrame(self)
+            hbox = QtGui.QHBoxLayout(fr)
+            
+            fr.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                            QtGui.QSizePolicy.Maximum)
+            
+            hbox.addWidget(trait_frame)
+            hbox.addWidget(flags_frame)
+            
+            mvbox.addWidget(fr)
 
         def add_pc_quantities(row, col):
             fr = QtGui.QFrame(self)
             fr.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                            QtGui.QSizePolicy.Preferred)
+                            QtGui.QSizePolicy.Maximum)
             hbox = QtGui.QHBoxLayout(fr)
 
             monos_ = QtGui.QFont('Monospace')
@@ -344,6 +371,7 @@ class L5RMain(L5RCMCore):
 
             # initiative
             grp  = QtGui.QGroupBox(self.tr("Initiative"), self)
+            #grp.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
             grd  = QtGui.QFormLayout(grp)
 
             self.tx_base_init = QtGui.QLineEdit(self)
@@ -361,6 +389,7 @@ class L5RMain(L5RCMCore):
 
             # Armor TN
             grp = QtGui.QGroupBox(self.tr("Armor TN"), self)
+            #grp.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
             grd  = QtGui.QFormLayout(grp)
 
             self.tx_armor_nm = QtGui.QLineEdit(self)
@@ -385,6 +414,7 @@ class L5RMain(L5RCMCore):
 
             # Wounds
             grp = QtGui.QGroupBox(self.tr("Wounds"), self)
+            #grp.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
             grd  = QtGui.QGridLayout(grp)
 
             wnd = []
@@ -416,89 +446,13 @@ class L5RMain(L5RCMCore):
 
             hbox.addWidget(grp, 2)
 
-            mgrid.addWidget(fr, row, col, 1, 2)
-
-        def add_pers_info(row, col):
-            grp  = QtGui.QGroupBox(self.tr("Personal Informations"), self)
-            grp.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                              QtGui.QSizePolicy.Preferred)
-
-            hgrp = QtGui.QHBoxLayout(grp)
-
-            # anagraphic
-
-            afr = QtGui.QFrame(self)
-            afl = QtGui.QFormLayout(afr)
-
-            self.tx_pc_sex    = QtGui.QLineEdit(self)
-            self.tx_pc_age    = QtGui.QLineEdit(self)
-            self.tx_pc_height = QtGui.QLineEdit(self)
-            self.tx_pc_weight = QtGui.QLineEdit(self)
-            self.tx_pc_hair   = QtGui.QLineEdit(self)
-            self.tx_pc_eyes   = QtGui.QLineEdit(self)
-
-            afl.addRow( self.tr("Sex"    ), self.tx_pc_sex   )
-            afl.addRow( self.tr("Age"    ), self.tx_pc_age   )
-            afl.addRow( self.tr("Height" ), self.tx_pc_height)
-            afl.addRow( self.tr("Weight" ), self.tx_pc_weight)
-            afl.addRow( self.tr("Hair"   ), self.tx_pc_hair  )
-            afl.addRow( self.tr("Eyes"   ), self.tx_pc_eyes  )
-            hgrp.addWidget(afr)
-
-            # separator
-            hgrp.addWidget(new_vert_line())
-
-            # parents
-            bfr = QtGui.QFrame(self)
-            bfl = QtGui.QFormLayout(bfr)
-
-            self.tx_pc_father   = QtGui.QLineEdit(self)
-            self.tx_pc_mother   = QtGui.QLineEdit(self)
-            self.tx_pc_brosis   = QtGui.QLineEdit(self)
-            self.tx_pc_marsta   = QtGui.QLineEdit(self)
-            self.tx_pc_spouse   = QtGui.QLineEdit(self)
-            self.tx_pc_childr   = QtGui.QLineEdit(self)
-
-            bfl.addRow( self.tr("Father"            ), self.tx_pc_father)
-            bfl.addRow( self.tr("Mother"            ), self.tx_pc_mother)
-            bfl.addRow( self.tr("Brothers, Sisters" ), self.tx_pc_brosis)
-            bfl.addRow( self.tr("Marital Status"    ), self.tx_pc_marsta)
-            bfl.addRow( self.tr("Spouse"            ), self.tx_pc_spouse)
-            bfl.addRow( self.tr("Children"          ), self.tx_pc_childr)
-            hgrp.addWidget(bfr)
-
-            self.pers_info_widgets = [
-                         self.tx_pc_sex, self.tx_pc_age,
-                         self.tx_pc_height, self.tx_pc_weight,
-                         self.tx_pc_hair, self.tx_pc_eyes,
-                         self.tx_pc_father, self.tx_pc_mother,
-                         self.tx_pc_brosis, self.tx_pc_marsta,
-                         self.tx_pc_spouse, self.tx_pc_childr]
-
-            # link personal information widgets
-            self.tx_pc_sex.link    = 'sex'
-            self.tx_pc_age.link    = 'age'
-            self.tx_pc_height.link = 'height'
-            self.tx_pc_weight.link = 'weight'
-            self.tx_pc_hair.link   = 'hair'
-            self.tx_pc_eyes.link   = 'eyes'
-            self.tx_pc_father.link = 'father'
-            self.tx_pc_mother.link = 'mother'
-            self.tx_pc_brosis.link = 'brosis'
-            self.tx_pc_marsta.link = 'marsta'
-            self.tx_pc_spouse.link = 'spouse'
-            self.tx_pc_childr.link = 'childr'
-
-            mgrid.addWidget(grp, row, col, 1, 3)
-
+            mvbox.addWidget(fr)
+                
         add_pc_info(0, 0)
-        mgrid.addWidget(new_horiz_line(self), 1, 0, 1, 3)
-        add_pc_attribs(2, 0)
-        add_pc_flags(2, 1)
-        mgrid.addWidget(new_horiz_line(self), 3, 0, 1, 3)
+        mvbox.addWidget(new_horiz_line(self))
+        add_traits_and_flags()        
+        mvbox.addWidget(new_horiz_line(self))        
         add_pc_quantities(4, 0)
-        mgrid.addWidget(new_horiz_line(self), 5, 0, 1, 3)
-        add_pers_info(6, 0)
 
     def _build_generic_page(self, models_):
         mfr    = QtGui.QFrame(self)
@@ -562,8 +516,6 @@ class L5RMain(L5RCMCore):
                                  self.tr("Memorize/Forget spell"), cb_memo)
 
 
-            # TODO: enable these buttons eventually
-            self.add_spell_bt.setEnabled(False)
             self.del_spell_bt.setEnabled(False)
 
             vtb.addStretch()
@@ -976,6 +928,81 @@ class L5RMain(L5RCMCore):
 
         self.tx_pc_notes = widgets.SimpleRichEditor(self)
         vbox.addWidget(self.tx_pc_notes)
+        
+        def build_pers_info():
+            grp  = QtGui.QGroupBox(self.tr("Personal Informations"), self)
+            grp.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Preferred)
+
+            hgrp = QtGui.QHBoxLayout(grp)
+
+            # anagraphic
+
+            afr = QtGui.QFrame(self)
+            afl = QtGui.QFormLayout(afr)
+
+            self.tx_pc_sex    = QtGui.QLineEdit(self)
+            self.tx_pc_age    = QtGui.QLineEdit(self)
+            self.tx_pc_height = QtGui.QLineEdit(self)
+            self.tx_pc_weight = QtGui.QLineEdit(self)
+            self.tx_pc_hair   = QtGui.QLineEdit(self)
+            self.tx_pc_eyes   = QtGui.QLineEdit(self)
+
+            afl.addRow( self.tr("Sex"    ), self.tx_pc_sex   )
+            afl.addRow( self.tr("Age"    ), self.tx_pc_age   )
+            afl.addRow( self.tr("Height" ), self.tx_pc_height)
+            afl.addRow( self.tr("Weight" ), self.tx_pc_weight)
+            afl.addRow( self.tr("Hair"   ), self.tx_pc_hair  )
+            afl.addRow( self.tr("Eyes"   ), self.tx_pc_eyes  )
+            hgrp.addWidget(afr)
+
+            # separator
+            hgrp.addWidget(new_vert_line())
+
+            # parents
+            bfr = QtGui.QFrame(self)
+            bfl = QtGui.QFormLayout(bfr)
+
+            self.tx_pc_father   = QtGui.QLineEdit(self)
+            self.tx_pc_mother   = QtGui.QLineEdit(self)
+            self.tx_pc_brosis   = QtGui.QLineEdit(self)
+            self.tx_pc_marsta   = QtGui.QLineEdit(self)
+            self.tx_pc_spouse   = QtGui.QLineEdit(self)
+            self.tx_pc_childr   = QtGui.QLineEdit(self)
+
+            bfl.addRow( self.tr("Father"            ), self.tx_pc_father)
+            bfl.addRow( self.tr("Mother"            ), self.tx_pc_mother)
+            bfl.addRow( self.tr("Brothers, Sisters" ), self.tx_pc_brosis)
+            bfl.addRow( self.tr("Marital Status"    ), self.tx_pc_marsta)
+            bfl.addRow( self.tr("Spouse"            ), self.tx_pc_spouse)
+            bfl.addRow( self.tr("Children"          ), self.tx_pc_childr)
+            hgrp.addWidget(bfr)
+
+            self.pers_info_widgets = [
+                         self.tx_pc_sex, self.tx_pc_age,
+                         self.tx_pc_height, self.tx_pc_weight,
+                         self.tx_pc_hair, self.tx_pc_eyes,
+                         self.tx_pc_father, self.tx_pc_mother,
+                         self.tx_pc_brosis, self.tx_pc_marsta,
+                         self.tx_pc_spouse, self.tx_pc_childr]
+
+            # link personal information widgets
+            self.tx_pc_sex.link    = 'sex'
+            self.tx_pc_age.link    = 'age'
+            self.tx_pc_height.link = 'height'
+            self.tx_pc_weight.link = 'weight'
+            self.tx_pc_hair.link   = 'hair'
+            self.tx_pc_eyes.link   = 'eyes'
+            self.tx_pc_father.link = 'father'
+            self.tx_pc_mother.link = 'mother'
+            self.tx_pc_brosis.link = 'brosis'
+            self.tx_pc_marsta.link = 'marsta'
+            self.tx_pc_spouse.link = 'spouse'
+            self.tx_pc_childr.link = 'childr'
+
+            return grp
+        
+        vbox.addWidget(build_pers_info())
 
         self.tabs.addTab(mfr, self.tr("Notes"))
 
@@ -1044,7 +1071,6 @@ class L5RMain(L5RCMCore):
         m_file.addAction(open_act)
         m_file.addAction(save_act)
         m_file.addSeparator()
-        #m_file.addAction(export_text_act)
         m_file.addAction(export_pdf_act )
         m_file.addSeparator()
         m_file.addAction(exit_act)
@@ -1054,69 +1080,29 @@ class L5RMain(L5RCMCore):
         save_act.triggered.connect( self.sink1.save_character )
         exit_act.triggered.connect( self.close )
 
-        #export_text_act.triggered.connect( self.export_character_as_text )
         export_pdf_act .triggered.connect( self.sink1.export_character_as_pdf  )
 
         self.m_file = m_file
 
         # Advancement menu
         m_adv = self.menuBar().addMenu(self.tr("A&dvancement"))
-        # submenut
-        m_buy_adv = m_adv.addMenu(self.tr("&Buy"))
 
         # actions buy advancement, view advancements
         viewadv_act  = QtGui.QAction(self.tr("&View advancements..."  ), self)
         resetadv_act = QtGui.QAction(self.tr("&Reset advancements"    ), self)
         refund_act   = QtGui.QAction(self.tr("Refund last advancement"), self)
-        buyattr_act  = QtGui.QAction(self.tr("Attribute rank..."      ), self)
-        buyvoid_act  = QtGui.QAction(self.tr("Void ring..."           ), self)
-        buyskill_act = QtGui.QAction(self.tr("Skill rank..."          ), self)
-        buyemph_act  = QtGui.QAction(self.tr("Skill emphasis..."      ), self)
-        buymerit_act = QtGui.QAction(self.tr("Advantage..."           ), self)
-        buyflaw_act  = QtGui.QAction(self.tr("Disadvantage..."        ), self)
-        buykata_act  = QtGui.QAction(self.tr("Kata..."                ), self)
-        buykiho_act  = QtGui.QAction(self.tr("Kiho..."                ), self)
 
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
-        buyattr_act .setProperty('tag', 'attrib')
-        buyvoid_act .setProperty('tag', 'void'  )
-        buyskill_act.setProperty('tag', 'skill' )
-        buyemph_act .setProperty('tag', 'emph'  )
-        buymerit_act.setProperty('tag', 'merit' )
-        buyflaw_act .setProperty('tag', 'flaw'  )
-        buykata_act .setProperty('tag', 'kata'  )
-        buykiho_act .setProperty('tag', 'kiho'  )
-
-        m_buy_adv.addAction(buyattr_act )
-        m_buy_adv.addAction(buyvoid_act )
-        m_buy_adv.addAction(buyskill_act)
-        m_buy_adv.addAction(buyemph_act )
-        m_buy_adv.addAction(buymerit_act)
-        m_buy_adv.addAction(buyflaw_act )
-        m_buy_adv.addAction(buykata_act )
-        m_buy_adv.addAction(buykiho_act )
-
-        m_adv    .addSeparator()
         m_adv    .addAction(viewadv_act )
         m_adv.addAction(refund_act)
         m_adv.addAction(resetadv_act)
 
         self.m_adv = m_adv
-        self.m_buy = m_buy_adv
 
         viewadv_act .triggered.connect( self.sink1.switch_to_page_5    )
         resetadv_act.triggered.connect( self.sink1.reset_adv           )
         refund_act  .triggered.connect( self.sink1.refund_last_adv     )
-        buyattr_act .triggered.connect( self.sink1.act_buy_advancement )
-        buyvoid_act .triggered.connect( self.sink1.act_buy_advancement )
-        buyskill_act.triggered.connect( self.sink1.act_buy_advancement )
-        buyemph_act .triggered.connect( self.sink1.act_buy_advancement )
-        buykata_act .triggered.connect( self.sink1.act_buy_advancement )
-        buykiho_act .triggered.connect( self.sink1.act_buy_advancement )
-
-        buymerit_act.triggered.connect( self.sink1.act_buy_perk )
-        buyflaw_act .triggered.connect( self.sink1.act_buy_perk )
 
         # Tools menu
         m_tools = self.menuBar().addMenu(self.tr("&Tools"))
@@ -1448,9 +1434,12 @@ class L5RMain(L5RCMCore):
         elif fl == self.pc_flags_points[2]:
             val = int(self.pc_flags_rank[2].text())
             self.pc.set_status( float(val + float(pt)/10 ) )
-        else:
+        elif fl == self.pc_flags_points[3]:
             val = int(self.pc_flags_rank[3].text())
-            self.pc.set_taint( float(val + float(pt)/10 ) )
+            self.pc.set_taint( float(val + float(pt)/10 ) )            
+        else:
+            val = int(self.pc_flags_rank[4].text())
+            self.pc.set_infamy( float(val + float(pt)/10 ) )
 
     def on_flag_rank_change(self):
         fl  = self.sender()
@@ -1464,9 +1453,12 @@ class L5RMain(L5RCMCore):
         elif fl == self.pc_flags_rank[2]:
             pt = self.pc_flags_points[2].value
             self.pc.set_status( float(val + float(pt)/10 ) )
-        else:
-            pt = self.pc_flags_points[3].value
+        elif fl == self.pc_flags_rank[3]:
+            pt = self.pc_flags_points[3].value            
             self.pc.set_taint( float(val + float(pt)/10 ) )
+        else:
+            pt = self.pc_flags_points[4].value
+            self.pc.set_infamy( float(val + float(pt)/10 ) )                       
 
     def on_void_points_change(self):
         val = self.void_points.value
@@ -1530,7 +1522,11 @@ class L5RMain(L5RCMCore):
                                          QtGui.QItemSelectionModel.Rows))
 
     def act_buy_spell(self):
-        pass
+        dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, 'freeform', self)
+        dlg.setWindowTitle(self.tr('Add New Spell'))
+        dlg.set_header_text(self.tr("<center><h2>Select the spell to learn</h2></center>"))
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+            self.update_from_model()
 
     def act_del_spell(self):
         # get selected spell
@@ -1551,26 +1547,52 @@ class L5RMain(L5RCMCore):
         self.del_spell_bt.setEnabled(not spell_itm.memo)
 
 
-    def learn_next_school_tech(self):
-        # for now do not support multiple school advantage
-        # learn next technique for your school
+    def learn_next_school_tech(self):               
+        # first of all let's check if the pc has a path for
+        # that target rank
+        # otherwise proceed with the current school
+        path = [x for x in self.pc.schools if x.is_path and x.path_rank == self.pc.get_insight_rank()]
 
-        next_rank = self.pc.get_school_rank() + 1
-        school = dal.query.get_school(self.dstore, self.pc.get_school_id())
-
-        for tech in [ x for x in school.techs if x.rank == next_rank ]:
-            self.pc.add_tech(tech.id, tech.id)            
-            print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
+        if len(path):
+            path   = path[0]
+            print('path', path.school_id)
+            # get last learned techs
+            last_tech_id = self.pc.get_techs()[-1]
+            last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
+            
+            school = dal.query.get_school(self.dstore, path.school_id)
+            for tech in [ x for x in school.techs if x.rank == (last_tech.rank+1) ]:
+                path.techs.append(tech.id)
+                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))        
+        else:            
+            next_rank = self.pc.get_school_rank() + 1
+            school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+            
+            # going back from a path?
+            last_ch_school = self.pc.schools[-1]
+            if last_ch_school and last_ch_school.is_path:
+                last_tech_id = self.pc.get_techs()[-1]
+                last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)                
+                next_rank = last_tech.rank+1
+            
+            for tech in [ x for x in school.techs if x.rank == next_rank ]:
+                self.pc.add_tech(tech.id, tech.id)            
+                print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
-        #self.sink1.switch_to_page_3()
+        self.pc.set_can_get_other_tech(False)
         self.update_from_model()
 
     def check_rank_advancement(self):
         if self.nicebar: return
 
-        if self.pc.get_insight_rank() > self.last_rank:
+        if self.pc.get_insight_rank() > self.last_rank:           
             # HEY, NEW RANK DUDE!
+            
+            # get 3 spells each rank
+            if self.pc.has_tag('shugenja'):
+                self.pc.set_pending_spells_count( self.pc.get_spells_per_rank() )
+            
             lb = QtGui.QLabel(self.tr("You reached the next rank, you have an opportunity"
                                       " to decide your destiny."), self)
             bt = QtGui.QPushButton(self.tr("Advance rank"), self)
@@ -1596,6 +1618,18 @@ class L5RMain(L5RCMCore):
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_spells )
+            self.show_nicebar([lb, bt])
+            
+    def check_free_kihos(self):
+        if self.nicebar: return
+
+        # Show nicebar if can get another school tech
+        if self.pc.get_free_kiho_count():
+            lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.get_free_kiho_count()), self)
+            bt = QtGui.QPushButton(self.tr("Learn Kihos"), self)
+            bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
+                              QtGui.QSizePolicy.Preferred)
+            bt.clicked.connect( self.learn_next_free_kiho )
             self.show_nicebar([lb, bt])
             
     def check_missing_requirements(self):
@@ -1652,8 +1686,16 @@ class L5RMain(L5RCMCore):
                                      <h3><i>Choose with care.</i></h3></center>"))
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
+            self.pc.set_pending_spells_count(0)            
             self.update_from_model()
 
+    def learn_next_free_kiho(self):
+        dlg = dialogs.BuyAdvDialog(self.pc, 'kiho', self.dstore, self)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+            self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
+            print('remaing free kihos', self.pc.get_free_kiho_count())
+            self.update_from_model()
+            
     def show_advance_rank_dlg(self):
         dlg = dialogs.NextRankDlg(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
@@ -1753,10 +1795,9 @@ class L5RMain(L5RCMCore):
         schools = []
         
         # TODO: Sort
-        if not clan_id:
-            schools = [ x for x in self.dstore.schools if len(x.require) == 0 ]
-        else:
-            schools = [ x for x in self.dstore.schools if (len(x.require) == 0 and x.clanid == clan_id) ]
+        schools = dal.query.get_base_schools(self.dstore)
+        if clan_id is not None:
+            schools = [x for x in schools if x.clanid == clan_id]
                                             
         self.cb_pc_school.addItem( self.tr("No School"), None )
         for s in schools:
@@ -1832,10 +1873,11 @@ class L5RMain(L5RCMCore):
         # set points
         self.pc_flags_points[flag].set_value( int(points*10) )
 
-    def set_honor (self, value): self.set_flag(0, value)
-    def set_glory (self, value): self.set_flag(1, value)
-    def set_status(self, value): self.set_flag(2, value)
-    def set_taint (self, value): self.set_flag(3, value)
+    def set_honor  (self, value): self.set_flag(0, value)
+    def set_glory  (self, value): self.set_flag(1, value)
+    def set_status (self, value): self.set_flag(2, value)
+    def set_taint  (self, value): self.set_flag(3, value)
+    def set_infamy (self, value): self.set_flag(4, value)
 
     def update_from_model(self):
 
@@ -1876,10 +1918,11 @@ class L5RMain(L5RCMCore):
         pause_signals( self.pc_flags_rank   )
         pause_signals( [self.void_points]   )
 
-        self.set_honor ( self.pc.get_honor()  )
-        self.set_glory ( self.pc.get_glory()  )
-        self.set_status( self.pc.get_status() )
-        self.set_taint ( self.pc.get_taint()  )
+        self.set_honor  ( self.pc.get_honor()  )
+        self.set_glory  ( self.pc.get_glory()  )
+        self.set_infamy ( self.pc.get_infamy() )
+        self.set_status ( self.pc.get_status() )
+        self.set_taint  ( self.pc.get_taint()  )
 
         self.set_void_points( self.pc.void_points )
 
@@ -1948,6 +1991,7 @@ class L5RMain(L5RCMCore):
         self.check_rank_advancement()
         self.check_missing_requirements()
         self.check_school_tech_and_spells()
+        self.check_free_kihos()
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0
@@ -2028,12 +2072,24 @@ class L5RMain(L5RCMCore):
     def advise_error(self, message, dtl = None):
         msgBox = QtGui.QMessageBox(self)
         msgBox.setWindowTitle('L5R: CM')
+        msgBox.setTextFormat(QtCore.Qt.RichText)
         msgBox.setText(message)
         if dtl:
             msgBox.setInformativeText(dtl)
         msgBox.setIcon(QtGui.QMessageBox.Critical)
         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
         msgBox.exec_()
+        
+    def advise_warning(self, message, dtl = None):
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setTextFormat(QtCore.Qt.RichText)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(message)
+        if dtl:
+            msgBox.setInformativeText(dtl)
+        msgBox.setIcon(QtGui.QMessageBox.Warning)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
+        msgBox.exec_()        
 
     def ask_to_save(self):
         msgBox = QtGui.QMessageBox(self)
@@ -2061,7 +2117,6 @@ class L5RMain(L5RCMCore):
         QtGui.QMessageBox.warning(parent, self.tr("Not enough XP"),
         self.tr("Cannot purchase.\nYou've reached the XP Limit."))
         return
-
 
     def closeEvent(self, ev):
         # update interface last time, to set unsaved states
@@ -2181,7 +2236,7 @@ class L5RMain(L5RCMCore):
 
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
-
+            
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
         self.pc.set_insight_calc_method(method)
@@ -2189,6 +2244,42 @@ class L5RMain(L5RCMCore):
 
     def create_new_character(self):
         self.sink1.new_character()
+        
+    # zooooooom
+    def smart_resize(self, size, point_size):
+        self.scroll.hide()
+
+        font = QtGui.QApplication.instance().font()
+        font.setPointSizeF(point_size)        
+        
+        QtGui.QApplication.instance().setFont(font)
+        self.widgets.resize(size)
+        self.resize( QtCore.QSize( size.width()*1.012, size.height()*1.036 ) )
+        self.scroll.ensureWidgetVisible(self.widgets)
+        
+        self.scroll.show()
+        
+    def reset_zoom(self):
+        self.smart_resize(self.default_size, self.default_point_size)
+        
+    def zoom_self(self, value):
+        
+        rate  = 1.05 if value > 0 else 0.95
+        frate = 1.10 if value > 0 else 0.90
+        new_size = QtCore.QSize(
+            self.widgets.size().width()*rate,
+            self.widgets.size().height()*rate)       
+        
+        self.smart_resize(new_size, QtGui.QApplication.instance().font().pointSizeF()*frate)
+        
+    def wheelEvent (self, event):
+        if (event.orientation() == QtCore.Qt.Vertical and
+            event.modifiers() == QtCore.Qt.ControlModifier):
+            
+            settings = QtCore.QSettings()
+            enable_ui_zoom = settings.value('enable_ui_zoom', 0)            
+            if enable_ui_zoom:
+                self.zoom_self(event.delta())
 
 ### MAIN ###
 def dump_slots(obj, out_file):
@@ -2245,7 +2336,7 @@ def main():
 
     # check for updates
     l5rcm.check_updates()
-
+    
     # initialize new character
     l5rcm.create_new_character()
 
@@ -2256,6 +2347,9 @@ def main():
         elif IMPORT_CMD_SWITCH in sys.argv:
             imf  = sys.argv.index(IMPORT_CMD_SWITCH)
             l5rcm.import_data_pack(sys.argv[imf+1])
+            
+    # alert if not datapacks are installed
+    l5rcm.check_datapacks()          
             
     sys.exit(app.exec_())
 

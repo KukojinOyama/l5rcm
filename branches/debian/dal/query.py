@@ -34,6 +34,16 @@ def get_school(storage, id):
     except:
         return None
         
+def get_base_schools(storage):
+    def is_base_school(school):
+        return (len(school.require) == 0 and
+                'advanced' not in school.tags and
+                'alternate' not in school.tags)
+    try:
+        return [x for x in storage.schools if is_base_school(x)]
+    except:
+        return None
+        
 def get_school_tech(school_obj, rank):
     try:
         return filter( lambda x: x.rank == rank, school_obj.techs )[0]
@@ -116,3 +126,15 @@ def get_weapon_effect(storage, id):
         return [x for x in storage.weapon_effects if x.id == id][0]
     except:
         return None         
+        
+def get_ring(storage, id):
+    try:
+        return [x for x in storage.rings if x.id == id][0]
+    except:
+        return None
+        
+def get_trait(storage, id):
+    try:
+        return [x for x in storage.traits if x.id == id][0]
+    except:
+        return None        

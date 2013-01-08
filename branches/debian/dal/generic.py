@@ -16,16 +16,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from models.advances       import *
-from models.chmodel        import *
-from models.skillmodel     import *
-from models.outfit         import *
-from models.techviewmodel  import *
-from models.perkviewmodel  import *
-from models.maviewmodel    import *
-from models.spellmodel     import *
-from models.sortproxymodel import *
-from models.modifiers      import *
-from models.katamodel      import *
-from models.kihomodel      import *
-from models.charsnapshot   import *
+class GenericId(object):
+    @staticmethod
+    def build_from_xml(elem):
+        f = GenericId()
+        f.id = elem.attrib['id']
+        f.text = elem.text
+        return f  	
+        
+    def __str__(self):
+        return self.text
+
+    def __unicode__(self):
+        return self.text        

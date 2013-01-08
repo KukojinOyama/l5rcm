@@ -29,6 +29,12 @@ class TechItemModel(object):
 
     def __str__(self):
         return self.name
+        
+    def __lt__(self, obj):
+        return self.rank < obj.rank
+        
+    def __eq__(self, obj):
+        return self.rank == obj.rank
 
 class TechViewModel(QtCore.QAbstractListModel):
     def __init__(self, dstore, parent = None):
@@ -44,20 +50,23 @@ class TechViewModel(QtCore.QAbstractListModel):
     def rowCount(self, parent = QtCore.QModelIndex()):
         return len(self.items)
         
-    def build_item_model(self, tech_id):
+    def build_item_model(self, tech_id, adjusted_rank = 0):
         itm = TechItemModel()
         
         school, tech = dal.query.get_tech(self.dstore, tech_id)
         if tech and school:          
             itm.name         = tech.name
             itm.school_name  = school.name
-            itm.rank         = str(tech.rank)
+            if adjusted_rank == 0:
+                itm.rank         = str(tech.rank)
+            else:
+                itm.rank         = str(adjusted_rank)
         return itm        
         
-    def add_item(self, item_id):
+    def add_item(self, item_id, adjusted_rank):
         row = self.rowCount()
         self.beginInsertRows(QtCore.QModelIndex(), row, row)
-        self.items.append(self.build_item_model(item_id))
+        self.items.append(self.build_item_model(item_id, adjusted_rank))
         self.endInsertRows()
 
     def clean(self):
@@ -67,9 +76,19 @@ class TechViewModel(QtCore.QAbstractListModel):
 
     def update_from_model(self, model):
         self.clean()
+        print('got {0} techs'.format( len(model.get_techs()) ))
         for tech in model.get_techs():
-            self.add_item(tech)
-
+            adjusted_rank = self.adjust_tech_rank(model, tech)                
+            self.add_item(tech, adjusted_rank)
+        # sort by rank
+        self.items.sort()
+            
+    def adjust_tech_rank(self, model, tech_id):
+        paths = [x for x in model.schools if x.is_path and tech_id in x.techs]
+        if len(paths):
+            return paths[0].path_rank
+        return 0
+        
     def data(self, index, role):
         if not index.isValid() or index.row() >= len(self.items):
             return None

@@ -35,7 +35,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.2'
+APP_VERSION = '3.4'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -95,6 +95,9 @@ class CMErrors(object):
     NOT_ENOUGH_XP = 'not_enough_xp'
 
 class L5RCMCore(QtGui.QMainWindow):
+
+    dstore = None
+    
     def __init__(self, locale, parent = None): 
         super(L5RCMCore, self).__init__(parent)
         #print(repr(self))
@@ -105,7 +108,7 @@ class L5RCMCore(QtGui.QMainWindow):
         # get new insight rank
         self.last_rank = 1
         
-        # Flag to lock advancment refunds in order        
+        # Flag to lock advancement refunds in order
         self.lock_advancements = True
                
         # current locale
@@ -119,12 +122,26 @@ class L5RCMCore(QtGui.QMainWindow):
         self.data_pack_blacklist = settings.value('data_pack_blacklist', [])        
     
         # Data storage
-        self.dstore = dal.Data( 
-            [osutil.get_user_data_path('core.data'),
-             osutil.get_user_data_path('data'),
-             osutil.get_user_data_path('data.' + self.locale)],
-             self.data_pack_blacklist)
-        
+        if not self.dstore:
+            self.dstore = dal.Data( 
+                [osutil.get_user_data_path('core.data'),
+                 osutil.get_user_data_path('data'),
+                 osutil.get_user_data_path('data.' + self.locale)],
+                 self.data_pack_blacklist)
+        else:
+            self.dstore.rebuild(
+                    [osutil.get_user_data_path('core.data'),
+                    osutil.get_user_data_path('data'),
+                    osutil.get_user_data_path('data.' + self.locale)],
+                    self.data_pack_blacklist)        
+
+    def check_datapacks(self):
+        if len(self.dstore.get_packs()) == 0:
+            self.advise_warning(self.tr("No Datapacks installed"),
+                                self.tr("Without data packs the software will be of little use."
+                                        "<p>Download a datapack from <a href=\"{0}\">{0}</a>.</p>"
+                                        .format(PROJECT_PAGE_LINK)))
+             
     def update_from_model(self):
         pass
         
@@ -198,7 +215,7 @@ class L5RCMCore(QtGui.QMainWindow):
         _flatten_pdf(source_fdf, source_pdf, fpath)        
         
         temp_files.append(fpath)
-        # SHUGENJA/BUSHI SHEET
+        # SHUGENJA/BUSHI/MONK SHEET
         if self.pc.has_tag('shugenja'):
             source_pdf = get_app_file('sheet_shugenja.pdf')
             source_fdf = _create_fdf(exporters.FDFExporterShugenja())
@@ -212,7 +229,14 @@ class L5RCMCore(QtGui.QMainWindow):
             fd, fpath = mkstemp(suffix='.pdf');
             os.fdopen(fd, 'wt').close()
             _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)        
+            temp_files.append(fpath)
+        elif self.pc.has_tag('monk'):
+            source_pdf = get_app_file('sheet_monk.pdf')
+            source_fdf = _create_fdf(exporters.FDFExporterMonk())
+            fd, fpath = mkstemp(suffix='.pdf');
+            os.fdopen(fd, 'wt').close()
+            _flatten_pdf(source_fdf, source_pdf, fpath)
+            temp_files.append(fpath)
         
         if os.path.exists(export_file):
             os.remove(export_file)
@@ -344,8 +368,9 @@ class L5RCMCore(QtGui.QMainWindow):
         
     def check_if_tech_available(self):
         school = dal.query.get_school(self.dstore, self.pc.get_school_id())
-        if school:
+        if school:            
             count  = len(school.techs)
+            print('check_if_tech_available', school.id, count, self.pc.get_school_rank())
             return count > self.pc.get_school_rank()
         return False        
 
@@ -392,10 +417,10 @@ class L5RCMCore(QtGui.QMainWindow):
                 else:
                     dest = os.path.join(dest, 'data')
                     
-                pack.export_to  (dest)
+                pack.export_to  (dest)          
                 self.reload_data()
                 self.create_new_character()
-                self.advise_successfull_import()
+                self.advise_successfull_import()                
         except Exception as e:
             self.advise_error(self.tr("Cannot import data pack."), e.message)
             

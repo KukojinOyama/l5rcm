@@ -27,8 +27,10 @@ MOD_TYPES = {
     #"spcr" : "Spell Casting Roll",
     "anyr" : "Any Roll",
     "skir" : "Skill Roll",
-    "hrnk" : "Health Rank",
-    #"init" : "Initiative"
+    "atkr" : "Attack Roll",
+    "hrnk" : "Health Rank",    
+    "artn" : "Armor TN",
+    "arrd" : "Armor RD"
 }
 
 MOD_DTLS = {
@@ -37,13 +39,16 @@ MOD_DTLS = {
     "hrnk": ("none", "N/A"),
     "skir": ("skill", "Select Skill"),
     "wdmg": ("aweap", "Select Weapon"),
+    'atkr': ("aweap", "Select Weapon"),
+    "artn": ("none", "N/A"),
+    "arrd": ("none", "N/A")
 }
 
 class ModifierModel(object):
     def __init__(self):
         self.type   = 'none'
         self.dtl    = None
-        self.value  = (0, 0)
+        self.value  = (0, 0, 0)
         self.reason = "I'm just this good"
         self.active = False
        
