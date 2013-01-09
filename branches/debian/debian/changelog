@@ -1,9 +1,9 @@
-l5rcm (3.4-2ubuntu2) quantal; urgency=low
+l5rcm (3.4-1ubuntu2) quantal; urgency=low
     * [NEW] Added Infamy counter
     * [FIX] Fixed "Remove Perk" (minus) button
     * [NEW] Added PDF sheet for monk characters with Monk schools and Kihos
     * [FIX] Fixed "Fame" advantage ( +1 starting glory )
-    * [NEW] [DATAPACK] Added Rings/Traits data, usefull for translations
+    * [NEW] [DATAPACK] Added Rings/Traits data, useful for translations
     * [NEW] [DATAPACK] Normalized whitespace in kiho descriptions
     * [FIX] Fix for Shugenja rank advancement
     * [NEW] [DATAPACK] Changed the way requirements for schools are specified in the XML
@@ -11,14 +11,14 @@ l5rcm (3.4-2ubuntu2) quantal; urgency=low
     * [NEW] The system will forbid to downgrade a datapack
     * [NEW] Added modifiers for Armor TN, Armor RD and Attack Roll ( specific to a weapon )
 
- -- Daniele Simonetti <oppifjellet@gmail.com>  Wed, 09 Jan 2013 09:24:02 +0200
+ -- Daniele Simonetti <oppifjellet@gmail.com>  Wed, 09 Jan 2013 09:25:02 +0200
 
 l5rcm (3.4-1ubuntu1) precise; urgency=low
     * [NEW] Added Infamy counter
     * [FIX] Fixed "Remove Perk" (minus) button
     * [NEW] Added PDF sheet for monk characters with Monk schools and Kihos
     * [FIX] Fixed "Fame" advantage ( +1 starting glory )
-    * [NEW] [DATAPACK] Added Rings/Traits data, usefull for translations
+    * [NEW] [DATAPACK] Added Rings/Traits data, useful for translations
     * [NEW] [DATAPACK] Normalized whitespace in kiho descriptions
     * [FIX] Fix for Shugenja rank advancement
     * [NEW] [DATAPACK] Changed the way requirements for schools are specified in the XML
