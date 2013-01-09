@@ -1,3 +1,39 @@
+l5rcm (3.4-2ubuntu2) quantal; urgency=low
+    * [NEW] Added Infamy counter
+    * [FIX] Fixed "Remove Perk" (minus) button
+    * [NEW] Added PDF sheet for monk characters with Monk schools and Kihos
+    * [FIX] Fixed "Fame" advantage ( +1 starting glory )
+    * [NEW] [DATAPACK] Added Rings/Traits data, usefull for translations
+    * [NEW] [DATAPACK] Normalized whitespace in kiho descriptions
+    * [FIX] Fix for Shugenja rank advancement
+    * [NEW] [DATAPACK] Changed the way requirements for schools are specified in the XML
+    * [NEW] Support for Alternate Paths / Techniques replacements
+    * [NEW] The system will forbid to downgrade a datapack
+    * [NEW] Added modifiers for Armor TN, Armor RD and Attack Roll ( specific to a weapon )
+
+ -- Daniele Simonetti <oppifjellet@gmail.com>  Wed, 09 Jan 2013 09:24:02 +0200
+
+l5rcm (3.4-1ubuntu1) precise; urgency=low
+    * [NEW] Added Infamy counter
+    * [FIX] Fixed "Remove Perk" (minus) button
+    * [NEW] Added PDF sheet for monk characters with Monk schools and Kihos
+    * [FIX] Fixed "Fame" advantage ( +1 starting glory )
+    * [NEW] [DATAPACK] Added Rings/Traits data, usefull for translations
+    * [NEW] [DATAPACK] Normalized whitespace in kiho descriptions
+    * [FIX] Fix for Shugenja rank advancement
+    * [NEW] [DATAPACK] Changed the way requirements for schools are specified in the XML
+    * [NEW] Support for Alternate Paths / Techniques replacements
+    * [NEW] The system will forbid to downgrade a datapack
+    * [NEW] Added modifiers for Armor TN, Armor RD and Attack Roll ( specific to a weapon )
+
+ -- Daniele Simonetti <oppifjellet@gmail.com>  Wed, 09 Jan 2013 09:24:02 +0200    
+
+l5rcm (3.0-1ubuntu1) precise; urgency=low
+
+  * Added application icon
+
+ -- Daniele Simonetti <oppifjellet@gmail.com>  Fri, 19 Oct 2012 19:24:02 +0200
+
 l5rcm (3.0-1) precise; urgency=low
 
   * First release.
