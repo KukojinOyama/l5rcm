@@ -18,7 +18,7 @@
 
 import sys
 import os
-
+import shutil
 import rules
 import models
 import widgets
@@ -244,7 +244,8 @@ class L5RCMCore(QtGui.QMainWindow):
         if len(temp_files) > 1:
             _merge_pdf(temp_files, export_file)
         elif len(temp_files) == 1:
-            os.rename(temp_files[0], export_file)
+            #os.rename(temp_files[0], export_file)
+            shutil.move(temp_files[0], export_file)
         
     def remove_advancement_item(self, adv_itm):
         if adv_itm in self.pc.advans:
