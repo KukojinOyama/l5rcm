@@ -525,13 +525,13 @@ class AdvancedPcModel(BasePcModel):
 
     def get_merits(self):
         for adv in self.advans:
-            if adv.type != 'perk' or adv.cost < 0:
+            if adv.type != 'perk' or adv.cost < 0 or adv.tag == 'flaw': # cannot use != 'merit' for backward compatibility
                 continue
             yield adv
 
     def get_flaws(self):
         for adv in self.advans:
-            if adv.type != 'perk' or adv.cost > 0:
+            if adv.type != 'perk' or adv.cost > 0 or adv.tag == 'merit': # cannot use != 'flaw' for backward compatibility
                 continue
             yield adv
             

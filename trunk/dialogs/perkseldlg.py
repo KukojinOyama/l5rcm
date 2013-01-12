@@ -226,7 +226,8 @@ class BuyPerkDialog(QtGui.QDialog):
             
         if self.tag == 'flaw':
             self.item.cost *= -1
-            
+        
+        self.item.tag = self.tag
         self.pc.add_advancement      (self.item)        
         self.process_special_effects (self.item)        
         self.accept()
