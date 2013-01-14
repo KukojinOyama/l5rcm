@@ -14,15 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-from distutils.core import setup
-import py2exe
+from setuptools import setup
+
+APP = ['l5rcm.py']
+DATA_FILES = []
+OPTIONS = {'argv_emulation': True}
 
 setup(
-    windows = [
-        {
-            "script": "l5rcm.py",
-            "icon_resources": [(0, "windows/l5rcm.ico"), (1, "windows/l5rcmpack.ico")]
-        }
-    ],
-    options={"py2exe": {"includes": ["PySide.QtGui"]}},
-    )
+    app=APP,
+    data_files=DATA_FILES,
+    options={'py2app': OPTIONS},
+    setup_requires=['py2app'],
+)
