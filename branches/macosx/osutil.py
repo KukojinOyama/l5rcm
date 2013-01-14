@@ -17,6 +17,7 @@
 
 from subprocess import Popen
 import os
+import sys
 
 from PySide import QtCore, QtGui
 
@@ -36,12 +37,11 @@ def detect_desktop_environment():
         #    pass
     return desktop_environment
 
-def portable_open(what):
-    #print 'open ' + what
-    if os.name == 'nt':
+def portable_open(what):   
+    if sys.platform == 'win32':
         #TODO ShellExec
         Popen(['explorer', what])
-    elif os.name == 'posix':
+    elif sys.platform == 'linux2':
         de = detect_desktop_environment()
         if de == 'gnome':
             Popen(['gnome-open', what])
@@ -51,6 +51,10 @@ def portable_open(what):
             Popen(['exo-open', what])
         else:
             Popen(['xdg-open', what])
+    elif sys.platform == 'darwin':
+        Popen(['open', what])
+    else:
+        raise Exception('Platform not supported')
             
 def download_image(url, path, name):    
     import urllib2
@@ -74,7 +78,7 @@ def download_image(url, path, name):
     return filepath
     
 def get_system_font():
-    if os.name == 'posix':
+    if sys.platform == 'linux2':
         de = detect_desktop_environment()
         if de == 'gnome':
             try:
@@ -91,7 +95,7 @@ def get_system_font():
   
 def get_user_data_path(rel_path = ''):
     user_data = '.'
-    if os.name == 'posix':
+    if os.name == 'posix': # Linux is ok but Macosx ???
         user_data = '%s/.config' % (os.environ['HOME'])
     elif os.name == 'nt':
         user_data = os.environ['APPDATA'].decode('latin-1')
