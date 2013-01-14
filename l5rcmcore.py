@@ -193,10 +193,12 @@ class L5RCMCore(QtGui.QMainWindow):
                 _try_remove(f)            
             
         def _get_pdftk():
-            if os.name == 'nt':
+            if sys.platform == 'win32':
                 return os.path.join(MY_CWD, 'tools', 'pdftk.exe')
-            elif os.name == 'posix':
+            elif sys.platform == 'linux2':
                 return '/usr/bin/pdftk'
+            elif sys.platform == 'darwin'
+                return os.path.join(MY_CWD, 'tools', 'pdftk')
             return None
             
         def _try_remove(fpath):
