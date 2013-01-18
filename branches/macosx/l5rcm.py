@@ -80,8 +80,9 @@ def resume_signals(wdgs):
 
 class L5RMain(L5RCMCore):
 
-    default_size = QtCore.QSize(820, 720)
+    default_size       = QtCore.QSize(820, 720)
     default_point_size = 8.25
+    num_tabs           = 10
     
     def __init__(self, locale = None, parent = None):
         super(L5RMain, self).__init__(locale)
@@ -110,18 +111,19 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_8 ()
         self.build_ui_page_9 ()
         self.build_ui_page_10()
+        self.build_ui_page_about()
         
         self.scroll.setWidget(self.widgets)
         
         self.tabs.setIconSize(QtCore.QSize(24,24))
-        tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text']
-        for i in xrange(0, 9):
+        tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text', 'bag']
+        for i in xrange(0, self.num_tabs):
             self.tabs.setTabIcon(i, QtGui.QIcon(get_tab_icon(tabs_icons[i])))
             self.tabs.setTabText(i, '')
             
         # about = app_icon
-        self.tabs.setTabIcon(9, QtGui.QIcon(get_app_icon_path()))
-        self.tabs.setTabText(9, '')
+        self.tabs.setTabIcon(self.num_tabs, QtGui.QIcon(get_app_icon_path()))
+        self.tabs.setTabText(self.num_tabs, '')
 
         self.connect_signals()
 
@@ -1005,8 +1007,49 @@ class L5RMain(L5RCMCore):
         vbox.addWidget(build_pers_info())
 
         self.tabs.addTab(mfr, self.tr("Notes"))
-
+        
     def build_ui_page_10(self):
+        #self.equip_view_model  = models.EquipTableViewModel(self)
+        #self.equip_view_model.user_change.connect(self.update_from_model)
+        self.equip_view_model = None
+
+        def _make_sortable(model):
+            # enable sorting through a proxy model
+            sort_model_ = models.ColorFriendlySortProxyModel(self)
+            sort_model_.setDynamicSortFilter(True)
+            sort_model_.setSourceModel(model)
+            return sort_model_
+
+        # weapon vertical toolbar
+        def _make_vertical_tb():
+            vtb = widgets.VerticalToolBar(self)
+            vtb.addStretch()
+            vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
+                          self.tr("Add equipment"), self.sink4.add_new_modifier)
+            vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))),
+                          self.tr("Remove equipment"), self.sink4.remove_selected_modifier)
+
+            vtb.addStretch()
+            return vtb
+
+        vtb  = _make_vertical_tb()
+
+        models_ = [ (self.tr("Equipment"), 'table', _make_sortable(self.equip_view_model),
+                    None, vtb) ]
+
+        frame_, views_ = self._build_generic_page(models_)
+        self.equip_view = views_[0]
+        
+        self.money_widget = widgets.MoneyWidget(self)
+        frame_.layout().setSpacing(12)
+        frame_.layout().addWidget(new_horiz_line(self))
+        frame_.layout().addWidget(self.money_widget)
+
+        #self.equip_view.setItemDelegate(models.EquipmentDelegate(self.dstore, self))
+        vtb .setProperty('source', self.equip_view)    
+        self.tabs.addTab(frame_ , self.tr("Equipment"))
+
+    def build_ui_page_about(self):
         mfr    = QtGui.QFrame(self)
         hbox   = QtGui.QHBoxLayout(mfr)
         hbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -1839,13 +1882,14 @@ class L5RMain(L5RCMCore):
                 return
 
     def set_school(self, school_id):
+        
         idx = self.cb_pc_school.currentIndex()
         s_uuid = self.cb_pc_school.itemData(idx)
 
         if s_uuid == school_id:
             return
 
-        #print 'set school to %s, current school is %s' % (school_id, s_uuid)
+        print('set school to {0}, current school is {0}'.format(school_id, s_uuid))
 
         found = False
         self.cb_pc_school.blockSignals(True)
