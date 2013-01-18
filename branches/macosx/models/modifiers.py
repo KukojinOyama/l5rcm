@@ -263,5 +263,5 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
         
     def commitAndCloseEditor(self):
         editor = self.sender()
-        self.commitData.emit(editor)
-        self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.EndEditHint.NoHint)
+        #self.commitData.emit(editor)
+        #self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.EndEditHint.NoHint)
