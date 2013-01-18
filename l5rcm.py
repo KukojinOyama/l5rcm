@@ -1882,13 +1882,14 @@ class L5RMain(L5RCMCore):
                 return
 
     def set_school(self, school_id):
+        
         idx = self.cb_pc_school.currentIndex()
         s_uuid = self.cb_pc_school.itemData(idx)
 
         if s_uuid == school_id:
             return
 
-        #print 'set school to %s, current school is %s' % (school_id, s_uuid)
+        print('set school to {0}, current school is {0}'.format(school_id, s_uuid))
 
         found = False
         self.cb_pc_school.blockSignals(True)

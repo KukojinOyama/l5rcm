@@ -299,14 +299,15 @@ class AdvancedPcModel(BasePcModel):
     def get_school(self, index = -1):
         if len(self.schools) == 0 or index >= len(self.schools):
             return None
-        if index < 0: 
+        if index < 0:
+            #print('get current school is...', self.get_current_school())
             return self.get_current_school()
         return self.schools[index]
         
     def get_school_id(self, index = -1):
         try:
             return self.get_school(index).school_id
-        except:
+        except Exception as e:
             return None
         
     def get_school_rank(self, index = -1):
@@ -991,6 +992,13 @@ class AdvancedPcModel(BasePcModel):
                     _load_obj(deepcopy(m), item)
                     self.add_modifier(item)
                     
+            try:
+                if self.get_current_school() is None and len(self.schools) > 0:
+                    print('missing current school. old save?')                
+                    self.current_school_id = self.schools[-1].school_id
+            except:
+                print('cannot recover current school')
+                
             self.unsaved  = False
             return True
         return False
