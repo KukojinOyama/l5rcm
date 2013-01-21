@@ -1082,7 +1082,7 @@ class L5RMain(L5RCMCore):
                   <p>Special Thanks:</p>
                   <p style="margin-left: 10;">
                   Paul Tar, Jr aka Geiko (Lots of cool stuff)</p>
-                  <p>Derrick D. Cochran (OS X Distro)
+                  <p style="margin-left: 10;">Derrick D. Cochran (OS X Distro)
                   </p>
                   </body></html>""" % ( APP_DESC,
                                         QtGui.QApplication.applicationVersion(),
