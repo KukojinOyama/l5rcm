@@ -1081,7 +1081,8 @@ class L5RMain(L5RCMCore):
                   <p style='color:palette(mid)'>&copy; 2011 %s</p>
                   <p>Special Thanks:</p>
                   <p style="margin-left: 10;">
-                  Paul Tar, Jr aka Geiko (Lots of cool stuff)
+                  Paul Tar, Jr aka Geiko (Lots of cool stuff)</p>
+                  <p>Derrick D. Cochran (OS X Distro)
                   </p>
                   </body></html>""" % ( APP_DESC,
                                         QtGui.QApplication.applicationVersion(),
