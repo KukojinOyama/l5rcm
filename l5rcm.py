@@ -1039,6 +1039,10 @@ class L5RMain(L5RCMCore):
         frame_, views_ = self._build_generic_page(models_)
         self.equip_view = views_[0]
         
+        font = self.equip_view.font()
+        font.setPointSize(11.5)
+        self.equip_view.setFont(font)
+        
         self.money_widget = widgets.MoneyWidget(self)
         frame_.layout().setSpacing(12)
         frame_.layout().addWidget(new_horiz_line(self))
