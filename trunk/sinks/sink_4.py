@@ -60,4 +60,23 @@ class Sink4(QtCore.QObject):
     def reload_data_act(self):
         self.form.reload_data  ()
         self.form.create_new_character()
-    
+        
+    def add_equipment(self):        
+        equip_list = self.form.pc.get_property('equip', [])
+        equip_list.append( self.tr('Doubleclick to edit') )
+        self.form.update_from_model()
+        
+    def remove_selected_equipment(self):    
+        index = self.form.equip_view.selectionModel().currentIndex()
+        if not index.isValid():
+            return            
+        item = index.model().data(index, QtCore.Qt.UserRole)
+        
+        equip_list = self.form.pc.get_property('equip')
+        if equip_list:
+            equip_list.remove(item)
+        
+        self.form.update_from_model()           
+        
+    def on_money_value_changed(self, value):
+        self.form.pc.set_property('money', value)        
