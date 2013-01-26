@@ -215,7 +215,7 @@ class EquipmentListModel(QtCore.QAbstractListModel):
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
                             QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
-        self.item_size  = QtCore.QSize(28, 28)
+        self.item_size  = QtCore.QSize(28, 28)        
 
     def rowCount(self, parent = QtCore.QModelIndex()):
         if not self.items:
@@ -252,6 +252,8 @@ class EquipmentListModel(QtCore.QAbstractListModel):
         item = self.items[index.row()]
         if role == QtCore.Qt.DisplayRole:
             return item
+        if role == QtCore.Qt.EditRole:
+            return item            
         elif role == QtCore.Qt.ForegroundRole:
             return self.text_color
         elif role == QtCore.Qt.BackgroundRole:
