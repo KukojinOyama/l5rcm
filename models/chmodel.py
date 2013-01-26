@@ -900,9 +900,12 @@ class AdvancedPcModel(BasePcModel):
         self.insight_calculation = func
         
     # properties
-    def get_property(self, name):
+    def has_property(self, name):
+        return name not in self.properties
+        
+    def get_property(self, name, default = ''):
         if name not in self.properties:
-            self.properties[name] = ''
+            self.properties[name] = default
         return self.properties[name]
         
     def set_property(self, name, value):
