@@ -1,0 +1,9 @@
+{
+	"id": "core",
+	"display_name": "Core data",
+	"language": "en_US",
+	"authors": ["Daniele Simonetti"],
+	"version": "3.3",
+	"update-uri": "",
+	"download-uri": ""
+}
