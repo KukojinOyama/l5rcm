@@ -1,3 +1,8 @@
+=== L5RCM v3.5 ===
+* [NEW] Added money and equipment ( not in PDF sheet yet )
+* [FIX] Fixed defect #143 School Name vanishing
+* [FIX] Fixed defect #140 Cost 0 advantages/disadvantaged double display
+
 === L5RCM v3.4 ===
 * [NEW] Added Infamy counter
 * [FIX] Fixed "Remove Perk" (minus) button
