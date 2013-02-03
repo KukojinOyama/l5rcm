@@ -1009,9 +1009,8 @@ class L5RMain(L5RCMCore):
         self.tabs.addTab(mfr, self.tr("Notes"))
         
     def build_ui_page_10(self):
-        #self.equip_view_model  = models.EquipTableViewModel(self)
+        self.equip_view_model  = models.EquipmentListModel(self)
         #self.equip_view_model.user_change.connect(self.update_from_model)
-        self.equip_view_model = None
 
         def _make_sortable(model):
             # enable sorting through a proxy model
@@ -1025,25 +1024,30 @@ class L5RMain(L5RCMCore):
             vtb = widgets.VerticalToolBar(self)
             vtb.addStretch()
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
-                          self.tr("Add equipment"), self.sink4.add_new_modifier)
+                          self.tr("Add equipment"), self.sink4.add_equipment)
             vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))),
-                          self.tr("Remove equipment"), self.sink4.remove_selected_modifier)
+                          self.tr("Remove equipment"), self.sink4.remove_selected_equipment)
 
             vtb.addStretch()
             return vtb
 
         vtb  = _make_vertical_tb()
 
-        models_ = [ (self.tr("Equipment"), 'table', _make_sortable(self.equip_view_model),
+        models_ = [ (self.tr("Equipment"), 'list', _make_sortable(self.equip_view_model),
                     None, vtb) ]
 
         frame_, views_ = self._build_generic_page(models_)
         self.equip_view = views_[0]
         
+        font = self.equip_view.font()
+        font.setPointSize(11.5)
+        self.equip_view.setFont(font)
+        
         self.money_widget = widgets.MoneyWidget(self)
         frame_.layout().setSpacing(12)
         frame_.layout().addWidget(new_horiz_line(self))
         frame_.layout().addWidget(self.money_widget)
+        self.money_widget.valueChanged.connect(self.sink4.on_money_value_changed)
 
         #self.equip_view.setItemDelegate(models.EquipmentDelegate(self.dstore, self))
         vtb .setProperty('source', self.equip_view)    
@@ -1081,7 +1085,8 @@ class L5RMain(L5RCMCore):
                   <p style='color:palette(mid)'>&copy; 2011 %s</p>
                   <p>Special Thanks:</p>
                   <p style="margin-left: 10;">
-                  Paul Tar, Jr aka Geiko (Lots of cool stuff)
+                  Paul Tar, Jr aka Geiko (Lots of cool stuff)</p>
+                  <p style="margin-left: 10;">Derrick D. Cochran (OS X Distro)
                   </p>
                   </body></html>""" % ( APP_DESC,
                                         QtGui.QApplication.applicationVersion(),
@@ -1143,7 +1148,7 @@ class L5RMain(L5RCMCore):
 
         self.m_adv = m_adv
 
-        viewadv_act .triggered.connect( self.sink1.switch_to_page_5    )
+        viewadv_act .triggered.connect( self.sink1.switch_to_page_6    )
         resetadv_act.triggered.connect( self.sink1.reset_adv           )
         refund_act  .triggered.connect( self.sink1.refund_last_adv     )
 
@@ -2015,7 +2020,12 @@ class L5RMain(L5RCMCore):
         # affinity / deficiency
         self.lb_affin.setText(self.pc.get_affinity().capitalize())
         self.lb_defic.setText(self.pc.get_deficiency().capitalize())
-
+        
+        # money
+        pause_signals( [self.money_widget]   )
+        self.money_widget.set_value( self.pc.get_property('money', (0,0,0)) )         
+        resume_signals( [self.money_widget]   )
+        
         self.hide_nicebar()
 
         # Show nicebar if pending wildcard skills
@@ -2061,6 +2071,7 @@ class L5RMain(L5RCMCore):
         self.mods_view_model  .update_from_model(self.pc)
         self.ka_view_model    .update_from_model(self.pc)
         self.ki_view_model    .update_from_model(self.pc)
+        self.equip_view_model .update_from_model(self.pc)
 
     def update_wound_penalties(self):
         penalties = [0, 3, 5, 10, 15, 20, 40]

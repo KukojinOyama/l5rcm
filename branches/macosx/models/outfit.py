@@ -205,3 +205,72 @@ class WeaponTableViewModel(QtCore.QAbstractTableModel):
                 w.base_dmg = rules.format_rtk_t(rules.calculate_base_damage_roll(model, w))
                 w.max_dmg  = rules.format_rtk_t(rules.calculate_mod_damage_roll (model, w))                
                 self.add_item(w)
+                
+class EquipmentListModel(QtCore.QAbstractListModel):
+    def __init__(self, parent = None):
+        super(EquipmentListModel, self).__init__(parent)
+
+        self.items = None
+            
+        self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
+        self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
+                            QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
+        self.item_size  = QtCore.QSize(28, 28)        
+
+    def rowCount(self, parent = QtCore.QModelIndex()):
+        if not self.items:
+            return 0
+        return len(self.items)
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsDropEnabled
+        flags = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable         
+        return flags
+
+    def add_item(self, item):
+        row = self.rowCount()
+        self.beginInsertRows(QtCore.QModelIndex(), row, row)               
+        self.items.append(item)
+        self.endInsertRows()
+
+    def clean(self):
+        self.beginResetModel()
+        self.items = []
+        self.endResetModel()
+
+    def update_from_model(self, model):
+        self.clean()
+        equip_list = model.get_property('equip', [])
+        for e in equip_list:
+            self.add_item(e)
+        self.items = equip_list
+            
+    def data(self, index, role = QtCore.Qt.UserRole):
+        if not self.items or not index.isValid() or index.row() >= len(self.items):
+            return None
+        item = self.items[index.row()]
+        if role == QtCore.Qt.DisplayRole:
+            return item
+        if role == QtCore.Qt.EditRole:
+            return item            
+        elif role == QtCore.Qt.ForegroundRole:
+            return self.text_color
+        elif role == QtCore.Qt.BackgroundRole:
+            return self.bg_color[ index.row() % 2 ]            
+        elif role == QtCore.Qt.SizeHintRole:
+            return self.item_size
+        elif role == QtCore.Qt.UserRole:
+            return item    
+        return None
+        
+    def setData(self, index, value, role = QtCore.Qt.EditRole):
+        if role != QtCore.Qt.EditRole:
+            return super(EquipmentListModel, self).setData(index, value, role)
+        else:
+            #equip_list = model.get_property('equip', [])
+            #if index.row() < len(equip_list):
+            #    equip_list[index.row()] = str(value)
+            self.items[index.row()] = str(value)
+        return True
+        
