@@ -14,7 +14,6 @@
       <Skill id="lore_shugenja" rank="1"/>
       <Skill id="lore_theology" rank="1"/>
       <Skill id="meditation" rank="1"/>
-      <Skill id="tea_ceremony" rank="1"/>
       <PlayerChoose rank="1">
         <Wildcard>bugei</Wildcard>
         <Wildcard>high</Wildcard>
@@ -71,7 +70,7 @@
     <Skills>
       <Skill id="courtier" rank="1"/>
       <Skill rank="1" id="etiquette" emphases="Courtesy"/>
-      <Skill id="investigation" rank="1"/>
+      <Skill id="investigation" rank="1" emphases="Interrogation"/>
       <Skill id="kenjutsu" rank="1"/>
       <Skill id="meditation" rank="1"/>
       <Skill id="sincerity" rank="1"/>

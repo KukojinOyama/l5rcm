@@ -183,7 +183,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="mantis" name="[OB] Tsuruchi Bounty Hunter School" id="mantis_ob_tsuruchi_bounty_hunter_school">
+  <School clanid="mantis" name="[GC] Tsuruchi Bounty Hunter School" id="mantis_ob_tsuruchi_bounty_hunter_school">
     <Trait>agility</Trait>
     <Honor>4.5</Honor>
     <Tags>
@@ -196,6 +196,7 @@
       <Skill id="intimidation" rank="1"/>
       <Skill id="investigation" rank="1"/>
       <Skill id="kenjutsu" rank="1"/>
+      <Skill id="kyujutsu " rank="1"/>
       <Skill id="lore_underworld" rank="1"/>
     </Skills>
     <Spells/>
