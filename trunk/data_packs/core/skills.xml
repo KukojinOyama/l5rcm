@@ -412,6 +412,12 @@
     </Tags>
     <MasteryAbilities/>
   </SkillDef>
+  <SkillDef trait="intelligence" type="high" id="lore_law" name="Lore (Law)">
+    <Tags>
+      <Tag>lore</Tag>
+    </Tags>
+    <MasteryAbilities/>
+  </SkillDef>  
   <SkillDef trait="intelligence" type="high" id="medicine" name="Medicine">
     <Tags/>
     <MasteryAbilities>
