@@ -123,7 +123,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="lion" name="[OB] Matsu Beastmaster School" id="lion_ob_matsu_beastmaster_school">
+  <School clanid="lion" name="Matsu Beastmaster School" id="lion_ob_matsu_beastmaster_school">
     <Trait>agility</Trait>
     <Honor>5.5</Honor>
     <Tags>
@@ -149,7 +149,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="lion" name="[OB] The Ikoma Lion's Shadow School" id="lion_ob_the_ikoma_lions_shadow_school">
+  <School clanid="lion" name="The Ikoma Lion's Shadow School" id="lion_ob_the_ikoma_lions_shadow_school">
     <Trait>awareness</Trait>
     <Honor>3.5</Honor>
     <Tags>
