@@ -1,3 +1,9 @@
+=== L5RCM CORE PACK v3.4 ===
+* [FIX] [DATAPACK] Removed "Tea Cerimony" skill from Mirumoto Bushi School
+* [FIX] [DATAPACK] Added "Kyujutsu" skill to Tsuruchi Bounty Hunter School
+* [NEW] [DATAPACK] Added "Lore: Law" skill to skill list
+* [NEW] [DATAPACK] Removed [OB] tag from some schools
+
 === L5RCM v3.5 ===
 * [NEW] Added money and equipment ( not in PDF sheet yet )
 * [FIX] Fixed defect #143 School Name vanishing

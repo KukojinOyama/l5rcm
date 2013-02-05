@@ -2263,7 +2263,7 @@ class L5RMain(L5RCMCore):
         
     def select_import_data_pack(self):
         supported_ext     = ['.zip', '.l5rcmpack']
-        supported_filters = [self.tr("L5R:CM Data Pack(*.l5rcmpack;*.zip)"),
+        supported_filters = [self.tr("L5R:CM Data Pack(*.l5rcmpack *.zip)"),
                              self.tr("Zip Archive(*.zip)")]
 
         settings = QtCore.QSettings()

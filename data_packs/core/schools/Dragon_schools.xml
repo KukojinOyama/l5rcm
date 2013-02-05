@@ -120,7 +120,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="dragon" name="[OB] Mirumoto Taoist Swordsman" id="dragon_ob_mirumoto_taoist_swordsman">
+  <School clanid="dragon" name="Mirumoto Taoist Swordsman" id="dragon_ob_mirumoto_taoist_swordsman">
     <Trait>void</Trait>
     <Honor>5.5</Honor>
     <Tags>
@@ -143,7 +143,7 @@
     <Techs/>
     <Requirements/>
   </School>
-  <School clanid="dragon" name="[OB] Hoshi Tsurui Zumi" id="dragon_ob_hoshi_tsurui_zumi">
+  <School clanid="dragon" name="Hoshi Tsurui Zumi" id="dragon_ob_hoshi_tsurui_zumi">
     <Trait>void</Trait>
     <Honor>4.5</Honor>
     <Tags>
@@ -167,7 +167,7 @@
     <Techs/>
     <Requirements/>
   </School>
-  <School clanid="dragon" name="[OB] Hitomi Kikage Zumi" id="dragon_ob_hitomi_kikage_zumi">
+  <School clanid="dragon" name="Hitomi Kikage Zumi" id="dragon_ob_hitomi_kikage_zumi">
     <Trait>reflexes</Trait>
     <Honor>4.5</Honor>
     <Tags>
