@@ -1055,7 +1055,10 @@ class L5RMain(L5RCMCore):
 
     def build_ui_page_about(self):
         mfr    = QtGui.QFrame(self)
-        hbox   = QtGui.QHBoxLayout(mfr)
+        #bfr    = QtGui.QFrame(self)
+        
+        #hbox   = QtGui.QHBoxLayout(mfr)
+        hbox   = QtGui.QHBoxLayout()
         hbox.setAlignment(QtCore.Qt.AlignCenter)
         #hbox.setMargin   (30)
         hbox.setSpacing  (30)
@@ -1064,10 +1067,9 @@ class L5RMain(L5RCMCore):
         logo.setPixmap(QtGui.QPixmap(get_app_icon_path(( 64,64))))
         hbox.addWidget(logo, 0, QtCore.Qt.AlignTop)
 
-        vbox = QtGui.QVBoxLayout()
+        vbox = QtGui.QVBoxLayout(mfr)
         vbox.setAlignment(QtCore.Qt.AlignCenter)
-        vbox.setSpacing  (30)
-        hbox.addLayout   (vbox)
+        vbox.setSpacing  (30)        
 
         info = """<html><style>a { color: palette(text); }</style><body><h1>%s</h1>
                   <p>Version %s</p>
@@ -1097,7 +1099,49 @@ class L5RMain(L5RCMCore):
         lb_info.setOpenExternalLinks(True)
         lb_info.setWordWrap(True)
         hbox.addWidget(lb_info)
-
+        
+        lb_contact_gplus = QtGui.QLabel(
+        """<a href="{0}">Contact me on</a>
+        """.format(L5RCM_GPLUS_PAGE), self)        
+        lb_contact_gplus.setOpenExternalLinks(True)
+        
+        lb_contact_gplus_img = QtGui.QLabel(
+        """
+        <a href="{0}"><img src="{1}" alt="googleplus_page"/></a>
+        """.format(L5RCM_GPLUS_PAGE, get_icon_path('new-g-plus-icon', (16, 16))), self)
+        lb_contact_gplus_img.setOpenExternalLinks(True)
+                
+        lb_join_community_gplus = QtGui.QLabel(
+        """
+        <a href="{0}">Join the Community on</a>
+        """.format(L5RCM_GPLUS_COMM), self)
+        lb_join_community_gplus.setOpenExternalLinks(True)
+        
+        lb_join_community_gplus_img = QtGui.QLabel(
+        """
+        <a href="{0}"><img src="{1}" alt="googleplus_community"/></a>
+        """.format(L5RCM_GPLUS_COMM, get_icon_path('new-g-plus-icon', (16, 16))), self)
+        lb_join_community_gplus_img.setOpenExternalLinks(True)
+        
+        gplus_form = QtGui.QFormLayout()
+        gplus_form.addRow( 
+            lb_contact_gplus,
+            lb_contact_gplus_img)
+        gplus_form.addRow( 
+            lb_join_community_gplus,
+            lb_join_community_gplus_img)
+                        
+        gplus_form.setLabelAlignment(QtCore.Qt.AlignRight)
+        gplus_form.setVerticalSpacing(6)        
+        
+        gplus_hbox = QtGui.QHBoxLayout()
+        gplus_hbox.setContentsMargins(0,0,50,0)
+        gplus_hbox.addStretch()
+        gplus_hbox.addLayout(gplus_form)        
+        
+        vbox.addLayout(hbox)
+        vbox.addLayout(gplus_hbox)
+        
         self.tabs.addTab(mfr, self.tr("About"))
 
     def build_menu(self):
@@ -2389,8 +2433,9 @@ def main():
 
     # dump_slots(l5rcm, 'startup.txt')
 
-    # check for updates
-    l5rcm.check_updates()
+    # check for updates, do not check for linux because usually they've package managers
+    if sys.platform != 'linux2':
+        l5rcm.check_updates()
     
     # initialize new character
     l5rcm.create_new_character()

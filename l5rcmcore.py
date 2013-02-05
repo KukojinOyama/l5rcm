@@ -46,6 +46,9 @@ AUTHOR_NAME       = 'Daniele Simonetti'
 L5R_RPG_HOME_PAGE = 'http://www.l5r.com/rpg/'
 ALDERAC_HOME_PAGE = 'http://www.alderac.com/'
 
+L5RCM_GPLUS_PAGE  = "https://plus.google.com/114911686277310621574"
+L5RCM_GPLUS_COMM  = "https://plus.google.com/communities/107752342280671357654"
+
 MY_CWD        = os.getcwd()
 if not os.path.exists( os.path.join( MY_CWD, 'share/l5rcm') ):
     MY_CWD = sys.path[0]
@@ -193,10 +196,12 @@ class L5RCMCore(QtGui.QMainWindow):
                 _try_remove(f)            
             
         def _get_pdftk():
-            if os.name == 'nt':
+            if sys.platform == 'win32':
                 return os.path.join(MY_CWD, 'tools', 'pdftk.exe')
-            elif os.name == 'posix':
+            elif sys.platform == 'linux2':
                 return '/usr/bin/pdftk'
+            elif sys.platform == 'darwin':
+                return os.path.join(MY_CWD, 'tools', 'pdftk')
             return None
             
         def _try_remove(fpath):
