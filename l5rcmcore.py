@@ -35,7 +35,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.5'
+APP_VERSION = '3.6'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -84,14 +84,17 @@ def get_tab_icon(name):
         return os.path.join( MY_CWD, 'share/icons/l5rcm/tabs/', name + '.png' )
         
 def get_icon_path(name, size = (48,48)):
-    size_str = '%dx%d' % size
+    base = "share/icons/l5rcm/"
+    if size is not None:
+        base += '%dx%d' % size
+                
     if os.name == 'nt':
-        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )
+        return os.path.join( MY_CWD, base, name + '.png' )
     else:
-        sys_path = '/usr/share/icons/l5rcm/%s' % size_str
+        sys_path = '/usr/' + base
         if os.path.exists( sys_path ):
             return os.path.join( sys_path, name + '.png' )
-        return os.path.join( MY_CWD, 'share/icons/l5rcm/%s' % size_str, name + '.png' )
+        return os.path.join( MY_CWD, base, name + '.png' )
         
 class CMErrors(object):
     NO_ERROR      = 'no_error'
@@ -434,3 +437,8 @@ class L5RCMCore(QtGui.QMainWindow):
         self.data_pack_blacklist = [ x.id for x in self.dstore.packs if x.active == False ]
         settings = QtCore.QSettings()
         settings.setValue('data_pack_blacklist', self.data_pack_blacklist)
+        
+    def please_donate(self):       
+        donate_url = QtCore.QUrl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=Q87Q5BVS3ZKTE&lc=US&item_name=Daniele%20Simonetti&item_number=l5rcm_donate&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted")
+        QtGui.QDesktopServices.openUrl(donate_url)
+            
