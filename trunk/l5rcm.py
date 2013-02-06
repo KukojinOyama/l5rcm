@@ -113,7 +113,7 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_10()
         self.build_ui_page_about()
         
-        self.scroll.setWidget(self.widgets)
+        #self.scroll.setWidget(self.widgets)
         
         self.tabs.setIconSize(QtCore.QSize(24,24))
         tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text', 'bag']
@@ -124,6 +124,9 @@ class L5RMain(L5RCMCore):
         # about = app_icon
         self.tabs.setTabIcon(self.num_tabs, QtGui.QIcon(get_app_icon_path()))
         self.tabs.setTabText(self.num_tabs, '')
+        
+        # donate button
+        self.setup_donate_button()
 
         self.connect_signals()
 
@@ -135,7 +138,7 @@ class L5RMain(L5RCMCore):
         self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) ) 
         #self.widgets.resize( QtCore.QSize(400, 680) ) 
         self.tabs = QtGui.QTabWidget(self)
-        self.setCentralWidget(self.scroll)
+        self.setCentralWidget(self.widgets)
 
         self.nicebar = None
 
@@ -156,7 +159,7 @@ class L5RMain(L5RCMCore):
         else:
             self.setGeometry( QtCore.QRect(100, 100, 820, 720) )
             
-        self.reset_zoom()
+        #self.reset_zoom()
 
         self.ic_idx = int(settings.value('insight_calculation', 1))-1
         ic_calcs    = [rules.insight_calculation_1,
@@ -1318,6 +1321,18 @@ class L5RMain(L5RCMCore):
         manage_data_act  .triggered.connect(self.sink4.manage_data_act  )
         open_data_dir_act.triggered.connect(self.sink4.open_data_dir_act)
         reload_data_act  .triggered.connect(self.sink4.reload_data_act  )
+        
+    def setup_donate_button(self):
+        self.statusBar().showMessage(
+            self.tr("You can donate to the project by clicking on the button")
+        )
+        
+        self.paypal_bt = QtGui.QPushButton(self)
+        self.paypal_bt.setIcon( QtGui.QIcon(get_icon_path('btn_donate_SM', None)) )
+        self.paypal_bt.setIconSize( QtCore.QSize(74, 21) ) 
+        self.paypal_bt.setFlat(True)
+        self.paypal_bt.clicked.connect( self.please_donate )
+        self.statusBar().addPermanentWidget(self.paypal_bt)
 
     def connect_signals(self):
         # only user change
@@ -2353,7 +2368,7 @@ class L5RMain(L5RCMCore):
         
         QtGui.QApplication.instance().setFont(font)
         self.widgets.resize(size)
-        self.resize( QtCore.QSize( size.width()*1.012, size.height()*1.036 ) )
+        self.resize( QtCore.QSize( size.width()*1.006, size.height()*1.078 ) )
         self.scroll.ensureWidgetVisible(self.widgets)
         
         self.scroll.show()
@@ -2405,8 +2420,10 @@ def main():
     use_machine_locale = settings.value('use_machine_locale', 1)
     app_translator = QtCore.QTranslator()
     qt_translator  = QtCore.QTranslator()
+    
+    print('use_machine_locale', use_machine_locale, QtCore.QLocale.system().name())
 
-    if use_machine_locale:
+    if use_machine_locale == 1:
         use_locale = QtCore.QLocale.system().name()
     else:
         use_locale = settings.value('use_locale')
