@@ -77,6 +77,25 @@ def pause_signals(wdgs):
 
 def resume_signals(wdgs):
     for w in wdgs: w.blockSignals(False)
+    
+class ZoomableView(QtGui.QGraphicsView):
+    '''A QGraphicsView that zoom on CTRL+MouseWheel'''
+    def wheelEvent(self, ev):    
+        if ( ev.modifiers() & QtCore.Qt.ControlModifier ):
+            factor = pow(1.16, ev.delta() / 240.0)
+            self.scale(factor, factor)
+        else:
+            super(ZoomableView, self).wheelEvent(ev)        
+            
+    def keyPressEvent(self, ev):
+        super(ZoomableView, self).keyPressEvent(ev)
+        if ( ev.modifiers() & QtCore.Qt.ControlModifier ):
+            if ( ev.key() == QtCore.Qt.Key_0 ):
+                self.resetTransform()
+            elif ( ev.key() == QtCore.Qt.Key_Minus ):
+                self.scale(0.80, 0.80)
+            elif ( ev.key() == QtCore.Qt.Key_Plus ):
+                self.scale(1.20, 1.20)        
 
 class L5RMain(L5RCMCore):
 
@@ -112,9 +131,7 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_9 ()
         self.build_ui_page_10()
         self.build_ui_page_about()
-        
-        #self.scroll.setWidget(self.widgets)
-        
+               
         self.tabs.setIconSize(QtCore.QSize(24,24))
         tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text', 'bag']
         for i in xrange(0, self.num_tabs):
@@ -132,13 +149,16 @@ class L5RMain(L5RCMCore):
 
     def build_ui(self):
         # Main interface widgets
-        self.scroll  = QtGui.QScrollArea(self)
-        #self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.widgets = QtGui.QWidget(self)
-        self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) ) 
-        #self.widgets.resize( QtCore.QSize(400, 680) ) 
-        self.tabs = QtGui.QTabWidget(self)
-        self.setCentralWidget(self.widgets)
+        self.view = ZoomableView(self)       
+        self.widgets = QtGui.QWidget()
+        #self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) )         
+        self.tabs = QtGui.QTabWidget(self)        
+        #self.setCentralWidget(self.widgets)
+        self.scene = QtGui.QGraphicsScene(self)
+        self.scene.addWidget(self.widgets, QtCore.Qt.Widget)        
+        self.view.setScene(self.scene)
+        self.view.setInteractive(True)
+        self.setCentralWidget(self.view)
 
         self.nicebar = None
 
@@ -2359,42 +2379,6 @@ class L5RMain(L5RCMCore):
     def create_new_character(self):
         self.sink1.new_character()
         
-    # zooooooom
-    def smart_resize(self, size, point_size):
-        self.scroll.hide()
-
-        font = QtGui.QApplication.instance().font()
-        font.setPointSizeF(point_size)        
-        
-        QtGui.QApplication.instance().setFont(font)
-        self.widgets.resize(size)
-        self.resize( QtCore.QSize( size.width()*1.006, size.height()*1.078 ) )
-        self.scroll.ensureWidgetVisible(self.widgets)
-        
-        self.scroll.show()
-        
-    def reset_zoom(self):
-        self.smart_resize(self.default_size, self.default_point_size)
-        
-    def zoom_self(self, value):
-        
-        rate  = 1.05 if value > 0 else 0.95
-        frate = 1.10 if value > 0 else 0.90
-        new_size = QtCore.QSize(
-            self.widgets.size().width()*rate,
-            self.widgets.size().height()*rate)       
-        
-        self.smart_resize(new_size, QtGui.QApplication.instance().font().pointSizeF()*frate)
-        
-    def wheelEvent (self, event):
-        if (event.orientation() == QtCore.Qt.Vertical and
-            event.modifiers() == QtCore.Qt.ControlModifier):
-            
-            settings = QtCore.QSettings()
-            enable_ui_zoom = settings.value('enable_ui_zoom', 0)            
-            if enable_ui_zoom:
-                self.zoom_self(event.delta())
-
 ### MAIN ###
 def dump_slots(obj, out_file):
     with open(out_file, 'wt') as fobj:
