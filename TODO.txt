@@ -5,3 +5,5 @@
 
 ? Salvare il personaggio con tutti i dati dentro
 - Redesign interfaccia dialogo
+
+Opzione per modalità UI VECCHIA
