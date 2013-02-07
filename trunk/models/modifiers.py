@@ -130,7 +130,7 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
         if column == 0:
             return MOD_TYPES[item.type] if item.type else None
         if column == 1:
-            return item.dtl or MOD_DTLS[item.type][1]
+            return item.dtl or ( MOD_DTLS[item.type][1] if item.type in MOD_DTLS else None )
         if column == 2:
             return rules.format_rtk_t(item.value)
         if column == 3:
@@ -189,6 +189,7 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
             else:
                 edit = QtGui.QLineEdit(parent)
                 edit.editingFinished.connect(self.commitAndCloseEditor)
+            edit.move( option.rect.x(), option.rect.y() )
             return edit
          
         return __editor(index.column())       
@@ -203,7 +204,9 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
             all_skills = []
             for t in self.dstore.skills:
                 all_skills.append(t.name)
-            return QtGui.QCompleter(all_skills)
+            cmp = QtGui.QCompleter(all_skills)
+            cmp.setCompletionMode(QtGui.QCompleter.InlineCompletion)
+            return cmp
             
         def __weap_completer():
             pc = None
@@ -212,7 +215,9 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
             aweaps = []
             for w in pc.get_weapons():
                 aweaps.append(w.name)
-            return QtGui.QCompleter(aweaps)
+            cmp = QtGui.QCompleter(aweaps)
+            cmp.setCompletionMode(QtGui.QCompleter.InlineCompletion)
+            return cmp
             
         def __set_edit_data(column):
             if column == 0:                
@@ -223,6 +228,8 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
                     if mk == item.type:
                         cur_idx = editor.count() - 1
                 editor.setCurrentIndex(cur_idx)
+                ### WORKAROUND ###
+                editor.showPopup()
                 item.dtl = None
             elif column == 1:
                 dtl = MOD_DTLS[item.type] if item.type else 'none'
@@ -263,5 +270,5 @@ class ModifierDelegate(QtGui.QStyledItemDelegate):
         
     def commitAndCloseEditor(self):
         editor = self.sender()
-        self.commitData.emit(editor)
-        self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.EndEditHint.NoHint)
+        #self.commitData.emit(editor)
+        #self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.EndEditHint.NoHint)

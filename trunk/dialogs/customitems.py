@@ -187,6 +187,8 @@ class CustomWeaponDialog(QtGui.QDialog):
         self.tx_name   .setText( itm.name   )
         self.tx_notes  .setText( itm.rule   )
         
+        print(self.item.__dict__)
+        
     def on_accept(self):
         if not self.item:
             self.item = models.WeaponOutfit()
