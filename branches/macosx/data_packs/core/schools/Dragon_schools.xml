@@ -14,7 +14,6 @@
       <Skill id="lore_shugenja" rank="1"/>
       <Skill id="lore_theology" rank="1"/>
       <Skill id="meditation" rank="1"/>
-      <Skill id="tea_ceremony" rank="1"/>
       <PlayerChoose rank="1">
         <Wildcard>bugei</Wildcard>
         <Wildcard>high</Wildcard>
@@ -71,7 +70,7 @@
     <Skills>
       <Skill id="courtier" rank="1"/>
       <Skill rank="1" id="etiquette" emphases="Courtesy"/>
-      <Skill id="investigation" rank="1"/>
+      <Skill id="investigation" rank="1" emphases="Interrogation"/>
       <Skill id="kenjutsu" rank="1"/>
       <Skill id="meditation" rank="1"/>
       <Skill id="sincerity" rank="1"/>
@@ -121,7 +120,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="dragon" name="[OB] Mirumoto Taoist Swordsman" id="dragon_ob_mirumoto_taoist_swordsman">
+  <School clanid="dragon" name="Mirumoto Taoist Swordsman" id="dragon_ob_mirumoto_taoist_swordsman">
     <Trait>void</Trait>
     <Honor>5.5</Honor>
     <Tags>
@@ -144,7 +143,7 @@
     <Techs/>
     <Requirements/>
   </School>
-  <School clanid="dragon" name="[OB] Hoshi Tsurui Zumi" id="dragon_ob_hoshi_tsurui_zumi">
+  <School clanid="dragon" name="Hoshi Tsurui Zumi" id="dragon_ob_hoshi_tsurui_zumi">
     <Trait>void</Trait>
     <Honor>4.5</Honor>
     <Tags>
@@ -168,7 +167,7 @@
     <Techs/>
     <Requirements/>
   </School>
-  <School clanid="dragon" name="[OB] Hitomi Kikage Zumi" id="dragon_ob_hitomi_kikage_zumi">
+  <School clanid="dragon" name="Hitomi Kikage Zumi" id="dragon_ob_hitomi_kikage_zumi">
     <Trait>reflexes</Trait>
     <Honor>4.5</Honor>
     <Tags>

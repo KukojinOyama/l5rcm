@@ -10,11 +10,13 @@
 		  widgets/cost_selection.py \
 		  widgets/spell_item_selection.py
 		  
+		  
           
 TRANSLATIONS = i18n/it_IT.ts \
                i18n/es_ES.ts \
                i18n/en_GB.ts \
                i18n/en_US.ts \
-			   i18n/ru_RU.ts
+			   i18n/ru_RU.ts \
+			   i18n/fr_FR.ts 
                 
                

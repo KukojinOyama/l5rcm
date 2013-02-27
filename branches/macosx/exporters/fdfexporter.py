@@ -235,6 +235,17 @@ class FDFExporterAll(FDFExporter):
             chrows = m.get_property('childr').split('\n\r')
             for i in xrange(0, len(chrows)):
                 fields['CHILDREN.%d' % (i+1)] = chrows[i]
+                
+        # EQUIPMENT
+        equip_list = m.get_property('equip', [])
+        equip_num  = min(50, len(equip_list))
+        equip_cols = [18, 18, 15]
+        c          = 0
+        for i in xrange(0, len(equip_cols)):
+            for j in xrange(0, equip_cols[i]):
+                if c < equip_num:
+                    fields['EQUIP_LINE.{0}.{1}'.format(j, i)] = equip_list[c]
+                    c += 1
                     
         # EXPORT FIELDS    
         for k in fields.iterkeys():
