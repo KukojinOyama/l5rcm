@@ -125,7 +125,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="phoenix" name="[OB] Asako Henshin School" id="phoenix_ob_asako_henshin_school">
+  <School clanid="phoenix" name="Asako Henshin School" id="phoenix_ob_asako_henshin_school">
     <Trait>willpower</Trait>
     <Honor>5.5</Honor>
     <Tags>
@@ -153,7 +153,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="phoenix" name="[OB] Shiba Artisan School" id="phoenix_ob_shiba_artisan_school">
+  <School clanid="phoenix" name="Shiba Artisan School" id="phoenix_ob_shiba_artisan_school">
     <Trait>intelligence</Trait>
     <Honor>5.5</Honor>
     <Tags>

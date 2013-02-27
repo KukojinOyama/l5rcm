@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="en_US">
 <context>
-    <name></name>
+    <name>NextRankDlg</name>
     <message>
         <location filename="dialogs/newrankdlg.py" line="44"/>
         <source>Advance in my current school</source>

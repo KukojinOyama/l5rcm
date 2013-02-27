@@ -22,3 +22,4 @@ from dialogs.customitems    import *
 from dialogs.newrankdlg     import *
 from dialogs.managedatapack import *
 from dialogs.spelldlg       import *
+from dialogs.modifiersdlg   import *

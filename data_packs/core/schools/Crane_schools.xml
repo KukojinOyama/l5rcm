@@ -120,7 +120,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="crane" name="[OB] Daidoji Scout School" id="crane_ob_daidoji_scout_school">
+  <School clanid="crane" name="Daidoji Scout School" id="crane_ob_daidoji_scout_school">
     <Trait>reflexes</Trait>
     <Honor>3.5</Honor>
     <Tags>
@@ -149,7 +149,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="crane" name="[OB] Kakita Artisan School" id="crane_ob_kakita_artisan_school">
+  <School clanid="crane" name="Kakita Artisan School" id="crane_ob_kakita_artisan_school">
     <Trait>awareness</Trait>
     <Honor>5.5</Honor>
     <Tags>
@@ -184,7 +184,7 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="crane" name="[OB] Doji Magistrate School" id="crane_ob_doji_magistrate_school">
+  <School clanid="crane" name="Doji Magistrate School" id="crane_ob_doji_magistrate_school">
     <Trait>reflexes</Trait>
     <Honor>5.5</Honor>
     <Tags>

@@ -27,10 +27,24 @@ class Sink4(QtCore.QObject):
         super(Sink4, self).__init__(parent)
         self.form = parent
         
-    def add_new_modifier(self):        
-        self.form.pc.add_modifier(models.ModifierModel())
-        self.form.update_from_model()
+    def add_new_modifier(self):    
+        item = models.ModifierModel()
+        self.form.pc.add_modifier(item)
+        dlg = dialogs.ModifierDialog(self.form.pc, self.form.dstore, self.form)
+        dlg.load_modifier(item)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.form.update_from_model()
         
+    def edit_selected_modifier(self):        
+        index = self.form.mod_view.selectionModel().currentIndex()
+        if not index.isValid():
+            return               
+        item = index.model().data(index, QtCore.Qt.UserRole)
+        dlg  = dialogs.ModifierDialog(self.form.pc, self.form.dstore, self.form)
+        dlg.load_modifier(item)
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            self.form.update_from_model()        
+            
     def remove_selected_modifier(self):
         index = self.form.mod_view.selectionModel().currentIndex()
         if not index.isValid():

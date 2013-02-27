@@ -63,12 +63,12 @@ def weapon_outfit_from_db(dstore, weap_nm, sk_uuid = None):
     itm.strength = weapon.strength     or 'N/A'
     itm.min_str  = weapon.min_strength or 'N/A'    
     itm.tags     = weapon.tags
+    itm.skill_id = weapon.skill
     
     try:
-        if sk_uuid:
-            itm.skill_id = sk_uuid
-            itm.skill_nm = dal.query.get_skill(dstore, sk_uuid).name
-    except:
+        itm.skill_nm = dal.query.get_skill(dstore, weapon.skill).name
+    except Exception as ex:
+        print(ex)
         pass
     return itm
             
