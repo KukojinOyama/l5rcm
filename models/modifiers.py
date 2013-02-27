@@ -145,7 +145,7 @@ class ModifiersTableViewModel(QtCore.QAbstractTableModel):
     def flags(self, index):
         if not index.isValid():
             return QtCore.Qt.ItemIsDropEnabled
-        flags = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable
+        flags = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
         if index.column() == 0:
 	        flags |= QtCore.Qt.ItemIsUserCheckable        
         return flags
