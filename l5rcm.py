@@ -927,6 +927,8 @@ class L5RMain(L5RCMCore):
             vtb.addStretch()
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
                           self.tr("Add modifier"), self.sink4.add_new_modifier)
+            vtb.addButton(QtGui.QIcon(get_icon_path('edit',(16,16))),
+                          self.tr("Edit modifier"), self.sink4.edit_selected_modifier)                         
             vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))),
                           self.tr("Remove modifier"), self.sink4.remove_selected_modifier)
 
@@ -941,7 +943,7 @@ class L5RMain(L5RCMCore):
         frame_, views_ = self._build_generic_page(models_)
         self.mod_view = views_[0]
 
-        self.mod_view.setItemDelegate(models.ModifierDelegate(self.dstore, self))
+        #self.mod_view.setItemDelegate(models.ModifierDelegate(self.dstore, self))
         vtb .setProperty('source', self.mod_view)
         self.tabs.addTab(frame_, self.tr("Modifiers"))
 
@@ -1882,9 +1884,12 @@ class L5RMain(L5RCMCore):
         pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
         pause_signals( self.pers_info_widgets )
-
-        self.save_path = path
-        if self.pc.load_from(self.save_path):
+        
+        if self.pc.load_from(path):                       
+            self.save_path = path   
+            
+            print('successfully save character. saving file path', self.save_path)
+            
             try:
                 self.last_rank = self.pc.last_rank
             except:
@@ -1902,6 +1907,8 @@ class L5RMain(L5RCMCore):
             self.pc.set_insight_calc_method(self.ic_calc_method)
             self.check_rules()
             self.update_from_model()
+        else:
+            print('character load failure')
 
         resume_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
