@@ -5,6 +5,8 @@
 * [NEW] Updated some translations
 * [NEW] Export Equipment list on PDF sheet
 * [NEW] Added GooglePlus buttons in the About page
+* [NEW] Add/Edit modifiers dialog
+* [FIX] Fixed bug #155, Cancelling Open forces Save As
 
 === L5RCM CORE PACK v3.4 ===
 * [FIX] [DATAPACK] Removed "Tea Cerimony" skill from Mirumoto Bushi School
