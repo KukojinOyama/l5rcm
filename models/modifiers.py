@@ -1,4 +1,3 @@
-<<<<<<< .working
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
