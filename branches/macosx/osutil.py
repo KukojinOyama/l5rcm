@@ -37,13 +37,9 @@ def detect_desktop_environment():
         #    pass
     return desktop_environment
 
-<<<<<<< .working
 def portable_open(what):   
     if sys.platform == 'win32':
-=======
-def portable_open(what):
-    if sys.platform == 'win32':
->>>>>>> .merge-right.r381
+
         #TODO ShellExec
         Popen(['explorer', what])
     elif sys.platform == 'linux2':
