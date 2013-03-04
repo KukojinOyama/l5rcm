@@ -1,3 +1,6 @@
+=== L5RCM v3.7 ===
+* [NEW] Money (zoku, bu, zeni) on PDF sheet
+
 === L5RCM v3.6 ===
 * [NEW] Added Donate button
 * [NEW] Changed resize effect

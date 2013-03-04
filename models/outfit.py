@@ -268,9 +268,6 @@ class EquipmentListModel(QtCore.QAbstractListModel):
         if role != QtCore.Qt.EditRole:
             return super(EquipmentListModel, self).setData(index, value, role)
         else:
-            #equip_list = model.get_property('equip', [])
-            #if index.row() < len(equip_list):
-            #    equip_list[index.row()] = str(value)
             self.items[index.row()] = str(value)
         return True
         
