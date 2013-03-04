@@ -943,7 +943,6 @@ class L5RMain(L5RCMCore):
         frame_, views_ = self._build_generic_page(models_)
         self.mod_view = views_[0]
 
-        #self.mod_view.setItemDelegate(models.ModifierDelegate(self.dstore, self))
         vtb .setProperty('source', self.mod_view)
         self.tabs.addTab(frame_, self.tr("Modifiers"))
 
