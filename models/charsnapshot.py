@@ -20,12 +20,14 @@ from copy import copy
 
 class CharacterSnapshot(object):
     
-    skills = {} # id ==> value
-    traits = {} # id ==> value
-    rings  = {} # id ==> value
+    skills   = {} # id ==> value
+    traits   = {} # id ==> value
+    rings    = {} # id ==> value
     
-    tags   = [] # tag list
-    rules  = [] # rules list
+    tags     = [] # tag list
+    rules    = [] # rules list
+    
+    schools  = {} # id ==> rank
     
     model  = None
     
@@ -40,6 +42,9 @@ class CharacterSnapshot(object):
             
         for k, v in [ (ring_name_from_id(i), pc.get_ring_rank(i)) for i in xrange(0, 5) ]:            
             self.rings[k] = v
+            
+        for k, v in [ (x.school_id, pc.get_school_rank(x)) for x in pc.schools ]:
+            self.schools[k] = v            
             
         self.tags += pc.tags
         self.tags += pc.step_1.tags
@@ -82,3 +87,18 @@ class CharacterSnapshot(object):
      
     def has_rule(self, rule):
         return rule in self.rules
+        
+    def get_schools(self):
+        return self.schools.keys()
+
+    def get_school_rank(self, id):
+        if id in self.schools:
+            return self.schools[id]
+        return 0
+        
+    def set_school_rank(self, id, val):
+        self.schools[id] = val
+        
+    def get_skill_emphases(self, skid):
+        return self.model.get_skill_emphases(skid)
+            

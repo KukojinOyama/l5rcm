@@ -99,8 +99,8 @@ class SchoolRequirement(object):
         f = SchoolRequirement()
         f.field = elem.attrib['field']
         f.type  = elem.attrib['type' ]
-        f.min = int(elem.attrib['min']) if ('min' in elem.attrib) else None
-        f.max = int(elem.attrib['max']) if ('max' in elem.attrib) else None
+        f.min = int(elem.attrib['min']) if ('min' in elem.attrib) else -1
+        f.max = int(elem.attrib['max']) if ('max' in elem.attrib) else 999
         f.trg = elem.attrib['trg'] if ('trg' in elem.attrib) else None
         f.text = elem.text
         return f
@@ -109,37 +109,40 @@ class SchoolRequirement(object):
         return self.text
         
     def __unicode__(self):
-        return self.text        
+        return self.text
+        
+    def in_range(self, value):
+        return value >= self.min and value <= self.max
         
     def match(self, pc, dstore):
-        import models
+        import models              
         
         if self.field.startswith('*'):
             return self.match_wildcard(pc, dstore)        
         if self.field == 'honor':
-            return pc.get_honor() > self.min
+            return self.in_range( pc.get_honor() )            
         if self.field == 'status':
-            return pc.get_status() > self.min
+            return self.in_range( pc.get_status() )
         if self.field == 'glory':
-            return pc.get_glory() > self.min        
+            return self.in_range( pc.get_glory() )
         if self.type == 'ring':
-            return pc.get_ring_rank(self.field) >= self.min
+            return self.in_range( pc.get_ring_rank(self.field) )
         if self.type == 'trait':
-            return pc.get_trait_rank(self.field) >= self.min
+            return self.in_range( pc.get_trait_rank(self.field) )
         if self.type == 'skill':
             skill_id = self.field
             if not skill_id: return True
             if self.trg and self.trg not in pc.get_skill_emphases(skill_id):
                 return False # missing emphases
             if (skill_id not in pc.get_skills() or
-                pc.get_skill_rank(skill_id) < self.min):
+                not self.in_range( pc.get_skill_rank(skill_id) )):                
                 return False
             pc.set_skill_rank(skill_id, 0)
             return True
         if self.type == 'tag':
             return pc.has_tag(self.field)
         if self.type == 'rule':
-            return pc.has_rule(self.field)
+            return pc.has_rule(self.field)         
         return True
         
     def match_wc_ring(self, pc, dstore):
@@ -147,7 +150,7 @@ class SchoolRequirement(object):
         if self.field == '*any': # any ring 
             for i in xrange(0, 5):
                 ring_id = models.ring_name_from_id(i)
-                if pc.get_ring_rank(ring_id) >= self.min:
+                if self.in_range( pc.get_ring_rank(ring_id) ):
                     pc.set_ring_rank(ring_id, 0)
                     r = True
                     break
@@ -158,17 +161,17 @@ class SchoolRequirement(object):
         if self.field == '*any': # any trait 
             for i in xrange(0, 8):
                 trait_id = models.attrib_name_from_id(i)
-                if pc.get_trait_rank(trait_id) >= self.min:
-                    pc.get_attrib_rank(trait_id, 0)
+                if self.in_range( pc.get_trait_rank(trait_id) ):
+                    pc.set_trait_rank(trait_id, 0)
                     r = True
                     break
         return r
         
-    def match_wc_skill(self, model, dstore):
+    def match_wc_skill(self, pc, dstore):
         r = False
         if self.field == '*any': # any skills
             for k in pc.get_skills():
-                if pc.get_skill_rank(k) >= self.min:
+                if self.in_range( pc.get_skill_rank(k) ):                
                     r = True
                     pc.set_skill_rank(k, 0)
         else:
@@ -180,20 +183,48 @@ class SchoolRequirement(object):
                 sk = dal.query.get_skill(dstore, k)
                 if tag not in sk.tags:
                     continue                    
-                if pc.get_skill_rank(k) >= self.min:
+                if self.in_range( pc.get_skill_rank(k) ):
                     r = True
                     pc.set_skill_rank(k, 0)
                     break
-        return r    
+        return r
+        
+    def match_wc_school(self, pc, dstore):
+        r = False
+        if self.field == '*any': # any school
+            for k in pc.get_schools():
+                if self.in_range( pc.get_school_rank(k) ):
+                    r = True
+                    pc.set_school_rank(k, 0)
+        else:
+            import dal
+            import dal.query
+            
+            tag = self.field[1:]
+            for k in pc.get_schools():
+                sk = dal.query.get_school(dstore, k)  
+                if not sk:
+                    print('school not found', k)
+                    continue
+                if tag not in sk.tags:
+                    print(tag, 'not in', sk.tags)
+                    continue                    
+                if self.in_range( pc.get_school_rank(k) ):
+                    r = True
+                    pc.set_school_rank(k, 0)
+                    break
+        return r        
 
-    def match_wildcard(self, model):
+    def match_wildcard(self, model, dstore):
         got_req = -1
         if self.type == 'ring':
-            return self.match_wc_ring(model)
+            return self.match_wc_ring(model, dstore)
         if self.type == 'trait':
-            return self.match_wc_trait(model)
+            return self.match_wc_trait(model, dstore)
         if self.type == 'skill':
-            return self.match_wc_skill(model)
+            return self.match_wc_skill(model, dstore)
+        if self.type == 'school':
+            return self.match_wc_school(model, dstore)
         return True    
         
 class SchoolRequirementOption(object):
