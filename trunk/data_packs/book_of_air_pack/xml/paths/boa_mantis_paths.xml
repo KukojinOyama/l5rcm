@@ -18,7 +18,7 @@
                 <Requirement field="mantis_tsuruchis_eye" type="rule"/>
                 <Requirement field="mantis_eyes_of_the_wasp" type="rule"/>               
             </RequirementOption>
-            <Requirement type="more">Must be selected by the Tsuruchi sensei to learn this Technique</Requirement>
+            <Requirement field="rpg" type="more">Must be selected by the Tsuruchi sensei to learn this Technique</Requirement>
 		</Requirements>
     </School>
 </L5RCM>
