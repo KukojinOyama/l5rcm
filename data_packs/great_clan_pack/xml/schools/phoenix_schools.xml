@@ -33,14 +33,14 @@ another in a similar manner, but only by an amount equal
 to half your School Rank, rounding down (to a minimum
 of 1). Altering the Traits of an unknowing or unwilling target
 requires a Contested Willpower Roll. Traits reduced in
-this manner do not affect a target’s Rings (and thus do not
+this manner do not affect a target's Rings (and thus do not
 change Wound Ranks when the Earth Ring is targeted, etc.).     
       </Tech>
       <Tech name="The Riddle Of Earth" rank="2" id="phoenix_the_riddle_of_earth">
 The stoic and straightforward kami of Earth are the simplest
-to entertain with one’s riddles, and their blessings are
+to entertain with one's riddles, and their blessings are
 potent indeed. As a Simple Action, you may invoke this
-Technique and gain Earth’s blessing; you are immune to
+Technique and gain Earth's blessing; you are immune to
 all Conditional Effects (excluding Grappled and Mounted)
 for a number of hours equal to your Earth Ring.      
       </Tech>
@@ -52,14 +52,14 @@ of hours equal to your School Rank. For the duration
 of this effect, you cannot be deceived by any illusion or
 other false images, and can perceive them as transparent
 falsehoods. If an illusion is created by a spell of higher
-Mastery Level than your Insight Rank, you and the spell’s
+Mastery Level than your Insight Rank, you and the spell's
 caster must engage in a Contested Air Roll. If you are defeated,
 you do not perceive the falsehood of the illusion.      
       </Tech>
       <Tech name="The Riddle Of Fire" rank="4" id="phoenix_the_riddle_of_fire">
 The wrathful spirits of Fire can be entertained by your
 riddles, if only briefl y. As a Complex Action you may invoke
-Fire’s blessings to increase the number of kept dice
+Fire's blessings to increase the number of kept dice
 on an unarmed damage roll (which is normally 0k1) to
 your Fire Ring. This effect lasts a number of Rounds equal
 to your School Rank.

@@ -37,9 +37,9 @@ Shugenja studying these methods learn to create meishodo
 amulets, keyed to invoke the elements in specifi c ways.
 You may create a magical amulet by making a successful
 roll of Craft: Meishodo/Ring, using the Ring for the desired
-spell. The TN of this roll is equal to 15 plus 5x the spell’s
+spell. The TN of this roll is equal to 15 plus 5x the spell's
 Mastery Level. Creating a meishodo requires a number of
-hours equal to the spell’s Mastery Level. If the roll is successful,
+hours equal to the spell's Mastery Level. If the roll is successful,
 you create a small charm imbued with the prayer
 to the kami that will cast the chosen spell. Each meishodo
 stores only one spell, and is used in place of the scroll
@@ -101,12 +101,12 @@ to +2k1 if you are specifi cally attempting to notice
 effects of the Shadowlands Taint.      
       </Tech>
       <Tech name="Justice of our Ancestors" rank="3" id="unicorn_justice_of_our_ancestors">
-The Vindicator’s rage at his foes knows no bounds. You
+The Vindicator's rage at his foes knows no bounds. You
 may make melee attacks as a Simple Action instead of a
 Complex Action.      
       </Tech>
       <Tech name="Avenging our Own" rank="4" id="unicorn_avenging_our_own">
-The Vindicator’s fury is provoked the most when it is directed
+The Vindicator's fury is provoked the most when it is directed
 at those creatures he once called his brothers. You
 gain a bonus of +2k0 to your attack and damage rolls
 against any enemy who has attacked you in this skirmish

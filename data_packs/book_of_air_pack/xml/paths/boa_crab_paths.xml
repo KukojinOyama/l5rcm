@@ -8,7 +8,7 @@
 			<Tag>crab_alternate</Tag>
 		</Tags>
 		<Techs>
-			<Tech name="Warrior of Earth" rank="2" id="crab_warrior_of_earth">The Defenders are taught there is more than one way to win a duel. Rather than try to strike faster than their opponents, Defenders learn to call on their own Earth to endure the foe’s first strike, allowing them to defeat their enemy in a longer fight. During the Strike step of an iaijutsu duel, you are considered to have additional Reduction equal to your Earth x3.</Tech>
+			<Tech name="Warrior of Earth" rank="2" id="crab_warrior_of_earth">The Defenders are taught there is more than one way to win a duel. Rather than try to strike faster than their opponents, Defenders learn to call on their own Earth to endure the foe's first strike, allowing them to defeat their enemy in a longer fight. During the Strike step of an iaijutsu duel, you are considered to have additional Reduction equal to your Earth x3.</Tech>
 		</Techs>
         <Skills/>
         <Spells/>
@@ -32,7 +32,7 @@
 			<Tag>crab_alternate</Tag>
 		</Tags>
 		<Techs>
-			<Tech name="The Crab's Eye" rank="4" id="the_crabs_eye">The Hiruma Snipers are trained to strike at specific weak points in their targets, getting their arrows past both mortal armor and monstrous shells and carapaces. You may attack with a yumi as a simple action. When making a ranged attack with a yumi, you may ignore all of the target’s natural Reduction (e.g. Reduction from armor or natural protection) and half that much Reduction from magical effects.</Tech>
+			<Tech name="The Crab's Eye" rank="4" id="the_crabs_eye">The Hiruma Snipers are trained to strike at specific weak points in their targets, getting their arrows past both mortal armor and monstrous shells and carapaces. You may attack with a yumi as a simple action. When making a ranged attack with a yumi, you may ignore all of the target's natural Reduction (e.g. Reduction from armor or natural protection) and half that much Reduction from magical effects.</Tech>
 		</Techs>
         <Skills/>
         <Spells/>
@@ -54,7 +54,7 @@
 			<Tag>crab_alternate</Tag>
 		</Tags>
 		<Techs>
-			<Tech name="Spotting the Prey" rank="2" id="the_crabs_eye">The Falcon’s Strike is taught to use the bushi’s deep awareness of their surroundings to strike the target regardless of concealment. When making a ranged attack with a bow, you may use your Perception in place of your Reflexes for attack rolls. When using a yumi, you may also use your Perception in place of the bow’s Strength for damage rolls.</Tech>
+			<Tech name="Spotting the Prey" rank="2" id="the_crabs_eye">The Falcon's Strike is taught to use the bushi's deep awareness of their surroundings to strike the target regardless of concealment. When making a ranged attack with a bow, you may use your Perception in place of your Reflexes for attack rolls. When using a yumi, you may also use your Perception in place of the bow's Strength for damage rolls.</Tech>
 		</Techs>
         <Skills/>
         <Spells/>

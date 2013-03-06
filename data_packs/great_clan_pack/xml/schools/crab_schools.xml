@@ -39,7 +39,7 @@ or larger), you may make an Engineering Skill
 Roll at TN 25 to add an additional number of
 Wounds to the structure equal to your School
 Rank x 100. Also, when commanding a siege engine,
-you may re-roll once any of the siege engine’s damage
+you may re-roll once any of the siege engine's damage
 dice that roll below your School Rank.      
       </Tech>
       <Tech name="The Path Of The Shell" rank="3" id="crab_the_path_of_the_shell">
@@ -47,10 +47,10 @@ The security and protection of Crab samurai is a somber
 duty all Kaiu take very seriously indeed. When crafting
 any set of armor, you may double the crafting time and
 cost in order to add your School Rank
-to the armor’s Reduction value.
+to the armor's Reduction value.
 You may also add half your
 School Rank (rounding
-up) to the armor’s Armor
+up) to the armor's Armor
 TN bonus.     
       </Tech>
       <Tech name="The Path Of War" rank="4" id="crab_the_path_of_war">
@@ -103,7 +103,7 @@ You may attempt to detect the Taint in another person by
 holding your jade pendant (or another piece of jade) and
 staring intently at them. This is a Complex Action and requires
 you to make a Contested Roll of your Investigation
-(Interrogation) / Awareness against the target’s Sincerity
+(Interrogation) / Awareness against the target's Sincerity
 (Deceit) / Willpower. You gain a +1k0 bonus to this roll
 for every full Rank of Taint the target possesses. If you
 succeed in the roll and the target is Tainted (has at least 1
@@ -139,7 +139,7 @@ is a Shadowlands creature or when you know your
 opponent to be Tainted.      
       </Tech>
       <Tech name="To Repel The Darkness" rank="4" id="crab_to_repel_the_darkness">
-The Witch-Hunter’s intense study and spiritual training
+The Witch-Hunter's intense study and spiritual training
 now gives him access to esoteric powers and makes it
 almost impossible for the forces of darkness to deceive
 him. You gain a +3k0 bonus to the roll for your Rank One
@@ -151,7 +151,7 @@ number of Kiho you can learn, although it is subject to
 their other mechanical limitations such as Mastery Level.)      
       </Tech>
       <Tech name="To Shatter The Darkness" rank="5" id="crab_to_shatter_the_darkness">
-The Witch-Hunter is now the true nemesis of Jigoku’s
+The Witch-Hunter is now the true nemesis of Jigoku's
 forces, able to strike down his enemies with unmatched
 power. You gain a +4k1 bonus to your attack and damage
 rolls against Shadowlands creatures and against foes you
