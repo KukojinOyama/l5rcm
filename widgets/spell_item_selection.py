@@ -49,6 +49,9 @@ class SpellItemSelection(QtGui.QWidget):
         self.dstore = dstore
         self.pc     = pc
         
+        self.tag         = None
+        self.max_mastery = 0
+        
         self.cb_element = QtGui.QComboBox(self)
         self.cb_mastery = QtGui.QComboBox(self)
         self.cb_spell   = QtGui.QComboBox(self)
@@ -88,12 +91,24 @@ class SpellItemSelection(QtGui.QWidget):
         self.update_spell_list()
         
     def set_fixed_ring(self, ring):
-        self.cb_element.setEnabled(ring is None)
-        if ring:
+        print('set_fixed_ring', ring)
+        if not ring:
+            self.cb_element.setEnabled(True)
+            return
+        if ring.startswith('!'):
+            ring = ring[1:]
+            for i in xrange(0, self.cb_element.count()):
+                if self.cb_element.itemData(i) == ring:
+                    self.cb_element.removeItem(i)
+                    break        
+        else:
             for i in xrange(0, self.cb_element.count()):
                 if self.cb_element.itemData(i) == ring:
                     self.cb_element.setCurrentIndex(i)
                     break
+                    
+    def set_spell_tag(self, tag):
+        self.tag = tag
        
     def on_ring_change(self, index):
     
@@ -113,10 +128,19 @@ class SpellItemSelection(QtGui.QWidget):
         mod_ = 0
         if affin == ring or ring in affin: mod_ = 1
         if defic == ring and not only_maho: mod_ = -1
+                
+        school_id = self.pc.get_school_id()
+        
+        # special handling of scorpion_yogo_wardmaster_school
+        if school_id == 'scorpion_yogo_wardmaster_school':
+            if self.tag == 'wards': mod_ = 1
         
         print("affinity: {0}, deficiency: {1}, element: {2}".format(affin, defic, ring))
         print('max mastery: {0}'.format(self.pc.get_insight_rank()+mod_))
-        for x in xrange(0,self.pc.get_insight_rank()+mod_):
+        
+        self.max_mastery = self.pc.get_insight_rank() + mod_;
+        
+        for x in xrange(0, self.max_mastery):
             self.cb_mastery.addItem(self.tr('Mastery Level {0}').format(x+1), x+1)
             
         self.cb_mastery.blockSignals(False)
@@ -168,10 +192,18 @@ class SpellItemSelection(QtGui.QWidget):
                 return dal.query.get_maho_spells(self.dstore, ring, mastery)
             elif self.maho_flt == 'no_maho':
                 return [ x for x in dal.query.get_spells(self.dstore, ring, mastery) if 'maho' not in x.tags ]
+            elif self.tag is not None:
+                return [ x for x in dal.query.get_spells(self.dstore, ring, mastery) if self.tag in x.tags ]
             else:
                 return dal.query.get_spells(self.dstore, ring, mastery)           
         
         avail_spells = get_avail_spells()
+        
+        school_id = self.pc.get_school_id()        
+        # special handling of scorpion_yogo_wardmaster_school
+        if school_id == 'scorpion_yogo_wardmaster_school':
+            if mastery == self.max_mastery:
+                avail_spells = [x for x in avail_spells if 'travel' not in x.tags and 'craft' not in x.tags]
         
         if len(avail_spells) == 0:
             self.cb_spell.addItem(self.tr('No spell available'), None)
