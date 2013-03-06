@@ -12,3 +12,5 @@ KIHO MESS
 - Store/Display the tattoos along Kihos ( tattoo tag in kihos ? )
 - Add Kiho dialog would allow tattoo based on the "tattoos_allowed" flag
 - Redo the Kiho selection dialog similar to the spell selection one
+
+??? Moto Vindicator school has requirements but is not an advanced school
