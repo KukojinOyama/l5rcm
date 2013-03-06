@@ -88,8 +88,9 @@ class SchoolSpellWildcard(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSpellWildcard()
-        f.count = int(elem.attrib['count'])
+        f.count   = int(elem.attrib['count'])
         f.element = elem.attrib['element']
+        f.tag     = elem.attrib['tag'] if 'tag' in elem.attrib else None
         return f
         
 class SchoolRequirement(object):

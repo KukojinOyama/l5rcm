@@ -2,8 +2,13 @@
 ? Aggiungere funzionalità di rimozione pacchetti ( vedi sopra )
 ? Dopo qualche secondo dalla partenza il sistema controlla la versione dei pacchetti
 
-
 ? Salvare il personaggio con tutti i dati dentro
 - Redesign interfaccia dialogo
 
-Opzione per modalità UI VECCHIA
+----------
+KIHO MESS
+- Add a <StartingKiho count="x"/> optional tag to the School definition XML
+- Add a <Tattoo count="x" allowed="True|False"/> optional tag to the School definition XML
+- Store/Display the tattoos along Kihos ( tattoo tag in kihos ? )
+- Add Kiho dialog would allow tattoo based on the "tattoos_allowed" flag
+- Redo the Kiho selection dialog similar to the spell selection one

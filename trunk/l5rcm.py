@@ -1527,7 +1527,7 @@ class L5RMain(L5RCMCore):
                 count += 1
                 
             for spell in school.spells_pc:
-                self.pc.add_pending_wc_spell((spell.element, spell.count))
+                self.pc.add_pending_wc_spell((spell.element, spell.count, spell.tag))
                 count += spell.count
             
             print('starting spells count are {0}'.format(count))
