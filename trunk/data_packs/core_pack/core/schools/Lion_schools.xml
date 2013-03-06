@@ -123,61 +123,6 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="lion" name="Matsu Beastmaster School" id="lion_ob_matsu_beastmaster_school">
-    <Trait>agility</Trait>
-    <Honor>5.5</Honor>
-    <Tags>
-      <Tag>bushi</Tag>
-      <Tag>lion_bushi</Tag>
-    </Tags>
-    <Skills>
-      <Skill id="battle" rank="1"/>
-      <Skill id="defense" rank="1"/>
-      <Skill id="iaijutsu" rank="1"/>
-      <Skill id="kenjutsu" rank="1"/>
-      <PlayerChoose rank="1">
-        <Wildcard>bugei</Wildcard>
-      </PlayerChoose>
-    </Skills>
-    <Spells/>
-    <Techs>
-      <Tech name="One With The Pride" rank="1" id="lion_one_with_the_pride"></Tech>
-      <Tech name="Heart Of The Beast" rank="2" id="lion_heart_of_the_beast"></Tech>
-      <Tech name="The Ferocity Within" rank="3" id="lion_the_ferocity_within"></Tech>
-      <Tech name="All As One" rank="4" id="lion_all_as_one"></Tech>
-      <Tech name="With The Soul Of A Lion" rank="5" id="lion_with_the_soul_of_a_lion"></Tech>
-    </Techs>
-    <Requirements/>
-  </School>
-  <School clanid="lion" name="The Ikoma Lion's Shadow School" id="lion_ob_the_ikoma_lions_shadow_school">
-    <Trait>awareness</Trait>
-    <Honor>3.5</Honor>
-    <Tags>
-      <Tag>bushi</Tag>
-      <Tag>lion_bushi</Tag>
-    </Tags>
-    <Skills>
-      <Skill id="courtier" rank="1"/>
-      <Skill id="etiquette" rank="1"/>
-      <Skill rank="1" id="investigation" emphases="Notice"/>
-      <Skill id="kenjutsu" rank="1"/>
-      <Skill id="sincerity" rank="1"/>
-      <Skill id="stealth" rank="1"/>
-      <PlayerChoose rank="1">
-        <Wildcard>high</Wildcard>
-        <Wildcard>low</Wildcard>
-      </PlayerChoose>
-    </Skills>
-    <Spells/>
-    <Techs>
-      <Tech name="No Boundaries" rank="1" id="lion_no_boundaries"></Tech>
-      <Tech name="The Lion Cannot Fail" rank="2" id="lion_the_lion_cannot_fail"></Tech>
-      <Tech name="The Spirit Of Ikoma" rank="3" id="lion_the_spirit_of_ikoma"></Tech>
-      <Tech name="The Quiet Lion's Claws" rank="4" id="lion_the_quiet_lions_claws"></Tech>
-      <Tech name="Ferocious Determination" rank="5" id="lion_ferocious_determination"></Tech>
-    </Techs>
-    <Requirements/>
-  </School>
   <School clanid="lion" name="The Lion's Pride" id="lion_the_lions_pride">
     <Tags>
       <Tag>bushi</Tag>

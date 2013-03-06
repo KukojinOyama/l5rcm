@@ -120,29 +120,6 @@
     </Techs>
     <Requirements/>
   </School>
-  <School clanid="dragon" name="Mirumoto Taoist Swordsman" id="dragon_ob_mirumoto_taoist_swordsman">
-    <Trait>void</Trait>
-    <Honor>5.5</Honor>
-    <Tags>
-      <Tag>bushi</Tag>
-      <Tag>dragon_bushi</Tag>
-    </Tags>
-    <Skills>
-      <Skill id="athletics" rank="1"/>
-      <Skill id="defense" rank="1"/>
-      <Skill id="iaijutsu" rank="1"/>
-      <Skill rank="1" id="kenjutsu" emphases="Katana"/>
-      <Skill id="lore_theology" rank="1"/>
-      <Skill id="meditation" rank="1"/>
-      <PlayerChoose rank="1">
-        <Wildcard>bugei</Wildcard>
-        <Wildcard>high</Wildcard>
-      </PlayerChoose>
-    </Skills>
-    <Spells/>
-    <Techs/>
-    <Requirements/>
-  </School>
   <School clanid="dragon" name="Hoshi Tsurui Zumi" id="dragon_ob_hoshi_tsurui_zumi">
     <Trait>void</Trait>
     <Honor>4.5</Honor>
