@@ -21,11 +21,11 @@ at the start of your Turn during each Round of the skirmish.
             </Tech>
 		</Techs>
         <Skills>
-          <Skill id="athetics" rank="1"/>
+          <Skill id="athletics" rank="1"/>
           <Skill id="defense" rank="1"/>
           <Skill id="jiujutsu" rank="1"/>
           <Skill id="kenjutsu" rank="1"/>
-          <Skill id="theology" rank="1"/>
+          <Skill id="lore_theology" rank="1"/>
           <Skill id="spears" rank="1"/>
           <PlayerChoose rank="1">
             <Wildcard>high</Wildcard>

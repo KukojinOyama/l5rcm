@@ -278,7 +278,6 @@ class School(object):
         f.id     = read_attribute( elem, 'id'     )
         f.name   = read_attribute( elem, 'name'   )
         f.clanid = read_attribute( elem, 'clanid' )
-        f.trait  = read_attribute( elem, 'clanid' )
         
         f.trait  = read_sub_element_text( elem, 'Trait' )
         
