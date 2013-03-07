@@ -21,8 +21,8 @@
             </RequirementOption>
             
             <RequirementOption text="Replaces any Brotherhood Monk or Ronin 5">                                
-                <Requirement field="*monks_brotherhood" type="school" max="5"/>
-                <Requirement field="*ronin" type="school" max="5"/>
+                <Requirement field="*monks_brotherhood" type="school" min="4" max="4"/>
+                <Requirement field="*ronin" type="school" min="4" max="4"/>
             </RequirementOption>
 		</Requirements>
     </School>      

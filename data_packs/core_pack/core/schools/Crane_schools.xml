@@ -146,27 +146,4 @@
 	  </Requirement>
     </Requirements>
   </School>
-  <School clanid="crane" name="Kakita Master Artisan" id="crane_kakita_master_artisan">
-    <Tags>
-      <Tag>artisan</Tag>
-      <Tag>crane_artisan</Tag>
-      <Tag>advanced</Tag>
-      <Tag>crane_advanced</Tag>
-    </Tags>
-    <Skills/>
-    <Spells/>
-    <Techs>
-      <Tech name="The Master's Touch" rank="1" id="crane_the_masters_touch"></Tech>
-      <Tech name="Mastery Unbounded" rank="2" id="crane_mastery_unbounded"></Tech>
-      <Tech name="The Perfect Art" rank="3" id="crane_the_perfect_art"></Tech>
-    </Techs>
-    <Requirements>
-      <Requirement field="void" type="ring" min="5">Void Ring: 5</Requirement>
-      <Requirement field="awareness" type="trait" min="5">Awareness: 5</Requirement>
-      <Requirement field="crane" type="tag">Be a member of Crane clan</Requirement>
-      <Requirement field="rpg" type="more">
-		If you are trained as a Kakita Artisan, you must have the Great Potential in the Skill of one of your chosen arts.  If you are not trained as a Kakita Artisan, you must be a Crane with both the Prodigy advantage and Great Potential advantage in either Acting, an Artisan skill, or a Perform skill.  This single skill becomes your chosen art for the purposes of this school's techniques.	  
-	  </Requirement>
-    </Requirements>
-  </School>
 </L5RCM>
