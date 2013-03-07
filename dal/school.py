@@ -17,15 +17,16 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import models
+from __init__ import read_attribute, read_attribute_int, read_attribute_bool, read_sub_element_text
 
 class SchoolSkill(object):
     
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSkill()
-        f.id = elem.attrib['id']
-        f.rank = int(elem.attrib['rank'])
-        f.emph = elem.attrib['emphases'] if ('emphases' in elem.attrib) else None
+        f.id   = read_attribute    ( elem, 'id'       )
+        f.rank = read_attribute_int( elem, 'rank'     )
+        f.emph = read_attribute    ( elem, 'emphases' )
         return f
         
     def __eq__(self, obj):
@@ -36,9 +37,7 @@ class SchoolSkillWildcard(object):
     def build_from_xml(elem):
         f = SchoolSkillWildcard()
         f.value    = elem.text
-        f.modifier = 'or'
-        if 'modifier' in elem.attrib:
-            f.modifier = elem.attrib['modifier']           
+        f.modifier = read_attribute( elem, 'modifier', 'or' )
         return f 
         
 class SchoolSkillWildcardSet(object):
@@ -46,7 +45,7 @@ class SchoolSkillWildcardSet(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSkillWildcardSet()
-        f.rank = int(elem.attrib['rank'])
+        f.rank = read_attribute_int( elem, 'rank' )
         f.wildcards = []
         for se in elem.iter():
             if se.tag == 'Wildcard':
@@ -58,9 +57,9 @@ class SchoolTech(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolTech()
-        f.name = elem.attrib['name']
-        f.id = elem.attrib['id']
-        f.rank = int(elem.attrib['rank'])
+        f.id   = read_attribute    ( elem, 'id'       )
+        f.name = read_attribute    ( elem, 'name', '' )        
+        f.rank = read_attribute_int( elem, 'rank'     )
         return f
      
     def __str__(self):
@@ -77,7 +76,7 @@ class SchoolSpell(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSpell()
-        f.id = elem.attrib['id']
+        f.id = read_attribute( elem, 'id' )
         return f
         
     def __eq__(self, obj):
@@ -88,21 +87,40 @@ class SchoolSpellWildcard(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSpellWildcard()
-        f.count   = int(elem.attrib['count'])
-        f.element = elem.attrib['element']
-        f.tag     = elem.attrib['tag'] if 'tag' in elem.attrib else None
+        f.count   = read_attribute_int( elem, 'count'   )
+        f.element = read_attribute    ( elem, 'element' )
+        f.tag     = read_attribute    ( elem, 'tag'     )
         return f
+        
+class SchoolKiho(object):
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolKiho()
+        f.count   = read_attribute_int( elem, 'count' )   
+        f.text    = elem.text
+        return f
+        
+class SchoolTattoo(object):
+
+    @staticmethod
+    def build_from_xml(elem):
+        f = SchoolTattoo()
+        f.count   = read_attribute_int ( elem, 'count'   )
+        f.allowed = read_attribute_bool( elem, 'allowed' )
+        f.text    = elem.text
+        return f        
         
 class SchoolRequirement(object):
 
     @staticmethod
     def build_from_xml(elem):
         f = SchoolRequirement()
-        f.field = elem.attrib['field']
-        f.type  = elem.attrib['type' ]
-        f.min = int(elem.attrib['min']) if ('min' in elem.attrib) else -1
-        f.max = int(elem.attrib['max']) if ('max' in elem.attrib) else 999
-        f.trg = elem.attrib['trg'] if ('trg' in elem.attrib) else None
+        f.field = read_attribute    ( elem, 'field'   )
+        f.type  = read_attribute    ( elem, 'type'    )
+        f.min   = read_attribute_int( elem, 'min', -1 )
+        f.max   = read_attribute_int( elem, 'min', 999)
+        f.trg   = read_attribute    ( elem, 'trg'     )
         f.text = elem.text
         return f
         
@@ -257,21 +275,22 @@ class School(object):
     @staticmethod
     def build_from_xml(elem):
         f = School()
-        f.id = elem.attrib['id']
-        f.name = elem.attrib['name']
-        f.clanid = elem.attrib['clanid']
-        f.trait = elem.find('Trait').text if (elem.find('Trait') is not None) else None
+        f.id     = read_attribute( elem, 'id'     )
+        f.name   = read_attribute( elem, 'name'   )
+        f.clanid = read_attribute( elem, 'clanid' )
+        f.trait  = read_attribute( elem, 'clanid' )
+        
+        f.trait  = read_sub_element_text( elem, 'Trait' )
+        
         f.tags  = []
         for se in elem.find('Tags').iter():
             if se.tag == 'Tag':
                 f.tags.append(se.text)
-        aff_tag = elem.find('Affinity')
-        def_tag = elem.find('Deficiency')
-        hon_tag = elem.find('Honor')
-        f.affinity   = aff_tag.text if (aff_tag is not None) else None
-        f.deficiency = def_tag.text if (def_tag is not None) else None
-        f.honor      = float(hon_tag.text) if (hon_tag is not None) else 0.0  
-        
+                        
+        f.affinity    = read_sub_element_text( elem, 'Affinity'   )
+        f.deficiency  = read_sub_element_text( elem, 'Deficiency' )
+        f.honor       = float( read_sub_element_text( elem, 'Honor', "0.0" ) )
+                
         # school skills
         f.skills     = []
         f.skills_pc  = []
@@ -288,7 +307,7 @@ class School(object):
                 f.techs.append(SchoolTech.build_from_xml(se))
                 
         # school spells
-        f.spells = []
+        f.spells    = []
         f.spells_pc = []
         for se in elem.find('Spells').iter():
             if se.tag == 'PlayerChoose':
@@ -303,7 +322,15 @@ class School(object):
             if se.tag == 'Requirement':
                 f.require.append(SchoolRequirement.build_from_xml(se))        
             if se.tag == 'RequirementOption':
-                f.require.append(SchoolRequirementOption.build_from_xml(se))        
+                f.require.append(SchoolRequirementOption.build_from_xml(se))  
+
+        # kihos and tattoos
+        f.kihos   = None
+        f.tattoos = None
+        if elem.find('Kihos') is not None:
+            f.kihos = SchoolKiho.build_from_xml( elem.find('Kihos') )
+        if elem.find('Tattoos') is not None:
+            f.tattoos = SchoolTattoo.build_from_xml( elem.find('Tattoos') )
         
         return f
 
