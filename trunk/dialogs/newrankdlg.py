@@ -84,6 +84,10 @@ what would you want to do?
                
         self.pc.schools.append(school_obj)
         
+        # check free kihos
+        if sc.kihos:
+            self.pc.set_free_kiho_count( sc.kihos.count )
+        
         # check for alternate path
         if school_obj.has_tag('alternate'):
             school_obj.is_path = True

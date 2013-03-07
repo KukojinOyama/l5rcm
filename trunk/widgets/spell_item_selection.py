@@ -197,20 +197,25 @@ class SpellItemSelection(QtGui.QWidget):
             else:
                 return dal.query.get_spells(self.dstore, ring, mastery)           
         
-        avail_spells = get_avail_spells()
+        avail_spells = get_avail_spells()        
+        school_id    = self.pc.get_school_id()        
         
-        school_id = self.pc.get_school_id()        
         # special handling of scorpion_yogo_wardmaster_school
         if school_id == 'scorpion_yogo_wardmaster_school':
             if mastery == self.max_mastery:
                 avail_spells = [x for x in avail_spells if 'travel' not in x.tags and 'craft' not in x.tags]
         
+        # remove blacklisted spells
+        if not self.blacklist:
+            self.blacklist = []
+            
+        avail_spells = [ x for x in avail_spells if x not in self.blacklist ]
+        
         if len(avail_spells) == 0:
             self.cb_spell.addItem(self.tr('No spell available'), None)
         else:
-            for spell in avail_spells:
-                if not self.blacklist or spell not in self.blacklist:
-                    self.cb_spell.addItem(spell.name, spell)
+            for spell in avail_spells:                
+                self.cb_spell.addItem(spell.name, spell)
              
     def set_spell(self, spell):        
         if spell:        

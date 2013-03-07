@@ -1539,6 +1539,10 @@ class L5RMain(L5RCMCore):
             self.pc.set_deficiency(school.deficiency)
             self.pc.get_school().affinity = school.affinity
             self.pc.get_school().deficiency = school.deficiency
+            
+        # free kihos ?
+        if school.kihos:
+            self.pc.set_free_kiho_count( school.kihos.count )
 
         self.update_from_model()
 

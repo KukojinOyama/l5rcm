@@ -9,6 +9,7 @@
       <Tag>brotherhood</Tag>
       <Tag>monks_brotherhood</Tag>
     </Tags>
+    <Kihos count="3"/>
     <Skills>
       <Skill id="courtier" rank="1"/>
       <Skill id="etiquette" rank="1"/>
@@ -37,6 +38,7 @@
       <Tag>brotherhood</Tag>
       <Tag>monks_brotherhood</Tag>
     </Tags>
+    <Kihos count="3"/>
     <Skills>
       <Skill id="athletics" rank="1"/>
       <Skill id="defense" rank="1"/>
@@ -65,6 +67,7 @@
       <Tag>brotherhood</Tag>
       <Tag>monks_brotherhood</Tag>
     </Tags>
+    <Kihos count="3"/>
     <Skills>
       <Skill id="battle" rank="1"/>
       <Skill id="jiujutsu" rank="2"/>
@@ -92,6 +95,7 @@
       <Tag>brotherhood</Tag>
       <Tag>monks_brotherhood</Tag>
     </Tags>
+    <Kihos count="3"/>
     <Skills>
       <Skill id="jiujutsu" rank="1"/>
       <Skill id="lore_history" rank="1"/>

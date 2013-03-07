@@ -10,6 +10,7 @@
       <Tag>monks_brotherhood</Tag>
     </Tags>
     <Devotion>Fortunism</Devotion>
+    <Kihos count="3"/>
     <Skills>
       <Skill id="athletics" rank="1"/>
       <Skill id="defense" rank="1"/>
@@ -37,6 +38,7 @@
       <Tag>monks_brotherhood</Tag>
     </Tags>
     <Devotion>Shintao</Devotion>
+    <Kihos count="3"/>
     <Skills>
       <Skill id="calligraphy" rank="1"/>      
       <Skill id="jiujutsu" rank="1"/>
@@ -66,6 +68,7 @@
       <Tag>monks_brotherhood</Tag>
     </Tags>
     <Devotion>Fortunism</Devotion>
+    <Kihos count="3"/>
     <Skills>
       <Skill id="calligraphy" rank="1"/>      
       <Skill id="divination" rank="1"/>
