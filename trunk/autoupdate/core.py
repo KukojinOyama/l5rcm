@@ -15,10 +15,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import urllib2, os, sys, json
+import urllib2, os, sys, json, re
 from PySide import QtCore, QtGui, QtNetwork
 
 LAST_VERSION_URL = 'http://l5rcm.googlecode.com/svn/trunk/last_version'
+
+def ver_cmp(version1, version2):
+    def normalize(v):
+        return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
+    return cmp(normalize(version1), normalize(version2))    
 
 def get_last_version():
     try:
@@ -46,7 +51,8 @@ def get_last_version():
     return update_info
     
 def need_update(my_version, last_version):
-    return float(last_version) > float(my_version)
+    return ver_cmp(last_version, my_version) > 0
+    #return float(last_version) > float(my_version)
     
 class DownloadManager(QtCore.QObject):
     def __init__(self, parent = None):
