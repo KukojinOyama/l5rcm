@@ -279,7 +279,7 @@
   </Merit>
   <Merit type="mental" id="way_of_the_land" name="Way of the Land">
     <Rank id="1" value="2">
-      <Exception tag="Unicorn" value="1"/>
+      <Exception tag="unicorn" value="1"/>
     </Rank>
   </Merit>
   <Merit type="physical" id="bland" name="Bland">
