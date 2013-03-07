@@ -197,32 +197,6 @@
       <Requirement field="dragon" type="tag">Be a member of Dragon clan</Requirement>
     </Requirements>
   </School>
-  <School clanid="dragon" name="Mirumoto Master Sensei" id="dragon_mirumoto_master_sensei">
-    <Tags>
-      <Tag>bushi</Tag>
-      <Tag>dragon_bushi</Tag>
-      <Tag>advanced</Tag>
-      <Tag>dragon_advanced</Tag>
-    </Tags>
-    <Skills/>
-    <Spells/>
-    <Techs>
-      <Tech name="The Sword And The Soul" rank="1" id="dragon_the_sword_and_the_soul"></Tech>
-      <Tech name="The Body Is Illusion" rank="2" id="dragon_the_body_is_illusion"></Tech>
-      <Tech name="Sword Of The Sensei" rank="3" id="dragon_sword_of_the_sensei"></Tech>
-    </Techs>
-    <Requirements>
-      <Requirement field="air" type="ring" min="5">Air Ring: 5</Requirement>
-      <Requirement field="earth" type="ring" min="4">Earth Ring: 4</Requirement>
-      <Requirement field="void" type="ring" min="5">Void Ring: 5</Requirement>
-      <Requirement field="kenjutsu" type="skill" min="5">Kenjutsu: 5</Requirement>
-      <Requirement field="meditation" type="skill" min="6">Meditation: 6</Requirement>
-      <Requirement field="dragon" type="tag">Be a member of Dragon clan</Requirement>
-      <Requirement field="rpg" type="more">
-	  You must be chosen or taught by another Master Sensei and cannot be Brash or Proud.	  
-	  </Requirement>
-    </Requirements>
-  </School>
   <School clanid="dragon" name="Tamori Master Of The Mountains" id="dragon_tamori_master_of_the_mountains">
     <Tags>
       <Tag>shugenja</Tag>
