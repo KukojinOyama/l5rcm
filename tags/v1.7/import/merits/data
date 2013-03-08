@@ -1,0 +1,708 @@
+#
+Absolute Direction
+mental
+1
+-
+-
+#
+Allies
+social
+0
+-
+crane -1
+#
+Balance
+mental
+2
+-
+-
+#
+Blackmail
+social
+1;2;3;4;5
+-
+scorpion -1
+#
+Bland
+physical
+2
+-
+-
+#
+Blissful Betrothal
+social
+3
+-
+-
+#
+Blood of Osano-Wo
+spiritual
+4
+-
+crab 3, mantis 3
+#
+Chosen by the Oracles ( Earth )
+spiritual
+6
+-
+-
+#
+Chosen by the Oracles ( Fire )
+spiritual
+6
+-
+-
+#
+Chosen by the Oracles ( Air )
+spiritual
+6
+-
+-
+#
+Chosen by the Oracles ( Water )
+spiritual
+6
+-
+-
+#
+Chosen by the Oracles ( Void )
+spiritual
+6
+-
+-
+#
+Clear Thinker
+mental
+3
+-
+dragon 2
+#
+Crab Hands
+physical
+3
+-
+crab 2, bushi 2
+#
+Crafty
+mental
+3
+-
+scorpion 2, spider 2, ninja 2
+#
+Dangerous Beauty
+physical
+3
+-
+scorpion 2
+#
+Daredevil
+mental
+3
+-
+mantis 2
+#
+Dark Paragon (Control)
+mental
+5
+-
+spider 4
+#
+Dark Paragon (Determination)
+mental
+5
+-
+spider 4
+#
+Dark Paragon (Insight)
+mental
+5
+-
+spider 4
+#
+Dark Paragon (Knowledge)
+mental
+5
+-
+spider 4
+#
+Dark Paragon (Perfection)
+mental
+5
+-
+spider 4
+#
+Dark Paragon (Strength)
+mental
+5
+-
+spider 4
+#
+Dark Paragon (Will)
+mental
+5
+-
+spider 4
+#
+Different School
+social
+5
+different_school
+-
+#
+Elemental Blessing (Earth)
+spiritual
+4
+elem_bless_earth
+phoenix 3
+#
+Elemental Blessing (Air)
+spiritual
+4
+elem_bless_air
+phoenix 3
+#
+Elemental Blessing (Fire)
+spiritual
+4
+elem_bless_fire
+phoenix 3
+#
+Elemental Blessing (Water)
+spiritual
+4
+elem_bless_water
+phoenix 3
+#
+Enlightened
+spiritual
+6
+enlightened
+dragon 5, monk 5
+#
+Fame
+social
+3
+fame
+-
+#
+Forbidden Knowledge (Gaijin Pepper)
+mental
+5
+fk_gaijin_pepper
+-
+#
+Forbidden Knowledge (Gozoku)
+mental
+5
+fk_gozoku
+-
+#
+Forbidden Knowledge (Kolat)
+mental
+5
+fk_kolat
+-
+#
+Forbidden Knowledge (Lying Darkness)
+mental
+5
+fk_lying_darkness
+-
+#
+Forbidden Knowledge (Maho)
+mental
+5
+fk_maho
+-
+#
+Friendly Kami (Earth)
+spiritual
+5
+-
+-
+#
+Friendly Kami (Air)
+spiritual
+5
+-
+-
+#
+Friendly Kami (Water)
+spiritual
+5
+-
+-
+#
+Friendly Kami (Fire)
+spiritual
+5
+-
+-
+#
+Friendly Kami (Void)
+spiritual
+5
+-
+-
+#
+Friend of the Brotherhood
+spiritual
+5
+friend_brotherhood
+dragon 4
+#
+Friend of the Elements (Earth)
+spiritual
+4
+-
+shugenja 3
+#
+Friend of the Elements (Air)
+spiritual
+4
+-
+shugenja 3
+#
+Friend of the Elements (Fire)
+spiritual
+4
+-
+shugenja 3
+#
+Friend of the Elements (Water)
+spiritual
+4
+-
+shugenja 3
+#
+Friend of the Elements (Void)
+spiritual
+4
+-
+shugenja 3
+#
+Gaijin Gear
+material
+5
+-
+mantis 4, unicorn 4
+#
+Gentry
+material
+0
+-
+-
+#
+Hearth of Vengeance
+social
+5
+-
+spider 4
+#
+Hero of the People
+social
+2
+-
+-
+#
+Higher Purpose
+mental
+3
+-
+-
+#
+Imperial Spouse
+social
+5
+imperial_spouse
+-
+#
+Inari's Blessing
+spiritual
+3
+-
+-
+#
+Inheritance
+material
+5
+-
+-
+#
+Inner Gift
+spiritual
+7
+-
+-
+#
+Irreproachable
+mental
+2
+-
+imperial 1
+#
+Ishiken-do
+spiritual
+8
+-
+phoenix 6
+#
+Kharmic Tie 1
+spiritual
+1;2;3;4;5
+-
+-
+#
+Languages
+mental
+1;3
+-
+-
+#
+Large
+physical
+4
+large
+crab 3
+#
+Leadership
+social
+6
+-
+lion 5
+#
+Luck
+spiritual
+3;6;9
+-
+-
+#
+Magic Resistance
+spiritual
+2;4;6
+-
+-
+#
+Multiple School
+social
+10
+multiple_school
+-
+#
+Paragon (Compassion)
+mental
+7
+-
+lion 6
+#
+Paragon (Courage)
+mental
+7
+-
+lion 6
+#
+Paragon (Courtesy)
+mental
+7
+-
+lion 6
+#
+Paragon (Duty)
+mental
+7
+-
+lion 6
+#
+Paragon (Honesty)
+mental
+7
+-
+lion 6
+#
+Paragon (Honor)
+mental
+7
+-
+lion 6
+#
+Paragon (Sincerity)
+mental
+7
+-
+lion 6
+#
+Precise Memory
+mental
+3
+-
+-
+#
+Prodigy
+physical
+12
+prodigy
+-
+#
+Quick
+physical
+6
+-
+ninja 5
+#
+Quick Healer
+physical
+3
+-
+-
+#
+Read Lips
+mental
+4
+-
+courtier 3
+#
+Sacred Weapon (Kaiu Blade)
+material
+6
+kaiu_blade
+-
+#
+Sacred Weapon (Kakita Blade)
+material
+5
+kakita_blade
+-
+#
+Sacred Weapon (Twin Sister Blades)
+material
+3
+twin_sister_blades
+-
+#
+Sacred Weapon (Akodo Blade)
+material
+6
+akodo_blade
+-
+#
+Sacred Weapon (Storm Kama x2)
+material
+6
+storm_kama
+-
+#
+Sacred Weapon (Inquisitor's Strike)
+material
+6
+inquisitor_strike
+-
+#
+Sacred Weapon (Shosuro Blade)
+material
+5
+shosuro_blade
+-
+#
+Sacred Weapon (Black Steel Blade)
+material
+6
+black_steel_blade
+-
+#
+Sacred Weapon (Moto Scimitar)
+material
+6
+moto_scimitar
+-
+#
+Sacrosanct
+social
+4
+-
+imperial 3
+#
+Sage
+mental
+4
+-
+phoenix 3, shugenja 3
+#
+Sensation
+social
+3
+-
+-
+#
+Servant
+material
+0
+-
+-
+#
+Benten's Blessing
+spiritual
+4
+-
+crane -1
+#
+Bishamon's Blessing
+spiritual
+5
+-
+crab -1, lion -1
+#
+Daikoku's Blessing
+spiritual
+4
+-
+mantis -1
+#
+Ebisu's Blessing
+spiritual
+4
+-
+unicorn -1
+#
+Fukurokujin's Blessing
+spiritual
+4
+-
+dragon -1, phoenix -1
+#
+Hotei's Blessing
+spiritual
+4
+-
+dragon -1, phoenix -1
+#
+Jurojin's Blessing
+spiritual
+4
+-
+scorpion -1
+#
+Silent
+physical
+3
+-
+ninja 2
+#
+Social Position
+social
+6
+social_position
+-
+#
+Soul of Artistry (Artisan)
+mental
+4
+-
+crane 3, courtier 3
+#
+Soul of Artistry (Craft)
+mental
+4
+-
+crane 3, courtier 3
+#
+Strength of the Earth
+physical
+3
+-
+bushi 2
+#
+Tactician
+mental
+4
+-
+lion 3, bushi 3
+#
+Touch of the Spirit Realms (Chikushudo)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Gaki-do)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Jigoku)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Maigo no Musha)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Meido)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Sakkaku)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Tengoku)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Toshigoku)
+spiritual
+5
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Yomi)
+spiritual
+7
+-
+shugenja -1
+#
+Touch of the Spirit Realms (Yume-do)
+spiritual
+5
+-
+shugenja -1
+#
+Virtuous
+mental
+3
+virtuous
+-
+#
+Voice
+physical
+3
+-
+-
+#
+Wary
+mental
+3
+-
+-
+#
+Way of the Land
+mental
+2
+-
+Unicorn 1
+#
+Wealthy
+material
+1;2;3;4;5;6;7;8;9;10;11;12;13;14;15
+-
+crane -1, unicorn -1, imperial -1

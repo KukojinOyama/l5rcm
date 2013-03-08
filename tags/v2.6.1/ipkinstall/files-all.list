@@ -1,0 +1,39 @@
+# IPK file list for L5RCM
+
+> $APP
+l5rcm.desktop
+> $INST
+*.py
+LICENSE.GPL3
+AUTHORS
+banner.png
+> $INST/widgets
+widgets/*.py
+widgets/*.qrc
+> $INST/widgets/icons
+widgets/*.png
+> $INST/sinks
+sinks/*.py
+> $INST/past
+past/*.py
+> $INST/models
+models/*.py
+> $INST/exporters
+exporters/*.py
+> $INST/diceroller
+diceroller/*.py
+> $INST/dialogs
+dialogs/*.py
+> $INST/autoupdate
+autoupdate/*.py
+> $INST/share/l5rcm
+share/l5rcm/*.png
+share/l5rcm/*.txt
+share/l5rcm/*.sqlite
+share/l5rcm/*.pdf
+> $ICON-16
+share/icons/l5rcm/16x16/*.png
+> $ICON-48
+share/icons/l5rcm/48x48/l5rcm.png l5rcm.png
+> $ICON-64
+share/icons/l5rcm/64x64/l5rcm.png l5rcm.png

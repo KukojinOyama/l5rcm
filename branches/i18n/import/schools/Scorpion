@@ -1,0 +1,28 @@
+#
+Bayushi Bushi School
+bushi
+intelligence 1
+honor 2.5
+-
+-
+#
+Soshi Shugenja School
+shugenja
+awareness 1
+honor 2.5
+air
+earth
+#
+Bayushi Courtier School
+courtier
+awareness 1
+honor 2.5
+-
+-
+#
+Shosuro Infiltrator School
+ninja
+reflexes 1
+honor 1.5
+-
+-
