@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /home/daniele/Apps/l5rcm/l5rcm/
+LIBOVERLAY_SCROLLBAR=0 python /home/daniele/Apps/l5rcm/l5rcm/l5rcm.py

@@ -1,0 +1,273 @@
+#
+Biting Steel
+Fire 1 (Craft)
+Touch
+1 bladed weapon
+1 minute
+Duration (+1 minute)
+#
+Burning Kiss Of Steel
+Fire 1 (Battle)
+Touch
+One melee weapon in caster's hand
+5 minutes
+Duration (+2 minutes)
+#
+Envious Flames
+Fire 1
+30'
+One target
+Instantaneous
+None
+#
+Extinguish
+Fire 1
+Personal
+100' radius
+Instantaneous
+Area (+20 feet)
+#
+Fires Of Purity
+Fire 1 (Defense)
+25'
+One target
+1 minute
+Damage (+1k0 per two Raises)
+#
+The Fires That Cleanse
+Fire 1
+Self
+c Area: 30' radius
+Instantaneous
+Area of Effect (+5 feet per two Raises)
+#
+Fury Of Osano-wo
+Fire 1 (Thunder)
+300'
+One target
+Instantaneous
+Damage (+1k0 per two Raises)
+#
+Katana Of Fire
+Fire 1 (Battle; Craft)
+Personal or 20' (see script description)
+One created weapon
+5 minutes
+Damage (+1k0); Duration (+5 minutes); Range (+5 feet)
+#
+Never Alone
+Fire 1
+Touch
+One target
+5 Rounds (see script description)
+Targets (+1)
+#
+The Raging Forge
+Fire 1 (Craft)
+Touch
+One weapon or armor
+Instantaneous
+None
+#
+Disrupt The Aura
+Fire 2
+50'
+Target person or creature
+24 hours
+Duration (+12 hours per Raise)
+#
+Enticing Dance Of The Flame
+Fire 2
+50'
+20' radius
+2 rounds
+Duration (+1 round)
+#
+The Fires From Within
+Fire 2
+100'
+One target
+Instantaneous
+Target (+1 target per two Raises)
+#
+Hurried Steps
+Fire 2
+Personal
+Self
+2 rounds (see script description)
+None
+#
+Mental Quickness
+Fire 2
+Touch
+One item
+10 minutes
+None
+#
+Relentless Heat
+Fire 2 (Defense)
+Touch
+One armor
+10 Rounds
+Duration (+2 Rounds)
+#
+Tail Of The Fire Dragon
+Fire 2
+Personal
+Self
+4 rounds
+Duration (+1 round)
+#
+Ward Of Purity
+Fire 2 (Ward)
+Touch
+15' radius from the object touched
+1 day
+None
+#
+Breath Of The Fire Dragon
+Fire 3
+Personal
+15' long, 5' wide blast
+4 rounds
+None
+#
+Fiery Wrath
+Fire 3
+100'
+One free-standing structure, or 50' x 50' area
+Instantaneous
+None
+#
+The Fist Of Osano-wo
+Fire 3 (Thunder)
+50'
+20' radius
+1 round
+Area of Effect (+10' radius)
+#
+Haze Of Battle
+Fire 3 (Battle)
+10'
+One target
+5 Rounds, or 1 hour out of combat
+Duration (+1 Round)
+#
+Hungry Blade
+Fire 3 (Craft)
+50'
+One weapon
+5 Rounds
+Duration (+1 Round)
+#
+Ravenous Swarms
+Fire 3
+30'
+One target person
+5 Rounds
+Duration (+1 Round)
+#
+Shining Light
+Fire 3 (Defense)
+30'
+One target armor
+10 rounds
+Damage (+1k0 per two Raises); Duration (+2 Rounds)
+#
+Death Of Flame
+Fire 4
+100'
+One target
+5 Rounds
+None
+#
+Defense Of The Firestorm
+Fire 4 (Defense)
+Touch
+One target armor
+5 Rounds
+Duration (+1 Round)
+#
+The Mending Forge
+Fire 4 (Craft)
+Touch
+One target item
+Instantaneous
+None
+#
+Symbol Of Fire
+Fire 4 (Ward)
+100'
+10' radius
+Permanent
+None
+#
+Wall Of Fire
+Fire 4
+100'
+Special
+1 hour
+Area of Effect (+1 increment, see spell description)
+#
+Ward Of Thunder
+Fire 4 (Defense; Ward; Thunder)
+Touch
+15' radius from the armor
+1 hour
+None
+#
+Destructive Wave
+Fire 5
+Personal
+25' radius
+Instantaneous
+Damage (+1k1 per two Raises)
+#
+Everburning Rage
+Fire 5
+25'
+One target
+1 Round
+Duration (+1 Round); Targets (+1)
+#
+Follow The Flame
+Fire 5
+Personal
+See below
+5 Rounds
+Damage (+1k0 per Raise)
+#
+Light Of The Sun
+Fire 5 (Jade)
+100'
+30' radius
+10 rounds
+None
+#
+Wings Of The Phoenix
+Fire 5 (Travel)
+Personal
+Self
+10 Rounds
+None
+#
+Beam Of The Inferno
+Fire 6
+200'
+One Target
+Instantaneous
+None
+#
+Globe Of The Everlasting Sun
+Fire 6 (Defense)
+500'
+1 mile
+1 day
+None
+#
+The Soul's Blade
+Fire 6 (Craft)
+Touch
+One target weapon
+5 Rounds
+Duration (+1 Round per 3 Raises)

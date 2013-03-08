@@ -1,0 +1,270 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="mantis" name="Yoritomo Bushi School" id="mantis_yoritomo_bushi_school">
+    <Trait>strength</Trait>
+    <Honor>3.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>mantis_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="commerce" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill rank="1" id="jiujutsu" emphases="Improvised Weapons"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <Skill rank="1" id="knives" emphases="Kama"/>
+      <Skill id="sailing" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Way Of The Mantis" rank="1" id="mantis_the_way_of_the_mantis"></Tech>
+      <Tech name="Voice Of The Storm" rank="2" id="mantis_voice_of_the_storm"></Tech>
+      <Tech name="Strike Of The Mantis" rank="3" id="mantis_strike_of_the_mantis"></Tech>
+      <Tech name="The Rolling Wave" rank="4" id="mantis_the_rolling_wave"></Tech>
+      <Tech name="Hand Of Osano-Wo" rank="5" id="mantis_hand_of_osanowo"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="Moshi Shugenja School" id="mantis_moshi_shugenja_school">
+    <Trait>awareness</Trait>
+    <Affinity>air</Affinity>
+    <Deficiency>earth</Deficiency>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>mantis_shugenja</Tag>
+    </Tags>
+    <Skills>
+      <Skill rank="1" id="calligraphy" emphases="Cipher"/>
+      <Skill id="divination" rank="1"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <Skill id="spellcraft" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells>
+      <Spell id="commune"/>
+      <Spell id="sense"/>
+      <Spell id="summon"/>
+      <PlayerChoose count="3" element="air"/>
+      <PlayerChoose count="3" element="fire"/>
+    </Spells>
+    <Techs>
+      <Tech name="Favor of the Sun" rank="1" id="mantis_favor_of_the_sun"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="Yoritomo Courtier School" id="mantis_yoritomo_courtier_school">
+    <Trait>willpower</Trait>
+    <Honor>2.5</Honor>
+    <Tags>
+      <Tag>courtier</Tag>
+      <Tag>mantis_courtier</Tag>
+    </Tags>
+    <Skills>
+      <Skill rank="1" id="commerce" emphases="Appraisal"/>
+      <Skill id="courtier" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill rank="1" id="intimidation" emphases="Control"/>
+      <Skill id="sincerity" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>merchant</Wildcard>
+        <Wildcard>lore</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Duty Before Honor" rank="1" id="mantis_duty_before_honor"></Tech>
+      <Tech name="Storm Heart" rank="2" id="mantis_storm_heart"></Tech>
+      <Tech name="Command The Winds" rank="3" id="mantis_command_the_winds"></Tech>
+      <Tech name="Will Of The Storm" rank="4" id="mantis_will_of_the_storm"></Tech>
+      <Tech name="Strength In All Things" rank="5" id="mantis_strength_in_all_things"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="Tsuruchi Archer School" id="mantis_tsuruchi_archer_school">
+    <Trait>reflexes</Trait>
+    <Honor>3.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>mantis_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="hunting" rank="1"/>
+      <Skill id="investigation" rank="1"/>
+      <Skill rank="2" id="kyujutsu" emphases="Yumi"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Always Be Ready" rank="1" id="mantis_always_be_ready"></Tech>
+      <Tech name="The Arrow Knows The Way" rank="2" id="mantis_the_arrow_knows_the_way"></Tech>
+      <Tech name="The Wasp's Sting" rank="3" id="mantis_the_wasps_sting"></Tech>
+      <Tech name="Flight Of No-Mind" rank="4" id="mantis_flight_of_nomind"></Tech>
+      <Tech name="Tsuruchi's Eye" rank="5" id="mantis_tsuruchis_eye"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="Kitsune Shugenja School" id="mantis_kitsune_shugenja_school">
+    <Trait>stamina</Trait>
+    <Affinity>earth</Affinity>
+    <Deficiency>air</Deficiency>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>mantis_shugenja</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="calligraphy" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="hunting" rank="1"/>
+      <Skill rank="1" id="medicine" emphases="Herbalism"/>
+      <Skill id="meditation" rank="1"/>
+      <Skill id="spellcraft" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells>
+      <Spell id="commune"/>
+      <Spell id="sense"/>
+      <Spell id="summon"/>
+      <PlayerChoose count="3" element="earth"/>
+      <PlayerChoose count="1" element="fire"/>
+      <PlayerChoose count="2" element="water"/>
+    </Spells>
+    <Techs>
+      <Tech name="Essence Of Chikushudo" rank="1" id="mantis_essence_of_chikushudo"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="[OB] Mantis Brawler School" id="mantis_ob_mantis_brawler_school">
+    <Trait>agility</Trait>
+    <Honor>3.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>mantis_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="commerce" rank="1"/>
+      <Skill id="intimidation" rank="1"/>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill id="knives" rank="1"/>
+      <Skill id="sailing" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>weapon</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Way Of The Drunken Fist" rank="1" id="mantis_way_of_the_drunken_fist"></Tech>
+      <Tech name="Drunk Loses His Sandal" rank="2" id="mantis_drunk_loses_his_sandal"></Tech>
+      <Tech name="Drunk Never Falls" rank="3" id="mantis_drunk_never_falls"></Tech>
+      <Tech name="Two Drunks Dance" rank="4" id="mantis_two_drunks_dance"></Tech>
+      <Tech name="Drunk Pounds A Door" rank="5" id="mantis_drunk_pounds_a_door"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="[OB] Tsuruchi Bounty Hunter School" id="mantis_ob_tsuruchi_bounty_hunter_school">
+    <Trait>agility</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>mantis_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill rank="1" id="hunting" emphases="Tracking"/>
+      <Skill id="intimidation" rank="1"/>
+      <Skill id="investigation" rank="1"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <Skill id="lore_underworld" rank="1"/>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="A Hunter's Sense" rank="1" id="mantis_a_hunters_sense"></Tech>
+      <Tech name="No Prey Escapes" rank="2" id="mantis_no_prey_escapes"></Tech>
+      <Tech name="Justice Of The Wasp" rank="3" id="mantis_justice_of_the_wasp"></Tech>
+      <Tech name="Twin Sting Strikes" rank="4" id="mantis_twin_sting_strikes"></Tech>
+      <Tech name="Eyes Of The Wasp" rank="5" id="mantis_eyes_of_the_wasp"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="[OB] Yoritomo Shugenja School" id="mantis_ob_yoritomo_shugenja_school">
+    <Trait>perception</Trait>
+    <Affinity>water</Affinity>
+    <Deficiency>earth</Deficiency>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>mantis_shugenja</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="calligraphy" rank="1"/>
+      <Skill id="knives" rank="1"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <Skill rank="1" id="sailing" emphases="Navigation"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells>
+      <Spell id="commune"/>
+      <Spell id="sense"/>
+      <Spell id="summon"/>
+      <PlayerChoose count="1" element="air"/>
+      <PlayerChoose count="2" element="fire"/>
+      <PlayerChoose count="3" element="water"/>
+    </Spells>
+    <Techs>
+      <Tech name="Child Of The Sea" rank="1" id="mantis_child_of_the_sea"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="mantis" name="Storm Riders" id="mantis_storm_riders">
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>mantis_shugenja</Tag>
+      <Tag>advanced</Tag>
+      <Tag>mantis_advanced</Tag>
+    </Tags>
+    <Skills/>
+    <Spells/>
+    <Techs>
+      <Tech name="Strength Of Suitengu" rank="1" id="mantis_strength_of_suitengu"></Tech>
+      <Tech name="The Raging Ocean" rank="2" id="mantis_the_raging_ocean"></Tech>
+      <Tech name="Child Of Osano-Wo" rank="3" id="mantis_child_of_osanowo"></Tech>
+    </Techs>
+    <Requirements>
+      <Requirement field="air" type="ring" min="3">Air Ring: 3</Requirement>
+      <Requirement field="fire" type="ring" min="3">Fire Ring: 3</Requirement>
+      <Requirement field="water" type="ring" min="5">Water Ring: 5</Requirement>
+      <Requirement field="lore_the_sea" type="skill" min="5">Lore (The Sea): 5</Requirement>
+      <Requirement field="sailing" type="skill" min="3">Sailing: 3</Requirement>
+      <Requirement field="spellcraft" type="skill" min="3">Spellcraft: 3</Requirement>
+      <Requirement field="lore_theology" type="skill" min="3">Lore (Theology): 3</Requirement>
+      <Requirement field="mantis" type="tag">Be a member of the Mantis clan</Requirement>
+      <Requirement field="elem_bless_water" type="rule">Advantage: Elemental Blessing (Water)</Requirement>
+    </Requirements>
+  </School>
+</L5RCM>
