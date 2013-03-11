@@ -136,7 +136,7 @@ class Data(object):
             except Exception as ex:
                 print(ex)                
                                
-            if dirn in self.blacklist:
+            if self.blacklist and dirn in self.blacklist:
                 print('{0} is blacklisted'.format(dirn))
                 continue
                 

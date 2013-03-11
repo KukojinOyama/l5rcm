@@ -173,7 +173,8 @@ class L5RMain(L5RCMCore):
 
         # LOAD SETTINGS
         settings = QtCore.QSettings()
-        geo = settings.value('geometry')
+        geo = settings.value('geometry')     
+        
         if geo is not None:
             self.restoreGeometry(geo)
         else:
@@ -555,7 +556,10 @@ class L5RMain(L5RCMCore):
         view.horizontalHeader().setStretchLastSection(True)
         view.horizontalHeader().setCascadingSectionResizes(True)
         view.setModel(model)
-        view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
+        # FIXME: this line segfaults on PySide 1.1.2
+        #view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
+        sm = view.selectionModel()
+        sm.currentRowChanged.connect(self.on_spell_selected)
         self.spell_table_view = view
 
         # Affinity/Deficiency
@@ -571,7 +575,6 @@ class L5RMain(L5RCMCore):
         fl.setHorizontalSpacing(60)
         fl.setVerticalSpacing  ( 5)
         fl.setContentsMargins(0, 0, 0, 0)
-
 
         vbox.addWidget(aff_fr)
         vbox.addWidget(view)
@@ -739,7 +742,7 @@ class L5RMain(L5RCMCore):
 
         frame_ = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(frame_)
-        #views_ = []
+        views_ = []
 
         self._build_spell_frame(sp_sort_model     , vbox)
         self._build_tech_frame (self.th_view_model, vbox)
@@ -2268,7 +2271,7 @@ class L5RMain(L5RCMCore):
 
         # SAVE GEOMETRY
         settings = QtCore.QSettings()
-        settings.setValue('geometry', self.saveGeometry())
+        settings.setValue('geometry', self.saveGeometry())        
 
         if self.pc.insight_calculation == rules.insight_calculation_2:
             settings.setValue('insight_calculation', 2)
@@ -2444,8 +2447,8 @@ def main():
     app.installTranslator(app_translator)
 
     # start main form
-
-    l5rcm = L5RMain(use_locale)
+    print("create main form")
+    l5rcm = L5RMain(use_locale)    
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
 
