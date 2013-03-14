@@ -17,7 +17,6 @@
 
 import os
 import re
-from models.chmodel import ATTRIBS
 
 # global cache
 _cache_names = {}
@@ -151,9 +150,9 @@ def calculate_base_attack_roll(pc, weap):
     # as xky where x is agility + weapon_skill_rank
     # and y is agility
     
-    attrib = ATTRIBS.AGILITY
+    attrib = models.ATTRIBS.AGILITY
     if weap.skill_nm == 'Kyujutsu':
-        attrib = ATTRIBS.REFLEXES
+        attrib = models.ATTRIBS.REFLEXES
     
     trait   = pc.get_mod_attrib_rank(attrib)
     skill   = 0
@@ -197,7 +196,7 @@ def calculate_base_damage_roll(pc, weap):
     # as xky where x is strength + weapon_damage
     # and y is strength
     
-    attrib   = ATTRIBS.STRENGTH   
+    attrib   = models.ATTRIBS.STRENGTH   
     trait    = pc.get_mod_attrib_rank(attrib)
     weap_str = 0
     try:
