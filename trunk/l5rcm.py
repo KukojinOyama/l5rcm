@@ -29,7 +29,7 @@ import dal
 import dal.query
 
 from PySide import QtGui, QtCore
-from models.chmodel import ATTRIBS
+#from models.chmodel import models.ATTRIBS
 
 from l5rcmcore import *
 
@@ -280,23 +280,23 @@ class L5RMain(L5RCMCore):
             # Earth ring
             attribs.append( (self.tr("Stamina"  ), new_small_le(self)) )
             attribs.append( (self.tr("Willpower"), new_small_le(self)) )
-            attribs[0][1].setProperty('attrib_id', ATTRIBS.STAMINA)
-            attribs[1][1].setProperty('attrib_id', ATTRIBS.WILLPOWER)
+            attribs[0][1].setProperty('attrib_id', models.ATTRIBS.STAMINA)
+            attribs[1][1].setProperty('attrib_id', models.ATTRIBS.WILLPOWER)
             # Air ring
             attribs.append( (self.tr("Reflexes" ), new_small_le(self)) )
             attribs.append( (self.tr("Awareness"), new_small_le(self)) )
-            attribs[2][1].setProperty('attrib_id', ATTRIBS.REFLEXES)
-            attribs[3][1].setProperty('attrib_id', ATTRIBS.AWARENESS)
+            attribs[2][1].setProperty('attrib_id', models.ATTRIBS.REFLEXES)
+            attribs[3][1].setProperty('attrib_id', models.ATTRIBS.AWARENESS)
             # Water ring
             attribs.append( (self.tr("Strength"  ), new_small_le(self)) )
             attribs.append( (self.tr("Perception"), new_small_le(self)) )
-            attribs[4][1].setProperty('attrib_id', ATTRIBS.STRENGTH)
-            attribs[5][1].setProperty('attrib_id', ATTRIBS.PERCEPTION)
+            attribs[4][1].setProperty('attrib_id', models.ATTRIBS.STRENGTH)
+            attribs[5][1].setProperty('attrib_id', models.ATTRIBS.PERCEPTION)
             # Fire ring
             attribs.append( (self.tr("Agility"     ), new_small_le(self)) )
             attribs.append( (self.tr("Intelligence"), new_small_le(self)) )
-            attribs[6][1].setProperty('attrib_id', ATTRIBS.AGILITY)
-            attribs[7][1].setProperty('attrib_id', ATTRIBS.INTELLIGENCE)
+            attribs[6][1].setProperty('attrib_id', models.ATTRIBS.AGILITY)
+            attribs[7][1].setProperty('attrib_id', models.ATTRIBS.INTELLIGENCE)
 
             self.attribs = attribs
 
