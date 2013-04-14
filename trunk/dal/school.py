@@ -119,7 +119,7 @@ class SchoolRequirement(object):
         f.field = read_attribute    ( elem, 'field'   )
         f.type  = read_attribute    ( elem, 'type'    )
         f.min   = read_attribute_int( elem, 'min', -1 )
-        f.max   = read_attribute_int( elem, 'min', 999)
+        f.max   = read_attribute_int( elem, 'max', 999)
         f.trg   = read_attribute    ( elem, 'trg'     )
         f.text = elem.text
         return f

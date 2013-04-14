@@ -1543,7 +1543,7 @@ class L5RMain(L5RCMCore):
             self.pc.get_school().affinity = school.affinity
             self.pc.get_school().deficiency = school.deficiency
             
-        # free kihos ?
+        # free kihos ?        
         if school.kihos:
             self.pc.set_free_kiho_count( school.kihos.count )
 
@@ -1758,7 +1758,8 @@ class L5RMain(L5RCMCore):
     def check_free_kihos(self):
         if self.nicebar: return
 
-        # Show nicebar if can get another school tech
+        # Show nicebar if can get free kihos
+        print( self.pc.get_free_kiho_count() )
         if self.pc.get_free_kiho_count():
             lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.get_free_kiho_count()), self)
             bt = QtGui.QPushButton(self.tr("Learn Kihos"), self)
@@ -1900,6 +1901,15 @@ class L5RMain(L5RCMCore):
                 self.last_rank = self.pc.last_rank
             except:
                 self.last_rank = self.pc.get_insight_rank()
+                
+            def school_free_kiho_count():
+                school = dal.query.get_school( self.dstore, self.pc.get_school_id(0) )
+                if school.kihos == None: return 0
+                return school.kihos.count
+                
+            # HACK. Fix free kiho for old characters created with 3 free kihos
+            if self.pc.get_free_kiho_count() == 3 and school_free_kiho_count() != 3:
+                self.pc.set_free_kiho_count(school_free_kiho_count())
 
             #TODO: checks for books / data extensions
             

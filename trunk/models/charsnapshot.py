@@ -76,7 +76,7 @@ class CharacterSnapshot(object):
     
     def get_trait_rank(self, id):
         if id in self.traits:
-            return self.trait[id]
+            return self.traits[id]
         return 0
         
     def set_trait_rank(self, id, val):

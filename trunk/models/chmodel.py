@@ -1000,7 +1000,7 @@ class AdvancedPcModel(BasePcModel):
                     print('missing current school. old save?')                
                     self.current_school_id = self.schools[-1].school_id
             except:
-                print('cannot recover current school')
+                print('cannot recover current school')               
                 
             self.unsaved  = False
             return True
