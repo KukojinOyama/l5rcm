@@ -1,5 +1,18 @@
 === L5RCM v3.7 ===
 * [NEW] Money (zoku, bu, zeni) on PDF sheet
+* [NEW] [DATAPACK] Removed non corebook stuff from core datapack
+* [NEW] [DATAPACK] Removed duplicate stuff from community datapack
+* [NEW] [DATAPACK] Released Great Clans datapack
+* [NEW] [DATAPACK] Released Book of Air datapack
+* [NEW] [DATAPACK] Released Emerald Empire datapack
+* [NEW] [DATAPACK] Released Imperial Histories datapack
+* [NEW] [DATAPACK] Released Strongholds datapack
+* [!!!] [DATAPACK] Most datapack still aren't complete
+* [FIX] Fix segmentation fault with PySide 1.1.2
+* [NEW] Kihos and Tattoos element supported in schools definition
+* [NEW] Hacked spell selection to work against yogo wardmaster
+* [!!!] Yogo Wardmaster might still be buggy
+* [NEW] Small changes in item list rendering
 
 === L5RCM v3.6 ===
 * [NEW] Added Donate button
