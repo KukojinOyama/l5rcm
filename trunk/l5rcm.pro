@@ -7,8 +7,12 @@
           dialogs/perkseldlg.py \
 		  dialogs/managedatapack.py \
 		  dialogs/spelldlg.py \
+		  dialogs/modifiersdlg.py \
 		  widgets/cost_selection.py \
-		  widgets/spell_item_selection.py
+		  widgets/moneywidget.py \
+		  widgets/spell_item_selection.py \
+		  widgets/requirementwidget.py \
+		  sinks/sink_4.py
 		  
 		  
           
@@ -17,6 +21,7 @@ TRANSLATIONS = i18n/it_IT.ts \
                i18n/en_GB.ts \
                i18n/en_US.ts \
 			   i18n/ru_RU.ts \
+			   i18n/pt_BR.ts \
 			   i18n/fr_FR.ts 
                 
                
