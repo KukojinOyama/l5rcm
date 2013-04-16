@@ -88,36 +88,46 @@
     </Tags>
     <Effect id="throw_20f_rule"/>
   </Weapon>
-  <Weapon skill="knives" cost="1k" dr="1k1" name="Aiguchi">
+  <Weapon skill="knives" cost="1k" dr="1k1" name="Aiguchi" range="20'">
     <Tags>
       <Tag>melee</Tag>
       <Tag>small</Tag>
+      <Tag>ranged</Tag>
     </Tags>
+    <Effect id="throw_20f_rule"/>
   </Weapon>
-  <Weapon skill="knives" cost="1k" dr="1k1" name="Tanto">
+  <Weapon skill="knives" cost="1k" dr="1k1" name="Tanto" range="20'">
     <Tags>
       <Tag>melee</Tag>
       <Tag>small</Tag>
+      <Tag>ranged</Tag>
     </Tags>
+    <Effect id="throw_20f_rule"/>
   </Weapon>
-  <Weapon skill="knives" cost="5b" dr="1k1" name="Jitte">
+  <Weapon skill="knives" cost="5b" dr="1k1" name="Jitte" range="20'">
     <Tags>
       <Tag>melee</Tag>
       <Tag>small</Tag>
+      <Tag>ranged</Tag>
     </Tags>
+    <Effect id="throw_20f_rule"/>
   </Weapon>
-  <Weapon skill="knives" cost="5b" dr="1k1" name="Sai">
+  <Weapon skill="knives" cost="5b" dr="1k1" name="Sai" range="20'">
     <Tags>
       <Tag>melee</Tag>
       <Tag>small</Tag>
+      <Tag>ranged</Tag>
     </Tags>
+    <Effect id="throw_20f_rule"/>
   </Weapon>
-  <Weapon skill="knives" cost="5b" dr="0k2" name="Kama">
+  <Weapon skill="knives" cost="5b" dr="0k2" name="Kama" range="20'">
     <Tags>
       <Tag>melee</Tag>
       <Tag>peasant</Tag>
       <Tag>small</Tag>
+      <Tag>ranged</Tag>
     </Tags>
+    <Effect id="throw_20f_rule"/>
   </Weapon>
   <Weapon strength="4" name="Dai-Kyu" range="500'" cost="25k" min_strength="3" skill="kyujutsu">
     <Tags>
@@ -254,10 +264,11 @@
     </Tags>
     <Effect id="throw_50f_rule"/>
   </Weapon>
-  <Weapon skill="spears" cost="5k" dr="2k2" name="Yari">
+  <Weapon skill="spears" cost="5k" dr="2k2" name="Yari" dr_alt="1k2" range="30'">
     <Tags>
       <Tag>large</Tag>
       <Tag>melee</Tag>
+      <Tag>ranged</Tag>
     </Tags>
     <Effect id="yari_special_rule"/>
   </Weapon>

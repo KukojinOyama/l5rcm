@@ -17,6 +17,7 @@
 
 import os
 import re
+import models
 
 # global cache
 _cache_names = {}
