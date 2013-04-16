@@ -2387,10 +2387,18 @@ class L5RMain(L5RCMCore):
 
     def check_updates(self):
         update_info = autoupdate.get_last_version()
-        if update_info is not None and \
-           autoupdate.need_update(APP_VERSION, update_info['version']) and \
-           self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
+        need_update = False
 
+        if update_info is None:
+            return
+            
+        # check extended module version        
+        if 'versionex' in update_info:
+            need_update = autoupdate.need_update(APP_VERSION, update_info['versionex'])
+        else:
+            need_update = autoupdate.need_update(APP_VERSION, update_info['version'])
+            
+        if need_update and self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
             

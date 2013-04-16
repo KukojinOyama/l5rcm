@@ -16,7 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sys
-#import rules
+import models
 import dal
 
 from PySide import QtCore, QtGui
@@ -26,24 +26,56 @@ class RequirementsWidget(QtGui.QWidget):
     def __init__(self, parent = None):
         super(RequirementsWidget, self).__init__(parent)
        
-        self.vbox        = QtGui.QVBoxLayout(self)
-        self.checkboxes  = []
+        self.vbox     = QtGui.QVBoxLayout(self)
+        self.vbox.setContentsMargins(0, 0, 0, 0)
+        self.fr       = None # disposable inner frame
+        self.checks   = []   # checkbox list
         
-    def set_requirements(self, requirements):
-
-        for ck in self.checkboxes:
-            del ck
-            
+        self.setSizePolicy( QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding )
+        
+    def set_requirements(self, pc, dstore, requirements):
+        
+        self.setUpdatesEnabled(False)        
+        snap = models.CharacterSnapshot(pc)        
+        if self.fr: self.fr.deleteLater()
+        
+        self.checks = []
+        self.fr = QtGui.QFrame()
+        ly = QtGui.QVBoxLayout(self.fr)
+                    
         for r in requirements:
-            ck = QtGui.QCheckBox(r.text, self)
+            ck = QtGui.QCheckBox(self)
+            lb = None
             if type(r) is dal.school.SchoolRequirementOption:
                 ck.setEnabled(False)
             else:
                 ck.setEnabled(r.type == 'more')
-            self.vbox.addWidget(ck)
-            self.checkboxes.append(ck)
+                
+            if r.type == 'more':
+                # if type is more then it's likely the description is verbose
+                # better place it on a separated label
+                lb = QtGui.QLabel( unicode.format( u"<em>{0}</em>", r.text), self )
+                lb.setWordWrap (True)
+                lb.setAlignment(QtCore.Qt.AlignJustify)
+                lb.setBuddy(ck)
+                ck.setText( self.tr("Role play") )
+            else:            
+                ck.setText(r.text)                
+                # check if requirement match
+                ck.setChecked( r.match(snap, dstore) )
+                
+            self.checks.append(ck)
+            ly.addWidget(ck)
+            if lb: ly.addWidget(lb) 
 
+        self.vbox.addWidget(self.fr)
+        self.setUpdatesEnabled(True)
         
+    def match(self):
+        for c in self.checks:
+            if not c.isChecked(): return False
+        return True
+                
 ### MAIN ###
 def main():
     app = QtGui.QApplication(sys.argv)
