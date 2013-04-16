@@ -2,6 +2,7 @@
 * [FIX] Regression #171 Unable to add weapons to characters
 * [FIX] [DATAPACK] #164 Knives and yari not throwable
 * [NEW] New school selection dialog redesign
+* [NEW] Added portoguese (Brasil) and French translations
 
 === L5RCM v3.7 ===
 * [NEW] Money (zoku, bu, zeni) on PDF sheet
