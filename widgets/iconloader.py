@@ -116,6 +116,9 @@ class QtIconLoaderImplementation():
                             dirList[size[0]] = []
                         dirList[size[0]].append(key[:-5])
             parents = indexReader.value("Icon Theme/Inherits") or []
+            if type(parents) != type([]):
+                parents = [parents]
+            
         if _kdeVersion() >= 3:
             fileInfo = QFileInfo("/usr/share/icons/default.kde4")
             dir_ = QDir(fileInfo.canonicalFilePath())
@@ -130,7 +133,7 @@ class QtIconLoaderImplementation():
             else:
                 defaultKDETheme = "oxygen"
 
-            if not parents.contains(defaultKDETheme) and themeName!=defaultKDETheme:
+            if defaultKDETheme not in parents and themeName!=defaultKDETheme:
                 parents.append(defaultKDETheme)
         elif len(parents) == 0 and themeName!="hicolor":
             parents.append("hicolor")
