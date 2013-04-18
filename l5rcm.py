@@ -2421,6 +2421,7 @@ def dump_slots(obj, out_file):
 OPEN_CMD_SWITCH   = '--open'
 IMPORT_CMD_SWITCH = '--import'
 DATA_CHECK_SWITCH = '--datacheck'
+DATA_REPT_SWITCH  = '--datareport'
 
 def main():
     app = QtGui.QApplication(sys.argv)
@@ -2429,7 +2430,13 @@ def main():
         import dal_check
         dc = dal_check.DataCheck()
         dc.check()
-        return    
+        return
+    
+    if DATA_REPT_SWITCH in sys.argv:
+        import dal.report
+        dr = dal.report.ReportBuilder('./data_packs', './data_report')
+        dr.build()
+        return
 
     QtCore.QCoreApplication.setApplicationName(APP_NAME)
     QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
