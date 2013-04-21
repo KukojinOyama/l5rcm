@@ -35,7 +35,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.6'
+APP_VERSION = '3.7.1'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -53,8 +53,8 @@ MY_CWD        = os.getcwd()
 if not os.path.exists( os.path.join( MY_CWD, 'share/l5rcm') ):
     MY_CWD = sys.path[0]
     if not os.path.exists( os.path.join( MY_CWD, 'share/l5rcm') ):
-        MY_CWD = os.path.dirname(sys.path[0])
-
+        MY_CWD = os.path.dirname(sys.path[0])  
+        
 def get_app_file(rel_path):
     if os.name == 'nt':
         return os.path.join( MY_CWD, 'share/l5rcm', rel_path )

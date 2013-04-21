@@ -132,7 +132,7 @@ class PerkItemDelegate(QtGui.QStyledItemDelegate):
         sub_font = QtGui.QFont().resolve(main_font)
         sub_font.setPointSize(7)
 
-        left_margin = 15
+        margin = 15
 
         # paint the airdate with a smaller font over the item name
         # suppose to have 24 pixels in vertical
@@ -141,11 +141,23 @@ class PerkItemDelegate(QtGui.QStyledItemDelegate):
         font_metric = painter.fontMetrics()
         perk_nm      = item.name
         perk_nm_rect = font_metric.boundingRect(perk_nm)
+        
+        rank         = str(item.rank)
+        
+        rank_pen = QtGui.QPen(text_color, 2)
+        painter.setPen(rank_pen)        
+        rank_rect = QtCore.QRectF( float(option.rect.left() + margin),
+                                   float(option.rect.top() + 5),
+                                   float(option.rect.height() - 10), float(option.rect.height() - 10) )
+        painter.drawRect ( rank_rect ) 
+        painter.drawText ( rank_rect.adjusted(8, 3.5, 0, 0), rank)
+
+        margin += rank_rect.width() + margin
 
         text_pen = QtGui.QPen(text_color, 1)
 
         painter.setPen(text_pen)
-        painter.drawText(left_margin + option.rect.left(), option.rect.top() + perk_nm_rect.height(), perk_nm)
+        painter.drawText(margin + option.rect.left(), option.rect.top() + perk_nm_rect.height(), perk_nm)
 
         if item.tag:
             # paint adv type & cost
@@ -153,24 +165,8 @@ class PerkItemDelegate(QtGui.QStyledItemDelegate):
             font_metric    = painter.fontMetrics()
             tag_nm         = item.tag
             tag_nm_rect = font_metric.boundingRect(tag_nm)
-            painter.drawText(left_margin + option.rect.left(),
+            painter.drawText(margin + option.rect.left(),
                              option.rect.top() + perk_nm_rect.height() + tag_nm_rect.height(),
                              tag_nm)
-
-        circle_pen = QtGui.QPen(text_color, 2)
-        painter.setPen(circle_pen)
-        rank      = str(item.rank)
-        rank_rect = font_metric.boundingRect(rank)
-        circle_rect = QtCore.QRectF( float(option.rect.right()-option.rect.height()-left_margin),
-                                     float(option.rect.top() + 4),
-                                     float(option.rect.height()-8), float(option.rect.height()-8) )
-                                            
-                                            
-        painter.drawEllipse( circle_rect )
-
-        main_font.setBold(True)
-        painter.setFont(main_font)
-        painter.setPen(text_pen)
-        painter.drawText(circle_rect.adjusted(8, 3.5, 0, 0), rank)
 
         painter.restore()

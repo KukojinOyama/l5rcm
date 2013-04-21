@@ -210,7 +210,7 @@ class AdvancedPcModel(BasePcModel):
         self.unlock_schools = False
         self.extra_notes = ''
         self.insight_calculation = None
-        self.free_kiho_count = 3
+        self.free_kiho_count = 0
         self.can_get_another_tech = False
         
         self.modifiers  = []       
@@ -233,8 +233,8 @@ class AdvancedPcModel(BasePcModel):
         return min(a, b)
 
     def get_free_kiho_count(self):
-        if not self.has_tag('monk'):
-            return 0
+        #if not self.has_tag('monk'):
+        #    return 0
         return self.free_kiho_count
         
     def set_free_kiho_count(self, value):
@@ -765,7 +765,7 @@ class AdvancedPcModel(BasePcModel):
             self.get_school().add_tag(t)
             
         # void ?
-        print('perk is: {0}'.format(perk))
+        # print('perk is: {0}'.format(perk))
         if perk == 'void':
             self.step_2.void += perkval
             return True
@@ -1000,7 +1000,7 @@ class AdvancedPcModel(BasePcModel):
                     print('missing current school. old save?')                
                     self.current_school_id = self.schools[-1].school_id
             except:
-                print('cannot recover current school')
+                print('cannot recover current school')               
                 
             self.unsaved  = False
             return True

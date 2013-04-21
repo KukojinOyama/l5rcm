@@ -62,9 +62,6 @@ class SpellAdvDialog(QtGui.QDialog):
         self.pc  = pc
         self.mode = mode
         self.dstore = dstore
-        
-        
-        
         if mode == 'bounded':
             self.page_count = self.pc.get_how_many_spell_i_miss()
         self.properties = [None]*self.max_page_count
@@ -161,6 +158,10 @@ class SpellAdvDialog(QtGui.QDialog):
                 self.spell_wdg.set_fixed_ring(props['ring'])
             else:
                 self.spell_wdg.set_fixed_ring(None)
+            
+            if 'tag' in props:
+                self.spell_wdg.set_spell_tag(props['tag'])
+            
             self.spell_wdg.set_no_defic('no_defic' in props)
             
         self.update_label_count()
@@ -169,14 +170,22 @@ class SpellAdvDialog(QtGui.QDialog):
         if self.mode == 'bounded':
             idx = 0
             for wc in self.pc.get_pending_wc_spells():
-                ring, qty = wc
-                print('wildcard, ring: {0}, qty: {1}'.format(ring, qty))
+                ring, qty, tag = (None, None, None)
+                
+                if len(wc) == 3:
+                    ring, qty, tag = wc
+                elif len(wc) == 2:
+                    ring, qty = wc
+                    
+                print('wildcard, ring: {0}, qty: {1}, tag: {2}'.format(ring, qty, tag))
                 for i in xrange(idx, qty+idx):
                     self.properties[i] = {}
+                    self.properties[i]['tag'] = tag                    
                     if 'maho' in ring:
                         self.properties[i]['maho'] = 'only_maho'
-                    elif models.chmodel.ring_from_name(ring) >= 0:                        
-                        self.properties[i]['ring'] = ring                        
+                    #elif models.chmodel.ring_from_name(ring) >= 0:                        
+                    elif 'any' not in ring:
+                        self.properties[i]['ring'] = ring
                     if 'nodefic' in ring:
                         self.properties[i]['no_defic'] = True
                 idx += qty

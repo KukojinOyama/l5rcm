@@ -138,7 +138,7 @@ class TechItemDelegate(QtGui.QStyledItemDelegate):
         sub_font = QtGui.QFont().resolve(main_font)
         sub_font.setPointSize(7)
 
-        left_margin = 15
+        margin = 15
 
         # paint the airdate with a smaller font over the item name
         # suppose to have 24 pixels in vertical
@@ -147,35 +147,30 @@ class TechItemDelegate(QtGui.QStyledItemDelegate):
         font_metric = painter.fontMetrics()
         tech_nm      = item.name
         tech_nm_rect = font_metric.boundingRect(tech_nm)
+        rank         = item.rank
+        
+        rank_pen = QtGui.QPen(text_color, 2)
+        painter.setPen(rank_pen)        
+        rank_rect = QtCore.QRectF( float(option.rect.left() + margin),
+                                   float(option.rect.top() + 5),
+                                   float(option.rect.height() - 10), float(option.rect.height() - 10) )
+        painter.drawRect ( rank_rect ) 
+        painter.drawText ( rank_rect.adjusted(8, 3.5, 0, 0), rank)
+
+        margin += rank_rect.width() + margin
 
         text_pen = QtGui.QPen(text_color, 1)
 
         painter.setPen(text_pen)
-        painter.drawText(left_margin + option.rect.left(), option.rect.top() + tech_nm_rect.height(), tech_nm)
+        painter.drawText(margin + option.rect.left(), option.rect.top() + tech_nm_rect.height(), tech_nm)              
 
         # paint adv type & cost
         painter.setFont(sub_font)
         font_metric    = painter.fontMetrics()
         school_nm      = item.school_name
         school_nm_rect = font_metric.boundingRect(school_nm)
-        painter.drawText(left_margin + option.rect.left(),
+        painter.drawText(margin + option.rect.left(),
                          option.rect.top() + tech_nm_rect.height() + school_nm_rect.height(),
                          school_nm)
-
-        circle_pen = QtGui.QPen(text_color, 2)
-        painter.setPen(circle_pen)
-        rank      = item.rank
-        rank_rect = font_metric.boundingRect(rank)
-        circle_rect = QtCore.QRectF( float(option.rect.right()-option.rect.height()-left_margin),
-                                     float(option.rect.top() + 4),
-                                     float(option.rect.height()-8), float(option.rect.height()-8) )
-                                            
-                                            
-        painter.drawEllipse( circle_rect )
-
-        main_font.setBold(True)
-        painter.setFont(main_font)
-        painter.setPen(text_pen)
-        painter.drawText(circle_rect.adjusted(8, 3.5, 0, 0), rank)
 
         painter.restore()
