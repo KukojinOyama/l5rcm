@@ -23,7 +23,7 @@ import dal.query
 
 from math import ceil
 
-from models.chmodel import ATTRIBS, RINGS
+#from models.chmodel import models.ATTRIBS, models.RINGS
 from PySide import QtCore, QtGui
 
 import rules
@@ -97,14 +97,14 @@ class BuyAdvDialog(QtGui.QDialog):
     def load_data(self):
         if self.tag == 'attrib':
             cb = self.widgets[self.tag][0]
-            cb.addItem(self.tr('Stamina'     ), ATTRIBS.STAMINA     )
-            cb.addItem(self.tr('Willpower'   ), ATTRIBS.WILLPOWER   )
-            cb.addItem(self.tr('Reflexes'    ), ATTRIBS.REFLEXES    )
-            cb.addItem(self.tr('Awareness'   ), ATTRIBS.AWARENESS   )
-            cb.addItem(self.tr('Strength'    ), ATTRIBS.STRENGTH    )
-            cb.addItem(self.tr('Perception'  ), ATTRIBS.PERCEPTION  )
-            cb.addItem(self.tr('Agility'     ), ATTRIBS.AGILITY     )
-            cb.addItem(self.tr('Intelligence'), ATTRIBS.INTELLIGENCE)
+            cb.addItem(self.tr('Stamina'     ), models.ATTRIBS.STAMINA     )
+            cb.addItem(self.tr('Willpower'   ), models.ATTRIBS.WILLPOWER   )
+            cb.addItem(self.tr('Reflexes'    ), models.ATTRIBS.REFLEXES    )
+            cb.addItem(self.tr('Awareness'   ), models.ATTRIBS.AWARENESS   )
+            cb.addItem(self.tr('Strength'    ), models.ATTRIBS.STRENGTH    )
+            cb.addItem(self.tr('Perception'  ), models.ATTRIBS.PERCEPTION  )
+            cb.addItem(self.tr('Agility'     ), models.ATTRIBS.AGILITY     )
+            cb.addItem(self.tr('Intelligence'), models.ATTRIBS.INTELLIGENCE)
         elif self.tag == 'void':
             self.on_void_select()
         elif self.tag == 'skill':
@@ -169,7 +169,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.bt_close.clicked.connect( self.close           )
 
     def on_void_select(self):
-        cur_value = self.pc.get_ring_rank( RINGS.VOID )
+        cur_value = self.pc.get_ring_rank( models.RINGS.VOID )
         new_value = cur_value + 1
 
         cost = self.pc.void_cost * new_value

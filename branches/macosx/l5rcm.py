@@ -29,7 +29,7 @@ import dal
 import dal.query
 
 from PySide import QtGui, QtCore
-from models.chmodel import ATTRIBS
+#from models.chmodel import models.ATTRIBS
 
 from l5rcmcore import *
 
@@ -173,7 +173,8 @@ class L5RMain(L5RCMCore):
 
         # LOAD SETTINGS
         settings = QtCore.QSettings()
-        geo = settings.value('geometry')
+        geo = settings.value('geometry')     
+        
         if geo is not None:
             self.restoreGeometry(geo)
         else:
@@ -279,23 +280,23 @@ class L5RMain(L5RCMCore):
             # Earth ring
             attribs.append( (self.tr("Stamina"  ), new_small_le(self)) )
             attribs.append( (self.tr("Willpower"), new_small_le(self)) )
-            attribs[0][1].setProperty('attrib_id', ATTRIBS.STAMINA)
-            attribs[1][1].setProperty('attrib_id', ATTRIBS.WILLPOWER)
+            attribs[0][1].setProperty('attrib_id', models.ATTRIBS.STAMINA)
+            attribs[1][1].setProperty('attrib_id', models.ATTRIBS.WILLPOWER)
             # Air ring
             attribs.append( (self.tr("Reflexes" ), new_small_le(self)) )
             attribs.append( (self.tr("Awareness"), new_small_le(self)) )
-            attribs[2][1].setProperty('attrib_id', ATTRIBS.REFLEXES)
-            attribs[3][1].setProperty('attrib_id', ATTRIBS.AWARENESS)
+            attribs[2][1].setProperty('attrib_id', models.ATTRIBS.REFLEXES)
+            attribs[3][1].setProperty('attrib_id', models.ATTRIBS.AWARENESS)
             # Water ring
             attribs.append( (self.tr("Strength"  ), new_small_le(self)) )
             attribs.append( (self.tr("Perception"), new_small_le(self)) )
-            attribs[4][1].setProperty('attrib_id', ATTRIBS.STRENGTH)
-            attribs[5][1].setProperty('attrib_id', ATTRIBS.PERCEPTION)
+            attribs[4][1].setProperty('attrib_id', models.ATTRIBS.STRENGTH)
+            attribs[5][1].setProperty('attrib_id', models.ATTRIBS.PERCEPTION)
             # Fire ring
             attribs.append( (self.tr("Agility"     ), new_small_le(self)) )
             attribs.append( (self.tr("Intelligence"), new_small_le(self)) )
-            attribs[6][1].setProperty('attrib_id', ATTRIBS.AGILITY)
-            attribs[7][1].setProperty('attrib_id', ATTRIBS.INTELLIGENCE)
+            attribs[6][1].setProperty('attrib_id', models.ATTRIBS.AGILITY)
+            attribs[7][1].setProperty('attrib_id', models.ATTRIBS.INTELLIGENCE)
 
             self.attribs = attribs
 
@@ -555,7 +556,10 @@ class L5RMain(L5RCMCore):
         view.horizontalHeader().setStretchLastSection(True)
         view.horizontalHeader().setCascadingSectionResizes(True)
         view.setModel(model)
-        view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
+        # FIXME: this line segfaults on PySide 1.1.2
+        #view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
+        sm = view.selectionModel()
+        sm.currentRowChanged.connect(self.on_spell_selected)
         self.spell_table_view = view
 
         # Affinity/Deficiency
@@ -571,7 +575,6 @@ class L5RMain(L5RCMCore):
         fl.setHorizontalSpacing(60)
         fl.setVerticalSpacing  ( 5)
         fl.setContentsMargins(0, 0, 0, 0)
-
 
         vbox.addWidget(aff_fr)
         vbox.addWidget(view)
@@ -739,7 +742,7 @@ class L5RMain(L5RCMCore):
 
         frame_ = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(frame_)
-        #views_ = []
+        views_ = []
 
         self._build_spell_frame(sp_sort_model     , vbox)
         self._build_tech_frame (self.th_view_model, vbox)
@@ -943,7 +946,6 @@ class L5RMain(L5RCMCore):
         frame_, views_ = self._build_generic_page(models_)
         self.mod_view = views_[0]
 
-        #self.mod_view.setItemDelegate(models.ModifierDelegate(self.dstore, self))
         vtb .setProperty('source', self.mod_view)
         self.tabs.addTab(frame_, self.tr("Modifiers"))
 
@@ -1528,7 +1530,7 @@ class L5RMain(L5RCMCore):
                 count += 1
                 
             for spell in school.spells_pc:
-                self.pc.add_pending_wc_spell((spell.element, spell.count))
+                self.pc.add_pending_wc_spell((spell.element, spell.count, spell.tag))
                 count += spell.count
             
             print('starting spells count are {0}'.format(count))
@@ -1540,6 +1542,10 @@ class L5RMain(L5RCMCore):
             self.pc.set_deficiency(school.deficiency)
             self.pc.get_school().affinity = school.affinity
             self.pc.get_school().deficiency = school.deficiency
+            
+        # free kihos ?        
+        if school.kihos:
+            self.pc.set_free_kiho_count( school.kihos.count )
 
         self.update_from_model()
 
@@ -1752,7 +1758,8 @@ class L5RMain(L5RCMCore):
     def check_free_kihos(self):
         if self.nicebar: return
 
-        # Show nicebar if can get another school tech
+        # Show nicebar if can get free kihos
+        print( self.pc.get_free_kiho_count() )
         if self.pc.get_free_kiho_count():
             lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.get_free_kiho_count()), self)
             bt = QtGui.QPushButton(self.tr("Learn Kihos"), self)
@@ -1894,6 +1901,15 @@ class L5RMain(L5RCMCore):
                 self.last_rank = self.pc.last_rank
             except:
                 self.last_rank = self.pc.get_insight_rank()
+                
+            def school_free_kiho_count():
+                school = dal.query.get_school( self.dstore, self.pc.get_school_id(0) )
+                if school.kihos == None: return 0
+                return school.kihos.count
+                
+            # HACK. Fix free kiho for old characters created with 3 free kihos
+            if self.pc.get_free_kiho_count() == 3 and school_free_kiho_count() != 3:
+                self.pc.set_free_kiho_count(school_free_kiho_count())
 
             #TODO: checks for books / data extensions
             
@@ -2265,7 +2281,7 @@ class L5RMain(L5RCMCore):
 
         # SAVE GEOMETRY
         settings = QtCore.QSettings()
-        settings.setValue('geometry', self.saveGeometry())
+        settings.setValue('geometry', self.saveGeometry())        
 
         if self.pc.insight_calculation == rules.insight_calculation_2:
             settings.setValue('insight_calculation', 2)
@@ -2371,10 +2387,18 @@ class L5RMain(L5RCMCore):
 
     def check_updates(self):
         update_info = autoupdate.get_last_version()
-        if update_info is not None and \
-           autoupdate.need_update(APP_VERSION, update_info['version']) and \
-           self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
+        need_update = False
 
+        if update_info is None:
+            return
+            
+        # check extended module version        
+        if 'versionex' in update_info:
+            need_update = autoupdate.need_update(APP_VERSION, update_info['versionex'])
+        else:
+            need_update = autoupdate.need_update(APP_VERSION, update_info['version'])
+            
+        if need_update and self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
             
@@ -2396,9 +2420,16 @@ def dump_slots(obj, out_file):
                 
 OPEN_CMD_SWITCH   = '--open'
 IMPORT_CMD_SWITCH = '--import'
+DATA_CHECK_SWITCH = '--datacheck'
 
 def main():
     app = QtGui.QApplication(sys.argv)
+    
+    if DATA_CHECK_SWITCH in sys.argv:
+        import dal_check
+        dc = dal_check.DataCheck()
+        dc.check()
+        return    
 
     QtCore.QCoreApplication.setApplicationName(APP_NAME)
     QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
@@ -2434,8 +2465,8 @@ def main():
     app.installTranslator(app_translator)
 
     # start main form
-
-    l5rcm = L5RMain(use_locale)
+    print("create main form")
+    l5rcm = L5RMain(use_locale)    
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
 

@@ -247,6 +247,13 @@ class FDFExporterAll(FDFExporter):
                     fields['EQUIP_LINE.{0}.{1}'.format(j, i)] = equip_list[c]
                     c += 1
                     
+        # MONEY
+        money = m.get_property('money')
+        if money and len(money) == 3:
+            fields['KOKU'] = str( money[0] )
+            fields['BU'  ] = str( money[1] )
+            fields['ZENI'] = str( money[2] )
+                    
         # EXPORT FIELDS    
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)
