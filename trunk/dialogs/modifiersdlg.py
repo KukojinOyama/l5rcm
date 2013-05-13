@@ -20,7 +20,7 @@ import dal.query
 import models
 import widgets
 import rules
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 #from models.modifiers import 
 class ModifierDialog(QtGui.QDialog):
 

@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 import os
 import models
@@ -32,7 +32,7 @@ class Sink4(QtCore.QObject):
         self.form.pc.add_modifier(item)
         dlg = dialogs.ModifierDialog(self.form.pc, self.form.dstore, self.form)
         dlg.load_modifier(item)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+        if dlg.exec_() == QtGui.QDialog.Accepted:
             self.form.update_from_model()
         
     def edit_selected_modifier(self):        
@@ -42,7 +42,7 @@ class Sink4(QtCore.QObject):
         item = index.model().data(index, QtCore.Qt.UserRole)
         dlg  = dialogs.ModifierDialog(self.form.pc, self.form.dstore, self.form)
         dlg.load_modifier(item)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+        if dlg.exec_() == QtGui.QDialog.Accepted:
             self.form.update_from_model()        
             
     def remove_selected_modifier(self):
@@ -61,7 +61,7 @@ class Sink4(QtCore.QObject):
         
     def manage_data_act(self):
         dlg = dialogs.ManageDataPackDlg(self.form.dstore, self.form)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+        if dlg.exec_() == QtGui.QDialog.Accepted:
             self.form.update_data_blacklist()
             self.reload_data_act           ()
     

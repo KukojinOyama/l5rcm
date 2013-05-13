@@ -20,7 +20,7 @@ import rules
 import dal
 import dal.query
 
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 def grouped_widget(title, widget, parent = None):
     grp     = QtGui.QGroupBox(title, parent)

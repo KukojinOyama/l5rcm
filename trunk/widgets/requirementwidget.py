@@ -19,7 +19,7 @@ import sys
 import models
 import dal
 
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 class RequirementsWidget(QtGui.QWidget):
 

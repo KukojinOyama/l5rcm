@@ -20,7 +20,7 @@ import dal
 import dal.query
 import widgets
 
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 class BuyPerkDialog(QtGui.QDialog):
     

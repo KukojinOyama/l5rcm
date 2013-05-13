@@ -16,6 +16,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import sip
+API_NAMES = ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]
+API_VERSION = 2
+for name in API_NAMES:
+    sip.setapi(name, API_VERSION)
+
 import sys
 import os
 
@@ -28,7 +34,7 @@ import sinks
 import dal
 import dal.query
 
-from PySide import QtGui, QtCore
+from PyQt4 import QtGui, QtCore
 #from models.chmodel import models.ATTRIBS
 
 from l5rcmcore import *
@@ -45,7 +51,7 @@ def new_horiz_line(parent = None):
     line = QtGui.QFrame(parent)
     line.setObjectName("hline")
     line.setGeometry(QtCore.QRect(3, 3, 3, 3))
-    line.setFrameShape(QtGui.QFrame.Shape.HLine)
+    line.setFrameShape(QtGui.QFrame.HLine)
     line.setFrameShadow(QtGui.QFrame.Sunken)
     line.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
     return line
@@ -54,7 +60,7 @@ def new_vert_line(parent = None):
     line = QtGui.QFrame(parent)
     line.setObjectName("vline")
     line.setGeometry(QtCore.QRect(320, 150, 118, 3))
-    line.setFrameShape(QtGui.QFrame.Shape.VLine)
+    line.setFrameShape(QtGui.QFrame.VLine)
     line.setFrameShadow(QtGui.QFrame.Sunken)
     return line
 
@@ -104,7 +110,7 @@ class L5RMain(L5RCMCore):
     num_tabs           = 10
     
     def __init__(self, locale = None, parent = None):
-        super(L5RMain, self).__init__(locale)
+        super(L5RMain, self).__init__(locale, parent)
 
         # character file save path
         self.save_path = ''        
@@ -304,6 +310,7 @@ class L5RMain(L5RCMCore):
             self.trait_sig_mapper = QtCore.QSignalMapper(self)
 
             def _attrib_frame(i):
+                   
                 fr   = QtGui.QFrame(self)
                 hbox = QtGui.QHBoxLayout(fr)
                 hbox.setContentsMargins(0,0,0,0)
@@ -313,7 +320,9 @@ class L5RMain(L5RCMCore):
                 hbox.addWidget( attribs[i][1] )
                 hbox.addWidget( bt )
                 self.trait_sig_mapper.setMapping(bt, tag)
-                bt.connect(QtCore.SIGNAL("clicked()"), self.trait_sig_mapper, QtCore.SLOT("map()"))
+                bt.clicked.connect( self.trait_sig_mapper.map )                
+                #bt.connect(QtCore.SIGNAL("clicked()"), self.trait_sig_mapper, QtCore.SLOT("map()"))
+                #QtCore.QObject.connect(bt, QtCore.SIGNAL("clicked()"), self.trait_sig_mapper, QtCore.SLOT("map()"))
                 return fr
 
             for i in xrange(0, 8, 2):
@@ -512,7 +521,7 @@ class L5RMain(L5RCMCore):
             views_.append(view)
         return mfr, views_
 
-    def _build_spell_frame(self, model, layout = None):
+    def _build_spell_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Spells"), self)
         hbox   = QtGui.QHBoxLayout(grp)
 
@@ -548,7 +557,7 @@ class L5RMain(L5RCMCore):
             return vtb
 
         # View
-        view  = QtGui.QTableView(self)
+        view  = QtGui.QTableView(fr_)
         view.setSizePolicy( QtGui.QSizePolicy.Expanding,
                               QtGui.QSizePolicy.Expanding )
         view.setSortingEnabled(True)
@@ -556,7 +565,7 @@ class L5RMain(L5RCMCore):
         view.horizontalHeader().setStretchLastSection(True)
         view.horizontalHeader().setCascadingSectionResizes(True)
         view.setModel(model)
-        # FIXME: this line segfaults on PySide 1.1.2
+        # FIXME: this line segfaults on PyQt4 1.1.2
         #view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
         sm = view.selectionModel()
         sm.currentRowChanged.connect(self.on_spell_selected)
@@ -582,11 +591,11 @@ class L5RMain(L5RCMCore):
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view
 
-    def _build_tech_frame(self, model, layout = None):
+    def _build_tech_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Techs"), self)
         vbox   = QtGui.QVBoxLayout(grp)
 
@@ -596,11 +605,11 @@ class L5RMain(L5RCMCore):
         view.setItemDelegate(models.TechItemDelegate(self))
         vbox.addWidget(view)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view
         
-    def _build_kata_frame(self, model, layout = None):
+    def _build_kata_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Kata"), self)
         hbox   = QtGui.QHBoxLayout(grp)
 
@@ -646,11 +655,11 @@ class L5RMain(L5RCMCore):
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view
 
-    def _build_kiho_frame(self, model, layout = None):
+    def _build_kiho_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Kiho"), self)
         hbox   = QtGui.QHBoxLayout(grp)
 
@@ -696,7 +705,7 @@ class L5RMain(L5RCMCore):
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view            
 
@@ -745,7 +754,7 @@ class L5RMain(L5RCMCore):
         views_ = []
 
         self._build_spell_frame(sp_sort_model     , vbox)
-        self._build_tech_frame (self.th_view_model, vbox)
+        #self._build_tech_frame (self.th_view_model, vbox)
 
         self.tabs.addTab(frame_, self.tr("Techniques"))
         
@@ -1381,11 +1390,8 @@ class L5RMain(L5RCMCore):
             tx.editingFinished.connect( self.on_flag_rank_change )
 
         self.void_points.valueChanged.connect( self.on_void_points_change )
-
-        self.trait_sig_mapper.connect(QtCore.SIGNAL("mapped(const QString &)"),
-                                      self,
-                                      QtCore.SLOT("on_trait_increase(const QString &)"))
-
+        self.connect(self.trait_sig_mapper, QtCore.SIGNAL("mapped(const QString &)"), self.on_trait_increase)
+                
         self.ic_act_grp.triggered.connect(self.on_change_insight_calculation)
 
     def show_nicebar(self, wdgs):
@@ -1623,7 +1629,7 @@ class L5RMain(L5RCMCore):
 
     def act_choose_skills(self):
         dlg = dialogs.SelWcSkills(self.pc, self.dstore, self)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+        if dlg.exec_() == QtGui.QDialog.Accepted:
             self.pc.clear_pending_wc_skills()
             self.pc.clear_pending_wc_emphs ()
             self.update_from_model()
@@ -1660,7 +1666,7 @@ class L5RMain(L5RCMCore):
         dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, 'freeform', self)
         dlg.setWindowTitle(self.tr('Add New Spell'))
         dlg.set_header_text(self.tr("<center><h2>Select the spell to learn</h2></center>"))
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+        if dlg.exec_() == QtGui.QDialog.Accepted:            
             self.update_from_model()
 
     def act_del_spell(self):
@@ -1820,21 +1826,21 @@ class L5RMain(L5RCMCore):
         dlg.set_header_text(self.tr("<center><h2>Your school has granted you \
                                      the right to choose some spells.</h2> \
                                      <h3><i>Choose with care.</i></h3></center>"))
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+        if dlg.exec_() == QtGui.QDialog.Accepted:
             self.pc.clear_pending_wc_spells()
             self.pc.set_pending_spells_count(0)            
             self.update_from_model()
 
     def learn_next_free_kiho(self):
         dlg = dialogs.BuyAdvDialog(self.pc, 'kiho', self.dstore, self)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+        if dlg.exec_() == QtGui.QDialog.Accepted:            
             self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
             print('remaing free kihos', self.pc.get_free_kiho_count())
             self.update_from_model()
             
     def show_advance_rank_dlg(self):
         dlg = dialogs.NextRankDlg(self.pc, self.dstore, self)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+        if dlg.exec_() == QtGui.QDialog.Accepted:
             self.last_rank = self.pc.get_insight_rank()
             self.update_from_model()
 
@@ -2312,17 +2318,17 @@ class L5RMain(L5RCMCore):
                                 last_dir,
                                 self.tr("L5R Character files (*.l5r)"))
                                 
-        if len(fileName) != 2 or fileName[0] == u'':
-            return ''        
+        #if len(fileName) != 2 or fileName[0] == u'':
+        #    return ''        
 
-        last_dir = os.path.dirname(fileName[0])
+        last_dir = os.path.dirname(fileName)
         if last_dir != '':
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
 
-        if fileName[0].endswith('.l5r'):
-            return fileName[0]
-        return fileName[0] + '.l5r'
+        if fileName.endswith('.l5r'):
+            return fileName
+        return fileName + '.l5r'
 
     def select_load_path(self):
         settings = QtCore.QSettings()
@@ -2332,13 +2338,14 @@ class L5RMain(L5RCMCore):
                                 self.tr("Load Character"),
                                 last_dir,
                                 self.tr("L5R Character files (*.l5r)"))
-        if len(fileName) != 2:
-            return ''
-        last_dir = os.path.dirname(fileName[0])
+        print('select_load_path', fileName)
+        #if len(fileName) != 2:
+        #    return ''
+        last_dir = os.path.dirname(fileName)
         if last_dir != '':
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_dir', last_dir)
-        return fileName[0]
+        return fileName
 
     def select_export_file(self, file_ext = '.txt'):
         char_name = self.pc.name
@@ -2352,16 +2359,16 @@ class L5RMain(L5RCMCore):
                                 self.tr("Export Character"),
                                 os.path.join(last_dir,char_name),
                                 ";;".join(supported_filters))
-        if len(fileName) != 2:
-            return ''
+        #if len(fileName) != 2:
+        #    return ''
 
-        last_dir = os.path.dirname(fileName[0])
+        last_dir = os.path.dirname(fileName)
         if last_dir != '':
             settings.setValue('last_open_dir', last_dir)
 
-        if fileName[0].endswith(file_ext):
-            return fileName[0]
-        return fileName[0] + file_ext
+        if fileName.endswith(file_ext):
+            return fileName
+        return fileName + file_ext
         
     def select_import_data_pack(self):
         supported_ext     = ['.zip', '.l5rcmpack']
@@ -2376,14 +2383,14 @@ class L5RMain(L5RCMCore):
                                 last_data_dir,
                                 ";;".join(supported_filters))
                                 
-        if len(fileName) != 2:
-            return None
+        #if len(fileName) != 2:
+        #    return None
             
-        last_data_dir = os.path.dirname(fileName[0])
+        last_data_dir = os.path.dirname(fileName)
         if last_data_dir != '':
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_data_dir', last_data_dir)
-        return fileName[0]
+        return fileName
 
     def check_updates(self):
         update_info = autoupdate.get_last_version()

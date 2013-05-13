@@ -927,6 +927,7 @@ class AdvancedPcModel(BasePcModel):
 
     def load_from(self, file_):
         if len(file_) == 0 or not os.path.exists(file_):
+            print(file_, 'not found')
             return False
 
         def _load_obj(in_dict, out_obj):

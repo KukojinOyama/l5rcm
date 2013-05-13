@@ -16,7 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import urllib2, os, sys, json, re
-from PySide import QtCore, QtGui, QtNetwork
+from PyQt4 import QtCore, QtGui, QtNetwork
 
 LAST_VERSION_URL = 'http://l5rcm.googlecode.com/svn/trunk/last_version'
 
