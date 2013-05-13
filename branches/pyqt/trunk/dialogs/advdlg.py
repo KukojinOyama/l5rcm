@@ -24,7 +24,7 @@ import dal.query
 from math import ceil
 
 #from models.chmodel import models.ATTRIBS, models.RINGS
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 import rules
 

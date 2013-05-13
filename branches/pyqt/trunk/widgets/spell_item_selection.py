@@ -18,7 +18,7 @@
 import sys
 import dal
 import dal.query
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 class SpellItemSelection(QtGui.QWidget):
 

@@ -16,7 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sys
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 def find(f, seq):
   """Return first item in sequence where f(item) == True."""
@@ -26,7 +26,7 @@ def find(f, seq):
 
 class CkNumWidget(QtGui.QWidget):
 
-    valueChanged = QtCore.Signal(int, int)
+    valueChanged = QtCore.pyqtSignal(int, int)
 
     def __init__(self, count = 9, parent = None):
         super(CkNumWidget, self).__init__(parent)

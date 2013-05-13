@@ -19,7 +19,7 @@ import dal
 import dal.query
 import models
 import widgets
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 class SpellAdvDialog(QtGui.QDialog):
 
