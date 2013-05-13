@@ -93,8 +93,9 @@ class Sink2(QtCore.QObject):
     def act_buy_kata(self):
         form = self.form
         
-        dlg = dialogs.BuyAdvDialog (form.pc, 'kata',
-                                    form.dstore, form)
+        #dlg = dialogs.BuyAdvDialog (form.pc, 'kata',
+        #                            form.dstore, form)
+        dlg = dialogs.KataDialog( form.pc, form.dstore, form )
         dlg.exec_()
         form.update_from_model()      
 

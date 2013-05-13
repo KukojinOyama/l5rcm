@@ -28,4 +28,13 @@ class GenericId(object):
         return self.text
 
     def __unicode__(self):
-        return self.text        
+        return self.text
+        
+    def __eq__(self, obj):
+        return obj and obj.id == self.id
+
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+        
+    def __hash__(self):
+        return obj.id.__hash__()        
