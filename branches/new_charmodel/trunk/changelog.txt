@@ -1,0 +1,36 @@
+=== L5RCM v3.7 ===
+* [NEW] Money (zoku, bu, zeni) on PDF sheet
+
+=== L5RCM v3.6 ===
+* [NEW] Added Donate button
+* [NEW] Changed resize effect
+* [NEW] Implemented UI zoom, use CTRL+MouseWheel or CTRL+'+', CTRL+'-' and CTRL+0
+* [NEW] Updated some translations
+* [NEW] Export Equipment list on PDF sheet
+* [NEW] Added GooglePlus buttons in the About page
+* [NEW] Add/Edit modifiers dialog
+* [FIX] Fixed bug #155, Cancelling Open forces Save As
+
+=== L5RCM CORE PACK v3.4 ===
+* [FIX] [DATAPACK] Removed "Tea Cerimony" skill from Mirumoto Bushi School
+* [FIX] [DATAPACK] Added "Kyujutsu" skill to Tsuruchi Bounty Hunter School
+* [NEW] [DATAPACK] Added "Lore: Law" skill to skill list
+* [NEW] [DATAPACK] Removed [OB] tag from some schools
+
+=== L5RCM v3.5 ===
+* [NEW] Added money and equipment ( not in PDF sheet yet )
+* [FIX] Fixed defect #143 School Name vanishing
+* [FIX] Fixed defect #140 Cost 0 advantages/disadvantaged double display
+
+=== L5RCM v3.4 ===
+* [NEW] Added Infamy counter
+* [FIX] Fixed "Remove Perk" (minus) button
+* [NEW] Added PDF sheet for monk characters with Monk schools and Kihos
+* [FIX] Fixed "Fame" advantage ( +1 starting glory )
+* [NEW] [DATAPACK] Added Rings/Traits data, usefull for translations
+* [NEW] [DATAPACK] Normalized whitespace in kiho descriptions
+* [FIX] Fix for Shugenja rank advancement
+* [NEW] [DATAPACK] Changed the way requirements for schools are specified in the XML
+* [NEW] Support for Alternate Paths / Techniques replacements
+* [NEW] The system will forbid to downgrade a datapack
+* [NEW] Added modifiers for Armor TN, Armor RD and Attack Roll ( specific to a weapon )

@@ -1,0 +1,42 @@
+#
+Shiba Bushi School
+bushi
+agility 1
+honor 5.5
+-
+-
+#
+Isawa Shugenja School
+shugenja
+intelligence 1
+honor 4.5
+*any
+-
+#
+Asako Loremaster School
+courtier
+intelligence 1
+honor 6.5
+-
+-
+#
+Agasha Shugenja School
+shugenja
+intelligence 1
+honor 4.5
+fire
+water
+#
+[OB] Asako Henshin School
+monk
+willpower 1
+honor 5.5
+-
+-
+#
+[OB] Shiba Artisan School
+artisan
+intelligence 1
+honor 5.5
+-
+-

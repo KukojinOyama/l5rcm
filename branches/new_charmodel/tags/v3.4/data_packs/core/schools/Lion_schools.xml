@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="lion" name="Akodo Bushi School" id="lion_akodo_bushi_school">
+    <Trait>perception</Trait>
+    <Honor>6.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>lion_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill rank="1" id="battle" emphases="Mass Combat"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <Skill id="kyujutsu" rank="1"/>
+      <Skill id="lore_history" rank="1"/>
+      <Skill id="sincerity" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+        <Wildcard>high</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Way Of The Lion" rank="1" id="lion_the_way_of_the_lion"></Tech>
+      <Tech name="Strength Of Purity" rank="2" id="lion_strength_of_purity"></Tech>
+      <Tech name="Strength Of My Ancestors" rank="3" id="lion_strength_of_my_ancestors"></Tech>
+      <Tech name="Triumph Before Battle" rank="4" id="lion_triumph_before_battle"></Tech>
+      <Tech name="Akodo's Final Lesson" rank="5" id="lion_akodos_final_lesson"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="lion" name="Kitsu Shugenja School" id="lion_kitsu_shugenja_school">
+    <Trait>perception</Trait>
+    <Affinity>water</Affinity>
+    <Deficiency>fire</Deficiency>
+    <Honor>6.5</Honor>
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>lion_shugenja</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="battle" rank="1"/>
+      <Skill rank="1" id="calligraphy" emphases="Cipher"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill id="lore_history" rank="1"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="spellcraft" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells>
+      <Spell id="commune"/>
+      <Spell id="sense"/>
+      <Spell id="summon"/>
+      <PlayerChoose count="2" element="air"/>
+      <PlayerChoose count="1" element="earth"/>
+      <PlayerChoose count="3" element="water"/>
+    </Spells>
+    <Techs>
+      <Tech name="Eyes of the Ancestors" rank="1" id="lion_eyes_of_the_ancestors"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="lion" name="Ikoma Bard School" id="lion_ikoma_bard_school">
+    <Trait>intelligence</Trait>
+    <Honor>6.5</Honor>
+    <Tags>
+      <Tag>courtier</Tag>
+      <Tag>lion_courtier</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="courtier" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill rank="1" id="lore_history" emphases="Lion Clan"/>
+      <Skill id="perform_storytelling" rank="1"/>
+      <Skill rank="1" id="sincerity" emphases="Honesty"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Herald Of Glory" rank="1" id="lion_the_herald_of_glory"></Tech>
+      <Tech name="The Heart Of The Lion" rank="2" id="lion_the_heart_of_the_lion"></Tech>
+      <Tech name="The Voice Of The Ancestors" rank="3" id="lion_the_voice_of_the_ancestors"></Tech>
+      <Tech name="The Strength Of Tradition" rank="4" id="lion_the_strength_of_tradition"></Tech>
+      <Tech name="Every Lion Is Your Brother" rank="5" id="lion_every_lion_is_your_brother"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="lion" name="Matsu Berserker School" id="lion_matsu_berserker_school">
+    <Trait>strength</Trait>
+    <Honor>6.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>lion_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="battle" rank="1"/>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill rank="1" id="kenjutsu" emphases="Katana"/>
+      <Skill id="kyujutsu" rank="1"/>
+      <Skill id="lore_history" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Lion's Roar" rank="1" id="lion_the_lions_roar"></Tech>
+      <Tech name="Matsu's Fury" rank="2" id="lion_matsus_fury"></Tech>
+      <Tech name="The Lion's Charge" rank="3" id="lion_the_lions_charge"></Tech>
+      <Tech name="Matsu's Courage" rank="4" id="lion_matsus_courage"></Tech>
+      <Tech name="The Lion's Victory" rank="5" id="lion_the_lions_victory"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="lion" name="[OB] Matsu Beastmaster School" id="lion_ob_matsu_beastmaster_school">
+    <Trait>agility</Trait>
+    <Honor>5.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>lion_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="battle" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="iaijutsu" rank="1"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="One With The Pride" rank="1" id="lion_one_with_the_pride"></Tech>
+      <Tech name="Heart Of The Beast" rank="2" id="lion_heart_of_the_beast"></Tech>
+      <Tech name="The Ferocity Within" rank="3" id="lion_the_ferocity_within"></Tech>
+      <Tech name="All As One" rank="4" id="lion_all_as_one"></Tech>
+      <Tech name="With The Soul Of A Lion" rank="5" id="lion_with_the_soul_of_a_lion"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="lion" name="[OB] The Ikoma Lion's Shadow School" id="lion_ob_the_ikoma_lions_shadow_school">
+    <Trait>awareness</Trait>
+    <Honor>3.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>lion_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="courtier" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill rank="1" id="investigation" emphases="Notice"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <Skill id="sincerity" rank="1"/>
+      <Skill id="stealth" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>low</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="No Boundaries" rank="1" id="lion_no_boundaries"></Tech>
+      <Tech name="The Lion Cannot Fail" rank="2" id="lion_the_lion_cannot_fail"></Tech>
+      <Tech name="The Spirit Of Ikoma" rank="3" id="lion_the_spirit_of_ikoma"></Tech>
+      <Tech name="The Quiet Lion's Claws" rank="4" id="lion_the_quiet_lions_claws"></Tech>
+      <Tech name="Ferocious Determination" rank="5" id="lion_ferocious_determination"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="lion" name="The Lion's Pride" id="lion_the_lions_pride">
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>lion_bushi</Tag>
+      <Tag>advanced</Tag>
+      <Tag>lion_advanced</Tag>
+    </Tags>
+    <Skills/>
+    <Spells/>
+    <Techs>
+      <Tech name="The Fury Of Matsu" rank="1" id="lion_the_fury_of_matsu"></Tech>
+      <Tech name="Paragon Of Honor" rank="2" id="lion_paragon_of_honor"></Tech>
+      <Tech name="Matsu's Technique" rank="3" id="lion_matsus_technique"></Tech>
+    </Techs>
+    <Requirements>
+      <Requirement field="agility" type="trait" min="5">Agility: 5</Requirement>
+      <Requirement field="strength" type="trait" min="5">Strength: 5</Requirement>
+      <Requirement field="honor" type="trait" min="6">Honor: 6</Requirement>
+      <Requirement field="battle" type="skill" min="5">Battle: 5</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="*weapon" type="skill" min="3">Any Weapon Skill: 3</Requirement>
+      <Requirement field="lion" type="tag">Be a member of the Lion clan</Requirement>
+      <Requirement field="lion_matsu" type="tag">Be a member of the Matsu family</Requirement>
+    </Requirements>
+  </School>
+  <School clanid="lion" name="Akodo Tactical Masters" id="lion_akodo_tactical_masters">
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>lion_bushi</Tag>
+      <Tag>advanced</Tag>
+      <Tag>lion_advanced</Tag>
+    </Tags>
+    <Skills/>
+    <Spells/>
+    <Techs>
+      <Tech name="The Eyes Of The General" rank="1" id="lion_the_eyes_of_the_general"></Tech>
+      <Tech name="Malleable As The Sea" rank="2" id="lion_malleable_as_the_sea"></Tech>
+      <Tech name="The Soul Of The Army" rank="3" id="lion_the_soul_of_the_army"></Tech>
+    </Techs>
+    <Requirements>
+      <Requirement field="water" type="ring" min="4">Water Ring: 4</Requirement>
+      <Requirement field="intelligence" type="trait" min="5">Intelligence: 5</Requirement>
+      <Requirement field="battle" type="skill" trg="Mass Combat" min="5">Battle (Mass Combat): 5</Requirement>
+	  <RequirementOption text="Games (Shoji) or Games (Go): 4">
+		<Requirement field="games_shogi" type="skill" min="4"/>
+		<Requirement field="games_go" type="skill" min="4"/>
+	  </RequirementOption>
+      <Requirement field="lion" type="tag">Be a member of the Lion clan</Requirement>
+    </Requirements>
+  </School>
+</L5RCM>

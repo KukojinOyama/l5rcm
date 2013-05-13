@@ -1,0 +1,18 @@
+[Desktop Entry]
+Name=L5R Character Manager
+Comment=Manager L5R RPG Characters
+TryExec=l5rcm
+Exec=l5rcm
+Icon=/home/daniele/Apps/l5rcm/l5rcm/data/isawa.png
+Type=Application
+X-GNOME-Bugzilla-Version=1.0.0
+Categories=QT;Utility;Games;
+StartupNotify=true
+OnlyShowIn=GNOME;Unity;
+X-Ayatana-Desktop-Shortcuts=New
+X-Ubuntu-Gettext-Domain=l5rcm
+
+[New Shortcut Group]
+Name=New Window
+Exec=l5rcm
+TargetEnvironment=Unity
