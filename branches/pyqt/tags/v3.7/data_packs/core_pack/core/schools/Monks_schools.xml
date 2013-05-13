@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="monks" name="Four Temples Monk School" id="monks_four_temples_monk_school">
+    <Trait>awareness</Trait>
+    <Honor>6.5</Honor>
+    <Tags>
+      <Tag>monk</Tag>
+      <Tag>monks_monk</Tag>
+      <Tag>brotherhood</Tag>
+      <Tag>monks_brotherhood</Tag>
+    </Tags>
+    <Kihos count="3"/>
+    <Skills>
+      <Skill id="courtier" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill rank="1" id="lore_theology" emphases="Shintao"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Soul of Civility" rank="1" id="monks_soul_of_civility"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="monks" name="Order of Heroes Monk School" id="monks_order_of_heroes_monk_school">
+    <Trait>perception</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>monk</Tag>
+      <Tag>monks_monk</Tag>
+      <Tag>brotherhood</Tag>
+      <Tag>monks_brotherhood</Tag>
+    </Tags>
+    <Kihos count="3"/>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill rank="1" id="lore_theology" emphases="*any"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Destiny's Hand" rank="1" id="monks_destinys_hand"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="monks" name="The Temple of Osano-Wo Monk School" id="monks_the_temple_of_osanowo_monk_school">
+    <Trait>strength</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>monk</Tag>
+      <Tag>monks_monk</Tag>
+      <Tag>brotherhood</Tag>
+      <Tag>monks_brotherhood</Tag>
+    </Tags>
+    <Kihos count="3"/>
+    <Skills>
+      <Skill id="battle" rank="1"/>
+      <Skill id="jiujutsu" rank="2"/>
+      <Skill rank="1" id="lore_theology" emphases="Fortunes"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Hand of Thunder" rank="1" id="monks_the_hand_of_thunder"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="monks" name="The Temples of the Thousand Fortunes Monk School" id="monks_the_temples_of_the_thousand_fortunes_monk_school">
+    <Trait>agility</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>monk</Tag>
+      <Tag>monks_monk</Tag>
+      <Tag>brotherhood</Tag>
+      <Tag>monks_brotherhood</Tag>
+    </Tags>
+    <Kihos count="3"/>
+    <Skills>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill id="lore_history" rank="1"/>
+      <Skill rank="1" id="lore_theology" emphases="Fortunes"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>lore</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Thousand Forms" rank="1" id="monks_the_thousand_forms"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+</L5RCM>

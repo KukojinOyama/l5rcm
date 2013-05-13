@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="unicorn" name="Moto Bushi School" id="unicorn_moto_bushi_school">
+    <Trait>strength</Trait>
+    <Honor>3.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>unicorn_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="horsemanship" rank="1"/>
+      <Skill id="hunting" rank="1"/>
+      <Skill rank="1" id="kenjutsu" emphases="Scimitar"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Way Of The Unicorn" rank="1" id="unicorn_the_way_of_the_unicorn"></Tech>
+      <Tech name="Shinsei's Smile" rank="2" id="unicorn_shinseis_smile"></Tech>
+      <Tech name="Desert Wind Strike" rank="3" id="unicorn_desert_wind_strike"></Tech>
+      <Tech name="The Charge Of Madness" rank="4" id="unicorn_the_charge_of_madness"></Tech>
+      <Tech name="Moto Cannot Yield" rank="5" id="unicorn_moto_cannot_yield"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="unicorn" name="Iuchi Shugenja School" id="unicorn_iuchi_shugenja_school">
+    <Trait>perception</Trait>
+    <Affinity>water</Affinity>
+    <Deficiency>fire</Deficiency>
+    <Honor>5.5</Honor>
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>unicorn_shugenja</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="battle" rank="1"/>
+      <Skill rank="1" id="calligraphy" emphases="Cipher"/>
+      <Skill id="horsemanship" rank="1"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <Skill id="spellcraft" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells>
+      <Spell id="commune"/>
+      <Spell id="sense"/>
+      <Spell id="summon"/>
+      <PlayerChoose count="1" element="air"/>
+      <PlayerChoose count="2" element="earth"/>
+      <PlayerChoose count="3" element="water"/>
+    </Spells>
+    <Techs>
+      <Tech name="Spirit of the Wind" rank="1" id="unicorn_spirit_of_the_wind"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="unicorn" name="Ide Emissary School" id="unicorn_ide_emissary_school">
+    <Trait>awareness</Trait>
+    <Honor>5.5</Honor>
+    <Tags>
+      <Tag>courtier</Tag>
+      <Tag>unicorn_courtier</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="calligraphy" rank="1"/>
+      <Skill id="commerce" rank="1"/>
+      <Skill id="courtier" rank="1"/>
+      <Skill rank="1" id="etiquette" emphases="Conversation"/>
+      <Skill id="horsemanship" rank="1"/>
+      <Skill rank="1" id="sincerity" emphases="Honesty"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>perform</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="The Heart Speaks" rank="1" id="unicorn_the_heart_speaks"></Tech>
+      <Tech name="Piercing The Veils" rank="2" id="unicorn_piercing_the_veils"></Tech>
+      <Tech name="The Heart Listens" rank="3" id="unicorn_the_heart_listens"></Tech>
+      <Tech name="Answering The Heart" rank="4" id="unicorn_answering_the_heart"></Tech>
+      <Tech name="The Immovable Hand Of Peace" rank="5" id="unicorn_the_immovable_hand_of_peace"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="unicorn" name="Utaku Battle Maiden" id="unicorn_utaku_battle_maiden">
+    <Trait>reflexes</Trait>
+    <Honor>6.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>unicorn_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="battle" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="horsemanship" rank="2"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <Skill id="sincerity" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>high</Wildcard>
+        <Wildcard>bugei</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Riding In Harmony" rank="1" id="unicorn_riding_in_harmony"></Tech>
+      <Tech name="The Void Of War" rank="2" id="unicorn_the_void_of_war"></Tech>
+      <Tech name="Sensing The Breeze" rank="3" id="unicorn_sensing_the_breeze"></Tech>
+      <Tech name="Wind Never Stops" rank="4" id="unicorn_wind_never_stops"></Tech>
+      <Tech name="Otaku's Blessing" rank="5" id="unicorn_otakus_blessing"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+</L5RCM>

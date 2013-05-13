@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="dragon" name="Mirumoto Bushi School" id="dragon_mirumoto_bushi_school">
+    <Trait>stamina</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>dragon_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="defense" rank="1"/>
+      <Skill id="iaijutsu" rank="1"/>
+      <Skill rank="1" id="kenjutsu" emphases="Katana"/>
+      <Skill id="lore_shugenja" rank="1"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+        <Wildcard>high</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Way Of The Dragon" rank="1" id="dragon_way_of_the_dragon"></Tech>
+      <Tech name="The Calm In Midst Of Thunder" rank="2" id="dragon_the_calm_in_midst_of_thunder"></Tech>
+      <Tech name="Strong And Swift" rank="3" id="dragon_strong_and_swift"></Tech>
+      <Tech name="Furious Retaliation" rank="4" id="dragon_furious_retaliation"></Tech>
+      <Tech name="Heart Of The Dragon" rank="5" id="dragon_heart_of_the_dragon"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="dragon" name="Tamori Shugenja School" id="dragon_tamori_shugenja_school">
+    <Trait>stamina</Trait>
+    <Affinity>earth</Affinity>
+    <Deficiency>air</Deficiency>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>dragon_shugenja</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill rank="1" id="calligraphy" emphases="Cipher"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="divination" rank="1"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="medicine" rank="1"/>
+      <Skill id="spellcraft" rank="1"/>
+    </Skills>
+    <Spells>
+      <Spell id="commune"/>
+      <Spell id="sense"/>
+      <Spell id="summon"/>
+      <PlayerChoose count="3" element="earth"/>
+      <PlayerChoose count="2" element="fire"/>
+      <PlayerChoose count="1" element="water"/>
+    </Spells>
+    <Techs>
+      <Tech name="Flesh of the Elements" rank="1" id="dragon_flesh_of_the_elements"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="dragon" name="Kitsuki Investigator School" id="dragon_kitsuki_investigator_school">
+    <Trait>perception</Trait>
+    <Honor>5.5</Honor>
+    <Tags>
+      <Tag>courtier</Tag>
+      <Tag>dragon_courtier</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="courtier" rank="1"/>
+      <Skill rank="1" id="etiquette" emphases="Courtesy"/>
+      <Skill id="investigation" rank="1" emphases="Interrogation"/>
+      <Skill id="kenjutsu" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <Skill id="sincerity" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>lore</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Kitsuki's Method" rank="1" id="dragon_kitsukis_method"></Tech>
+      <Tech name="Wisdom The Wind Brings" rank="2" id="dragon_wisdom_the_wind_brings"></Tech>
+      <Tech name="Know The Rhythm Of The Heart" rank="3" id="dragon_know_the_rhythm_of_the_heart"></Tech>
+      <Tech name="Finding The Path" rank="4" id="dragon_finding_the_path"></Tech>
+      <Tech name="The Eyes Betray The Heart" rank="5" id="dragon_the_eyes_betray_the_heart"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="dragon" name="Togashi Tattooed Order" id="dragon_togashi_tattooed_order">
+    <Trait>void</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>monk</Tag>
+      <Tag>dragon_monk</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="craft_tattooing" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+        <Wildcard>high</Wildcard>
+        <Wildcard>merchant</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>lore</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="Blood Of The Kami" rank="1" id="dragon_blood_of_the_kami"></Tech>
+      <Tech name="Body Of Stone" rank="2" id="dragon_body_of_stone"></Tech>
+      <Tech name="Blessing Of The Kami" rank="3" id="dragon_blessing_of_the_kami"></Tech>
+      <Tech name="Will Of Stone" rank="4" id="dragon_will_of_stone"></Tech>
+      <Tech name="Touch Of The Kami" rank="5" id="dragon_touch_of_the_kami"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+  <School clanid="dragon" name="Mirumoto Taoist Swordsman" id="dragon_ob_mirumoto_taoist_swordsman">
+    <Trait>void</Trait>
+    <Honor>5.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>dragon_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="iaijutsu" rank="1"/>
+      <Skill rank="1" id="kenjutsu" emphases="Katana"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+        <Wildcard>high</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs/>
+    <Requirements/>
+  </School>
+  <School clanid="dragon" name="Hoshi Tsurui Zumi" id="dragon_ob_hoshi_tsurui_zumi">
+    <Trait>void</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>monk</Tag>
+      <Tag>dragon_monk</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill rank="1" id="meditation" emphases="Void"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs/>
+    <Requirements/>
+  </School>
+  <School clanid="dragon" name="Hitomi Kikage Zumi" id="dragon_ob_hitomi_kikage_zumi">
+    <Trait>reflexes</Trait>
+    <Honor>4.5</Honor>
+    <Tags>
+      <Tag>monk</Tag>
+      <Tag>dragon_monk</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="athletics" rank="1"/>
+      <Skill id="defense" rank="1"/>
+      <Skill id="jiujutsu" rank="1"/>
+      <Skill id="meditation" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+        <Wildcard>high</Wildcard>
+        <Wildcard>merchant</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>bugei</Wildcard>
+        <Wildcard>high</Wildcard>
+        <Wildcard>merchant</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>lore</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs/>
+    <Requirements/>
+  </School>
+  <School clanid="dragon" name="Swordsmasters" id="dragon_swordsmasters">
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>dragon_bushi</Tag>
+      <Tag>advanced</Tag>
+      <Tag>dragon_advanced</Tag>
+    </Tags>
+    <Skills/>
+    <Spells/>
+    <Techs>
+      <Tech name="The Silence Of Two Strikes" rank="1" id="dragon_the_silence_of_two_strikes"></Tech>
+      <Tech name="Mirumoto's Strength" rank="2" id="dragon_mirumotos_strength"></Tech>
+      <Tech name="Harmony And Precision" rank="3" id="dragon_harmony_and_precision"></Tech>
+    </Techs>
+    <Requirements>
+      <Requirement field="fire" type="ring" min="4">Fire Ring: 4</Requirement>
+      <Requirement field="void" type="ring" min="4">Void Ring: 4</Requirement>
+      <Requirement field="iaijutsu" type="skill" min="5">Iaijutsu: 5</Requirement>
+      <Requirement field="kenjutsu" type="skill" min="5">Kenjutsu: 5</Requirement>
+      <Requirement field="lore_theology" type="skill" min="4">Lore (Theology): 4</Requirement>
+      <Requirement field="dragon" type="tag">Be a member of Dragon clan</Requirement>
+    </Requirements>
+  </School>
+  <School clanid="dragon" name="Mirumoto Master Sensei" id="dragon_mirumoto_master_sensei">
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>dragon_bushi</Tag>
+      <Tag>advanced</Tag>
+      <Tag>dragon_advanced</Tag>
+    </Tags>
+    <Skills/>
+    <Spells/>
+    <Techs>
+      <Tech name="The Sword And The Soul" rank="1" id="dragon_the_sword_and_the_soul"></Tech>
+      <Tech name="The Body Is Illusion" rank="2" id="dragon_the_body_is_illusion"></Tech>
+      <Tech name="Sword Of The Sensei" rank="3" id="dragon_sword_of_the_sensei"></Tech>
+    </Techs>
+    <Requirements>
+      <Requirement field="air" type="ring" min="5">Air Ring: 5</Requirement>
+      <Requirement field="earth" type="ring" min="4">Earth Ring: 4</Requirement>
+      <Requirement field="void" type="ring" min="5">Void Ring: 5</Requirement>
+      <Requirement field="kenjutsu" type="skill" min="5">Kenjutsu: 5</Requirement>
+      <Requirement field="meditation" type="skill" min="6">Meditation: 6</Requirement>
+      <Requirement field="dragon" type="tag">Be a member of Dragon clan</Requirement>
+      <Requirement field="rpg" type="more">
+	  You must be chosen or taught by another Master Sensei and cannot be Brash or Proud.	  
+	  </Requirement>
+    </Requirements>
+  </School>
+  <School clanid="dragon" name="Tamori Master Of The Mountains" id="dragon_tamori_master_of_the_mountains">
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>dragon_shugenja</Tag>
+      <Tag>advanced</Tag>
+      <Tag>dragon_advanced</Tag>
+    </Tags>
+    <Skills/>
+    <Spells/>
+    <Techs>
+      <Tech name="Integration Of The Gods" rank="1" id="dragon_integration_of_the_gods"></Tech>
+      <Tech name="Inner Fortitude" rank="2" id="dragon_inner_fortitude"></Tech>
+      <Tech name="Power In Need" rank="3" id="dragon_power_in_need"></Tech>
+    </Techs>
+    <Requirements>
+      <Requirement field="*any" type="ring" min="4">Any Ring: 4</Requirement>
+      <Requirement field="*any" type="ring" min="3">Any Ring: 3</Requirement>
+      <Requirement field="*any" type="ring" min="3">Any Ring: 3</Requirement>
+      <Requirement field="spellcraft" type="skill" min="5">Spellcraft: 5</Requirement>
+      <Requirement field="dragon" type="tag">Be a member of Dragon clan</Requirement>
+    </Requirements>
+  </School>
+</L5RCM>

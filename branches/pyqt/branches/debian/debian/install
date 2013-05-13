@@ -1,0 +1,16 @@
+autoupdate /usr/lib/l5rcm
+dal /usr/lib/l5rcm
+dialogs /usr/lib/l5rcm
+diceroller /usr/lib/l5rcm
+exporters /usr/lib/l5rcm
+models /usr/lib/l5rcm
+sinks /usr/lib/l5rcm
+widgets /usr/lib/l5rcm
+l5rcm.py /usr/lib/l5rcm
+l5rcmcore.py /usr/lib/l5rcm
+l5rcm /usr/bin
+osutil.py /usr/lib/l5rcm
+rules.py /usr/lib/l5rcm
+AUTHORS /usr/lib/l5rcm
+share /usr
+l5rcm.desktop /usr/share/applications

@@ -1,0 +1,63 @@
+#
+Hida Bushi School
+bushi
+stamina 1
+honor 3.5
+-
+-
+#
+Kuni Shugenja School
+shugenja
+willpower 1
+honor 2.5
+earth
+air
+#
+Yasuki Courtier School
+courtier
+perception 1
+honor 2.5
+-
+-
+#
+Hiruma Bushi School
+bushi
+willpower 1
+honor 4.5
+-
+-
+#
+Toritaka Bushi School (Crab)
+bushi 
+strength 1 
+honor 5.5 
+- 
+-
+#
+[OB] Kaiu Engineer School
+artisan; bushi
+intelligence 1
+honor 4.5
+-
+-
+#
+[OB] Kuni Witch Hunter School
+bushi
+willpower 1
+honor 5.5
+-
+-
+#
+[OB] Hida Pragmatist School
+bushi
+agility 1
+honor 2.5
+-
+-
+#
+[OB] Hiruma Scout School
+bushi
+reflexes 1
+honor 4.5
+-
+-

@@ -1,0 +1,1 @@
+7z a -r -x@exclude_from_source %1.7z .
