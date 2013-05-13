@@ -16,18 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-class PowerRequirement(object):
-
-    @staticmethod
-    def build_from_xml(elem):
-        f = PowerRequirement()
-        f.field = elem.attrib['field']
-        f.type  = elem.attrib['type' ]
-        f.min = int(elem.attrib['min']) if ('min' in elem.attrib) else None
-        f.max = int(elem.attrib['max']) if ('max' in elem.attrib) else None
-        f.trg = elem.attrib['trg'] if ('trg' in elem.attrib) else None
-        f.text = elem.text
-        return f  
+from requirements import Requirement, RequirementOption
 
 class Kiho(object):
 
@@ -51,6 +40,12 @@ class Kiho(object):
     def __eq__(self, obj):
         return obj and obj.id == self.id
 
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+        
+    def __hash__(self):
+        return obj.id.__hash__()
+
 class Kata(object):
 
     @staticmethod
@@ -63,9 +58,13 @@ class Kata(object):
         f.desc    = elem.find('Description').text if (elem.find('Description') is not None) else ''
         # requirements
         f.require = []
-        for se in elem.find('Requirements').iter():
+                
+        for se in elem.find('Requirements'):
             if se.tag == 'Requirement':
-                f.require.append(PowerRequirement.build_from_xml(se))         
+                f.require.append(Requirement.build_from_xml(se))        
+            if se.tag == 'RequirementOption':
+                f.require.append(RequirementOption.build_from_xml(se))  
+                
         return f        
         
     def __str__(self):
@@ -76,4 +75,10 @@ class Kata(object):
 
     def __eq__(self, obj):
         return obj and obj.id == self.id
+
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+        
+    def __hash__(self):
+        return obj.id.__hash__()
 

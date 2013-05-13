@@ -46,7 +46,8 @@ class RequirementsWidget(QtGui.QWidget):
         for r in requirements:
             ck = QtGui.QCheckBox(self)
             lb = None
-            if type(r) is dal.school.SchoolRequirementOption:
+
+            if type(r) is dal.requirements.RequirementOption:
                 ck.setEnabled(False)
             else:
                 ck.setEnabled(r.type == 'more')
@@ -75,6 +76,11 @@ class RequirementsWidget(QtGui.QWidget):
         for c in self.checks:
             if not c.isChecked(): return False
         return True
+        
+    def match_at_least_one(self):
+        for c in self.checks:
+            if c.isChecked(): return True
+        return False
                 
 ### MAIN ###
 def main():

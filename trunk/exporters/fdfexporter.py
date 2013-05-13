@@ -18,7 +18,7 @@
 import string
 import models
 import rules
-import md5
+import hashlib
 import dal
 import dal.query
 from datetime import datetime
@@ -46,7 +46,7 @@ class FDFExporter(object):
         pass
         
     def export_footer(self, io):
-        hash_ = md5.new()
+        hash_ = hashlib.md5()
         hash_.update(str(datetime.now()))
         io.write(str.format("] \n/F (dummy.pdf) /ID [ <{0}>\n] >>",
                  hash_.hexdigest()))
