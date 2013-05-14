@@ -1,3 +1,7 @@
+=== GREAT CLAN PACK 1.1 ===
+* [FIX] Added missing family: Ninube of Spider Clan ( +1 Reflexes ) - see issue #177
+* [FIX] Fix Ninube Shugenja School ( +1 Awareness instead of +1 Reflexes ) - see issue #177
+
 === L5RCM v3.7.1 ===
 * [FIX] Regression #171 Unable to add weapons to characters
 * [FIX] [DATAPACK] #164 Knives and yari not throwable
