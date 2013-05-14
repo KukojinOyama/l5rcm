@@ -57,13 +57,13 @@ class Kata(object):
         f.mastery = int(elem.attrib['mastery'])
         f.desc    = elem.find('Description').text if (elem.find('Description') is not None) else ''
         # requirements
-        f.require = []
-                
+        f.require = []       
+       
         for se in elem.find('Requirements'):
             if se.tag == 'Requirement':
                 f.require.append(Requirement.build_from_xml(se))        
             if se.tag == 'RequirementOption':
-                f.require.append(RequirementOption.build_from_xml(se))  
+                f.require.append(RequirementOption.build_from_xml(se))
                 
         return f        
         
