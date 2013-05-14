@@ -74,7 +74,7 @@ You gain +5 to your Initiative Score during the fi rst Round
         <Requirements/>
     </School>
   <School clanid="spider" name="Ninube Shugenja" id="spider_ninube_shugenja_school">
-    <Trait>reflexes</Trait>
+    <Trait>awareness</Trait>
     <Affinity>air</Affinity>
     <Deficiency>earth</Deficiency>
     <Honor>0.0</Honor>
