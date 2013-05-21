@@ -212,11 +212,22 @@ class L5RMain(L5RCMCore):
             self.tx_pc_exp    = QtGui.QLineEdit(self)
             self.tx_pc_ins    = QtGui.QLineEdit(self)
 
-            # 1st column
+            # 1st column            
+            fr_school = QtGui.QFrame(self)
+            hb_school = QtGui.QHBoxLayout(fr_school)
+            hb_school.setContentsMargins(0,0,0,0)            
+            lb_school = QtGui.QLabel(self.tr("School"), self)
+            bt_lock   = QtGui.QToolButton( self )
+            bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
+            hb_school.addWidget(lb_school)
+            hb_school.addWidget(bt_lock)
+            
             grid.addWidget( QtGui.QLabel(self.tr("Name"  ), self), 0, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Clan"  ), self), 1, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Family"), self), 2, 0 )
-            grid.addWidget( QtGui.QLabel(self.tr("School"), self), 3, 0 )
+            grid.addWidget( fr_school, 3, 0 )
+            
+            self.bt_school_lock = bt_lock
 
             # 3rd column
             grid.addWidget( QtGui.QLabel(self.tr("Rank")       , self), 0, 3 )
@@ -1096,7 +1107,7 @@ class L5RMain(L5RCMCore):
         hbox.setSpacing  (30)
 
         logo = QtGui.QLabel(self)
-        logo.setPixmap(QtGui.QPixmap(get_app_icon_path(( 64,64))))
+        logo.setPixmap(QtGui.QPixmap(get_app_icon_path((64,64))))
         hbox.addWidget(logo, 0, QtCore.Qt.AlignTop)
 
         vbox = QtGui.QVBoxLayout(mfr)
@@ -1392,6 +1403,8 @@ class L5RMain(L5RCMCore):
                                       QtCore.SLOT("on_trait_increase(const QString &)"))
 
         self.ic_act_grp.triggered.connect(self.on_change_insight_calculation)
+        
+        self.bt_school_lock.clicked.connect( self.sink1.on_unlock_school_act )
 
     def show_nicebar(self, wdgs):
         self.nicebar = QtGui.QFrame(self)
