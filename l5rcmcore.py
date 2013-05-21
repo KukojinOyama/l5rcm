@@ -30,12 +30,13 @@ import dal
 import dal.query
 import dal.dataimport
 import osutil
+from math import ceil
 
 from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.7.1'
+APP_VERSION = '3.8.0'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -443,3 +444,117 @@ class L5RCMCore(QtGui.QMainWindow):
         donate_url = QtCore.QUrl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=Q87Q5BVS3ZKTE&lc=US&item_name=Daniele%20Simonetti&item_number=l5rcm_donate&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted")
         QtGui.QDesktopServices.openUrl(donate_url)
             
+    def buy_kata(self, kata):
+        adv = models.KataAdv(kata.id, kata.id, kata.mastery)
+        adv.desc = self.tr('{0}, Cost: {1} xp').format( kata.name, adv.cost )
+        
+        if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
+            return CMErrors.NOT_ENOUGH_XP
+
+        self.pc.add_advancement( adv )
+        self.update_from_model()
+        
+        return CMErrors.NO_ERROR
+    
+    def pc_is_monk(self):
+        # is monk ?
+        monk_schools        = [ x for x in self.pc.schools if x.has_tag('monk') ]
+        is_monk             = len(monk_schools) > 0        
+        # is brotherhood monk?
+        brotherhood_schools = [ x for x in monk_schools if x.has_tag('brotherhood') ]
+        is_brotherhood      = len(brotherhood_schools) > 0                
+        return is_monk, is_brotherhood
+        
+    def pc_is_ninja(self):
+        # is ninja?
+        ninja_schools       = [ x for x in self.pc.schools if x.has_tag('ninja') ]
+        is_ninja            = len(ninja_schools) > 0        
+        return is_ninja
+        
+    def pc_is_shugenja(self): 
+        # is shugenja?
+        shugenja_schools    = [ x for x in self.pc.schools if x.has_tag('shugenja') ]        
+        is_shugenja         = len(shugenja_schools) > 0
+        return is_shugenja
+        
+    def calculate_kiho_cost(self, kiho): 
+        
+        # tattoos are free as long as you're eligible
+        if 'tattoo' in kiho.tags: return 0
+        
+        cost_mult           = 1        
+        
+        is_monk, is_brotherhood = self.pc_is_monk    ()
+        is_ninja                = self.pc_is_ninja   ()
+        is_shugenja             = self.pc_is_shugenja()
+        
+        if is_brotherhood:
+            cost_mult = 1 # 1px / mastery
+        elif is_monk:
+            cost_mult = 1.5
+        elif is_shugenja:
+            cost_mult = 2
+        elif is_ninja:
+            cost_mult = 2
+
+        return int(ceil(kiho.mastery*cost_mult))
+        
+    def check_kiho_eligibility(self, kiho):        
+        # check eligibility
+        against_mastery     = 0
+
+        is_monk, is_brotherhood = self.pc_is_monk    ()
+        is_ninja                = self.pc_is_ninja   ()
+        is_shugenja             = self.pc_is_shugenja()
+        
+        school_bonus        = 0
+        relevant_ring       = models.ring_from_name(kiho.element)
+        ring_rank           = self.pc.get_ring_rank(relevant_ring)               
+
+        if is_ninja:
+            ninja_schools = [ x for x in self.pc.schools if x.has_tag('ninja') ]
+            ninja_rank    = sum( [x.school_rank for x in ninja_schools ] )
+
+        if is_monk:
+            monk_schools = [ x for x in self.pc.schools if x.has_tag('monk') ]
+            school_bonus = sum( [x.school_rank for x in monk_schools ] )
+
+        against_mastery = school_bonus + ring_rank
+        
+        if is_brotherhood:
+            return against_mastery >= kiho.mastery 
+        elif is_monk:            
+            return against_mastery >= kiho.mastery
+        elif is_shugenja:            
+            return ring_rank >= kiho.mastery
+        elif is_ninja:
+            return ninja_rank >= kiho.mastery
+            
+        return False
+        
+    def buy_kiho(self, kiho):
+        adv = models.KihoAdv(kiho.id, kiho.id, self.calculate_kiho_cost(kiho))
+        adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, adv.cost )
+        
+        # monks can get free kihos
+        if self.pc.get_free_kiho_count() > 0:
+            self.adv.cost = 0
+            self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
+            print('remaing free kihos', self.pc.get_free_kiho_count())
+            
+        if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
+            return CMErrors.NOT_ENOUGH_XP
+
+        self.pc.add_advancement( adv )
+        self.update_from_model()
+        
+        return CMErrors.NO_ERROR
+        
+    def buy_tattoo(self, kiho):
+        adv = models.KihoAdv(kiho.id, kiho.id, 0)
+        adv.desc = self.tr('{0} Tattoo').format( kiho.name )
+        
+        self.pc.add_advancement( adv )
+        self.update_from_model()
+        
+        return CMErrors.NO_ERROR    

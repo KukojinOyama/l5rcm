@@ -154,6 +154,14 @@ class DataPack(object):
     def __eq__(self, obj):
         return obj and hasattr(obj, 'id') and obj.id == self.id
         
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+        
+    def __hash__(self):
+        if hasattr(obj, 'id'):
+            return obj.id.__hash__()        
+        return 0
+        
 def test():
     data = 'test.zip'
     importer = DataPack(data)

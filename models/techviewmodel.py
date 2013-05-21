@@ -35,6 +35,12 @@ class TechItemModel(object):
     def __eq__(self, obj):
         return self.rank == obj.rank
 
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+        
+    def __hash__(self):
+        return obj.rank.__hash__()        
+
 class TechViewModel(QtCore.QAbstractListModel):
     def __init__(self, dstore, parent = None):
         super(TechViewModel, self).__init__(parent)
