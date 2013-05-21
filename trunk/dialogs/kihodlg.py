@@ -158,9 +158,9 @@ class KihoDialog(QtGui.QDialog):
             ]
         
         if pc_status == status_ko:
-            self.tx_pc_status.setText( """<span style="color:#A00">{0}</span>""".format(pc_status) )
+            self.tx_pc_status.setText( u"""<span style="color:#A00">{0}</span>""".format(pc_status) )
         else:
-            self.tx_pc_status.setText( """<span style="color:#0A0">{0}</span>""".format(pc_status) )
+            self.tx_pc_status.setText( u"""<span style="color:#0A0">{0}</span>""".format(pc_status) )
         
         is_eligible = self.parent().check_kiho_eligibility(kiho)
         if is_eligible:
@@ -172,9 +172,9 @@ class KihoDialog(QtGui.QDialog):
             elif is_ninja:     tmp = str_no_eligible[2]
             else:              tmp = str_no_eligible[3] 
             
-            self.tx_eligibility.setText("""<span style="color: #A00">{0}</span>""".format(tmp))
+            self.tx_eligibility.setText( u"""<span style="color: #A00">{0}</span>""".format(tmp))
         
-        self.tx_detail.setText("<p><em>{0}</em></p>".format(kiho.desc))                
+        self.tx_detail.setText( u"<p><em>{0}</em></p>".format(kiho.desc))                
         self.bt_ok.setEnabled( is_eligible )
 
     def accept(self):
@@ -278,11 +278,11 @@ class TattooDialog(QtGui.QDialog):
 
         is_eligible = self.pc.has_tag('dragon_togashi_tattooed_order')
         if not is_eligible:               
-            self.tx_pc_status.setText( """<span style="color:#A00">{0}</span>""".format(status_ko) )
+            self.tx_pc_status.setText( u"""<span style="color:#A00">{0}</span>""".format(status_ko) )
         else:
-            self.tx_pc_status.setText( """<span style="color:#0A0">{0}</span>""".format(status_ok) )
+            self.tx_pc_status.setText( u"""<span style="color:#0A0">{0}</span>""".format(status_ok) )
                 
-        self.tx_detail.setText("<p><em>{0}</em></p>".format(kiho.desc))
+        self.tx_detail.setText(u"<p><em>{0}</em></p>".format(kiho.desc))
         self.bt_ok.setEnabled( is_eligible )
 
     def accept(self):
