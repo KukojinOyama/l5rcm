@@ -565,8 +565,7 @@ class L5RMain(L5RCMCore):
         view.horizontalHeader().setStretchLastSection(True)
         view.horizontalHeader().setCascadingSectionResizes(True)
         view.setModel(model)
-        # FIXME: this line segfaults on PyQt4 1.1.2
-        #view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
+                #view.selectionModel().currentRowChanged.connect(self.on_spell_selected)
         sm = view.selectionModel()
         sm.currentRowChanged.connect(self.on_spell_selected)
         self.spell_table_view = view
@@ -754,7 +753,7 @@ class L5RMain(L5RCMCore):
         views_ = []
 
         self._build_spell_frame(sp_sort_model     , vbox)
-        #self._build_tech_frame (self.th_view_model, vbox)
+        self._build_tech_frame (self.th_view_model, vbox)
 
         self.tabs.addTab(frame_, self.tr("Techniques"))
         

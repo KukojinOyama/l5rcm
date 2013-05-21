@@ -21,6 +21,8 @@ import json
 import zipfile
 import shutil 
 
+CM_VERSION = None
+
 class ManifestNotFound(Exception):
     def __init__(self, msg):
         super(ManifestNotFound, self).__init__(msg)
@@ -58,6 +60,7 @@ class DataPack(object):
         self.version      = None
         self.update_uri   = None
         self.download_uri = None
+        self.min_cm_ver   = None
         
         self.archive_path = archive_path
         
@@ -91,6 +94,8 @@ class DataPack(object):
                     self.update_uri = manifest_js['update-uri']
                 if 'download-uri' in manifest_js:
                     self.download_uri = manifest_js['download-uri']                    
+                if 'min-cm-version' in manifest_js:
+                    self.min_cm_ver = manifest_js['min-cm-version']      
             except Exception as e:
                 print('manifest not found!')
                 print(e.message)
@@ -99,6 +104,9 @@ class DataPack(object):
     def export_to(self, data_path):        
         if not self.good():
             raise InvalidDataPack('Cannot extract. Not a valid Data pack file.')
+            
+        if not self.check_cm_version():
+            raise VersionMismatch( 'Cannot install. This datapack require L5R: CM v{0} or newer.'.format(self.min_cm_ver) )
             
         data_path = os.path.join(data_path, self.id)
         
@@ -129,6 +137,10 @@ class DataPack(object):
                 return cmp_versions(self.version, js['version']) >= 0
         except Exception as e:
             return True
+            
+    def check_cm_version(self):
+        if self.min_cm_ver is None: return True
+        return cmp_versions(self.min_cm_ver, CM_VERSION) <= 0
             
     def good(self):
         return self.id is not None

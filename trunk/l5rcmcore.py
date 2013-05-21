@@ -414,6 +414,7 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def import_data_pack(self, data_pack_file):
         try:
+            dal.dataimport.CM_VERSION = APP_VERSION
             pack = dal.dataimport.DataPack(data_pack_file)
             if not pack.good():
                 self.advise_error(self.tr("Invalid data pack."))
