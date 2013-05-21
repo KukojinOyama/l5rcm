@@ -22,7 +22,7 @@ import dialogs
 import models
 import os
 
-from l5rcmcore import get_app_file, DB_VERSION
+from l5rcmcore import get_app_file, DB_VERSION, get_icon_path
 
 class Sink1(QtCore.QObject):
     def __init__(self, parent = None):
@@ -194,8 +194,10 @@ class Sink1(QtCore.QObject):
         
         form.pc.toggle_unlock_schools()
         if form.pc.unlock_schools:
-            form.load_schools ()
+            form.bt_school_lock.setIcon( QtGui.QIcon(get_icon_path('lock_open',(16,16))) )
+            form.load_schools ()            
         else:
+            form.bt_school_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
             form.load_schools(form.pc.clan)
         form.cb_pc_school.setCurrentIndex(0)
 
