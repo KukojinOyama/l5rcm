@@ -138,7 +138,11 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
         spell = dal.query.get_spell(self.dstore, sp_id)
            
         itm.name     = spell.name
-        itm.ring     = spell.element
+        #itm.ring     = spell.element
+        try:
+            itm.ring = dal.query.get_ring(self.dstore, spell.element).text
+        except:
+            itm.ring = spell.element
         itm.mastery  = spell.mastery
         itm.range    = spell.range
         itm.area     = spell.area

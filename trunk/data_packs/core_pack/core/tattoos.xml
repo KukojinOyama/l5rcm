@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <KihoDef type="tattoo" id="tattoo_balance" name="Balance">
+    <Description>This tattoo of the spiritual yin-yang symbol
+calms the mind and spirit. While this tattoo is active,
+the TN of all Spell Casting Rolls made with you as
+the target are increased or decreased by an amount
+equal to twice your School Rank plus 5. You determine
+whether this is an increase or a decrease when
+you activate the tattoo.</Description>
+    <Tags>
+        <Tag>tattoo</Tag>
+    </Tags>
+  </KihoDef>
+</L5RCM>  

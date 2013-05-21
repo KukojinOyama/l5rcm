@@ -93,23 +93,26 @@ class Sink2(QtCore.QObject):
     def act_buy_kata(self):
         form = self.form
         
-        dlg = dialogs.BuyAdvDialog (form.pc, 'kata',
-                                    form.dstore, form)
+        dlg = dialogs.KataDialog( form.pc, form.dstore, form )
         dlg.exec_()
         form.update_from_model()      
 
     def act_buy_kiho(self):
         form = self.form
-        
-        dlg = dialogs.BuyAdvDialog (form.pc, 'kiho',
-                                    form.dstore, form)
-        dlg.exec_()
+        dlg = dialogs.KihoDialog( form.pc, form.dstore, form )
+        dlg.exec_()        
         form.update_from_model()
+        
+    def act_buy_tattoo(self):
+        form = self.form
+        dlg = dialogs.TattooDialog( form.pc, form.dstore, form )
+        dlg.exec_()        
+        form.update_from_model()        
         
     def act_del_kata(self):
         form = self.form
         
-        sel_idx = form.flaw_view.selectionModel().currentIndex()
+        sel_idx = form.kata_view.selectionModel().currentIndex()
         if not sel_idx.isValid():
             return
         sel_itm = form.ka_table_view.model().data(sel_idx, QtCore.Qt.UserRole)
@@ -117,9 +120,11 @@ class Sink2(QtCore.QObject):
         
     def act_del_kiho(self):
         form = self.form
-        
-        sel_idx = form.flaw_view.selectionModel().currentIndex()
+        print('act_del_kiho')
+        sel_idx = form.kiho_view.selectionModel().currentIndex()
         if not sel_idx.isValid():
+            print('index not valid')
             return
         sel_itm = form.ki_table_view.model().data(sel_idx, QtCore.Qt.UserRole)
+        print('to remove', sel_itm)
         form.remove_advancement_item(sel_itm.adv)        
