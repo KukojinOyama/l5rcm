@@ -203,7 +203,10 @@ class L5RCMCore(QtGui.QMainWindow):
             if sys.platform == 'win32':
                 return os.path.join(MY_CWD, 'tools', 'pdftk.exe')
             elif sys.platform == 'linux2':
-                return '/usr/bin/pdftk'
+		sys_path = '/usr/bin/pdftk'
+		loc_path = os.path.join(MY_CWD, 'tools', 'pdftk')
+		if os.path.exists(sys_path): return sys_path
+		else: return loc_path
             elif sys.platform == 'darwin':
                 return os.path.join(MY_CWD, 'tools', 'pdftk')
             return None
