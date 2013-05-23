@@ -1,0 +1,2 @@
+#!/bin/bash
+python /opt/l5rcm/l5rcm.py
