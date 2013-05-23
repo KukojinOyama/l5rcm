@@ -1,0 +1,12 @@
+? Aggiungere bottone "Rimuovi" dalla gestione dei pacchetti
+? Aggiungere funzionalità di rimozione pacchetti ( vedi sopra )
+? Dopo qualche secondo dalla partenza il sistema controlla la versione dei pacchetti
+
+? Salvare il personaggio con tutti i dati dentro
+
+----------
+KIHO MESS
+- Add a <StartingKiho count="x"/> optional tag to the School definition XML
+- Add a <Tattoo count="x" allowed="True|False"/> optional tag to the School definition XML
+
+??? Moto Vindicator school has requirements but is not an advanced school
