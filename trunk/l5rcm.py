@@ -1855,12 +1855,7 @@ class L5RMain(L5RCMCore):
             self.update_from_model()
 
     def learn_next_free_kiho(self):
-        #dlg = dialogs.BuyAdvDialog(self.pc, 'kiho', self.dstore, self)
-        #if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
-        #    self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
-        #    print('remaing free kihos', self.pc.get_free_kiho_count())
-        #    self.update_from_model()
-        dlg = dialogs.KihoDialog( form.pc, form.dstore, form )
+        dlg = dialogs.KihoDialog( self.pc, self.dstore, self )
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
             
