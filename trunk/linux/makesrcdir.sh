@@ -23,7 +23,6 @@ mkdir tmp/opt/l5rcm
 mkdir tmp/opt/l5rcm/mime
 mkdir tmp/usr
 mkdir tmp/usr/bin
-#mkdir tmp/usr/menu
 mkdir tmp/usr/share
 mkdir tmp/usr/share/doc
 mkdir tmp/usr/share/doc/l5rcm
@@ -32,6 +31,7 @@ mkdir tmp/usr/share/pixmaps
 tar -vxzf $1.tar.gz -C ./tmp/opt/l5rcm
 
 cp ./l5rcm.png ./tmp/usr/share/pixmaps
+cp ./l5rcmpack.png ./tmp/usr/share/pixmaps
 cp ./l5rcm.desktop ./tmp/usr/share/applications
 cp ./l5rcm ./tmp/usr/bin
 
