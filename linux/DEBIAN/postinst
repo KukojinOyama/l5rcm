@@ -4,7 +4,7 @@
 xdg-mime install /opt/l5rcm/mime/mime-file-l5r.xml 
 xdg-mime install /opt/l5rcm/mime/mime-file-l5rcmpack.xml
 xdg-icon-resource install --context mimetypes --size 64 /usr/share/pixmaps/l5rcm.png application-x-l5r-character
-xdg-icon-resource install --context mimetypes --size 64 /usr/share/pixmaps/l5rcm.png application-x-l5r-pack
+xdg-icon-resource install --context mimetypes --size 128 /usr/share/pixmaps/l5rcmpack.png application-x-l5r-pack
 
 # install .desktop file
 xdg-desktop-menu install --novendor /usr/share/applications/l5rcm.desktop
