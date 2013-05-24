@@ -1,3 +1,0 @@
-?package(l5rcm):needs="X11" section="Applications/Games"\
- title="L5R: CM" command="/usr/bin/l5rcm"\
- hints="Games,GNOME" icon="/usr/share/pixmaps/l5rcm.png"

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# remove mimetypes
+xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5r.xml 
+xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5rcmpack.xml
+xdg-icon-resource uninstall --context mimetypes --size 64 /usr/share/pixmaps/l5rcm.png application-x-l5r-character
+xdg-icon-resource uninstall --context mimetypes --size 64 /usr/share/pixmaps/l5rcm.png application-x-l5r-pack
+
+# uninstall .desktop file
+xdg-desktop-menu uninstall --novendor /usr/share/applications/l5rcm.desktop
