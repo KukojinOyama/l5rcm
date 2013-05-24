@@ -5,8 +5,12 @@ cwd=${PWD}
 rm $1.tar.gz
 rm $1.deb
 
+# compile python files
+python -m compileall -f ../
+
+
 # make source tarball
-tar -vzcf $1.tar.gz --exclude-vcs -X exclude_from_source --exclude-backups --exclude-caches ../
+tar -vzcf $1.tar.gz --exclude-vcs -X exclude_from_binaries --exclude-backups --exclude-caches ../
 
 # remove old directory
 # should ask for root password
@@ -34,7 +38,7 @@ cp ./l5rcm ./tmp/usr/bin
 cp ./*.xml ./tmp/opt/l5rcm/mime
 
 # copyright file
-cp ../debian/copyright ./tmp/usr/share/doc/l5rcm/
+cp ./copyright ./tmp/usr/share/doc/l5rcm/
 
 cp -r ./DEBIAN ./tmp
 rm -rf ./tmp/DEBIAN/.svn
