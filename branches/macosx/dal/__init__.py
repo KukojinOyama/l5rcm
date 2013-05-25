@@ -25,27 +25,12 @@ from perk        import *
 from powers      import *
 from weapon      import *
 from generic     import *
+from requirements import *
 
 import os
 import json
 import xml.etree.ElementTree
 import xml.etree.cElementTree as ET
-
-def read_attribute(xml_element, attribute_name, default_value = None):
-    if attribute_name in xml_element.attrib:
-        return xml_element.attrib[attribute_name]
-    return default_value
-    
-def read_attribute_int(xml_element, attribute_name, default_value = 0):    
-    val = read_attribute(xml_element, attribute_name)
-    return int(val) if val is not None else default_value
-    
-def read_attribute_bool(xml_element, attribute_name, default_value = False):    
-    val = read_attribute(xml_element, attribute_name)
-    return val == 'True' if val is not None else default_value
-
-def read_sub_element_text(xml_element, sub_element_name, default_value = None):
-    return xml_element.find(sub_element_name).text if (xml_element.find(sub_element_name) is not None) else default_value  
     
 class DataManifest(object):
     def __init__(self, d):
@@ -56,7 +41,8 @@ class DataManifest(object):
         self.update_uri   = None
         self.download_uri = None        
         self.authors      = []
-        self.active       = True
+        self.active       = True        
+        self.path         = None
         
         if 'display_name' in d:
             self.display_name = d['display_name']
@@ -78,7 +64,7 @@ class Data(object):
     def rebuild(self, data_dirs = [], blacklist = []):
         self.data_dirs = data_dirs
 
-        self.blacklist = blacklist       
+        self.blacklist = blacklist or []
         self.packs     = []
         
         self.clans     = []
@@ -132,11 +118,12 @@ class Data(object):
                         dm = DataManifest(json.load(manifest_fp))
                         if dm.id in self.blacklist:
                             dm.active = False
+                        dm.path = path
                         self.packs.append(dm)                    
             except Exception as ex:
                 print(ex)                
                                
-            if self.blacklist and dirn in self.blacklist:
+            if dirn in self.blacklist:
                 print('{0} is blacklisted'.format(dirn))
                 continue
                 

@@ -19,19 +19,21 @@
 import os
 import json
 import zipfile
-import shutil 
+import shutil
+
+CM_VERSION = None
 
 class ManifestNotFound(Exception):
     def __init__(self, msg):
         super(ManifestNotFound, self).__init__(msg)
-        
+
 class InvalidDataPack(Exception):
     def __init__(self, msg):
-        super(InvalidDataPack, self).__init__(msg)        
-        
+        super(InvalidDataPack, self).__init__(msg)
+
 class VersionMismatch(Exception):
     def __init__(self, msg):
-        super(VersionMismatch, self).__init__(msg)           
+        super(VersionMismatch, self).__init__(msg)
 
 def cmp_versions(v1, v2):
     t1 = v1.split('.')
@@ -47,20 +49,21 @@ def cmp_versions(v1, v2):
         i+=1
         if i == e: break
     return 0
-        
+
 class DataPack(object):
 
-    def __init__(self, archive_path):    
-        self.authors      = []        
+    def __init__(self, archive_path):
+        self.authors      = []
         self.id           = None
         self.dsp_name     = None
         self.language     = None
         self.version      = None
         self.update_uri   = None
         self.download_uri = None
-        
+        self.min_cm_ver   = None
+
         self.archive_path = archive_path
-        
+
         # look for "manifest" file in root directory
         # no manifest file == no valid archive
         # read manifest file and extract:
@@ -70,14 +73,14 @@ class DataPack(object):
         # other fields:
         # author
         # display_name
-               
+
         with zipfile.ZipFile(archive_path, 'r') as dz:
             try:
                 # search manifest
                 manifest_info = dz.getinfo('manifest')
                 manifest_fp   = dz.open(manifest_info)
                 manifest_js   = json.load(manifest_fp)
-                
+
                 self.id       = manifest_js['id']
                 if 'display_name' in manifest_js:
                     self.dsp_name = manifest_js['display_name']
@@ -90,69 +93,89 @@ class DataPack(object):
                 if 'update-uri' in manifest_js:
                     self.update_uri = manifest_js['update-uri']
                 if 'download-uri' in manifest_js:
-                    self.download_uri = manifest_js['download-uri']                    
+                    self.download_uri = manifest_js['download-uri']
+                if 'min-cm-version' in manifest_js:
+                    self.min_cm_ver = manifest_js['min-cm-version']
             except Exception as e:
                 print('manifest not found!')
                 print(e.message)
                 raise ManifestNotFound('Not a valid Data pack file.')
-    
-    def export_to(self, data_path):        
+
+    def export_to(self, data_path):
         if not self.good():
             raise InvalidDataPack('Cannot extract. Not a valid Data pack file.')
-            
+
+        if not self.check_cm_version():
+            raise VersionMismatch( 'Cannot install. This datapack require L5R: CM v{0} or newer.'.format(self.min_cm_ver) )
+
         data_path = os.path.join(data_path, self.id)
-        
+
         if not os.path.exists(data_path):
             os.makedirs(data_path)
-            
+
         dest_dir = os.path.join(data_path, self.id)
         if os.path.exists(dest_dir):
             if self.is_older_or_same(data_path):
                 try:
                     shutil.rmtree(dest_dir, ignore_errors=True)
                 except:
-                    print("cannot delete old data pack")                               
+                    print("cannot delete old data pack")
             else:
                 raise VersionMismatch("A new version of this Data pack is already installed.")
-        try:       
+        try:
             with zipfile.ZipFile(self.archive_path, 'r') as dz:
                 dz.extractall(data_path)
         except:
             raise InvalidDataPack('Cannot extract. Not a valid Data pack file.')
-    
+
     def is_older_or_same(self, src_dir):
         try:
             with open( os.path.join(src_dir, 'manifest'), 'rt' ) as fp:
                 js = json.load(fp)
-                #print('datapack version {0} vs {1}'.format(self.version, js['version']))
-                #print('result', cmp_versions(self.version, js['version']))
+                print('{0} datapack version {1} vs {2}'.format(self.id, self.version, js['version']))                
                 return cmp_versions(self.version, js['version']) >= 0
         except Exception as e:
             return True
+
+    def check_cm_version(self):
+        if self.min_cm_ver is None: return True
+        try:
+            return cmp_versions(self.min_cm_ver, CM_VERSION) <= 0
+        except:
+            return True
+
     def good(self):
         return self.id is not None
-                
+
     def __str__(self):
         return self.dsp_name or self.id
-        
+
     def __unicode__(self):
         return self.dsp_name or self.id
-        
+
     def __eq__(self, obj):
         return obj and hasattr(obj, 'id') and obj.id == self.id
-        
+
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+
+    def __hash__(self):
+        if hasattr(obj, 'id'):
+            return obj.id.__hash__()
+        return 0
+
 def test():
     data = 'test.zip'
     importer = DataPack(data)
     print(importer.good())
-    
+
     importer.export_to('./test_out')
-    
-def test2():    
+
+def test2():
     v1 = '1.9.1.0'
     v2 = '1.9.1'
     print(cmp_versions(v1,v2))
-    
+
 if __name__ == '__main__':
     #test()
     test2()

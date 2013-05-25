@@ -100,12 +100,18 @@ class KihoTableViewModel(QtCore.QAbstractTableModel):
             itm.adv      = ki_id
             itm.name     = ki.name
             itm.mastery  = ki.mastery
-            itm.element  = ki.element
+            try:
+                itm.element = dal.query.get_ring(self.dstore, ki.element).text
+            except:
+                itm.element = ki.element
             itm.text     = ki.desc
         else:
             print('cannot find kiho: {0}'.format(ki_id.kiho))
+            
+        if ki.type == 'tattoo':
+            itm.mastery = "N/A"
+            itm.element = "Tattoo"
         
-        # TODO: translate element
         return itm
 
     def update_from_model(self, model):

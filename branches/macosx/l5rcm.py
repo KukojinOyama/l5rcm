@@ -104,7 +104,7 @@ class L5RMain(L5RCMCore):
     num_tabs           = 10
     
     def __init__(self, locale = None, parent = None):
-        super(L5RMain, self).__init__(locale)
+        super(L5RMain, self).__init__(locale, parent)
 
         # character file save path
         self.save_path = ''        
@@ -212,11 +212,22 @@ class L5RMain(L5RCMCore):
             self.tx_pc_exp    = QtGui.QLineEdit(self)
             self.tx_pc_ins    = QtGui.QLineEdit(self)
 
-            # 1st column
+            # 1st column            
+            fr_school = QtGui.QFrame(self)
+            hb_school = QtGui.QHBoxLayout(fr_school)
+            hb_school.setContentsMargins(0,0,0,0)            
+            lb_school = QtGui.QLabel(self.tr("School"), self)
+            bt_lock   = QtGui.QToolButton( self )
+            bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
+            hb_school.addWidget(lb_school)
+            hb_school.addWidget(bt_lock)
+            
             grid.addWidget( QtGui.QLabel(self.tr("Name"  ), self), 0, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Clan"  ), self), 1, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Family"), self), 2, 0 )
-            grid.addWidget( QtGui.QLabel(self.tr("School"), self), 3, 0 )
+            grid.addWidget( fr_school, 3, 0 )
+            
+            self.bt_school_lock = bt_lock
 
             # 3rd column
             grid.addWidget( QtGui.QLabel(self.tr("Rank")       , self), 0, 3 )
@@ -512,7 +523,7 @@ class L5RMain(L5RCMCore):
             views_.append(view)
         return mfr, views_
 
-    def _build_spell_frame(self, model, layout = None):
+    def _build_spell_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Spells"), self)
         hbox   = QtGui.QHBoxLayout(grp)
 
@@ -548,7 +559,7 @@ class L5RMain(L5RCMCore):
             return vtb
 
         # View
-        view  = QtGui.QTableView(self)
+        view  = QtGui.QTableView(fr_)
         view.setSizePolicy( QtGui.QSizePolicy.Expanding,
                               QtGui.QSizePolicy.Expanding )
         view.setSortingEnabled(True)
@@ -582,11 +593,11 @@ class L5RMain(L5RCMCore):
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view
 
-    def _build_tech_frame(self, model, layout = None):
+    def _build_tech_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Techs"), self)
         vbox   = QtGui.QVBoxLayout(grp)
 
@@ -596,11 +607,11 @@ class L5RMain(L5RCMCore):
         view.setItemDelegate(models.TechItemDelegate(self))
         vbox.addWidget(view)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view
         
-    def _build_kata_frame(self, model, layout = None):
+    def _build_kata_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Kata"), self)
         hbox   = QtGui.QHBoxLayout(grp)
 
@@ -646,11 +657,11 @@ class L5RMain(L5RCMCore):
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view
 
-    def _build_kiho_frame(self, model, layout = None):
+    def _build_kiho_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Kiho"), self)
         hbox   = QtGui.QHBoxLayout(grp)
 
@@ -663,14 +674,19 @@ class L5RMain(L5RCMCore):
             vtb = widgets.VerticalToolBar(self)
             vtb.addStretch()
 
-            cb_buy    = self.sink2.act_buy_kiho
-            cb_remove = self.sink2.act_del_kiho
+            cb_buy        = self.sink2.act_buy_kiho
+            cb_remove     = self.sink2.act_del_kiho
+            cb_buy_tattoo = self.sink2.act_buy_tattoo
 
-            self.add_kiho_bt = vtb.addButton(
+            self.add_kiho_bt   = vtb.addButton(
                                 QtGui.QIcon(get_icon_path('buy',(16,16))),
                                 self.tr("Add new Kiho"), cb_buy)
+                                
+            self.add_tattoo_bt = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('buy',(16,16))),
+                                self.tr("Add new Tattoo"), cb_buy_tattoo)                                
 
-            self.del_kiho_bt  = vtb.addButton(
+            self.del_kiho_bt   = vtb.addButton(
                                 QtGui.QIcon(get_icon_path('minus',(16,16))),
                                 self.tr("Remove Kiho"), cb_remove)
 
@@ -696,7 +712,7 @@ class L5RMain(L5RCMCore):
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
 
-        if layout: layout.addWidget(grp)
+        layout.addWidget(grp)
 
         return view            
 
@@ -766,8 +782,8 @@ class L5RMain(L5RCMCore):
         vbox   = QtGui.QVBoxLayout(frame_)
         #views_ = []
 
-        self._build_kata_frame(ka_sort_model     , vbox)
-        self._build_kiho_frame(ki_sort_model, vbox)
+        self.kata_view = self._build_kata_frame(ka_sort_model     , vbox)
+        self.kiho_view = self._build_kiho_frame(ki_sort_model     , vbox)
 
         self.tabs.addTab(frame_, self.tr("Powers"))        
 
@@ -1091,7 +1107,7 @@ class L5RMain(L5RCMCore):
         hbox.setSpacing  (30)
 
         logo = QtGui.QLabel(self)
-        logo.setPixmap(QtGui.QPixmap(get_app_icon_path(( 64,64))))
+        logo.setPixmap(QtGui.QPixmap(get_app_icon_path((64,64))))
         hbox.addWidget(logo, 0, QtCore.Qt.AlignTop)
 
         vbox = QtGui.QVBoxLayout(mfr)
@@ -1387,6 +1403,8 @@ class L5RMain(L5RCMCore):
                                       QtCore.SLOT("on_trait_increase(const QString &)"))
 
         self.ic_act_grp.triggered.connect(self.on_change_insight_calculation)
+        
+        self.bt_school_lock.clicked.connect( self.sink1.on_unlock_school_act )
 
     def show_nicebar(self, wdgs):
         self.nicebar = QtGui.QFrame(self)
@@ -1445,6 +1463,16 @@ class L5RMain(L5RCMCore):
         if ( self.increase_void() == CMErrors.NOT_ENOUGH_XP ):
             self.not_enough_xp_advise(self)
 
+    def do_buy_kata(self, kata):
+        '''attempt to buy a new kata'''
+        if ( self.buy_kata(kata) == CMErrors.NOT_ENOUGH_XP ):
+            self.not_enough_xp_advise(self)
+            
+    def do_buy_kiho(self, kiho):
+        '''attempt to buy a new kiho'''
+        if ( self.buy_kiho(kiho) == CMErrors.NOT_ENOUGH_XP ):
+            self.not_enough_xp_advise(self)            
+            
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
         #self.cb_pc_family.clear()
@@ -1826,10 +1854,13 @@ class L5RMain(L5RCMCore):
             self.update_from_model()
 
     def learn_next_free_kiho(self):
-        dlg = dialogs.BuyAdvDialog(self.pc, 'kiho', self.dstore, self)
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
-            self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
-            print('remaing free kihos', self.pc.get_free_kiho_count())
+        #dlg = dialogs.BuyAdvDialog(self.pc, 'kiho', self.dstore, self)
+        #if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+        #    self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
+        #    print('remaing free kihos', self.pc.get_free_kiho_count())
+        #    self.update_from_model()
+        dlg = dialogs.KihoDialog( form.pc, form.dstore, form )
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
             
     def show_advance_rank_dlg(self):
@@ -2421,6 +2452,7 @@ def dump_slots(obj, out_file):
 OPEN_CMD_SWITCH   = '--open'
 IMPORT_CMD_SWITCH = '--import'
 DATA_CHECK_SWITCH = '--datacheck'
+DATA_REPT_SWITCH  = '--datareport'
 
 def main():
     app = QtGui.QApplication(sys.argv)
@@ -2429,7 +2461,13 @@ def main():
         import dal_check
         dc = dal_check.DataCheck()
         dc.check()
-        return    
+        return
+    
+    if DATA_REPT_SWITCH in sys.argv:
+        import dal.report
+        dr = dal.report.ReportBuilder('./data_packs', './data_report')
+        dr.build()
+        return
 
     QtCore.QCoreApplication.setApplicationName(APP_NAME)
     QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
