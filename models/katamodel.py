@@ -100,7 +100,8 @@ class KataTableViewModel(QtCore.QAbstractTableModel):
             itm.adv      = ka_id
             itm.name     = ka.name
             itm.mastery  = ka.mastery
-            itm.element  = ka.element
+            #itm.element  = ka.element
+            itm.element  = dal.query.get_ring(self.dstore, ka.element).text
             itm.text     = ka.desc
         else:
             print('cannot find kata: {0}'.format(ka_id.kata))

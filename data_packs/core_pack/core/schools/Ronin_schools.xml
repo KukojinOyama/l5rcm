@@ -63,10 +63,10 @@
     <Skills>
       <Skill id="battle" rank="1"/>
       <Skill id="defense" rank="1"/>
-      <Skill id="horsemanship" rank="1"/>
-      <Skill id="hunting" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill id="investigation" rank="1"/>
       <Skill id="kenjutsu" rank="1"/>
-      <Skill id="kyujutsu" rank="1"/>
+      <Skill id="spears" rank="1"/>
       <PlayerChoose rank="1">
         <Wildcard>any</Wildcard>
       </PlayerChoose>

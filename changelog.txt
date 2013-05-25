@@ -1,3 +1,19 @@
+=== L5RCM v3.8.0 ===
+* [NEW] New Kata dialog
+* [NEW] New Kiho dialog
+* [NEW] New Tattoo dialog
+* [NEW] Add "Buy Tattoo" button
+* [NEW] Minimum version check on datapacks
+* [FIX] Icons mess on KDE
+
+
+=== CORE PACK 3.7 ===
+* [FIX] Ronin Tawagotos Army - skills are wrong - see issue #178
+
+=== GREAT CLAN PACK 1.1 ===
+* [FIX] Added missing family: Ninube of Spider Clan ( +1 Reflexes ) - see issue #177
+* [FIX] Fix Ninube Shugenja School ( +1 Awareness instead of +1 Reflexes ) - see issue #177
+
 === L5RCM v3.7.1 ===
 * [FIX] Regression #171 Unable to add weapons to characters
 * [FIX] [DATAPACK] #164 Knives and yari not throwable
