@@ -17,3 +17,9 @@ import
 dist
 debian
 build
+makesrc.sh
+tools
+TODO.txt
+pylint.*
+linux
+data_packs
