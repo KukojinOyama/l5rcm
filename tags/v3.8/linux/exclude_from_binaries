@@ -1,5 +1,5 @@
 .svn
-*.pyc
+*.py
 *.7z
 *.log
 *.tar
@@ -25,5 +25,4 @@ data_packs
 linux
 TODO.txt
 templates
-debian
-DEBIAN
+
