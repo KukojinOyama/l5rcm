@@ -541,7 +541,7 @@ class L5RCMCore(QtGui.QMainWindow):
         
         # monks can get free kihos
         if self.pc.get_free_kiho_count() > 0:
-            self.adv.cost = 0
+            adv.cost = 0
             self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
             print('remaing free kihos', self.pc.get_free_kiho_count())
             
