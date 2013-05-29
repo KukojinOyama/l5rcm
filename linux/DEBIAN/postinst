@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # install mimetypes
 xdg-mime install /opt/l5rcm/mime/mime-file-l5r.xml 
 xdg-mime install /opt/l5rcm/mime/mime-file-l5rcmpack.xml
@@ -8,3 +10,6 @@ xdg-icon-resource install --context mimetypes --size 128 /usr/share/pixmaps/l5rc
 
 # install .desktop file
 xdg-desktop-menu install --novendor /usr/share/applications/l5rcm.desktop
+
+# compile python files
+python -m compileall -f /opt/l5rcm/

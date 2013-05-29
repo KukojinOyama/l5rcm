@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # remove mimetypes
 xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5r.xml 
 xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5rcmpack.xml
@@ -8,3 +10,6 @@ xdg-icon-resource uninstall --context mimetypes --size 128 /usr/share/pixmaps/l5
 
 # uninstall .desktop file
 xdg-desktop-menu uninstall --novendor /usr/share/applications/l5rcm.desktop
+
+# delete pyc
+find /opt/l5rcm/ | grep .pyc | xargs rm

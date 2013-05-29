@@ -1,4 +1,3 @@
-del pylint_*.txt
 call c:\python27\scripts\pylint -E --rcfile pylint.rc l5rcm.py
 call c:\python27\scripts\pylint -E --rcfile pylint.rc l5rcmcore.py
 call c:\python27\scripts\pylint -E --rcfile pylint.rc osutil.py
