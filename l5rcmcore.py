@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
@@ -36,7 +35,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.8.1'
+APP_VERSION = '3.8.2'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
