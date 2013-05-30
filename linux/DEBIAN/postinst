@@ -16,7 +16,7 @@ fi
 
 # install .desktop file
 if type xdg-desktop-menu > /dev/null; then
-	xdg-desktop-menu install --novendor /usr/share/applications/l5rcm.desktop
+	xdg-desktop-menu install --novendor /usr/share/applications/l5rcm.desktop || true
 fi	
 
 # compile python files
