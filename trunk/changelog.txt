@@ -1,3 +1,11 @@
+=== CORE PACK 3.8 ===
+* [FIX] removed "Spears" skill from Usagi Bushi School
+* [NEW] added Usagi Bushi School ( After Clan War ) with Lore: Kolat instead of Lore: Maho
+
+=== L5RCM v3.8.2 ===
+* [FIX] More robust debian package
+* [FIX] Editing Advantages and Disadvantages works now ( you can edit notes and cost )
+
 === L5RCM v3.8.0 ===
 * [NEW] New Kata dialog
 * [NEW] New Kiho dialog
