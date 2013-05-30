@@ -1,10 +1,23 @@
 #!/bin/bash
 
+set -e
+
 # remove mimetypes
-xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5r.xml 
-xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5rcmpack.xml
-xdg-icon-resource uninstall --context mimetypes --size 64 /usr/share/pixmaps/l5rcm.png application-x-l5r-character
-xdg-icon-resource uninstall --context mimetypes --size 128 /usr/share/pixmaps/l5rcmpack.png application-x-l5r-pack
+if type xdg-mime > /dev/null; then	
+	xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5r.xml 
+	xdg-mime uninstall /opt/l5rcm/mime/mime-file-l5rcmpack.xml
+fi
+
+# remove icon resources
+if type xdg-icon-resource > /dev/null; then	
+	xdg-icon-resource uninstall --novendor --context mimetypes --size 64 /usr/share/pixmaps/l5rcm.png x-l5r-character
+	xdg-icon-resource uninstall --novendor --context mimetypes --size 128 /usr/share/pixmaps/l5rcmpack.png x-l5r-pack
+fi	
 
 # uninstall .desktop file
-xdg-desktop-menu uninstall --novendor /usr/share/applications/l5rcm.desktop
+if type xdg-desktop-menu > /dev/null; then
+	xdg-desktop-menu uninstall --novendor /usr/share/applications/l5rcm.desktop || true
+fi	
+
+# delete pyc
+find /opt/l5rcm/ | grep .pyc | xargs rm

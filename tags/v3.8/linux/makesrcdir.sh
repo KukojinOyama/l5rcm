@@ -5,12 +5,11 @@ cwd=${PWD}
 rm $1.tar.gz
 rm $1.deb
 
-# compile python files
-python -m compileall -f ../
-
+# remove backups
+find ./ | grep '~' | xargs rm
 
 # make source tarball
-tar -vzcf $1.tar.gz --exclude-vcs -X exclude_from_binaries --exclude-backups --exclude-caches ../
+tar -vzcf $1.tar.gz --exclude-vcs -X exclude_from_tarball --exclude-backups --exclude-caches ../
 
 # remove old directory
 # should ask for root password
@@ -24,6 +23,8 @@ mkdir tmp/opt/l5rcm/mime
 mkdir tmp/usr
 mkdir tmp/usr/bin
 mkdir tmp/usr/share
+mkdir tmp/usr/share/man
+mkdir tmp/usr/share/man/man1
 mkdir tmp/usr/share/doc
 mkdir tmp/usr/share/doc/l5rcm
 mkdir tmp/usr/share/applications
@@ -35,10 +36,19 @@ cp ./l5rcmpack.png ./tmp/usr/share/pixmaps
 cp ./l5rcm.desktop ./tmp/usr/share/applications
 cp ./l5rcm ./tmp/usr/bin
 
+# man page
+rst2man ./l5rcm.rst ./tmp/usr/share/man/man1/l5rcm.1
+gzip -9 ./tmp/usr/share/man/man1/l5rcm.1
+
+# mime files
 cp ./*.xml ./tmp/opt/l5rcm/mime
 
 # copyright file
 cp ./copyright ./tmp/usr/share/doc/l5rcm/
+
+# changelog
+cp ./changelog ./tmp/usr/share/doc/l5rcm/changelog.Debian
+gzip -9 ./tmp/usr/share/doc/l5rcm/changelog.Debian
 
 cp -r ./DEBIAN ./tmp
 rm -rf ./tmp/DEBIAN/.svn

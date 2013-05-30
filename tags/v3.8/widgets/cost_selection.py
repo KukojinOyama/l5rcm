@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -114,6 +113,9 @@ class CostSelection(QtGui.QWidget):
         
     def get_manual_cost(self):
         return self.manual
+
+    def set_manual_cost(self, value):
+        self.tx_manual.setText( str(value) )
         
     def set_manual_only(self, flag):
         self.rb_manual.setChecked(flag)

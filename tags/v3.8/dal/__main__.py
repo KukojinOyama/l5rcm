@@ -1,4 +1,3 @@
-from __init__ import Data
 
 dal = Data("share/l5rcm/data")
 print('# clans:    {0}'.format(len(dal.clans   )))
