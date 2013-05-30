@@ -122,16 +122,26 @@ class BuyPerkDialog(QtGui.QDialog):
         self.cb_rank   .blockSignals(flag)
         self.cb_perk   .blockSignals(flag)
         self.cb_subtype.blockSignals(flag)
+
+        self.cost_widget.set_manual_only(flag)
         
-    def load_item(self, perk):
-        self.item = perk.adv
+    def load_item(self, perk):                
         self.cb_perk.clear()
-        self.cb_perk.addItem(perk.name, perk.adv.perk)        
+
+        perk_id  = perk.adv.perk
+        perk_itm = dal.query.get_merit(self.dstore, perk_id) or dal.query.get_flaw(self.dstore, perk_id)
+               
+        self.cb_perk.addItem(perk.name, perk_itm)        
         self.cb_perk.setCurrentIndex(0)
         
-        self.tx_notes.setPlainText(perk.adv.extra)
+        self.item = perk.adv
+        
+        self.cost_widget.set_manual_cost( abs(self.item.cost) )
+        self.tx_notes.setPlainText(self.item.extra)
         
     def on_subtype_select(self, text = ''):
+        if self.edit_mode: return
+
         self.item = None
         self.cb_perk.clear()
         
@@ -148,6 +158,8 @@ class BuyPerkDialog(QtGui.QDialog):
             self.cb_perk.addItem(p.name, p)        
         
     def on_perk_select(self, text = ''):
+        if self.edit_mode: return
+
         self.item = None
         self.cb_rank.clear()
     
@@ -195,8 +207,11 @@ class BuyPerkDialog(QtGui.QDialog):
         self.cost_widget.set_suggested_cost(self.item.cost)
         
                 
-    def update_perk(self):
+    def update_perk(self):       
         self.item.extra = self.tx_notes.toPlainText()
+        self.item.cost  = abs(self.cost_widget.get_cost())  
+        if self.tag == 'flaw':
+            self.item.cost *= -1
         
     def on_accept(self):
         if self.edit_mode:
