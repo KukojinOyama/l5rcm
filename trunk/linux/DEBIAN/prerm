@@ -16,7 +16,7 @@ fi
 
 # uninstall .desktop file
 if type xdg-desktop-menu > /dev/null; then
-	xdg-desktop-menu uninstall --novendor /usr/share/applications/l5rcm.desktop
+	xdg-desktop-menu uninstall --novendor /usr/share/applications/l5rcm.desktop || true
 fi	
 
 # delete pyc
