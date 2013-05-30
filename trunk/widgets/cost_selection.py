@@ -113,6 +113,9 @@ class CostSelection(QtGui.QWidget):
         
     def get_manual_cost(self):
         return self.manual
+
+    def set_manual_cost(self, value):
+        self.tx_manual.setText( str(value) )
         
     def set_manual_only(self, flag):
         self.rb_manual.setChecked(flag)
