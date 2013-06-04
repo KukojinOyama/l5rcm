@@ -5,3 +5,4 @@ cd $1
 zip -r -1 $2.l5rcmpack ./* -x *.svn*
 mv $2.l5rcmpack ../
 cd $cwd
+
