@@ -1,4 +1,3 @@
-<<<<<<< .working
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
@@ -26,7 +25,7 @@ setup(
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],
-)=======
+)
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -54,4 +53,3 @@ setup(
     ],
     options={"py2exe": {"includes": ["PySide.QtGui"]}},
     )
->>>>>>> .merge-right.r470
