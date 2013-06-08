@@ -5,6 +5,7 @@
 *.tar
 *.bat
 *.pro
+*.sh
 pylint*
 i18n
 banner.png
@@ -25,5 +26,5 @@ data_packs
 linux
 TODO.txt
 templates
-debian
-DEBIAN
+LICENSE.GPL3
+

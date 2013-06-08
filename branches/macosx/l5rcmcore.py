@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
@@ -36,7 +35,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.8.0'
+APP_VERSION = '3.8.2'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -541,7 +540,7 @@ class L5RCMCore(QtGui.QMainWindow):
         
         # monks can get free kihos
         if self.pc.get_free_kiho_count() > 0:
-            self.adv.cost = 0
+            adv.cost = 0
             self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
             print('remaing free kihos', self.pc.get_free_kiho_count())
             
