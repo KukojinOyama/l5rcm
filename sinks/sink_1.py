@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -107,15 +106,7 @@ class Sink1(QtCore.QObject):
             adv = form.pc.advans.pop()            
             form.pc.recalc_ranks()
             form.update_from_model()
-            
-    def act_buy_advancement(self):
-        form = self.form
-        
-        dlg = dialogs.BuyAdvDialog(form.pc, self.sender().property('tag'),
-                                   form.dstore, form)
-        dlg.exec_()
-        form.update_from_model()
-        
+                    
     def act_buy_perk(self):
         form = self.form
         

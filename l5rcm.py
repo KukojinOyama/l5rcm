@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
@@ -27,6 +26,7 @@ import autoupdate
 import sinks
 import dal
 import dal.query
+import mimetypes
 
 from PySide import QtGui, QtCore
 #from models.chmodel import models.ATTRIBS
@@ -1854,12 +1854,7 @@ class L5RMain(L5RCMCore):
             self.update_from_model()
 
     def learn_next_free_kiho(self):
-        #dlg = dialogs.BuyAdvDialog(self.pc, 'kiho', self.dstore, self)
-        #if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
-        #    self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
-        #    print('remaing free kihos', self.pc.get_free_kiho_count())
-        #    self.update_from_model()
-        dlg = dialogs.KihoDialog( form.pc, form.dstore, form )
+        dlg = dialogs.KihoDialog( self.pc, self.dstore, self )
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
             
@@ -2454,8 +2449,15 @@ IMPORT_CMD_SWITCH = '--import'
 DATA_CHECK_SWITCH = '--datacheck'
 DATA_REPT_SWITCH  = '--datareport'
 
+MIME_L5R_CHAR     = "applications/x-l5r-character"
+MIME_L5R_PACK     = "applications/x-l5r-pack"
+
 def main():
     app = QtGui.QApplication(sys.argv)
+
+    # setup mimetypes
+    mimetypes.add_type(MIME_L5R_CHAR, ".l5r")
+    mimetypes.add_type(MIME_L5R_PACK, ".l5rcmpack")
     
     if DATA_CHECK_SWITCH in sys.argv:
         import dal_check
@@ -2524,6 +2526,13 @@ def main():
         elif IMPORT_CMD_SWITCH in sys.argv:
             imf  = sys.argv.index(IMPORT_CMD_SWITCH)
             l5rcm.import_data_pack(sys.argv[imf+1])
+        else:
+            # check mimetype
+            mime = mimetypes.guess_type(sys.argv[1])
+            if mime[0] == MIME_L5R_CHAR:
+                l5rcm.load_character_from(sys.argv[1])
+            elif mime[0] == MIME_L5R_PACK:
+                l5rcm.import_data_pack(sys.argv[1])
             
     # alert if not datapacks are installed
     l5rcm.check_datapacks()          
