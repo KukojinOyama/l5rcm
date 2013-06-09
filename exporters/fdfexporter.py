@@ -421,4 +421,38 @@ class FDFExporterMonk(FDFExporter):
         except Exception as e:
             print( repr(e) )
             return None
+
+class FDFExporterWeapons(FDFExporter):
+    def __init__(self):
+        super(FDFExporterWeapons, self).__init__()
         
+    def export_body(self, io):
+        m = self.model
+        f = self.form
+        fields = {}
+        # WEAPONS
+        melee_weapons = f.melee_view_model .items
+        range_weapons = f.ranged_view_model.items
+        wl = zigzag(melee_weapons, range_weapons)
+        
+        # start from 3
+        if len(wl) > 2:
+            count = min(4, len(wl)-2)
+            j = 0
+            for i in xrange(3, count+3):
+                weap = wl[i-1]
+                fields['WEAPON.TYPE.%d'  % j] = weap.name
+                if weap.base_atk != weap.max_atk:
+                    fields['WEAPON.ATK.%d'   % j] = weap.base_atk + "/" + weap.max_atk
+                else:
+                    fields['WEAPON.ATK.%d'   % j] = weap.base_atk
+                if weap.base_dmg != weap.max_dmg:
+                    fields['WEAPON.DMG.%d'   % j] = weap.base_dmg + "/" + weap.max_dmg
+                else:
+                    fields['WEAPON.DMG.%d'   % j] = weap.base_dmg                
+                fields['WEAPON.NOTES.%d' % j] = weap.desc                
+                j+=1
+            
+        # EXPORT FIELDS    
+        for k in fields.iterkeys():
+            self.export_field(k, fields[k], io)              
