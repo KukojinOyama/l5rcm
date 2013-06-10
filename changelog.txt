@@ -1,3 +1,6 @@
+=== CORE PACK 3.9 ===
+* [FIX] add missing "Perform: Storytelling" skill to Suzume Bushi School of the Sparrow clan. Issue #185
+
 === CORE PACK 3.8 ===
 * [FIX] removed "Spears" skill from Usagi Bushi School
 * [NEW] added Usagi Bushi School ( After Clan War ) with Lore: Kolat instead of Lore: Maho

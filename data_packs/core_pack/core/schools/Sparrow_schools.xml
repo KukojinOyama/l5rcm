@@ -12,6 +12,7 @@
       <Skill rank="1" id="kenjutsu" emphases="Katana"/>
       <Skill id="lore_history" rank="1"/>
       <Skill id="lore_theology" rank="1"/>
+      <Skill id="perform_storytelling" rank="1"/>
       <PlayerChoose rank="1">
         <Wildcard>any</Wildcard>
       </PlayerChoose>
