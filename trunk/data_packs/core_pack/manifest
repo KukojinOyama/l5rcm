@@ -3,7 +3,7 @@
 	"display_name": "Core book",
 	"language": "en_US",
 	"authors": ["Daniele Simonetti"],
-	"version": "3.8",
+	"version": "3.9",
 	"update-uri": "",
 	"download-uri": "",
 	"min-cm-version": "3.8"
