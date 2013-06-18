@@ -431,27 +431,27 @@ class FDFExporterWeapons(FDFExporter):
         f = self.form
         fields = {}
         # WEAPONS
-        melee_weapons = f.melee_view_model .items
-        range_weapons = f.ranged_view_model.items
-        wl = zigzag(melee_weapons, range_weapons)
         
-        # start from 3
-        if len(wl) > 2:
-            count = min(4, len(wl)-2)
-            j = 0
-            for i in xrange(3, count+3):
-                weap = wl[i-1]
-                fields['WEAPON.TYPE.%d'  % j] = weap.name
-                if weap.base_atk != weap.max_atk:
-                    fields['WEAPON.ATK.%d'   % j] = weap.base_atk + "/" + weap.max_atk
-                else:
-                    fields['WEAPON.ATK.%d'   % j] = weap.base_atk
-                if weap.base_dmg != weap.max_dmg:
-                    fields['WEAPON.DMG.%d'   % j] = weap.base_dmg + "/" + weap.max_dmg
-                else:
-                    fields['WEAPON.DMG.%d'   % j] = weap.base_dmg                
-                fields['WEAPON.NOTES.%d' % j] = weap.desc                
-                j+=1
+        count = min(10, len(m.get_weapons()))
+        j = 0
+        
+        for weap in m.get_weapons()[0:count]:         
+            weap.base_atk = rules.format_rtk_t(rules.calculate_base_attack_roll(m, weap))
+            weap.max_atk  = rules.format_rtk_t(rules.calculate_mod_attack_roll (m, weap))
+            weap.base_dmg = rules.format_rtk_t(rules.calculate_base_damage_roll(m, weap))
+            weap.max_dmg  = rules.format_rtk_t(rules.calculate_mod_damage_roll (m, weap))     
+            
+            fields['WEAPON.TYPE.%d'  % j] = weap.name
+            if weap.base_atk != weap.max_atk:
+                fields['WEAPON.ATK.%d'   % j] = weap.base_atk + "/" + weap.max_atk
+            else:
+                fields['WEAPON.ATK.%d'   % j] = weap.base_atk
+            if weap.base_dmg != weap.max_dmg:
+                fields['WEAPON.DMG.%d'   % j] = weap.base_dmg + "/" + weap.max_dmg
+            else:
+                fields['WEAPON.DMG.%d'   % j] = weap.base_dmg                
+            fields['WEAPON.NOTES.%d' % j] = weap.desc                
+            j+=1
             
         # EXPORT FIELDS    
         for k in fields.iterkeys():
