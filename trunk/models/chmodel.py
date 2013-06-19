@@ -651,7 +651,7 @@ class AdvancedPcModel(BasePcModel):
                     count -= 1
                 if count <= 0:
                     break
-            print 'now i got %s spells' % len(self.get_spells())
+            print('now i got {} spells'.format(len(self.get_spells())))
             
     def remove_spell(self, spell_id):
         for s in self.schools:

@@ -192,37 +192,49 @@ class Sink1(QtCore.QObject):
             form.load_schools(form.pc.clan)
         form.cb_pc_school.setCurrentIndex(0)
 
-    def on_toggle_advans_act(self, flag):
+    def warn_about_refund(self):
         form = self.form
+        settings = QtCore.QSettings()
         
-        if flag == False:
-            result = QtGui.QMessageBox.warning(form, "Advancements unlock",
-                "Unlocking the advancements will permits you to Undo any"
-                "advancement with no specific order.\n"
-                "This may lead to incoerence and may permit \"cheating\".\n"
-                "Continue anyway?",
-                QtGui.QMessageBox.StandardButton.Yes or QtGui.QMessageBox.StandardButton.No,
-                QtGui.QMessageBox.StandardButton.No)
-            if result == QtGui.QMessageBox.StandardButton.Yes:
-                form.lock_advancements = False
-        else:
-            form.lock_advancements = True
+        if settings.value('warn_about_refund', 'true') == 'false':
+            return True
             
+        msgBox = QtGui.QMessageBox(form)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(self.tr("Advancements refund."))
+        msgBox.setInformativeText(self.tr(  
+            "If this advancement is required from other ones\n"
+            "removing it might lean to incoherences in your character.\n"
+            "Continue anyway?"))
+            
+        do_not_prompt_again = QtGui.QCheckBox(self.tr("Do not prompt again"), msgBox)
+        do_not_prompt_again.blockSignals(True) # PREVENT MSGBOX TO CLOSE ON CLICK
+        msgBox.addButton(QtGui.QMessageBox.Yes)
+        msgBox.addButton(QtGui.QMessageBox.No)
+        msgBox.addButton(do_not_prompt_again, QtGui.QMessageBox.ActionRole)
+        msgBox.setDefaultButton(QtGui.QMessageBox.No)
+        result = msgBox.exec_()
+        if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
+            settings.setValue('warn_about_refund', 'false')
+        if result == QtGui.QMessageBox.Yes:
+            return True
+        return False          
+
     def on_toggle_buy_for_free(self, flag):
         models.Advancement.set_buy_for_free(flag)
-        
-    
+            
     def refund_advancement(self, adv_idx = -1):
         '''refund the specified advancement and recalculate ranks'''        
         form = self.form
         
-        if form.lock_advancements:
-            return self.refund_last_adv()
         if adv_idx < 0:
             adv_idx = len(form.pc.advans) - form.adv_view.selectionModel().currentIndex().row() - 1
-        if adv_idx >= len(form.pc.advans) or adv_idx < 0:
-            return
-        del form.pc.advans[adv_idx]        
-        form.pc.recalc_ranks()
-        form.update_from_model()
-    
+        if adv_idx >= len(form.pc.advans) or adv_idx < 0:            
+            return self.refund_last_adv()
+
+        if self.warn_about_refund():            
+            del form.pc.advans[adv_idx]        
+            form.pc.recalc_ranks()
+            form.update_from_model()
+            return True
+        return False

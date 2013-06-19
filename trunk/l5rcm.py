@@ -80,6 +80,12 @@ def resume_signals(wdgs):
     
 class ZoomableView(QtGui.QGraphicsView):
     '''A QGraphicsView that zoom on CTRL+MouseWheel'''
+    
+    def __init__(self, parent = None):
+        super(ZoomableView, self).__init__(parent)
+        self.wp   = None
+        self.logo = QtGui.QImage( get_app_file('banner_ss.png') )
+        
     def wheelEvent(self, ev):    
         if ( ev.modifiers() & QtCore.Qt.ControlModifier ):
             factor = pow(1.16, ev.delta() / 240.0)
@@ -95,7 +101,24 @@ class ZoomableView(QtGui.QGraphicsView):
             elif ( ev.key() == QtCore.Qt.Key_Minus ):
                 self.scale(0.80, 0.80)
             elif ( ev.key() == QtCore.Qt.Key_Plus ):
-                self.scale(1.20, 1.20)        
+                self.scale(1.20, 1.20)    
+
+    def set_wallpaper(self, image):
+        self.wp = image
+       
+    def drawBackground(self, painter, rect):
+        super(ZoomableView, self).drawBackground(painter, rect)
+        
+        def calc_logo_target_rect():
+            logo_x = (rect.width() - self.logo.width()) / 2 + rect.x()
+            logo_y = rect.y()
+            return QtCore.QRect( logo_x, logo_y, self.logo.rect().width(), self.logo.rect().height() )
+        
+        if self.wp:
+            painter.drawImage( rect, self.wp, self.wp.rect() )
+        if self.logo:
+            painter.drawImage( calc_logo_target_rect(), self.logo, self.logo.rect() )
+            
 
 class L5RMain(L5RCMCore):
 
@@ -149,8 +172,21 @@ class L5RMain(L5RCMCore):
 
     def build_ui(self):
         # Main interface widgets
-        self.view = ZoomableView(self)       
-        self.widgets = QtGui.QWidget()
+        self.view = ZoomableView(self)
+        
+        # easter egg?!
+        # locate a file called "wallpaper.png" in data directory
+        wallpaper_ = osutil.get_user_data_path('wallpaper.png')
+        print( wallpaper_ )
+        if os.path.exists( wallpaper_ ):
+            self.view.set_wallpaper( QtGui.QImage( wallpaper_ ) )
+            
+        settings = QtCore.QSettings()
+        
+        self.widgets = QtGui.QFrame()
+        self.widgets.setFrameShape( QtGui.QFrame.StyledPanel )
+        self.widgets.setWindowOpacity( float(settings.value('opacity', 0.98)) )
+        self.widgets.setLineWidth ( 1 )
         #self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) )         
         self.tabs = QtGui.QTabWidget(self)        
         #self.setCentralWidget(self.widgets)
@@ -164,8 +200,8 @@ class L5RMain(L5RCMCore):
 
         mvbox = QtGui.QVBoxLayout(self.widgets)
         logo = QtGui.QLabel(self)
-        logo.setScaledContents(True)
-        logo.setPixmap( QtGui.QPixmap( get_app_file('banner_s.png') ) )
+        #logo.setScaledContents(True)
+        #logo.setPixmap( QtGui.QPixmap( get_app_file('banner_ss.png') ) )
         mvbox.addWidget(logo)
         mvbox.addWidget(self.tabs)
 
@@ -1187,7 +1223,7 @@ class L5RMain(L5RCMCore):
         
         self.tabs.addTab(mfr, self.tr("About"))
 
-    def build_menu(self):
+    def build_menu(self):                
         # File Menu
         m_file = self.menuBar().addMenu(self.tr("&File"))
         # actions: new, open, save
@@ -1295,8 +1331,6 @@ class L5RMain(L5RCMCore):
         # rules actions
         set_exp_limit_act  = QtGui.QAction(self.tr("Set Experience Limit..." ), self)
         set_wound_mult_act = QtGui.QAction(self.tr("Set Health Multiplier..."), self)
-        unlock_school_act  = QtGui.QAction(self.tr("Lock Schools"            ), self)
-        unlock_advans_act  = QtGui.QAction(self.tr("Lock Advancements"       ), self)
         buy_for_free_act   = QtGui.QAction(self.tr("Free Shopping"           ), self)
         damage_act         = QtGui.QAction(self.tr("Cure/Inflict Damage...")  , self)
 
@@ -1316,21 +1350,11 @@ class L5RMain(L5RCMCore):
             m_insight_calc.addAction (act)
         ic_list[self.ic_idx].setChecked(True)
 
-        unlock_school_act.setCheckable(True)
-        unlock_advans_act.setCheckable(True)
         buy_for_free_act .setCheckable(True)
-
-        unlock_school_act.setChecked(True)
-        unlock_advans_act.setChecked(True)
         buy_for_free_act .setChecked(False)
-
-        self.unlock_schools_menu_item = unlock_school_act
-        self.unlock_advans_menu_item  = unlock_advans_act
 
         m_rules.addAction(set_exp_limit_act )
         m_rules.addAction(set_wound_mult_act)
-        m_rules.addAction(unlock_school_act )
-        m_rules.addAction(unlock_advans_act )
         m_rules.addAction(buy_for_free_act  )
         m_rules.addSeparator()
         m_rules.addAction(damage_act)
@@ -1338,12 +1362,11 @@ class L5RMain(L5RCMCore):
         set_exp_limit_act .triggered.connect(self.sink1.on_set_exp_limit      )
         set_wound_mult_act.triggered.connect(self.sink1.on_set_wnd_mult       )
         damage_act        .triggered.connect(self.sink1.on_damage_act         )
-        unlock_school_act .triggered.connect(self.sink1.on_unlock_school_act  )
-        unlock_advans_act .toggled  .connect(self.sink1.on_toggle_advans_act  )
         buy_for_free_act  .toggled  .connect(self.sink1.on_toggle_buy_for_free)
         
         # Data menu
-        m_data = self.menuBar().addMenu(self.tr("&Data"))
+        #m_data = self.menuBar().addMenu(self.tr("&Data"))
+        m_data = QtGui.QMenu(self.tr("&Data"))
 
         # rules actions
         import_data_act   = QtGui.QAction(self.tr("Import Data pack..." ), self)
@@ -1357,10 +1380,33 @@ class L5RMain(L5RCMCore):
         m_data.addSeparator()
         m_data.addAction(reload_data_act  )
         
+        self.app_menu        = QtGui.QMenu("AppMenu")
+        self.app_menu_tb     = QtGui.QToolButton(self.widgets)
+        self.app_menu_tb.setPopupMode( QtGui.QToolButton.InstantPopup )
+        self.app_menu_tb.resize( 32, 32 )
+        self.app_menu_tb.setMenu(self.app_menu)        
+        self.app_menu_tb.show  ()
+        
         import_data_act  .triggered.connect(self.sink4.import_data_act  )
         manage_data_act  .triggered.connect(self.sink4.manage_data_act  )
         open_data_dir_act.triggered.connect(self.sink4.open_data_dir_act)
         reload_data_act  .triggered.connect(self.sink4.reload_data_act  )
+    
+    def move_app_menu(self):
+        if not self.app_menu_tb.parent(): return
+        ap  = self.app_menu_tb.parent()
+        ax = ap.width() + ap.x() - 12 - self.app_menu_tb.width()
+        ay = 12
+        self.app_menu_tb.move(ax, ay)
+
+    def init(self):
+        ''' second step initialization '''
+        self.update()
+        #self.move_app_menu()
+        
+    def resizeEvent(self, event):
+        # update app_menu_bt location
+        self.move_app_menu()           
         
     def setup_donate_button(self):
         self.statusBar().showMessage(
@@ -1787,7 +1833,6 @@ class L5RMain(L5RCMCore):
         if self.nicebar: return
 
         # Show nicebar if can get free kihos
-        print( self.pc.get_free_kiho_count() )
         if self.pc.get_free_kiho_count():
             lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.get_free_kiho_count()), self)
             bt = QtGui.QPushButton(self.tr("Learn Kihos"), self)
@@ -2181,10 +2226,6 @@ class L5RMain(L5RCMCore):
         self.cb_pc_school.setEnabled( not has_adv )
         self.cb_pc_family.setEnabled( not has_adv )
 
-        # also disable schools lock/unlock
-        self.unlock_schools_menu_item.setChecked( not self.pc.unlock_schools )
-        self.unlock_schools_menu_item.setEnabled( not has_adv )
-
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)
         self.ma_view_model    .update_from_model(self.pc)
@@ -2509,6 +2550,7 @@ def main():
     l5rcm = L5RMain(use_locale)    
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
+    l5rcm.init()
 
     # dump_slots(l5rcm, 'startup.txt')
 
