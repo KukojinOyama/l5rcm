@@ -15,22 +15,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+from requirements import Requirement, RequirementOption, read_requirements_list
+from xmlutils import *
+
 class Spell(object):
 
     @staticmethod
     def build_from_xml(elem):
         f = Spell()
-        f.name     = elem.attrib['name']
         f.id       = elem.attrib['id']
-        f.area     = elem.attrib['area']
-        f.mastery  = int(elem.attrib['mastery'])
-        f.range    = elem.attrib['range']
-        f.duration = elem.attrib['duration']
-        f.element  = elem.attrib['element']
-        f.tags  = []
-        for se in elem.find('Tags').iter():
-            if se.tag == 'Tag':
-                f.tags.append(se.text)
+        f.name     = read_attribute(elem, 'name')        
+        f.area     = read_attribute(elem, 'area')
+        f.mastery  = read_attribute_int(elem, 'mastery')
+        f.range    = read_attribute(elem, 'range')
+        f.duration = read_attribute(elem, 'duration')
+        f.element  = read_attribute(elem, 'element')        
+        f.tags     = read_tag_list(elem)
+        f.require  = read_requirements_list(elem)        
+        f.desc     = read_sub_element_text(elem, 'Description', "")
         f.raises = []
         if elem.find('Raises') is not None:
             for se in elem.find('Raises').iter():

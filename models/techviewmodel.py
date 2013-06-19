@@ -80,7 +80,6 @@ class TechViewModel(QtCore.QAbstractListModel):
 
     def update_from_model(self, model):
         self.clean()
-        print('got {0} techs'.format( len(model.get_techs()) ))
         for tech in model.get_techs():
             adjusted_rank = self.adjust_tech_rank(model, tech)                
             self.add_item(tech, adjusted_rank)

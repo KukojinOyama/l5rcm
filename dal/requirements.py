@@ -16,7 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import models
-from xmlutils import read_attribute, read_attribute_int, read_attribute_bool, read_sub_element_text
+from xmlutils import *
 
 class Requirement(object):
 
@@ -177,3 +177,16 @@ class RequirementOption(object):
         
     def __unicode__(self):
         return self.text
+        
+def read_requirements_list(xml_element):
+    # requirements
+    require = []
+    el      = xml_element.find('Requirements')
+    if el:
+        for se in el:
+            if se.tag == 'Requirement':
+                require.append(Requirement.build_from_xml(se))        
+            if se.tag == 'RequirementOption':
+                require.append(RequirementOption.build_from_xml(se))
+            
+    return require        

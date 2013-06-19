@@ -129,12 +129,14 @@ class L5RCMCore(QtGui.QMainWindow):
     
         # Data storage
         if not self.dstore:
+            print('Loading datapack data')
             self.dstore = dal.Data( 
                 [osutil.get_user_data_path('core.data'),
                  osutil.get_user_data_path('data'),
                  osutil.get_user_data_path('data.' + self.locale)],
                  self.data_pack_blacklist)
         else:
+            print('Re-loading datapack data')
             self.dstore.rebuild(
                     [osutil.get_user_data_path('core.data'),
                     osutil.get_user_data_path('data'),

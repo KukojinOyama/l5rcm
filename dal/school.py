@@ -16,8 +16,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import models
-from xmlutils import read_attribute, read_attribute_int, read_attribute_bool, read_sub_element_text
-from requirements import Requirement, RequirementOption
+from requirements import Requirement, RequirementOption, read_requirements_list
+from xmlutils import *
 
 class SchoolSkill(object):
     
@@ -63,9 +63,10 @@ class SchoolTech(object):
     @staticmethod
     def build_from_xml(elem):
         f = SchoolTech()
-        f.id   = read_attribute    ( elem, 'id'       )
-        f.name = read_attribute    ( elem, 'name', '' )        
-        f.rank = read_attribute_int( elem, 'rank'     )
+        f.id   = read_attribute       ( elem, 'id'       )
+        f.name = read_attribute       ( elem, 'name', '' )        
+        f.rank = read_attribute_int   ( elem, 'rank'     )
+        f.desc = read_sub_element_text(elem, 'Description', "")
         return f
      
     def __str__(self):
@@ -173,14 +174,7 @@ class School(object):
             elif se.tag == 'Spell':
                 f.spells.append(SchoolSpell.build_from_xml(se))
                 
-        # requirements
-        f.require = []        
-        
-        for se in elem.find('Requirements'):
-            if se.tag == 'Requirement':
-                f.require.append(Requirement.build_from_xml(se))        
-            if se.tag == 'RequirementOption':
-                f.require.append(RequirementOption.build_from_xml(se))  
+        f.require = read_requirements_list(elem)
 
         # kihos and tattoos
         f.kihos   = None
