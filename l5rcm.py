@@ -84,7 +84,6 @@ class ZoomableView(QtGui.QGraphicsView):
     def __init__(self, parent = None):
         super(ZoomableView, self).__init__(parent)
         self.wp   = None
-        self.logo = QtGui.QImage( get_app_file('banner_ss.png') )
         
     def wheelEvent(self, ev):    
         if ( ev.modifiers() & QtCore.Qt.ControlModifier ):
@@ -109,16 +108,29 @@ class ZoomableView(QtGui.QGraphicsView):
     def drawBackground(self, painter, rect):
         super(ZoomableView, self).drawBackground(painter, rect)
         
-        def calc_logo_target_rect():
-            logo_x = (rect.width() - self.logo.width()) / 2 + rect.x()
-            logo_y = rect.y()
-            return QtCore.QRect( logo_x, logo_y, self.logo.rect().width(), self.logo.rect().height() )
+        def zoom_image():
+            sx, sy = 0, 0
+            tx, ty = rect.x(), rect.y()
+            sh, sw = self.wp.height(), self.wp.width()
+                       
+            if self.wp.width() > rect.width():
+                sx = (self.wp.width() - rect.width()) / 2
+                sw -= sx*2
+            else:
+                tx += (rect.width() - self.wp.width()) / 2
+                
+            if self.wp.height() > rect.height():
+                sy = (self.wp.height() - rect.height()) / 2
+                sh -= sy*2
+            else:
+                ty += (rect.height() - self.wp.height()) / 2
         
-        if self.wp:
-            painter.drawImage( rect, self.wp, self.wp.rect() )
-        if self.logo:
-            painter.drawImage( calc_logo_target_rect(), self.logo, self.logo.rect() )
+            return QtCore.QRectF(sx, sy, sw, sh), QtCore.QPointF(tx, ty)
             
+        if self.wp:
+            source_rect, target_point = zoom_image()            
+            
+            painter.drawImage( target_point, self.wp, source_rect )
 
 class L5RMain(L5RCMCore):
 
@@ -185,17 +197,17 @@ class L5RMain(L5RCMCore):
         
         self.widgets = QtGui.QFrame()
         self.widgets.setFrameShape( QtGui.QFrame.StyledPanel )
-        self.widgets.setWindowOpacity( float(settings.value('opacity', 0.98)) )
         self.widgets.setLineWidth ( 1 )
         #self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) )         
         self.tabs = QtGui.QTabWidget(self)        
         #self.setCentralWidget(self.widgets)
         self.scene = QtGui.QGraphicsScene(self)
-        self.scene.addWidget(self.widgets, QtCore.Qt.Widget)        
+        proxy_widget = self.scene.addWidget(self.widgets, QtCore.Qt.Widget)        
+        proxy_widget.setOpacity(float(settings.value('opacity', 0.96)))
         self.view.setScene(self.scene)
         self.view.setInteractive(True)
         self.setCentralWidget(self.view)
-
+        
         self.nicebar = None
 
         mvbox = QtGui.QVBoxLayout(self.widgets)
@@ -1223,9 +1235,12 @@ class L5RMain(L5RCMCore):
         
         self.tabs.addTab(mfr, self.tr("About"))
 
-    def build_menu(self):                
+    def build_menu(self):      
+    
+        self.app_menu_tb     = QtGui.QToolButton(self.widgets)          
+        self.app_menu        = QtGui.QMenu("AppMenu", self.app_menu_tb)  
+        
         # File Menu
-        m_file = self.menuBar().addMenu(self.tr("&File"))
         # actions: new, open, save
         new_act         = QtGui.QAction(self.tr("&New Character"), self)
         open_act        = QtGui.QAction(self.tr("&Open Character..."), self)
@@ -1238,14 +1253,6 @@ class L5RMain(L5RCMCore):
         save_act.setShortcut( QtGui.QKeySequence.Save )
         exit_act.setShortcut( QtGui.QKeySequence.Quit )
 
-        m_file.addAction(new_act)
-        m_file.addAction(open_act)
-        m_file.addAction(save_act)
-        m_file.addSeparator()
-        m_file.addAction(export_pdf_act )
-        m_file.addSeparator()
-        m_file.addAction(exit_act)
-
         new_act .triggered.connect( self.sink1.new_character  )
         open_act.triggered.connect( self.sink1.load_character )
         save_act.triggered.connect( self.sink1.save_character )
@@ -1253,11 +1260,7 @@ class L5RMain(L5RCMCore):
 
         export_pdf_act .triggered.connect( self.sink1.export_character_as_pdf  )
 
-        self.m_file = m_file
-
         # Advancement menu
-        m_adv = self.menuBar().addMenu(self.tr("A&dvancement"))
-
         # actions buy advancement, view advancements
         viewadv_act  = QtGui.QAction(self.tr("&View advancements..."  ), self)
         resetadv_act = QtGui.QAction(self.tr("&Reset advancements"    ), self)
@@ -1265,22 +1268,11 @@ class L5RMain(L5RCMCore):
 
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
-        m_adv    .addAction(viewadv_act )
-        m_adv.addAction(refund_act)
-        m_adv.addAction(resetadv_act)
-
-        self.m_adv = m_adv
-
         viewadv_act .triggered.connect( self.sink1.switch_to_page_6    )
         resetadv_act.triggered.connect( self.sink1.reset_adv           )
         refund_act  .triggered.connect( self.sink1.refund_last_adv     )
 
-        # Tools menu
-        m_tools = self.menuBar().addMenu(self.tr("&Tools"))
-
         # Name generator submenu
-        m_namegen = m_tools.addMenu(self.tr("&Generate Name"))
-
         # actions generate female, male names
         gen_male_act   = QtGui.QAction(self.tr("Male"), self)
         gen_female_act = QtGui.QAction(self.tr("Female"), self)
@@ -1289,11 +1281,6 @@ class L5RMain(L5RCMCore):
         gen_male_act.setProperty  ('gender', 'male')
         gen_female_act.setProperty('gender', 'female')
 
-        m_namegen.addAction(gen_male_act)
-        m_namegen.addAction(gen_female_act)
-
-        self.m_namegen = m_namegen
-
         gen_male_act  .triggered.connect( self.sink1.generate_name )
         gen_female_act.triggered.connect( self.sink1.generate_name )
 
@@ -1301,41 +1288,26 @@ class L5RMain(L5RCMCore):
         dice_roll_act = QtGui.QAction(self.tr("Dice &Roller..."), self)
         dice_roll_act  .triggered.connect( self.sink1.show_dice_roller )
 
-        m_tools.addAction(dice_roll_act)
-
         # Outfit menu
-        m_outfit = self.menuBar().addMenu(self.tr("Out&fit"))
-
         # actions, select armor, add weapon, add misc item
         sel_armor_act      = QtGui.QAction(self.tr("Wear Armor..."       ), self)
         sel_cust_armor_act = QtGui.QAction(self.tr("Wear Custom Armor..."), self)
         add_weap_act       = QtGui.QAction(self.tr("Add Weapon..."       ), self)
         add_cust_weap_act  = QtGui.QAction(self.tr("Add Custom Weapon..."), self)
-        # add_misc_item_act  = QtGui.QAction(self.tr("Add Misc Item...")    , self)
-
-        m_outfit.addAction(sel_armor_act     )
-        m_outfit.addAction(sel_cust_armor_act)
-        m_outfit.addAction(add_weap_act      )
-        m_outfit.addAction(add_cust_weap_act )
-        # m_outfit.addAction(add_misc_item_act )
 
         sel_armor_act     .triggered.connect( self.sink1.show_wear_armor      )
         sel_cust_armor_act.triggered.connect( self.sink1.show_wear_cust_armor )
         add_weap_act      .triggered.connect( self.sink3.show_add_weapon      )
         add_cust_weap_act .triggered.connect( self.sink3.show_add_cust_weapon )
-        # add_misc_item_act .triggered.connect( self.sink1.show_add_misc_item   )
 
         # Rules menu
-        m_rules = self.menuBar().addMenu(self.tr("&Rules"))
-
-        # rules actions
         set_exp_limit_act  = QtGui.QAction(self.tr("Set Experience Limit..." ), self)
         set_wound_mult_act = QtGui.QAction(self.tr("Set Health Multiplier..."), self)
         buy_for_free_act   = QtGui.QAction(self.tr("Free Shopping"           ), self)
         damage_act         = QtGui.QAction(self.tr("Cure/Inflict Damage...")  , self)
 
         # insight calculation submenu
-        m_insight_calc   = m_rules.addMenu(self.tr("Insight Calculation"))
+        m_insight_calc   = self.app_menu.addMenu(self.tr("Insight Calculation"))
         self.ic_act_grp  = QtGui.QActionGroup(self)
         ic_default_act   = QtGui.QAction(self.tr("Default"                     ), self)
         ic_no_rank1_1    = QtGui.QAction(self.tr("Ignore Rank 1 Skills"        ), self)
@@ -1353,37 +1325,65 @@ class L5RMain(L5RCMCore):
         buy_for_free_act .setCheckable(True)
         buy_for_free_act .setChecked(False)
 
-        m_rules.addAction(set_exp_limit_act )
-        m_rules.addAction(set_wound_mult_act)
-        m_rules.addAction(buy_for_free_act  )
-        m_rules.addSeparator()
-        m_rules.addAction(damage_act)
-
         set_exp_limit_act .triggered.connect(self.sink1.on_set_exp_limit      )
         set_wound_mult_act.triggered.connect(self.sink1.on_set_wnd_mult       )
         damage_act        .triggered.connect(self.sink1.on_damage_act         )
         buy_for_free_act  .toggled  .connect(self.sink1.on_toggle_buy_for_free)
         
         # Data menu
-        #m_data = self.menuBar().addMenu(self.tr("&Data"))
-        m_data = QtGui.QMenu(self.tr("&Data"))
-
-        # rules actions
         import_data_act   = QtGui.QAction(self.tr("Import Data pack..." ), self)
         manage_data_act   = QtGui.QAction(self.tr("Manage Data packs..."), self)
         open_data_dir_act = QtGui.QAction(self.tr("Open Data Directory" ), self)
         reload_data_act   = QtGui.QAction(self.tr("Reload data"         ), self)
         
-        m_data.addAction(import_data_act  )
-        m_data.addAction(manage_data_act  )
-        m_data.addAction(open_data_dir_act)
-        m_data.addSeparator()
-        m_data.addAction(reload_data_act  )
-        
-        self.app_menu        = QtGui.QMenu("AppMenu")
-        self.app_menu_tb     = QtGui.QToolButton(self.widgets)
+        self.app_menu_tb.setAutoRaise(True)        
+        self.app_menu_tb.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
         self.app_menu_tb.setPopupMode( QtGui.QToolButton.InstantPopup )
-        self.app_menu_tb.resize( 32, 32 )
+        self.app_menu_tb.setIconSize( QtCore.QSize(32, 32) )
+        self.app_menu_tb.resize( QtCore.QSize(48, 32) )
+        self.app_menu_tb.setIcon( QtGui.QIcon.fromTheme("application-menu") )
+        self.app_menu_tb.setArrowType( QtCore.Qt.NoArrow )
+                      
+        # FILE MENU
+        self.app_menu.addAction(new_act )
+        self.app_menu.addAction(open_act)
+        self.app_menu.addAction(save_act)
+        self.app_menu.addAction(export_pdf_act)
+        self.app_menu.addSeparator()
+        # ADV        
+        self.app_menu.addAction(resetadv_act)
+        self.app_menu.addAction(refund_act)
+        self.app_menu.addSeparator()
+        # TOOLS
+        self.app_menu.addAction(gen_male_act)
+        self.app_menu.addAction(gen_female_act)
+        self.app_menu.addAction(dice_roll_act)
+        self.app_menu.addSeparator()        
+        # OUTFIT
+        self.app_menu.addAction(sel_armor_act)        
+        self.app_menu.addAction(sel_cust_armor_act)        
+        self.app_menu.addAction(add_weap_act)                
+        self.app_menu.addAction(add_cust_weap_act)        
+        self.app_menu.addSeparator()
+        # RULES
+        self.app_menu.addAction(set_exp_limit_act)        
+        self.app_menu.addAction(set_wound_mult_act)        
+        self.app_menu.addAction(buy_for_free_act)                
+        self.app_menu.addAction(damage_act)        
+        self.app_menu.addSeparator()
+        # INSIGHT
+        self.app_menu.addMenu(m_insight_calc)
+        # DATA
+        self.app_menu.addAction(import_data_act)        
+        self.app_menu.addAction(manage_data_act)        
+        self.app_menu.addAction(open_data_dir_act)                
+        self.app_menu.addAction(reload_data_act)        
+        self.app_menu.addSeparator()        
+        self.app_menu.addSeparator()
+                
+        # EXIT                
+        self.app_menu.addAction(exit_act)        
+        
         self.app_menu_tb.setMenu(self.app_menu)        
         self.app_menu_tb.show  ()
         
@@ -1395,8 +1395,8 @@ class L5RMain(L5RCMCore):
     def move_app_menu(self):
         if not self.app_menu_tb.parent(): return
         ap  = self.app_menu_tb.parent()
-        ax = ap.width() + ap.x() - 12 - self.app_menu_tb.width()
-        ay = 12
+        ax = ap.x() + (self.tabs.count())*48+24
+        ay = 35
         self.app_menu_tb.move(ax, ay)
 
     def init(self):
