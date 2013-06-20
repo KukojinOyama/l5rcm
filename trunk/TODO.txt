@@ -10,3 +10,13 @@ KIHO MESS
 - Add a <Tattoo count="x" allowed="True|False"/> optional tag to the School definition XML
 
 ??? Moto Vindicator school has requirements but is not an advanced school
+
+----------
+UI MESS
+
+Change Refund Label to "Select the advancement you want to refund and hit the Refund button"
+Add default background
+Add settings dialog ( it's really needed at this stage of the program )
+Add different health display methods
+Move insight selection method to settings dialog
+Add inflict/cure wounds button next to health display
