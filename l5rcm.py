@@ -66,7 +66,9 @@ def new_item_groupbox(name, widget):
 
 def new_small_plus_bt(parent = None):
     bt = QtGui.QToolButton(parent)
+    bt.setAutoRaise(True)
     bt.setText('+')
+    bt.setIcon( QtGui.QIcon.fromTheme('gtk-add', QtGui.QIcon( get_icon_path('add', (16,16)))) )
     bt.setMaximumSize(16,16)
     bt.setMinimumSize(16,16)
     bt.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
@@ -266,6 +268,7 @@ class L5RMain(L5RCMCore):
             hb_school.setContentsMargins(0,0,0,0)            
             lb_school = QtGui.QLabel(self.tr("School"), self)
             bt_lock   = QtGui.QToolButton( self )
+            bt_lock.setAutoRaise(True)
             bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
             hb_school.addWidget(lb_school)
             hb_school.addWidget(bt_lock)
@@ -276,6 +279,8 @@ class L5RMain(L5RCMCore):
             bt_generate_male.setIcon( QtGui.QIcon(get_icon_path('male',(16,16))) )
             bt_generate_female = QtGui.QToolButton( self )
             bt_generate_female.setIcon( QtGui.QIcon(get_icon_path('female',(16,16))) )
+            bt_generate_male  .setAutoRaise(True)
+            bt_generate_female.setAutoRaise(True)
             hb_name = QtGui.QHBoxLayout()
             hb_name.addWidget(lb_name)
             hb_name.addWidget(bt_generate_male)
@@ -383,7 +388,7 @@ class L5RMain(L5RCMCore):
             def _attrib_frame(i):
                 fr   = QtGui.QFrame(self)
                 hbox = QtGui.QHBoxLayout(fr)
-                hbox.setContentsMargins(0,0,0,0)
+                hbox.setContentsMargins(3,0,9,0)
                 # small plus button
                 tag = str(attribs[i][1].property('attrib_id'))
                 bt  = new_small_plus_bt(self)
@@ -1344,7 +1349,6 @@ class L5RMain(L5RCMCore):
         self.app_menu_tb.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
         self.app_menu_tb.setPopupMode( QtGui.QToolButton.InstantPopup )
         self.app_menu_tb.setIconSize( QtCore.QSize(32, 32) )
-        #self.app_menu_tb.resize( QtCore.QSize(48, 32) )
         self.app_menu_tb.setIcon( QtGui.QIcon.fromTheme("application-menu", QtGui.QIcon(get_icon_path('gear', (32,32))) ))
         self.app_menu_tb.setArrowType( QtCore.Qt.NoArrow )
                       
