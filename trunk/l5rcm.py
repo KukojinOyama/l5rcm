@@ -270,12 +270,30 @@ class L5RMain(L5RCMCore):
             hb_school.addWidget(lb_school)
             hb_school.addWidget(bt_lock)
             
-            grid.addWidget( QtGui.QLabel(self.tr("Name"  ), self), 0, 0 )
+            # Place "generate random name" near the Name label
+            lb_name            = QtGui.QLabel(self.tr("Name"), self)
+            bt_generate_male   = QtGui.QToolButton( self )
+            bt_generate_male.setIcon( QtGui.QIcon(get_icon_path('male',(16,16))) )
+            bt_generate_female = QtGui.QToolButton( self )
+            bt_generate_female.setIcon( QtGui.QIcon(get_icon_path('female',(16,16))) )
+            hb_name = QtGui.QHBoxLayout()
+            hb_name.addWidget(lb_name)
+            hb_name.addWidget(bt_generate_male)
+            hb_name.addWidget(bt_generate_female)
+            
+            # gender tag, connect signals
+            bt_generate_male  .setProperty('gender', 'male')
+            bt_generate_female.setProperty('gender', 'female')
+            bt_generate_male  .clicked.connect( self.sink1.generate_name )
+            bt_generate_female.clicked.connect( self.sink1.generate_name )
+                    
+            #grid.addWidget( QtGui.QLabel(self.tr("Name"  ), self), 0, 0 )
+            grid.addLayout( hb_name, 0, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Clan"  ), self), 1, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Family"), self), 2, 0 )
             grid.addWidget( fr_school, 3, 0 )
             
-            self.bt_school_lock = bt_lock
+            self.bt_school_lock          = bt_lock
 
             # 3rd column
             grid.addWidget( QtGui.QLabel(self.tr("Rank")       , self), 0, 3 )
@@ -1262,27 +1280,13 @@ class L5RMain(L5RCMCore):
 
         # Advancement menu
         # actions buy advancement, view advancements
-        viewadv_act  = QtGui.QAction(self.tr("&View advancements..."  ), self)
         resetadv_act = QtGui.QAction(self.tr("&Reset advancements"    ), self)
         refund_act   = QtGui.QAction(self.tr("Refund last advancement"), self)
 
         refund_act .setShortcut( QtGui.QKeySequence.Undo  )
 
-        viewadv_act .triggered.connect( self.sink1.switch_to_page_6    )
         resetadv_act.triggered.connect( self.sink1.reset_adv           )
         refund_act  .triggered.connect( self.sink1.refund_last_adv     )
-
-        # Name generator submenu
-        # actions generate female, male names
-        gen_male_act   = QtGui.QAction(self.tr("Male"), self)
-        gen_female_act = QtGui.QAction(self.tr("Female"), self)
-
-        # gender tag
-        gen_male_act.setProperty  ('gender', 'male')
-        gen_female_act.setProperty('gender', 'female')
-
-        gen_male_act  .triggered.connect( self.sink1.generate_name )
-        gen_female_act.triggered.connect( self.sink1.generate_name )
 
         # Dice roller menu
         dice_roll_act = QtGui.QAction(self.tr("Dice &Roller..."), self)
@@ -1340,8 +1344,8 @@ class L5RMain(L5RCMCore):
         self.app_menu_tb.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
         self.app_menu_tb.setPopupMode( QtGui.QToolButton.InstantPopup )
         self.app_menu_tb.setIconSize( QtCore.QSize(32, 32) )
-        self.app_menu_tb.resize( QtCore.QSize(48, 32) )
-        self.app_menu_tb.setIcon( QtGui.QIcon.fromTheme("application-menu") )
+        #self.app_menu_tb.resize( QtCore.QSize(48, 32) )
+        self.app_menu_tb.setIcon( QtGui.QIcon.fromTheme("application-menu", QtGui.QIcon(get_icon_path('gear', (32,32))) ))
         self.app_menu_tb.setArrowType( QtCore.Qt.NoArrow )
                       
         # FILE MENU
@@ -1355,8 +1359,6 @@ class L5RMain(L5RCMCore):
         self.app_menu.addAction(refund_act)
         self.app_menu.addSeparator()
         # TOOLS
-        self.app_menu.addAction(gen_male_act)
-        self.app_menu.addAction(gen_female_act)
         self.app_menu.addAction(dice_roll_act)
         self.app_menu.addSeparator()        
         # OUTFIT
@@ -1385,28 +1387,16 @@ class L5RMain(L5RCMCore):
         self.app_menu.addAction(exit_act)        
         
         self.app_menu_tb.setMenu(self.app_menu)        
-        self.app_menu_tb.show  ()
+        self.tabs.setCornerWidget(self.app_menu_tb, QtCore.Qt.TopLeftCorner)
         
         import_data_act  .triggered.connect(self.sink4.import_data_act  )
         manage_data_act  .triggered.connect(self.sink4.manage_data_act  )
         open_data_dir_act.triggered.connect(self.sink4.open_data_dir_act)
         reload_data_act  .triggered.connect(self.sink4.reload_data_act  )
     
-    def move_app_menu(self):
-        if not self.app_menu_tb.parent(): return
-        ap  = self.app_menu_tb.parent()
-        ax = ap.x() + (self.tabs.count())*48+24
-        ay = 35
-        self.app_menu_tb.move(ax, ay)
-
     def init(self):
         ''' second step initialization '''
-        self.update()
-        #self.move_app_menu()
-        
-    def resizeEvent(self, event):
-        # update app_menu_bt location
-        self.move_app_menu()           
+        pass
         
     def setup_donate_button(self):
         self.statusBar().showMessage(
@@ -2472,6 +2462,12 @@ class L5RMain(L5RCMCore):
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
         self.pc.set_insight_calc_method(method)
+        self.update_from_model()
+        
+    def on_change_health_visualization(self):
+        method = self.sender().checkedAction().property('method')
+        settings = QtGui.QSettings()
+        settings.setValue('health_method', method)
         self.update_from_model()
 
     def create_new_character(self):
