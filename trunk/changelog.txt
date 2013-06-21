@@ -1,5 +1,18 @@
+=== L5RCM v3.9.0 ===
+* [NEW] Add weapon dedicated page to character sheet
+* [NEW] Add timestamp to advancements
+* [NEW] Appmenu instead of menu bar
+* [NEW] Customizable background, removed banner to save vertical space
+* [NEW] Generate random name buttons
+* [NEW] 2 new health display methods
+* [NEW] Support for spell <Description> tag
+
+=== COMMUNITY PACK 1.2 ===
+* [ADD] a bunch of new tattoos
+
 === CORE PACK 3.9 ===
 * [FIX] add missing "Perform: Storytelling" skill to Suzume Bushi School of the Sparrow clan. Issue #185
+* [FIX] add missing Lore: Mantis skill. Issue #189
 
 === CORE PACK 3.8 ===
 * [FIX] removed "Spears" skill from Usagi Bushi School

@@ -20,3 +20,8 @@ Add settings dialog ( it's really needed at this stage of the program )
 Add different health display methods
 Move insight selection method to settings dialog
 Add inflict/cure wounds button next to health display
+
+-----------
+TATTOO MESS
+
+also other dragon schools may buy tattoos
