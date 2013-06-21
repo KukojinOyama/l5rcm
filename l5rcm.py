@@ -230,8 +230,6 @@ class L5RMain(L5RCMCore):
         else:
             self.setGeometry( QtCore.QRect(100, 100, 820, 720) )
             
-        #self.reset_zoom()
-
         self.ic_idx = int(settings.value('insight_calculation', 1))-1
         ic_calcs    = [rules.insight_calculation_1,
                        rules.insight_calculation_2,
@@ -268,6 +266,7 @@ class L5RMain(L5RCMCore):
             hb_school.setContentsMargins(0,0,0,0)            
             lb_school = QtGui.QLabel(self.tr("School"), self)
             bt_lock   = QtGui.QToolButton( self )
+            bt_lock.setToolTip(self.tr("Toggle show schools from all the clans"))
             bt_lock.setAutoRaise(True)
             bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
             hb_school.addWidget(lb_school)
@@ -280,7 +279,9 @@ class L5RMain(L5RCMCore):
             bt_generate_female = QtGui.QToolButton( self )
             bt_generate_female.setIcon( QtGui.QIcon(get_icon_path('female',(16,16))) )
             bt_generate_male  .setAutoRaise(True)
+            bt_generate_male  .setToolTip  (self.tr("Random male name"))
             bt_generate_female.setAutoRaise(True)
+            bt_generate_female.setToolTip  (self.tr("Random female name"))
             hb_name = QtGui.QHBoxLayout()
             hb_name.addWidget(lb_name)
             hb_name.addWidget(bt_generate_male)
@@ -1259,7 +1260,9 @@ class L5RMain(L5RCMCore):
         self.tabs.addTab(mfr, self.tr("About"))
 
     def build_menu(self):      
-    
+        
+        settings = QtCore.QSettings()
+        
         self.app_menu_tb     = QtGui.QToolButton(self.widgets)          
         self.app_menu        = QtGui.QMenu("AppMenu", self.app_menu_tb)  
         
@@ -1330,6 +1333,24 @@ class L5RMain(L5RCMCore):
             act.setCheckable(True)
             m_insight_calc.addAction (act)
         ic_list[self.ic_idx].setChecked(True)
+        
+        # health calculation submenu
+        m_health_calc = self.app_menu.addMenu(self.tr("Health Display"))
+        self.hm_act_grp   = QtGui.QActionGroup(self)
+        hm_default_act    = QtGui.QAction(self.tr("Default"     ), self)
+        hm_cumulative_act = QtGui.QAction(self.tr("Health left" ), self)
+        hm_totwounds_act  = QtGui.QAction(self.tr("Total wounds"), self)
+        hm_default_act   .setProperty('method', 'default')
+        hm_cumulative_act.setProperty('method', 'stacked')
+        hm_totwounds_act .setProperty('method', 'wounds' )
+        hm_list = [hm_default_act, hm_cumulative_act, hm_totwounds_act]
+        hm_mode = settings.value('health_method', 'wounds')
+        for act in hm_list:
+            self.hm_act_grp.addAction(act)
+            act.setCheckable(True)
+            m_health_calc.addAction  (act)            
+            if act.property('method') == hm_mode:
+                act.setChecked(True)
 
         buy_for_free_act .setCheckable(True)
         buy_for_free_act .setChecked(False)
@@ -1379,6 +1400,8 @@ class L5RMain(L5RCMCore):
         self.app_menu.addSeparator()
         # INSIGHT
         self.app_menu.addMenu(m_insight_calc)
+        # HEALTH
+        self.app_menu.addMenu(m_health_calc)        
         # DATA
         self.app_menu.addAction(import_data_act)        
         self.app_menu.addAction(manage_data_act)        
@@ -1442,7 +1465,8 @@ class L5RMain(L5RCMCore):
                                       self,
                                       QtCore.SLOT("on_trait_increase(const QString &)"))
 
-        self.ic_act_grp.triggered.connect(self.on_change_insight_calculation)
+        self.ic_act_grp.triggered.connect(self.on_change_insight_calculation )
+        self.hm_act_grp.triggered.connect(self.on_change_health_visualization)
         
         self.bt_school_lock.clicked.connect( self.sink1.on_unlock_school_act )
 
@@ -2020,11 +2044,10 @@ class L5RMain(L5RCMCore):
 
     def load_families(self, clan_id):
         print('load families for clan_id {0}'.format(clan_id))
-
+        
+        families = []
         self.cb_pc_family.clear()
-        if not clan_id:
-            return
-        else:
+        if clan_id:
             families = [ x for x in self.dstore.families if x.clanid == clan_id ]
 
         self.cb_pc_family.addItem( self.tr("No Family"), None )
@@ -2154,24 +2177,10 @@ class L5RMain(L5RCMCore):
         self.tx_cur_tn   .setText( str(self.pc.get_cur_tn())      )
         # armor description
         self.tx_armor_nm.setToolTip( str(self.pc.get_armor_desc()) )
-
-        # health
-        for i in xrange(0, 8):
-            h = self.pc.get_health_rank(i)
-            self.wounds[i][1].setText( str(h) )
-            self.wounds[i][2].setText( '' )
-        self.wnd_lb.setTitle(self.tr("Health / Wounds (x%d)") % self.pc.health_multiplier)
-
+       
+        self.display_health()       
         self.update_wound_penalties()
-
-        # wounds
-        pc_wounds = self.pc.wounds
-        hr        = 0
-        while pc_wounds and hr < 8:
-            w = min(pc_wounds, self.pc.get_health_rank(hr))
-            self.wounds[hr][2].setText( str(w) )
-            pc_wounds -= w
-            hr += 1
+        self.wnd_lb.setTitle(self.tr("Health / Wounds (x%d)") % self.pc.health_multiplier)
 
         # initiative
         r, k = self.pc.get_base_initiative()
@@ -2250,7 +2259,67 @@ class L5RMain(L5RCMCore):
                 unicode.format(u'{0} (+{1})', wounds[i], penalties[i]))
 
         # TODO toku bushi school removes some penalties
-
+    
+    def display_health        (self):
+        settings = QtCore.QSettings()
+        method   = settings.value('health_method', 'wounds')
+        if method == 'default':
+            self.display_health_default()
+        elif method == 'wounds':
+            self.display_total_wounds  ()
+        else:
+            self.display_health_stacked()
+            
+    def display_health_default(self):
+        # health
+        for i in xrange(0, 8):
+            h = self.pc.get_health_rank(i)
+            self.wounds[i][1].setText( str(h) )
+            self.wounds[i][2].setText( '' )                
+        # wounds
+        pc_wounds = self.pc.wounds
+        hr        = 0
+        while pc_wounds and hr < 8:
+            w = min(pc_wounds, self.pc.get_health_rank(hr))
+            self.wounds[hr][2].setText( str(w) )
+            pc_wounds -= w
+            hr += 1
+            
+    def display_health_stacked(self):
+        # fill health level list
+        hl = [0]*8
+        for i in reversed( range(0, 8) ):
+            if i == 7: hl[i] = self.pc.get_health_rank(i)
+            else: hl[i] = self.pc.get_health_rank(i) + hl[i+1]            
+            self.wounds[i][1].setText( str(hl[i]) )
+        
+        wounds = self.pc.wounds
+        # fill the health left for each wound level
+        for i in range(0, 8):
+            h = self.pc.get_health_rank(i)
+            if h > wounds: self.wounds[i][2].setText( str(h-wounds) )
+            else: self.wounds[i][2].setText("")
+            wounds -= h
+            if wounds < 0: wounds = 0
+            
+    def display_total_wounds(self):  
+        # fill health level list
+        hl = [0]*8
+        for i in range(0, 8):
+            if i == 0: hl[i] = self.pc.get_health_rank(i)
+            else: hl[i] = self.pc.get_health_rank(i) + hl[i-1]            
+            self.wounds[i][1].setText( str(hl[i]) )
+    
+        wounds = self.pc.wounds
+        h      = 0
+        # fill the health left for each wound level
+        for i in range(0, 8):
+            h += self.pc.get_health_rank(i)
+            wound_rank = min(h, wounds)
+            if wound_rank > 0:
+                self.wounds[i][2].setText( str(wound_rank) )
+            if wounds <= h: break
+    
     def advise_conversion(self, *args):
         settings = QtCore.QSettings()
         if settings.value('advise_conversion', 'true') == 'false':
@@ -2470,7 +2539,7 @@ class L5RMain(L5RCMCore):
         
     def on_change_health_visualization(self):
         method = self.sender().checkedAction().property('method')
-        settings = QtGui.QSettings()
+        settings = QtCore.QSettings()
         settings.setValue('health_method', method)
         self.update_from_model()
 
