@@ -35,7 +35,9 @@ class Sink1(QtCore.QObject):
         form.save_path = ''
         form.pc = models.AdvancedPcModel()
         form.pc.load_default()
-        form.load_clans()
+        form.load_clans   (  )
+        form.load_families('')
+        form.load_schools ('')
         form.tx_pc_notes.set_content('')
         form.pc.set_insight_calc_method(form.ic_calc_method)
         form.update_from_model()
@@ -189,7 +191,7 @@ class Sink1(QtCore.QObject):
             form.load_schools ()            
         else:
             form.bt_school_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
-            form.load_schools(form.pc.clan)
+            form.load_schools(form.pc.clan or '')
         form.cb_pc_school.setCurrentIndex(0)
 
     def warn_about_refund(self):
