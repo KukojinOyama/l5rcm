@@ -1872,9 +1872,13 @@ class L5RMain(L5RCMCore):
             self.show_nicebar([lb, bt])
 
     def check_rules(self):
-        for t in self.pc.get_techs():
+        for t in self.pc.get_techs():            
             school, tech = dal.query.get_tech(self.dstore, t)
-            self.pc.add_tech(tech.id, tech.id)
+            if school is not None and tech is not None:
+                self.pc.add_tech(tech.id, tech.id)
+            else:
+                # TODO: alert
+                print('cannot load character technique')
 
         for adv in self.pc.advans:
             if adv.type == 'perk':

@@ -4,10 +4,6 @@
 
 ? Salvare il personaggio con tutti i dati dentro
 
-----------
-KIHO MESS
-- Add a <StartingKiho count="x"/> optional tag to the School definition XML
-- Add a <Tattoo count="x" allowed="True|False"/> optional tag to the School definition XML
 
 ??? Moto Vindicator school has requirements but is not an advanced school
 
@@ -25,3 +21,7 @@ Add inflict/cure wounds button next to health display
 TATTOO MESS
 
 also other dragon schools may buy tattoos
+
+CHARACTER MESS
+--------------
+check datapack dependencies when loading a character
