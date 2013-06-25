@@ -106,6 +106,7 @@ class ZoomableView(QtGui.QGraphicsView):
 
     def set_wallpaper(self, image):
         self.wp = image
+        self.viewport().update()
        
     def drawBackground(self, painter, rect):
         super(ZoomableView, self).drawBackground(painter, rect)
@@ -128,8 +129,8 @@ class ZoomableView(QtGui.QGraphicsView):
                 ty += (rect.height() - self.wp.height()) / 2
         
             return QtCore.QRectF(sx, sy, sw, sh), QtCore.QPointF(tx, ty)
-            
-        if self.wp:
+        
+        if self.wp:            
             source_rect, target_point = zoom_image()            
             
             painter.drawImage( target_point, self.wp, source_rect )
@@ -186,14 +187,7 @@ class L5RMain(L5RCMCore):
 
     def build_ui(self):
         # Main interface widgets
-        self.view = ZoomableView(self)
-        
-        # easter egg?!
-        # locate a file called "wallpaper.png" in data directory
-        wallpaper_ = osutil.get_user_data_path('wallpaper.png')
-        print( wallpaper_ )
-        if os.path.exists( wallpaper_ ):
-            self.view.set_wallpaper( QtGui.QImage( wallpaper_ ) )
+        self.view = ZoomableView(self)       
             
         settings = QtCore.QSettings()
         
@@ -222,7 +216,6 @@ class L5RMain(L5RCMCore):
         self.mvbox = mvbox        
 
         # LOAD SETTINGS
-        settings = QtCore.QSettings()
         geo = settings.value('geometry')     
         
         if geo is not None:
@@ -237,6 +230,14 @@ class L5RMain(L5RCMCore):
         if self.ic_idx not in range(0, 3):
             self.ic_idx = 0
         self.ic_calc_method = ic_calcs[self.ic_idx]
+        
+        self.update_background_image()
+        
+    def update_background_image(self):
+        settings   = QtCore.QSettings()        
+        wallpaper_ = settings.value('background_image', '')        
+        if os.path.exists( wallpaper_ ):
+            self.view.set_wallpaper( QtGui.QImage( wallpaper_ ) )
 
     def build_ui_page_1(self):
 
@@ -926,8 +927,7 @@ class L5RMain(L5RCMCore):
         fr_    = QtGui.QFrame(self)
         fr_h   = QtGui.QHBoxLayout(fr_)
         fr_h.setContentsMargins(0, 0, 0, 0)
-        fr_h.addWidget(QtGui.QLabel(self.tr("""<p><i>Click the button to refund
-                                             the last advancement</i></p>"""), self))
+        fr_h.addWidget(QtGui.QLabel(self.tr("""<p><i>Select the advancement to refund and hit the button</i></p>"""), self))
         bt_refund_adv = QtGui.QPushButton(self.tr("Refund"), self)
         bt_refund_adv.setSizePolicy( QtGui.QSizePolicy.Maximum,
                                      QtGui.QSizePolicy.Preferred )
@@ -1366,6 +1366,10 @@ class L5RMain(L5RCMCore):
         open_data_dir_act = QtGui.QAction(self.tr("Open Data Directory" ), self)
         reload_data_act   = QtGui.QAction(self.tr("Reload data"         ), self)
         
+        # Background
+        set_background_act = QtGui.QAction(self.tr("Background image..."), self)
+        set_background_act.triggered.connect(self.sink4.on_set_background)
+        
         self.app_menu_tb.setAutoRaise(True)        
         self.app_menu_tb.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
         self.app_menu_tb.setPopupMode( QtGui.QToolButton.InstantPopup )
@@ -1385,6 +1389,7 @@ class L5RMain(L5RCMCore):
         self.app_menu.addSeparator()
         # TOOLS
         self.app_menu.addAction(dice_roll_act)
+        self.app_menu.addAction(set_background_act)        
         self.app_menu.addSeparator()        
         # OUTFIT
         self.app_menu.addAction(sel_armor_act)        
@@ -1395,21 +1400,20 @@ class L5RMain(L5RCMCore):
         # RULES
         self.app_menu.addAction(set_exp_limit_act)        
         self.app_menu.addAction(set_wound_mult_act)        
-        self.app_menu.addAction(buy_for_free_act)                
-        self.app_menu.addAction(damage_act)        
+        self.app_menu.addAction(buy_for_free_act)                      
         self.app_menu.addSeparator()
         # INSIGHT
         self.app_menu.addMenu(m_insight_calc)
         # HEALTH
         self.app_menu.addMenu(m_health_calc)        
+        self.app_menu.addAction(damage_act)
+        self.app_menu.addSeparator()
         # DATA
         self.app_menu.addAction(import_data_act)        
         self.app_menu.addAction(manage_data_act)        
         self.app_menu.addAction(open_data_dir_act)                
         self.app_menu.addAction(reload_data_act)        
-        self.app_menu.addSeparator()        
         self.app_menu.addSeparator()
-                
         # EXIT                
         self.app_menu.addAction(exit_act)        
         
