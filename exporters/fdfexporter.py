@@ -296,11 +296,14 @@ class FDFExporterShugenja(FDFExporter):
                 def_ = m.get_affinity().capitalize()
                 
             school = dal.query.get_school(f.dstore, schools[i].school_id)
-            tech   = dal.query.get_school_tech(school, 1)
-            fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
-            fields['AFFINITY.%d'  % (i+1)     ] = aff_
-            fields['DEFICIENCY.%d'  % (i+1)   ] = def_
-            fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
+            if school:
+                for tech in school.techs:
+                    fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
+                    fields['AFFINITY.%d'  % (i+1)     ] = aff_
+                    fields['DEFICIENCY.%d'  % (i+1)   ] = def_
+                    fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
+            else:
+                print('cannot export character school', schools[i].school_id)
             
         # EXPORT FIELDS    
         for k in fields.iterkeys():
