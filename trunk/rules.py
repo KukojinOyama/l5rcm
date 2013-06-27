@@ -206,7 +206,7 @@ def calculate_base_damage_roll(pc, weap):
     if 'ranged' in weap.tags and weap_str > 0: 
         # ranged calculation is different
         # a weapon does have its own strength
-        trait = weap_str
+        trait = min(weap_str, trait)
     
     drr, drk = parse_rtk(weap.dr)
                    
@@ -232,3 +232,4 @@ def calculate_mod_damage_roll(pc, weap):
             k_mod += x.value[1]
             
     return dmg_r+r_mod, dmg_k+k_mod    
+ 

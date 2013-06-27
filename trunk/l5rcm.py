@@ -489,6 +489,7 @@ class L5RMain(L5RCMCore):
             self.tx_cur_init  = QtGui.QLineEdit(self)
 
             self.tx_base_init.setReadOnly(True)
+            self.tx_mod_init .setReadOnly(True)
             self.tx_cur_init .setReadOnly(True)
 
             grd.addRow( self.tr("Base"    ), self.tx_base_init)
@@ -2191,15 +2192,17 @@ class L5RMain(L5RCMCore):
         self.wnd_lb.setTitle(self.tr("Health / Wounds (x%d)") % self.pc.health_multiplier)
 
         # initiative
-        r, k = self.pc.get_base_initiative()
-        self.tx_base_init.setText( rules.format_rtk(r, k) )
-        rtk = self.tx_mod_init.text()
-        r1, k1 = rules.parse_rtk(rtk)
-        if r1 and k1:
-            self.tx_cur_init.setText( rules.format_rtk(r+r1, k+k1) )
-            self.pc.mod_init = (r1, k1)
-        else:
-            self.tx_cur_init.setText( self.tx_base_init.text() )
+        #r, k = self.pc.get_base_initiative()
+        self.tx_base_init.setText( rules.format_rtk_t(self.pc.get_base_initiative()) )
+        #rtk = self.tx_mod_init.text()
+        #r1, k1 = rules.parse_rtk(rtk)
+        #if r1 and k1:
+        #    self.tx_cur_init.setText( rules.format_rtk(r+r1, k+k1) )
+        #    self.pc.mod_init = (r1, k1)
+        #else:
+        #    self.tx_cur_init.setText( self.tx_base_init.text() )
+        self.tx_mod_init.setText( rules.format_rtk_t(self.pc.get_init_modifiers()) )
+        self.tx_cur_init.setText( rules.format_rtk_t(self.pc.get_tot_initiative()) )
 
         # affinity / deficiency
         self.lb_affin.setText(self.pc.get_affinity().capitalize())
