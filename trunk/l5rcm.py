@@ -2634,9 +2634,9 @@ def main():
 
     # dump_slots(l5rcm, 'startup.txt')
 
-    # check for updates, do not check for linux because usually they've package managers
-    if sys.platform != 'linux2':
-        l5rcm.check_updates()
+    # check for updates
+    #if sys.platform != 'linux2':
+    l5rcm.check_updates()
     
     # initialize new character
     l5rcm.create_new_character()
