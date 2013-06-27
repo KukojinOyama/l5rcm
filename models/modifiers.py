@@ -28,7 +28,8 @@ MOD_TYPES = {
     "atkr" : "Attack Roll",
     "hrnk" : "Health Rank",    
     "artn" : "Armor TN",
-    "arrd" : "Armor RD"
+    "arrd" : "Armor RD",
+    "init" : "Initiative"
 }
 
 MOD_DTLS = {
@@ -39,7 +40,8 @@ MOD_DTLS = {
     "wdmg": ("aweap", "Select Weapon"),
     'atkr': ("aweap", "Select Weapon"),
     "artn": ("none", "N/A"),
-    "arrd": ("none", "N/A")
+    "arrd": ("none", "N/A"),
+    "init": ("none", "N/A"),
 }
 
 class ModifierModel(object):
