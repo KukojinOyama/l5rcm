@@ -267,6 +267,7 @@ class L5RMain(L5RCMCore):
             hb_school.setContentsMargins(0,0,0,0)            
             lb_school = QtGui.QLabel(self.tr("School"), self)
             bt_lock   = QtGui.QToolButton( self )
+            bt_lock.setCheckable(True)
             bt_lock.setToolTip(self.tr("Toggle show schools from all the clans"))
             bt_lock.setAutoRaise(True)
             bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
@@ -1523,7 +1524,6 @@ class L5RMain(L5RCMCore):
 
     def on_trait_increase(self, tag):
         '''raised when user click on the small '+' button near traits'''
-        print("increase trait: {0}", tag)
         if ( self.increase_trait( int(tag) ) == CMErrors.NOT_ENOUGH_XP ):
             self.not_enough_xp_advise(self)
 
@@ -2089,12 +2089,12 @@ class L5RMain(L5RCMCore):
         
         idx = self.cb_pc_school.currentIndex()
         s_uuid = self.cb_pc_school.itemData(idx)
-
+                
         if s_uuid == school_id:
-            return
-
-        print('set school to {0}, current school is {0}'.format(school_id, s_uuid))
-
+            return       
+        
+        print('set school to {0}, current school is {1}'.format(school_id, s_uuid))
+            
         found = False
         self.cb_pc_school.blockSignals(True)
         for i in xrange(0, self.cb_pc_school.count()):
