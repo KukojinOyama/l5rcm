@@ -42,29 +42,19 @@ class BuyAdvDialog(QtGui.QDialog):
     def build_ui(self):
         grid = QtGui.QGridLayout(self)
 
-        titles = dict(attrib=self.tr('Buy Attribute rank'),
+        titles = dict(
                       skill= self.tr('Buy Skill rank'    ),
-                      void=  self.tr('Buy Void rank'     ),
-                      emph=  self.tr('Buy Skill emphasys'),
-                      kata=  self.tr('Buy Kata'          ),
-                      kiho=  self.tr('Buy Kiho'          ),
-                      spell= self.tr('Buy Spell'         ))
+                      emph=  self.tr('Buy Skill emphasys'))
 
-        labels = dict(attrib=(self.tr('Choose Attribute' ),  None),
+        labels = dict(
                       skill= (self.tr('Choose Skill Type'), self.tr('Choose Skill'   )),
-                      emph=  (self.tr('Choose Skill'     ), self.tr('Choose Emphasis')),
-                      kata=  (self.tr('Choose Kata'      ), self.tr('Description'    )),
-                      kiho=  (self.tr('Choose Kiho'      ), self.tr('Description'    )),
-                      spell= (self.tr('Choose Spell'     ), None))
+                      emph=  (self.tr('Choose Skill'     ), self.tr('Choose Emphasis')))
 
         self.setWindowTitle( titles[self.tag] )
 
-        self.widgets = dict(attrib=(QtGui.QComboBox(self), None),
+        self.widgets = dict(
                             skill =(QtGui.QComboBox(self), QtGui.QComboBox(self)),
-                            emph  =(QtGui.QComboBox(self), QtGui.QLineEdit(self)),
-                            kata  =(QtGui.QComboBox(self), QtGui.QTextEdit(self)),
-                            kiho  =(QtGui.QComboBox(self), QtGui.QTextEdit(self)),
-                            spell =(None, None))
+                            emph  =(QtGui.QComboBox(self), QtGui.QLineEdit(self)))
 
         for t in self.widgets.itervalues():
             if t[0]: t[0].setVisible(False)
@@ -94,19 +84,7 @@ class BuyAdvDialog(QtGui.QDialog):
         self.widgets = {}
 
     def load_data(self):
-        if self.tag == 'attrib':
-            cb = self.widgets[self.tag][0]
-            cb.addItem(self.tr('Stamina'     ), models.ATTRIBS.STAMINA     )
-            cb.addItem(self.tr('Willpower'   ), models.ATTRIBS.WILLPOWER   )
-            cb.addItem(self.tr('Reflexes'    ), models.ATTRIBS.REFLEXES    )
-            cb.addItem(self.tr('Awareness'   ), models.ATTRIBS.AWARENESS   )
-            cb.addItem(self.tr('Strength'    ), models.ATTRIBS.STRENGTH    )
-            cb.addItem(self.tr('Perception'  ), models.ATTRIBS.PERCEPTION  )
-            cb.addItem(self.tr('Agility'     ), models.ATTRIBS.AGILITY     )
-            cb.addItem(self.tr('Intelligence'), models.ATTRIBS.INTELLIGENCE)
-        elif self.tag == 'void':
-            self.on_void_select()
-        elif self.tag == 'skill':
+        if self.tag == 'skill':
             cb = self.widgets[self.tag][0]
             for t in self.dstore.skcategs:
                 cb.addItem( t.name, t.id )
@@ -118,26 +96,6 @@ class BuyAdvDialog(QtGui.QDialog):
 
             self.lb_cost.setText(self.tr('Cost: 2 exp'))
             self.lb_from.setVisible(False)
-        elif self.tag == 'kata':
-            cb = self.widgets[self.tag][0]
-            te = self.widgets[self.tag][1]
-
-            te.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
-            te.setReadOnly(True)
-
-            for kata in self.dstore.katas:
-                if not self.pc.has_kata(kata.id):
-                    cb.addItem( kata.name, kata.id )
-        elif self.tag == 'kiho':
-            cb = self.widgets[self.tag][0]
-            te = self.widgets[self.tag][1]
-
-            te.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
-            te.setReadOnly(True)
-
-            for kiho in self.dstore.kihos:
-                if not self.pc.has_kiho(kiho.id):
-                    cb.addItem( kiho.name, kiho.id )
 
     def fix_skill_id(self, uuid):
         if self.tag == 'emph':
@@ -148,63 +106,14 @@ class BuyAdvDialog(QtGui.QDialog):
             cb.setEnabled(False)
 
     def connect_signals(self):
-        if self.tag == 'attrib':
-            cb = self.widgets[self.tag][0]
-            cb.currentIndexChanged.connect( self.on_attrib_select )
-        elif self.tag == 'skill':
+        if self.tag == 'skill':
             cb1 = self.widgets[self.tag][0]
             cb2 = self.widgets[self.tag][1]
             cb1.currentIndexChanged.connect( self.on_skill_type_select )
             cb2.currentIndexChanged.connect( self.on_skill_select )
-        elif self.tag == 'kata':
-            cb = self.widgets[self.tag][0]
-            cb.currentIndexChanged.connect( self.on_kata_select )
-        elif self.tag == 'kiho':
-            cb = self.widgets[self.tag][0]
-            cb.currentIndexChanged.connect( self.on_kiho_select )
-
 
         self.bt_buy.clicked.connect  ( self.buy_advancement )
         self.bt_close.clicked.connect( self.close           )
-
-    def on_void_select(self):
-        cur_value = self.pc.get_ring_rank( models.RINGS.VOID )
-        new_value = cur_value + 1
-
-        cost = self.pc.void_cost * new_value
-        if self.pc.has_rule('enlightened'):
-            cost -= 2
-
-        self.lb_from.setText('From %d to %d' % (cur_value, new_value))
-        self.lb_cost.setText('Cost: %d exp' % cost)
-
-        self.adv = advances.VoidAdv(cost)
-        self.adv.desc = (self.tr('Void Ring, Rank {0} to {1}. Cost: {2} xp')
-                         .format( cur_value, new_value, self.adv.cost ))
-
-    def on_attrib_select(self, text = ''):
-        cb = self.widgets['attrib'][0]
-        idx = cb.currentIndex()
-        attrib = cb.itemData(idx)
-        text   = cb.itemText(idx)
-        cur_value = self.pc.get_attrib_rank( attrib )
-        new_value = cur_value + 1
-
-        ring_id = models.get_ring_id_from_attrib_id(attrib)
-        ring_nm = models.ring_name_from_id(ring_id)
-
-        cost = self.pc.get_attrib_cost( attrib ) * new_value
-        if self.pc.has_rule('elem_bless_%s' % ring_nm):
-            cost -= 1
-
-        self.lb_from.setText(self.tr('From {0} to {1}')
-                             .format(cur_value, new_value))
-        self.lb_cost.setText(self.tr('Cost: {0} exp')
-                             .format(cost))
-
-        self.adv = advances.AttribAdv(attrib, cost)
-        self.adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
-                         .format( text, cur_value, new_value, self.adv.cost ))
 
     def on_skill_type_select(self, text = ''):
         cb1   = self.widgets['skill'][0]
@@ -255,143 +164,6 @@ class BuyAdvDialog(QtGui.QDialog):
         self.adv.desc = (self.tr('{0}, Rank {1} to {2}. Cost: {3} xp')
                          .format( text, cur_value, new_value, self.adv.cost ))
 
-    def on_kata_select(self, text = ''):
-        cb  = self.widgets['kata'][0]
-        te  = self.widgets['kata'][1]
-        idx  = cb.currentIndex()
-        uuid = cb.itemData(idx)
-        text = cb.itemText(idx)
-
-        self.lb_from.setText("")
-        self.lb_cost.setText("")
-        te.setHtml("")
-
-        kata = dal.query.get_kata(self.dstore, uuid)
-        if not kata:
-            return
-
-        requirements = kata.require
-
-        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kata.element, kata.mastery))
-        self.lb_cost.setText(self.tr('Cost: {0} exp').format(kata.mastery))
-
-        # te.setText("")
-        html = unicode.format(u"<p><em>{0}</em></p>", kata.desc)
-
-        # CHECK REQUIREMENTS
-        ring_id  = models.ring_from_name(kata.element)
-        ring_val = self.pc.get_ring_rank(ring_id)
-
-        self.adv = None
-
-        ok = len(requirements) == 0
-        for req in requirements:
-            if self.pc.has_tag(req.field) or self.pc.has_rule(req.field):
-                ok = True
-                break
-
-        if not ok:
-            html += self.tr(
-                    "<p><strong>"
-                    "To Buy this kata you need to match "
-                    "at least one of there requirements:"
-                    "</strong></p>")
-
-            html += unicode.format(u"<p><ul>{0}</ul></p>",
-                          ''.join(['<li>{0}</li>'.format(x.text)
-                                  for x in requirements]))
-
-        ok = ok and ring_val >= kata.mastery
-        if not ok:
-            html += unicode.format(self.tr("\n<p>You need a value of {0} in your {1} Ring</p>"),
-                               kata.mastery, kata.element)
-        else:
-            self.adv = models.KataAdv(uuid, kata.id, kata.mastery)
-            self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kata.name, self.adv.cost )
-
-        self.bt_buy.setEnabled(ok)
-        te.setHtml(html)
-
-    def on_kiho_select(self, text = ''):
-        cb  = self.widgets['kiho'][0]
-        te  = self.widgets['kiho'][1]
-        idx  = cb.currentIndex()
-        uuid = cb.itemData(idx)
-        text = cb.itemText(idx)
-
-        self.lb_from.setText("")
-        self.lb_cost.setText("")
-        te.setHtml("")
-
-        kiho = dal.query.get_kiho(self.dstore, uuid)
-
-        if not kiho:
-            return
-
-        # te.setText("")
-        html = unicode.format(u"<p><b>{0} kiho</b></p>".format(kiho.type)) # TODO: translate kiho type
-        html += unicode.format(u"<p><em>{0}</em></p>", kiho.desc)
-
-        # check eligibility
-        against_mastery     = 0
-        cost_mult           = 1
-        eligible            = False
-        monk_schools        = [ x for x in self.pc.schools if x.has_tag('monk') ]
-        brotherhood_schools = [ x for x in monk_schools if x.has_tag('brotherhood') ]
-        school_bonus        = 0
-        is_brotherhood      = len(brotherhood_schools) > 0
-        is_monk             = len(monk_schools) > 0
-        relevant_ring       = models.ring_from_name(kiho.element)
-        ring_rank           = self.pc.get_ring_rank(relevant_ring)
-        ninja_schools       = [ x for x in self.pc.schools if x.has_tag('ninja') ]
-        is_ninja            = len(ninja_schools) > 0
-        shugenja_schools    = [ x for x in self.pc.schools if x.has_tag('shugenja') ]
-        is_shugenja         = len(shugenja_schools) > 0
-
-        if is_ninja:
-            ninja_rank = sum( [x.school_rank for x in ninja_schools ] )
-
-        if is_monk:
-            school_bonus = sum( [x.school_rank for x in monk_schools ] )
-
-        against_mastery = school_bonus + ring_rank
-        if is_brotherhood:
-            eligible        = against_mastery >= kiho.mastery # 1px / mastery
-        elif is_monk:
-            cost_mult = 1.5
-            eligible        = against_mastery >= kiho.mastery # 1.5px / mastery
-        elif is_shugenja:
-            cost_mult = 2
-            eligible = ring_rank >= kiho.mastery
-        elif is_ninja:
-            cost_mult = 2
-            eligible = ninja_rank >= kiho.mastery
-        else:
-            eligible = False
-
-        print('is_brotherhood? ' + repr(is_brotherhood))
-        print('is_monk? ' + repr(is_monk))
-        print('is_shugenja? ' + repr(is_shugenja))
-        print('is_ninja? ' + repr(is_ninja))
-        print('cost_mult? ' + repr(cost_mult))
-
-        if not eligible:
-            html += self.tr("<p><b>You're not eligible to learn this Kiho</b></p>")
-
-        self.adv = models.KihoAdv(uuid, kiho.id, int(ceil(kiho.mastery*cost_mult)))
-        
-        # monks can get free kihos
-        if self.pc.get_free_kiho_count() > 0:
-            self.adv.cost = 0
-            
-        self.adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, self.adv.cost )
-
-        self.lb_from.setText(self.tr('Mastery: {0} {1}').format(kiho.element, kiho.mastery))
-        self.lb_cost.setText(self.tr('Cost: {0} exp').format(self.adv.cost))
-
-        self.bt_buy.setEnabled(eligible)
-        te.setHtml(html)
-
     def buy_advancement(self):
 
         if self.adv and ((self.adv.cost + self.pc.get_px()) >
@@ -401,13 +173,7 @@ class BuyAdvDialog(QtGui.QDialog):
             self.close()
             return
 
-        if self.tag == 'attrib':
-            self.pc.add_advancement( self.adv )
-            self.on_attrib_select()
-        elif self.tag == 'void':
-            self.pc.add_advancement( self.adv )
-            self.on_void_select()
-        elif self.tag == 'skill':
+        if self.tag == 'skill':
             self.pc.add_advancement( self.adv )
             self.on_skill_select()
         elif self.tag == 'emph':
@@ -420,14 +186,6 @@ class BuyAdvDialog(QtGui.QDialog):
                             .format( tx.text(), sk_name, self.adv.cost ))
             self.pc.add_advancement( self.adv )
             tx.setText('')
-        elif self.tag == 'kata':
-            self.pc.add_advancement( self.adv )
-            cb = self.widgets[self.tag][0]
-            cb.removeItem(cb.currentIndex())
-        elif self.tag == 'kiho':
-            self.pc.add_advancement( self.adv )
-            cb = self.widgets[self.tag][0]
-            cb.removeItem(cb.currentIndex())
 
         if self.quit_on_accept:
             self.accept()

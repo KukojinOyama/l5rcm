@@ -76,7 +76,6 @@ class Data(object):
         self.flaws     = []
         self.katas     = []
         self.kihos     = []
-        self.tattoos   = []
         
         self.weapons   = []
         self.armors    = []
@@ -137,7 +136,7 @@ class Data(object):
                     print("cannot parse file {0}".format(file_))
                     import traceback
                     traceback.print_exc()
-        self.__log_imported_data()
+        self.__log_imported_data(data_path)
         
     def __load_xml(self, xml_file):
         #print('load data from {0}'.format(xml_file))
@@ -179,7 +178,7 @@ class Data(object):
             elif elem.tag == 'TraitDef':
                 self.append_to(self.traits, GenericId.build_from_xml(elem))
                 
-    def __log_imported_data(self):
+    def __log_imported_data(self, source):
         map = {}
         map['clans'] = self.clans
         map['families'] = self.families
@@ -190,13 +189,12 @@ class Data(object):
         map['flaws'] = self.flaws
         map['katas'] = self.katas
         map['kihos'] = self.kihos
-        map['tattoos'] = self.tattoos
         map['weapons'] = self.weapons
         map['armors'] = self.armors
         map['skcategs'] = self.skcategs
         map['perktypes'] = self.perktypes
         map['weapon_effects'] = self.weapon_effects  
         
-        print('IMPORTED DATA')
+        print('IMPORTED DATA', source)
         for k in map:
             print("imported {0} {1}".format( len(map[k]), k))

@@ -15,11 +15,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+from xmlutils import *
+
 class PerkCateg(object):        
     @staticmethod
     def build_from_xml(elem):
         f = PerkCateg()
-        f.id = elem.attrib['id']
+        f.id   = elem.attrib['id']
         f.name = elem.text
         return f
     
@@ -43,7 +45,7 @@ class PerkException(object):
     @staticmethod
     def build_from_xml(elem):
         f = PerkException()
-        f.tag = elem.attrib['tag']
+        f.tag   = elem.attrib['tag']
         f.value = int(elem.attrib['value'])       
         return f
         
@@ -70,6 +72,7 @@ class Perk(object):
         f.id    = elem.attrib['id']
         f.type  = elem.attrib['type']
         f.rule  = elem.attrib['rule'] if ('rule' in elem.attrib) else f.id
+        f.desc  = read_sub_element_text(elem, 'Description', "")
         f.ranks = []
         for se in elem.iter():
             if se.tag == 'Rank':

@@ -93,3 +93,31 @@ class Sink4(QtCore.QObject):
         
     def on_money_value_changed(self, value):
         self.form.pc.set_property('money', value)        
+    
+    def open_image_dialog(self):
+        supported_ext     = ['.png']
+        supported_filters = [self.tr("PNG Images (*.png)")]
+
+        settings = QtCore.QSettings()
+        last_data_dir = settings.value('last_open_image_dir', QtCore.QDir.homePath())
+        fileName = QtGui.QFileDialog.getOpenFileName(
+                                self.form,
+                                self.tr("Open image"),
+                                last_data_dir,
+                                ";;".join(supported_filters))
+        if len(fileName) != 2:
+            return None
+            
+        last_data_dir = os.path.dirname(fileName[0])
+        if last_data_dir != '':
+            settings.setValue('last_open_image_dir', last_data_dir)
+        return fileName[0]    
+    
+    def on_set_background(self):
+        file = self.open_image_dialog()
+        if not file: return
+        
+        settings = QtCore.QSettings()
+        settings.setValue('background_image', file)
+                
+        self.form.update_background_image()

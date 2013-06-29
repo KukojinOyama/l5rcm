@@ -437,10 +437,28 @@ class AdvancedPcModel(BasePcModel):
         return max_
 
     def get_base_initiative(self):
-        return ( self.get_insight_rank() +
-                 self.get_mod_attrib_rank(ATTRIBS.REFLEXES),
-                 self.get_mod_attrib_rank(ATTRIBS.REFLEXES))
-
+        return (self.get_insight_rank() +
+               self.get_mod_attrib_rank(ATTRIBS.REFLEXES),
+                self.get_mod_attrib_rank(ATTRIBS.REFLEXES))
+                 
+    def get_init_modifiers (self):
+        r, k, b = 0, 0, 0
+        mods = [x for x in 
+                self.get_modifiers('anyr') + self.get_modifiers('init')
+                if x.active]
+        for m in mods:
+            r += m.value[0]
+            k += m.value[1]
+            if len(m.value) > 2:
+                b += m.value[2]
+        return r,k,b
+        
+    def get_tot_initiative (self):
+        r, k = self.get_base_initiative()
+        b    = 0
+        r1, k1, b1 = self.get_init_modifiers ()
+        return r+r1, k+k1, b+b1
+                 
     def get_px(self):
         count = 0
         for a in self.advans:
@@ -651,7 +669,7 @@ class AdvancedPcModel(BasePcModel):
                     count -= 1
                 if count <= 0:
                     break
-            print 'now i got %s spells' % len(self.get_spells())
+            print('now i got {} spells'.format(len(self.get_spells())))
             
     def remove_spell(self, spell_id):
         for s in self.schools:

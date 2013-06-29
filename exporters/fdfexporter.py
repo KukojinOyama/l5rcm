@@ -296,11 +296,14 @@ class FDFExporterShugenja(FDFExporter):
                 def_ = m.get_affinity().capitalize()
                 
             school = dal.query.get_school(f.dstore, schools[i].school_id)
-            tech   = dal.query.get_school_tech(school, 1)
-            fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
-            fields['AFFINITY.%d'  % (i+1)     ] = aff_
-            fields['DEFICIENCY.%d'  % (i+1)   ] = def_
-            fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
+            if school:
+                for tech in school.techs:
+                    fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
+                    fields['AFFINITY.%d'  % (i+1)     ] = aff_
+                    fields['DEFICIENCY.%d'  % (i+1)   ] = def_
+                    fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
+            else:
+                print('cannot export character school', schools[i].school_id)
             
         # EXPORT FIELDS    
         for k in fields.iterkeys():
@@ -421,4 +424,38 @@ class FDFExporterMonk(FDFExporter):
         except Exception as e:
             print( repr(e) )
             return None
+
+class FDFExporterWeapons(FDFExporter):
+    def __init__(self):
+        super(FDFExporterWeapons, self).__init__()
         
+    def export_body(self, io):
+        m = self.model
+        f = self.form
+        fields = {}
+        # WEAPONS
+        
+        count = min(10, len(m.get_weapons()))
+        j = 0
+        
+        for weap in m.get_weapons()[0:count]:         
+            weap.base_atk = rules.format_rtk_t(rules.calculate_base_attack_roll(m, weap))
+            weap.max_atk  = rules.format_rtk_t(rules.calculate_mod_attack_roll (m, weap))
+            weap.base_dmg = rules.format_rtk_t(rules.calculate_base_damage_roll(m, weap))
+            weap.max_dmg  = rules.format_rtk_t(rules.calculate_mod_damage_roll (m, weap))     
+            
+            fields['WEAPON.TYPE.%d'  % j] = weap.name
+            if weap.base_atk != weap.max_atk:
+                fields['WEAPON.ATK.%d'   % j] = weap.base_atk + "/" + weap.max_atk
+            else:
+                fields['WEAPON.ATK.%d'   % j] = weap.base_atk
+            if weap.base_dmg != weap.max_dmg:
+                fields['WEAPON.DMG.%d'   % j] = weap.base_dmg + "/" + weap.max_dmg
+            else:
+                fields['WEAPON.DMG.%d'   % j] = weap.base_dmg                
+            fields['WEAPON.NOTES.%d' % j] = weap.desc                
+            j+=1
+            
+        # EXPORT FIELDS    
+        for k in fields.iterkeys():
+            self.export_field(k, fields[k], io)              

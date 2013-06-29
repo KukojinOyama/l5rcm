@@ -35,7 +35,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.8.2'
+APP_VERSION = '3.9.0'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -129,12 +129,14 @@ class L5RCMCore(QtGui.QMainWindow):
     
         # Data storage
         if not self.dstore:
+            print('Loading datapack data')
             self.dstore = dal.Data( 
                 [osutil.get_user_data_path('core.data'),
                  osutil.get_user_data_path('data'),
                  osutil.get_user_data_path('data.' + self.locale)],
                  self.data_pack_blacklist)
         else:
+            print('Re-loading datapack data')
             self.dstore.rebuild(
                     [osutil.get_user_data_path('core.data'),
                     osutil.get_user_data_path('data'),
@@ -247,6 +249,15 @@ class L5RCMCore(QtGui.QMainWindow):
             fd, fpath = mkstemp(suffix='.pdf');
             os.fdopen(fd, 'wt').close()
             _flatten_pdf(source_fdf, source_pdf, fpath)
+            temp_files.append(fpath)
+            
+        # WEAPONS
+        if len(self.pc.weapons) > 2:
+            source_pdf = get_app_file('sheet_weapons.pdf')
+            source_fdf = _create_fdf(exporters.FDFExporterWeapons())  
+            fd, fpath = mkstemp(suffix='.pdf');
+            os.fdopen(fd, 'wt').close()
+            _flatten_pdf(source_fdf, source_pdf, fpath)        
             temp_files.append(fpath)
         
         if os.path.exists(export_file):
