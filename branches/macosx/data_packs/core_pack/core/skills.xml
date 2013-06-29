@@ -334,6 +334,12 @@
     </Tags>
     <MasteryAbilities/>
   </SkillDef>
+  <SkillDef trait="intelligence" type="high" id="lore_mantis" name="Lore (Mantis)">
+    <Tags>
+      <Tag>lore</Tag>
+    </Tags>
+    <MasteryAbilities/>
+  </SkillDef> 
   <SkillDef trait="intelligence" type="high" id="lore_elements" name="Lore (Elements)">
     <Tags>
       <Tag>lore</Tag>

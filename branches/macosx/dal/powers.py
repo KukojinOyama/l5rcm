@@ -15,8 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from requirements import Requirement, RequirementOption
-from xmlutils import read_attribute, read_attribute_int, read_sub_element_text, read_tag_list
+from requirements import Requirement, RequirementOption, read_requirements_list
+from xmlutils import *
+
 class Kiho(object):
 
     @staticmethod
@@ -28,8 +29,8 @@ class Kiho(object):
         f.type    = read_attribute(elem, 'type')
         f.mastery = read_attribute_int(elem, 'mastery')
         f.desc    = read_sub_element_text(elem, 'Description', "")
-        
-        f.tags  = read_tag_list(elem)
+        f.require = read_requirements_list(elem)
+        f.tags    = read_tag_list(elem)
                 
         return f        
         
@@ -58,17 +59,8 @@ class Kata(object):
         f.element = read_attribute(elem, 'element')
         f.mastery = read_attribute_int(elem, 'mastery')
         f.desc    = read_sub_element_text(elem, 'Description', "")
-        # requirements
-        f.require = []
-       
-        for se in elem.find('Requirements'):
-            if se.tag == 'Requirement':
-                f.require.append(Requirement.build_from_xml(se))        
-            if se.tag == 'RequirementOption':
-                f.require.append(RequirementOption.build_from_xml(se))
-                
-        f.tags  = read_tag_list(elem)             
-                
+        f.require = read_requirements_list(elem)
+        f.tags  = read_tag_list(elem)                            
         return f        
         
     def __str__(self):
