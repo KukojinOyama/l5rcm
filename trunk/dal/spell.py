@@ -53,5 +53,5 @@ class Spell(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()
+        return self.id.__hash__()
 

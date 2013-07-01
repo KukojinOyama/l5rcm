@@ -176,7 +176,7 @@ class SpellItemSelection(QtGui.QWidget):
         no_defic  = self.no_deficiency        
 
         if defic == ring and no_defic:
-            cb_spell.clear()
+            self.cb_spell.clear()
         else:
             self.update_spell_list()
             
