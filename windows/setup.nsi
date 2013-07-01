@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Legend of the Five Rings: Character Manager"
-!define PRODUCT_VERSION "3.8.2"
+!define PRODUCT_VERSION "3.9.1"
 !define PRODUCT_PUBLISHER "openningia"
 !define PRODUCT_WEB_SITE "http://code.google.com/p/l5rcm/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\l5rcm.exe"
