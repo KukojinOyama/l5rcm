@@ -79,21 +79,21 @@ def pause_signals(wdgs):
 
 def resume_signals(wdgs):
     for w in wdgs: w.blockSignals(False)
-    
+
 class ZoomableView(QtGui.QGraphicsView):
     '''A QGraphicsView that zoom on CTRL+MouseWheel'''
-    
+
     def __init__(self, parent = None):
         super(ZoomableView, self).__init__(parent)
         self.wp   = None
-        
-    def wheelEvent(self, ev):    
+
+    def wheelEvent(self, ev):
         if ( ev.modifiers() & QtCore.Qt.ControlModifier ):
             factor = pow(1.16, ev.delta() / 240.0)
             self.scale(factor, factor)
         else:
-            super(ZoomableView, self).wheelEvent(ev)        
-            
+            super(ZoomableView, self).wheelEvent(ev)
+
     def keyPressEvent(self, ev):
         super(ZoomableView, self).keyPressEvent(ev)
         if ( ev.modifiers() & QtCore.Qt.ControlModifier ):
@@ -102,37 +102,37 @@ class ZoomableView(QtGui.QGraphicsView):
             elif ( ev.key() == QtCore.Qt.Key_Minus ):
                 self.scale(0.80, 0.80)
             elif ( ev.key() == QtCore.Qt.Key_Plus ):
-                self.scale(1.20, 1.20)    
+                self.scale(1.20, 1.20)
 
     def set_wallpaper(self, image):
         self.wp = image
         self.viewport().update()
-       
+
     def drawBackground(self, painter, rect):
         super(ZoomableView, self).drawBackground(painter, rect)
-        
+
         def zoom_image():
             sx, sy = 0, 0
             tx, ty = rect.x(), rect.y()
             sh, sw = self.wp.height(), self.wp.width()
-                       
+
             if self.wp.width() > rect.width():
                 sx = (self.wp.width() - rect.width()) / 2
                 sw -= sx*2
             else:
                 tx += (rect.width() - self.wp.width()) / 2
-                
+
             if self.wp.height() > rect.height():
                 sy = (self.wp.height() - rect.height()) / 2
                 sh -= sy*2
             else:
                 ty += (rect.height() - self.wp.height()) / 2
-        
+
             return QtCore.QRectF(sx, sy, sw, sh), QtCore.QPointF(tx, ty)
-        
-        if self.wp:            
-            source_rect, target_point = zoom_image()            
-            
+
+        if self.wp:
+            source_rect, target_point = zoom_image()
+
             painter.drawImage( target_point, self.wp, source_rect )
 
 class L5RMain(L5RCMCore):
@@ -140,12 +140,12 @@ class L5RMain(L5RCMCore):
     default_size       = QtCore.QSize(820, 720)
     default_point_size = 8.25
     num_tabs           = 10
-    
+
     def __init__(self, locale = None, parent = None):
         super(L5RMain, self).__init__(locale, parent)
 
         # character file save path
-        self.save_path = ''        
+        self.save_path = ''
 
         # slot sinks
         self.sink1 = sinks.Sink1(self) # Menu Sink
@@ -169,17 +169,17 @@ class L5RMain(L5RCMCore):
         self.build_ui_page_9 ()
         self.build_ui_page_10()
         self.build_ui_page_about()
-               
+
         self.tabs.setIconSize(QtCore.QSize(24,24))
         tabs_icons = ['samurai', 'music', 'burn', 'powers', 'userinfo', 'book', 'katana', 'disk', 'text', 'bag']
         for i in xrange(0, self.num_tabs):
             self.tabs.setTabIcon(i, QtGui.QIcon(get_tab_icon(tabs_icons[i])))
             self.tabs.setTabText(i, '')
-            
+
         # about = app_icon
         self.tabs.setTabIcon(self.num_tabs, QtGui.QIcon(get_app_icon_path()))
         self.tabs.setTabText(self.num_tabs, '')
-        
+
         # donate button
         self.setup_donate_button()
 
@@ -187,23 +187,23 @@ class L5RMain(L5RCMCore):
 
     def build_ui(self):
         # Main interface widgets
-        self.view = ZoomableView(self)       
-            
+        self.view = ZoomableView(self)
+
         settings = QtCore.QSettings()
-        
+
         self.widgets = QtGui.QFrame()
         self.widgets.setFrameShape( QtGui.QFrame.StyledPanel )
         self.widgets.setLineWidth ( 1 )
-        #self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) )         
-        self.tabs = QtGui.QTabWidget(self)        
+        #self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) )
+        self.tabs = QtGui.QTabWidget(self)
         #self.setCentralWidget(self.widgets)
         self.scene = QtGui.QGraphicsScene(self)
-        proxy_widget = self.scene.addWidget(self.widgets, QtCore.Qt.Widget)        
+        proxy_widget = self.scene.addWidget(self.widgets, QtCore.Qt.Widget)
         proxy_widget.setOpacity(float(settings.value('opacity', 0.96)))
         self.view.setScene(self.scene)
         self.view.setInteractive(True)
         self.setCentralWidget(self.view)
-        
+
         self.nicebar = None
 
         mvbox = QtGui.QVBoxLayout(self.widgets)
@@ -213,16 +213,16 @@ class L5RMain(L5RCMCore):
         mvbox.addWidget(logo)
         mvbox.addWidget(self.tabs)
 
-        self.mvbox = mvbox        
+        self.mvbox = mvbox
 
         # LOAD SETTINGS
-        geo = settings.value('geometry')     
-        
+        geo = settings.value('geometry')
+
         if geo is not None:
             self.restoreGeometry(geo)
         else:
             self.setGeometry( QtCore.QRect(100, 100, 820, 720) )
-            
+
         self.ic_idx = int(settings.value('insight_calculation', 1))-1
         ic_calcs    = [rules.insight_calculation_1,
                        rules.insight_calculation_2,
@@ -230,12 +230,12 @@ class L5RMain(L5RCMCore):
         if self.ic_idx not in range(0, 3):
             self.ic_idx = 0
         self.ic_calc_method = ic_calcs[self.ic_idx]
-        
+
         self.update_background_image()
-        
+
     def update_background_image(self):
-        settings   = QtCore.QSettings()        
-        wallpaper_ = settings.value('background_image', '')        
+        settings   = QtCore.QSettings()
+        wallpaper_ = settings.value('background_image', '')
         if os.path.exists( wallpaper_ ):
             self.view.set_wallpaper( QtGui.QImage( wallpaper_ ) )
 
@@ -261,10 +261,10 @@ class L5RMain(L5RCMCore):
             self.tx_pc_exp    = QtGui.QLineEdit(self)
             self.tx_pc_ins    = QtGui.QLineEdit(self)
 
-            # 1st column            
+            # 1st column
             fr_school = QtGui.QFrame(self)
             hb_school = QtGui.QHBoxLayout(fr_school)
-            hb_school.setContentsMargins(0,0,0,0)            
+            hb_school.setContentsMargins(0,0,0,0)
             lb_school = QtGui.QLabel(self.tr("School"), self)
             bt_lock   = QtGui.QToolButton( self )
             bt_lock.setCheckable(True)
@@ -273,7 +273,7 @@ class L5RMain(L5RCMCore):
             bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
             hb_school.addWidget(lb_school)
             hb_school.addWidget(bt_lock)
-            
+
             # Place "generate random name" near the Name label
             lb_name            = QtGui.QLabel(self.tr("Name"), self)
             bt_generate_male   = QtGui.QToolButton( self )
@@ -288,19 +288,19 @@ class L5RMain(L5RCMCore):
             hb_name.addWidget(lb_name)
             hb_name.addWidget(bt_generate_male)
             hb_name.addWidget(bt_generate_female)
-            
+
             # gender tag, connect signals
             bt_generate_male  .setProperty('gender', 'male')
             bt_generate_female.setProperty('gender', 'female')
             bt_generate_male  .clicked.connect( self.sink1.generate_name )
             bt_generate_female.clicked.connect( self.sink1.generate_name )
-                    
+
             #grid.addWidget( QtGui.QLabel(self.tr("Name"  ), self), 0, 0 )
             grid.addLayout( hb_name, 0, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Clan"  ), self), 1, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Family"), self), 2, 0 )
             grid.addWidget( fr_school, 3, 0 )
-            
+
             self.bt_school_lock          = bt_lock
 
             # 3rd column
@@ -325,7 +325,7 @@ class L5RMain(L5RCMCore):
 
             fr_pc_info.setLayout(grid)
             mvbox.addWidget(fr_pc_info)
-        
+
         def build_trait_frame():
             fr = QtGui.QFrame(self)
             fr.setSizePolicy(QtGui.QSizePolicy.Preferred,
@@ -424,10 +424,10 @@ class L5RMain(L5RCMCore):
             return fr
 
         def build_flags_frame():
-            tx_flags = [self.tr("Honor" ), self.tr("Glory"           ),                        
+            tx_flags = [self.tr("Honor" ), self.tr("Glory"           ),
                         self.tr("Status"), self.tr("Shadowland Taint"),
                         self.tr("Infamy"           )]
-                                    
+
             ob_flags_p = []
             ob_flags_r = []
             fr = QtGui.QFrame(self)
@@ -453,20 +453,20 @@ class L5RMain(L5RCMCore):
             self.pc_flags_rank   = ob_flags_r
 
             return fr
-            
+
         def add_traits_and_flags():
             trait_frame = build_trait_frame()
             flags_frame = build_flags_frame()
-            
+
             fr   = QtGui.QFrame(self)
             hbox = QtGui.QHBoxLayout(fr)
-            
+
             fr.setSizePolicy(QtGui.QSizePolicy.Expanding,
                             QtGui.QSizePolicy.Maximum)
-            
+
             hbox.addWidget(trait_frame)
             hbox.addWidget(flags_frame)
-            
+
             mvbox.addWidget(fr)
 
         def add_pc_quantities(row, col):
@@ -559,11 +559,11 @@ class L5RMain(L5RCMCore):
             hbox.addWidget(grp, 2)
 
             mvbox.addWidget(fr)
-                
+
         add_pc_info(0, 0)
         mvbox.addWidget(new_horiz_line(self))
-        add_traits_and_flags()        
-        mvbox.addWidget(new_horiz_line(self))        
+        add_traits_and_flags()
+        mvbox.addWidget(new_horiz_line(self))
         add_pc_quantities(4, 0)
 
     def _build_generic_page(self, models_):
@@ -685,7 +685,7 @@ class L5RMain(L5RCMCore):
         layout.addWidget(grp)
 
         return view
-        
+
     def _build_kata_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Kata"), self)
         hbox   = QtGui.QHBoxLayout(grp)
@@ -756,10 +756,10 @@ class L5RMain(L5RCMCore):
             self.add_kiho_bt   = vtb.addButton(
                                 QtGui.QIcon(get_icon_path('buy',(16,16))),
                                 self.tr("Add new Kiho"), cb_buy)
-                                
+
             self.add_tattoo_bt = vtb.addButton(
                                 QtGui.QIcon(get_icon_path('buy',(16,16))),
-                                self.tr("Add new Tattoo"), cb_buy_tattoo)                                
+                                self.tr("Add new Tattoo"), cb_buy_tattoo)
 
             self.del_kiho_bt   = vtb.addButton(
                                 QtGui.QIcon(get_icon_path('minus',(16,16))),
@@ -779,7 +779,7 @@ class L5RMain(L5RCMCore):
         view.horizontalHeader().setResizeMode(QtGui.QHeaderView.Interactive)
         view.horizontalHeader().setStretchLastSection(True)
         view.horizontalHeader().setCascadingSectionResizes(True)
-        view.setModel(model)        
+        view.setModel(model)
         self.ki_table_view = view
 
         vbox.addWidget(view)
@@ -789,7 +789,7 @@ class L5RMain(L5RCMCore):
 
         layout.addWidget(grp)
 
-        return view            
+        return view
 
     def build_ui_page_2(self):
         self.sk_view_model = models.SkillTableViewModel(self.dstore, self)
@@ -839,7 +839,7 @@ class L5RMain(L5RCMCore):
         self._build_tech_frame (self.th_view_model, vbox)
 
         self.tabs.addTab(frame_, self.tr("Techniques"))
-        
+
     def build_ui_page_4(self):
         self.ka_view_model = models.KataTableViewModel(self.dstore, self)
         self.ki_view_model = models.KihoTableViewModel(self.dstore, self)
@@ -848,10 +848,10 @@ class L5RMain(L5RCMCore):
         ka_sort_model = models.ColorFriendlySortProxyModel(self)
         ka_sort_model.setDynamicSortFilter(True)
         ka_sort_model.setSourceModel(self.ka_view_model)
-        
+
         ki_sort_model = models.ColorFriendlySortProxyModel(self)
         ki_sort_model.setDynamicSortFilter(True)
-        ki_sort_model.setSourceModel(self.ki_view_model)        
+        ki_sort_model.setSourceModel(self.ki_view_model)
 
         frame_ = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(frame_)
@@ -860,7 +860,7 @@ class L5RMain(L5RCMCore):
         self.kata_view = self._build_kata_frame(ka_sort_model     , vbox)
         self.kiho_view = self._build_kiho_frame(ki_sort_model     , vbox)
 
-        self.tabs.addTab(frame_, self.tr("Powers"))        
+        self.tabs.addTab(frame_, self.tr("Powers"))
 
     def build_ui_page_5(self):
         mfr    = QtGui.QFrame(self)
@@ -1021,7 +1021,7 @@ class L5RMain(L5RCMCore):
             vtb.addButton(QtGui.QIcon(get_icon_path('buy',(16,16))),
                           self.tr("Add modifier"), self.sink4.add_new_modifier)
             vtb.addButton(QtGui.QIcon(get_icon_path('edit',(16,16))),
-                          self.tr("Edit modifier"), self.sink4.edit_selected_modifier)                         
+                          self.tr("Edit modifier"), self.sink4.edit_selected_modifier)
             vtb.addButton(QtGui.QIcon(get_icon_path('minus',(16,16))),
                           self.tr("Remove modifier"), self.sink4.remove_selected_modifier)
 
@@ -1047,7 +1047,7 @@ class L5RMain(L5RCMCore):
 
         self.tx_pc_notes = widgets.SimpleRichEditor(self)
         vbox.addWidget(self.tx_pc_notes)
-        
+
         def build_pers_info():
             grp  = QtGui.QGroupBox(self.tr("Personal Informations"), self)
             grp.setSizePolicy(QtGui.QSizePolicy.Expanding,
@@ -1084,14 +1084,16 @@ class L5RMain(L5RCMCore):
 
             self.tx_pc_father   = QtGui.QLineEdit(self)
             self.tx_pc_mother   = QtGui.QLineEdit(self)
-            self.tx_pc_brosis   = QtGui.QLineEdit(self)
+            self.tx_pc_bro      = QtGui.QLineEdit(self)
+            self.tx_pc_sis      = QtGui.QLineEdit(self)
             self.tx_pc_marsta   = QtGui.QLineEdit(self)
             self.tx_pc_spouse   = QtGui.QLineEdit(self)
             self.tx_pc_childr   = QtGui.QLineEdit(self)
 
             bfl.addRow( self.tr("Father"            ), self.tx_pc_father)
             bfl.addRow( self.tr("Mother"            ), self.tx_pc_mother)
-            bfl.addRow( self.tr("Brothers, Sisters" ), self.tx_pc_brosis)
+            bfl.addRow( self.tr("Brothers"          ), self.tx_pc_bro   )
+            bfl.addRow( self.tr("Sisters"           ), self.tx_pc_sis   )
             bfl.addRow( self.tr("Marital Status"    ), self.tx_pc_marsta)
             bfl.addRow( self.tr("Spouse"            ), self.tx_pc_spouse)
             bfl.addRow( self.tr("Children"          ), self.tx_pc_childr)
@@ -1102,8 +1104,8 @@ class L5RMain(L5RCMCore):
                          self.tx_pc_height, self.tx_pc_weight,
                          self.tx_pc_hair, self.tx_pc_eyes,
                          self.tx_pc_father, self.tx_pc_mother,
-                         self.tx_pc_brosis, self.tx_pc_marsta,
-                         self.tx_pc_spouse, self.tx_pc_childr]
+                         self.tx_pc_bro, self.tx_pc_marsta,
+                         self.tx_pc_sis, self.tx_pc_spouse, self.tx_pc_childr]
 
             # link personal information widgets
             self.tx_pc_sex.link    = 'sex'
@@ -1114,17 +1116,18 @@ class L5RMain(L5RCMCore):
             self.tx_pc_eyes.link   = 'eyes'
             self.tx_pc_father.link = 'father'
             self.tx_pc_mother.link = 'mother'
-            self.tx_pc_brosis.link = 'brosis'
+            self.tx_pc_bro.link    = 'brothers'
+            self.tx_pc_sis.link    = 'sisters'
             self.tx_pc_marsta.link = 'marsta'
             self.tx_pc_spouse.link = 'spouse'
             self.tx_pc_childr.link = 'childr'
 
             return grp
-        
+
         vbox.addWidget(build_pers_info())
 
         self.tabs.addTab(mfr, self.tr("Notes"))
-        
+
     def build_ui_page_10(self):
         self.equip_view_model  = models.EquipmentListModel(self)
         #self.equip_view_model.user_change.connect(self.update_from_model)
@@ -1155,11 +1158,11 @@ class L5RMain(L5RCMCore):
 
         frame_, views_ = self._build_generic_page(models_)
         self.equip_view = views_[0]
-        
+
         font = self.equip_view.font()
         font.setPointSize(11.5)
         self.equip_view.setFont(font)
-        
+
         self.money_widget = widgets.MoneyWidget(self)
         frame_.layout().setSpacing(12)
         frame_.layout().addWidget(new_horiz_line(self))
@@ -1167,13 +1170,13 @@ class L5RMain(L5RCMCore):
         self.money_widget.valueChanged.connect(self.sink4.on_money_value_changed)
 
         #self.equip_view.setItemDelegate(models.EquipmentDelegate(self.dstore, self))
-        vtb .setProperty('source', self.equip_view)    
+        vtb .setProperty('source', self.equip_view)
         self.tabs.addTab(frame_ , self.tr("Equipment"))
 
     def build_ui_page_about(self):
         mfr    = QtGui.QFrame(self)
         #bfr    = QtGui.QFrame(self)
-        
+
         #hbox   = QtGui.QHBoxLayout(mfr)
         hbox   = QtGui.QHBoxLayout()
         hbox.setAlignment(QtCore.Qt.AlignCenter)
@@ -1186,7 +1189,7 @@ class L5RMain(L5RCMCore):
 
         vbox = QtGui.QVBoxLayout(mfr)
         vbox.setAlignment(QtCore.Qt.AlignCenter)
-        vbox.setSpacing  (30)        
+        vbox.setSpacing  (30)
 
         info = """<html><style>a { color: palette(text); }</style><body><h1>%s</h1>
                   <p>Version %s</p>
@@ -1216,58 +1219,58 @@ class L5RMain(L5RCMCore):
         lb_info.setOpenExternalLinks(True)
         lb_info.setWordWrap(True)
         hbox.addWidget(lb_info)
-        
+
         lb_contact_gplus = QtGui.QLabel(
         """<a href="{0}">Contact me on</a>
-        """.format(L5RCM_GPLUS_PAGE), self)        
+        """.format(L5RCM_GPLUS_PAGE), self)
         lb_contact_gplus.setOpenExternalLinks(True)
-        
+
         lb_contact_gplus_img = QtGui.QLabel(
         """
         <a href="{0}"><img src="{1}" alt="googleplus_page"/></a>
         """.format(L5RCM_GPLUS_PAGE, get_icon_path('new-g-plus-icon', (16, 16))), self)
         lb_contact_gplus_img.setOpenExternalLinks(True)
-                
+
         lb_join_community_gplus = QtGui.QLabel(
         """
         <a href="{0}">Join the Community on</a>
         """.format(L5RCM_GPLUS_COMM), self)
         lb_join_community_gplus.setOpenExternalLinks(True)
-        
+
         lb_join_community_gplus_img = QtGui.QLabel(
         """
         <a href="{0}"><img src="{1}" alt="googleplus_community"/></a>
         """.format(L5RCM_GPLUS_COMM, get_icon_path('new-g-plus-icon', (16, 16))), self)
         lb_join_community_gplus_img.setOpenExternalLinks(True)
-        
+
         gplus_form = QtGui.QFormLayout()
-        gplus_form.addRow( 
+        gplus_form.addRow(
             lb_contact_gplus,
             lb_contact_gplus_img)
-        gplus_form.addRow( 
+        gplus_form.addRow(
             lb_join_community_gplus,
             lb_join_community_gplus_img)
-                        
+
         gplus_form.setLabelAlignment(QtCore.Qt.AlignRight)
-        gplus_form.setVerticalSpacing(6)        
-        
+        gplus_form.setVerticalSpacing(6)
+
         gplus_hbox = QtGui.QHBoxLayout()
         gplus_hbox.setContentsMargins(0,0,50,0)
         gplus_hbox.addStretch()
-        gplus_hbox.addLayout(gplus_form)        
-        
+        gplus_hbox.addLayout(gplus_form)
+
         vbox.addLayout(hbox)
         vbox.addLayout(gplus_hbox)
-        
+
         self.tabs.addTab(mfr, self.tr("About"))
 
-    def build_menu(self):      
-        
+    def build_menu(self):
+
         settings = QtCore.QSettings()
-        
-        self.app_menu_tb     = QtGui.QToolButton(self.widgets)          
-        self.app_menu        = QtGui.QMenu("AppMenu", self.app_menu_tb)  
-        
+
+        self.app_menu_tb     = QtGui.QToolButton(self.widgets)
+        self.app_menu        = QtGui.QMenu("AppMenu", self.app_menu_tb)
+
         # File Menu
         # actions: new, open, save
         new_act         = QtGui.QAction(self.tr("&New Character"), self)
@@ -1335,7 +1338,7 @@ class L5RMain(L5RCMCore):
             act.setCheckable(True)
             m_insight_calc.addAction (act)
         ic_list[self.ic_idx].setChecked(True)
-        
+
         # health calculation submenu
         m_health_calc = self.app_menu.addMenu(self.tr("Health Display"))
         self.hm_act_grp   = QtGui.QActionGroup(self)
@@ -1350,7 +1353,7 @@ class L5RMain(L5RCMCore):
         for act in hm_list:
             self.hm_act_grp.addAction(act)
             act.setCheckable(True)
-            m_health_calc.addAction  (act)            
+            m_health_calc.addAction  (act)
             if act.property('method') == hm_mode:
                 act.setChecked(True)
 
@@ -1361,84 +1364,84 @@ class L5RMain(L5RCMCore):
         set_wound_mult_act.triggered.connect(self.sink1.on_set_wnd_mult       )
         damage_act        .triggered.connect(self.sink1.on_damage_act         )
         buy_for_free_act  .toggled  .connect(self.sink1.on_toggle_buy_for_free)
-        
+
         # Data menu
         import_data_act   = QtGui.QAction(self.tr("Import Data pack..." ), self)
         manage_data_act   = QtGui.QAction(self.tr("Manage Data packs..."), self)
         open_data_dir_act = QtGui.QAction(self.tr("Open Data Directory" ), self)
         reload_data_act   = QtGui.QAction(self.tr("Reload data"         ), self)
-        
+
         # Background
         set_background_act = QtGui.QAction(self.tr("Background image..."), self)
         set_background_act.triggered.connect(self.sink4.on_set_background)
-        
-        self.app_menu_tb.setAutoRaise(True)        
+
+        self.app_menu_tb.setAutoRaise(True)
         self.app_menu_tb.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
         self.app_menu_tb.setPopupMode( QtGui.QToolButton.InstantPopup )
         self.app_menu_tb.setIconSize( QtCore.QSize(32, 32) )
         self.app_menu_tb.setIcon( QtGui.QIcon.fromTheme("application-menu", QtGui.QIcon(get_icon_path('gear', (32,32))) ))
         self.app_menu_tb.setArrowType( QtCore.Qt.NoArrow )
-                      
+
         # FILE MENU
         self.app_menu.addAction(new_act )
         self.app_menu.addAction(open_act)
         self.app_menu.addAction(save_act)
         self.app_menu.addAction(export_pdf_act)
         self.app_menu.addSeparator()
-        # ADV        
+        # ADV
         self.app_menu.addAction(resetadv_act)
         self.app_menu.addAction(refund_act)
         self.app_menu.addSeparator()
         # TOOLS
         self.app_menu.addAction(dice_roll_act)
-        self.app_menu.addAction(set_background_act)        
-        self.app_menu.addSeparator()        
+        self.app_menu.addAction(set_background_act)
+        self.app_menu.addSeparator()
         # OUTFIT
-        self.app_menu.addAction(sel_armor_act)        
-        self.app_menu.addAction(sel_cust_armor_act)        
-        self.app_menu.addAction(add_weap_act)                
-        self.app_menu.addAction(add_cust_weap_act)        
+        self.app_menu.addAction(sel_armor_act)
+        self.app_menu.addAction(sel_cust_armor_act)
+        self.app_menu.addAction(add_weap_act)
+        self.app_menu.addAction(add_cust_weap_act)
         self.app_menu.addSeparator()
         # RULES
-        self.app_menu.addAction(set_exp_limit_act)        
-        self.app_menu.addAction(set_wound_mult_act)        
-        self.app_menu.addAction(buy_for_free_act)                      
+        self.app_menu.addAction(set_exp_limit_act)
+        self.app_menu.addAction(set_wound_mult_act)
+        self.app_menu.addAction(buy_for_free_act)
         self.app_menu.addSeparator()
         # INSIGHT
         self.app_menu.addMenu(m_insight_calc)
         # HEALTH
-        self.app_menu.addMenu(m_health_calc)        
+        self.app_menu.addMenu(m_health_calc)
         self.app_menu.addAction(damage_act)
         self.app_menu.addSeparator()
         # DATA
-        self.app_menu.addAction(import_data_act)        
-        self.app_menu.addAction(manage_data_act)        
-        self.app_menu.addAction(open_data_dir_act)                
-        self.app_menu.addAction(reload_data_act)        
+        self.app_menu.addAction(import_data_act)
+        self.app_menu.addAction(manage_data_act)
+        self.app_menu.addAction(open_data_dir_act)
+        self.app_menu.addAction(reload_data_act)
         self.app_menu.addSeparator()
-        # EXIT                
-        self.app_menu.addAction(exit_act)        
-        
-        self.app_menu_tb.setMenu(self.app_menu)        
+        # EXIT
+        self.app_menu.addAction(exit_act)
+
+        self.app_menu_tb.setMenu(self.app_menu)
         self.tabs.setCornerWidget(self.app_menu_tb, QtCore.Qt.TopLeftCorner)
-        
+
         import_data_act  .triggered.connect(self.sink4.import_data_act  )
         manage_data_act  .triggered.connect(self.sink4.manage_data_act  )
         open_data_dir_act.triggered.connect(self.sink4.open_data_dir_act)
         reload_data_act  .triggered.connect(self.sink4.reload_data_act  )
-    
+
     def init(self):
         ''' second step initialization '''
         pass
-        
+
     def setup_donate_button(self):
         self.statusBar().showMessage(
             self.tr("You can donate to the project by clicking on the button")
         )
-        
+
         self.paypal_bt = QtGui.QPushButton(self)
         self.paypal_bt.setIcon( QtGui.QIcon(get_icon_path('btn_donate_SM', None)) )
-        self.paypal_bt.setIconSize( QtCore.QSize(74, 21) ) 
+        self.paypal_bt.setIconSize( QtCore.QSize(74, 21) )
         self.paypal_bt.setFlat(True)
         self.paypal_bt.clicked.connect( self.please_donate )
         self.statusBar().addPermanentWidget(self.paypal_bt)
@@ -1473,7 +1476,7 @@ class L5RMain(L5RCMCore):
 
         self.ic_act_grp.triggered.connect(self.on_change_insight_calculation )
         self.hm_act_grp.triggered.connect(self.on_change_health_visualization)
-        
+
         self.bt_school_lock.clicked.connect( self.sink1.on_unlock_school_act )
 
     def show_nicebar(self, wdgs):
@@ -1536,12 +1539,12 @@ class L5RMain(L5RCMCore):
         '''attempt to buy a new kata'''
         if ( self.buy_kata(kata) == CMErrors.NOT_ENOUGH_XP ):
             self.not_enough_xp_advise(self)
-            
+
     def do_buy_kiho(self, kiho):
         '''attempt to buy a new kiho'''
         if ( self.buy_kiho(kiho) == CMErrors.NOT_ENOUGH_XP ):
-            self.not_enough_xp_advise(self)            
-            
+            self.not_enough_xp_advise(self)
+
     def on_clan_change(self, text):
         #print 'on_clan_change %s' % text
         #self.cb_pc_family.clear()
@@ -1555,7 +1558,7 @@ class L5RMain(L5RCMCore):
         self.load_families(self.pc.clan)
         if self.pc.unlock_schools:
             self.load_schools ()
-        else:            
+        else:
             self.load_schools(self.pc.clan)
         self.cb_pc_family.setCurrentIndex(0)
         self.cb_pc_school.setCurrentIndex(0)
@@ -1572,13 +1575,13 @@ class L5RMain(L5RCMCore):
             return
         # should modify step_1 character
         # get family perk
-        
+
         family = dal.query.get_family(self.dstore, uuid)
         clan   = dal.query.get_clan  (self.dstore, family.clanid)
-        
+
         if not family or not clan:
             return
-        
+
         self.pc.set_family( family.id , family.trait, 1, [family.id, clan.id] )
         self.update_from_model()
 
@@ -1597,7 +1600,7 @@ class L5RMain(L5RCMCore):
         # get school perk
         school = dal.query.get_school(self.dstore, uuid)
         clan   = dal.query.get_clan  (self.dstore, school.clanid)
-        
+
         try:
             self.pc.set_school(school.id, school.trait, 1, school.honor, school.tags + [school.id, clan.id])
         except:
@@ -1605,15 +1608,15 @@ class L5RMain(L5RCMCore):
 
         for sk in school.skills:
             self.pc.add_school_skill(sk.id, sk.rank, sk.emph)
-            
+
         # player choose ( aka wildcards )
         for sk in school.skills_pc:
             self.pc.add_pending_wc_skill(sk)
 
-        # get school tech rank 1                   
+        # get school tech rank 1
         tech0 = dal.query.get_school_tech(school, 1)
         # rule == techid ???
-        
+
         if tech0:
             self.pc.set_free_school_tech(tech0.id, tech0.id)
 
@@ -1625,11 +1628,11 @@ class L5RMain(L5RCMCore):
             for spell in school.spells:
                 self.pc.add_free_spell(spell.id)
                 count += 1
-                
+
             for spell in school.spells_pc:
                 self.pc.add_pending_wc_spell((spell.element, spell.count, spell.tag))
                 count += spell.count
-            
+
             print('starting spells count are {0}'.format(count))
             self.pc.set_school_spells_qty(count)
 
@@ -1639,8 +1642,8 @@ class L5RMain(L5RCMCore):
             self.pc.set_deficiency(school.deficiency)
             self.pc.get_school().affinity = school.affinity
             self.pc.get_school().deficiency = school.deficiency
-            
-        # free kihos ?        
+
+        # free kihos ?
         if school.kihos:
             self.pc.set_free_kiho_count( school.kihos.count )
 
@@ -1668,7 +1671,7 @@ class L5RMain(L5RCMCore):
             self.pc.set_status( float(val + float(pt)/10 ) )
         elif fl == self.pc_flags_points[3]:
             val = int(self.pc_flags_rank[3].text())
-            self.pc.set_taint( float(val + float(pt)/10 ) )            
+            self.pc.set_taint( float(val + float(pt)/10 ) )
         else:
             val = int(self.pc_flags_rank[4].text())
             self.pc.set_infamy( float(val + float(pt)/10 ) )
@@ -1686,11 +1689,11 @@ class L5RMain(L5RCMCore):
             pt = self.pc_flags_points[2].value
             self.pc.set_status( float(val + float(pt)/10 ) )
         elif fl == self.pc_flags_rank[3]:
-            pt = self.pc_flags_points[3].value            
+            pt = self.pc_flags_points[3].value
             self.pc.set_taint( float(val + float(pt)/10 ) )
         else:
             pt = self.pc_flags_points[4].value
-            self.pc.set_infamy( float(val + float(pt)/10 ) )                       
+            self.pc.set_infamy( float(val + float(pt)/10 ) )
 
     def on_void_points_change(self):
         val = self.void_points.value
@@ -1757,7 +1760,7 @@ class L5RMain(L5RCMCore):
         dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, 'freeform', self)
         dlg.setWindowTitle(self.tr('Add New Spell'))
         dlg.set_header_text(self.tr("<center><h2>Select the spell to learn</h2></center>"))
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:            
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
 
     def act_del_spell(self):
@@ -1766,7 +1769,7 @@ class L5RMain(L5RCMCore):
         if sm_.hasSelection():
             model_    = self.spell_table_view.model()
             spell_itm = model_.data(sm_.currentIndex(), QtCore.Qt.UserRole)
-            
+
             if spell_itm.memo: return
             self.remove_spell(spell_itm.spell_id)
 
@@ -1779,7 +1782,7 @@ class L5RMain(L5RCMCore):
         self.del_spell_bt.setEnabled(not spell_itm.memo)
 
 
-    def learn_next_school_tech(self):               
+    def learn_next_school_tech(self):
         # first of all let's check if the pc has a path for
         # that target rank
         # otherwise proceed with the current school
@@ -1791,24 +1794,24 @@ class L5RMain(L5RCMCore):
             # get last learned techs
             last_tech_id = self.pc.get_techs()[-1]
             last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
-            
+
             school = dal.query.get_school(self.dstore, path.school_id)
             for tech in [ x for x in school.techs if x.rank == (last_tech.rank+1) ]:
                 path.techs.append(tech.id)
-                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))        
-        else:            
+                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))
+        else:
             next_rank = self.pc.get_school_rank() + 1
             school = dal.query.get_school(self.dstore, self.pc.get_school_id())
-            
+
             # going back from a path?
             last_ch_school = self.pc.schools[-1]
             if last_ch_school and last_ch_school.is_path:
                 last_tech_id = self.pc.get_techs()[-1]
-                last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)                
+                last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
                 next_rank = last_tech.rank+1
-            
+
             for tech in [ x for x in school.techs if x.rank == next_rank ]:
-                self.pc.add_tech(tech.id, tech.id)            
+                self.pc.add_tech(tech.id, tech.id)
                 print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
 
         self.pc.recalc_ranks()
@@ -1818,13 +1821,13 @@ class L5RMain(L5RCMCore):
     def check_rank_advancement(self):
         if self.nicebar: return
 
-        if self.pc.get_insight_rank() > self.last_rank:           
+        if self.pc.get_insight_rank() > self.last_rank:
             # HEY, NEW RANK DUDE!
-            
+
             # get 3 spells each rank
             if self.pc.has_tag('shugenja'):
                 self.pc.set_pending_spells_count( self.pc.get_spells_per_rank() )
-            
+
             lb = QtGui.QLabel(self.tr("You reached the next rank, you have an opportunity"
                                       " to decide your destiny."), self)
             bt = QtGui.QPushButton(self.tr("Advance rank"), self)
@@ -1851,7 +1854,7 @@ class L5RMain(L5RCMCore):
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_school_spells )
             self.show_nicebar([lb, bt])
-            
+
     def check_free_kihos(self):
         if self.nicebar: return
 
@@ -1863,7 +1866,7 @@ class L5RMain(L5RCMCore):
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.learn_next_free_kiho )
             self.show_nicebar([lb, bt])
-            
+
     def check_missing_requirements(self):
         if self.nicebar: return
 
@@ -1877,7 +1880,7 @@ class L5RMain(L5RCMCore):
             self.show_nicebar([lb, bt])
 
     def check_rules(self):
-        for t in self.pc.get_techs():            
+        for t in self.pc.get_techs():
             school, tech = dal.query.get_tech(self.dstore, t)
             if school is not None and tech is not None:
                 self.pc.add_tech(tech.id, tech.id)
@@ -1894,16 +1897,16 @@ class L5RMain(L5RCMCore):
         if self.nicebar: return
 
         print('check affinity wc: {0}'.format(self.pc.get_affinity()))
-        if (self.pc.get_affinity() and
-            self.pc.get_affinity() == 'any'):
+        if ( 'any' in self.pc.get_affinity() or
+             'nonvoid' in self.pc.get_affinity() ):
             lb = QtGui.QLabel(self.tr("You school grant you to choose an elemental affinity."), self)
             bt = QtGui.QPushButton(self.tr("Choose Affinity"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.show_select_affinity )
             self.show_nicebar([lb, bt])
-        elif (self.pc.get_deficiency() and
-              self.pc.get_deficiency().startswith('*')):
+        elif ('any' in self.pc.get_deficiency() or
+              'nonvoid' in self.pc.get_deficiency() ):
             lb = QtGui.QLabel(self.tr("You school grant you to choose an elemental deficiency."), self)
             bt = QtGui.QPushButton(self.tr("Choose Deficiency"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
@@ -1922,14 +1925,14 @@ class L5RMain(L5RCMCore):
                                      <h3><i>Choose with care.</i></h3></center>"))
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
-            self.pc.set_pending_spells_count(0)            
+            self.pc.set_pending_spells_count(0)
             self.update_from_model()
 
     def learn_next_free_kiho(self):
         dlg = dialogs.KihoDialog( self.pc, self.dstore, self )
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.update_from_model()
-            
+
     def show_advance_rank_dlg(self):
         dlg = dialogs.NextRankDlg(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
@@ -1957,7 +1960,7 @@ class L5RMain(L5RCMCore):
 
     def show_select_affinity(self):
         chooses  = None
-        if self.pc.get_affinity() == '*nonvoid':
+        if 'nonvoid' in self.pc.get_affinity():
             chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,4) ]
         else:
             chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,5) ]
@@ -1972,7 +1975,7 @@ class L5RMain(L5RCMCore):
 
     def show_select_deficiency(self):
         chooses  = None
-        if self.pc.get_deficiency() == '*nonvoid':
+        if 'nonvoid' in self.pc.get_deficiency():
             chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,4) ]
         else:
             chooses = [ models.ring_name_from_id(x).capitalize() for x in xrange(0,5) ]
@@ -1989,28 +1992,28 @@ class L5RMain(L5RCMCore):
         pause_signals( [self.tx_pc_name, self.cb_pc_clan, self.cb_pc_family,
                         self.cb_pc_school] )
         pause_signals( self.pers_info_widgets )
-        
-        if self.pc.load_from(path):                       
-            self.save_path = path   
-            
+
+        if self.pc.load_from(path):
+            self.save_path = path
+
             print('successfully save character. saving file path', self.save_path)
-            
+
             try:
                 self.last_rank = self.pc.last_rank
             except:
                 self.last_rank = self.pc.get_insight_rank()
-                
+
             def school_free_kiho_count():
                 school = dal.query.get_school( self.dstore, self.pc.get_school_id(0) )
                 if school.kihos == None: return 0
                 return school.kihos.count
-                
+
             # HACK. Fix free kiho for old characters created with 3 free kihos
             if self.pc.get_free_kiho_count() == 3 and school_free_kiho_count() != 3:
                 self.pc.set_free_kiho_count(school_free_kiho_count())
 
             #TODO: checks for books / data extensions
-            
+
             self.load_families(self.pc.clan)
             if self.pc.unlock_schools:
                 self.load_schools ()
@@ -2028,32 +2031,32 @@ class L5RMain(L5RCMCore):
                         self.cb_pc_school] )
         resume_signals( self.pers_info_widgets )
 
-    def load_clans(self):        
+    def load_clans(self):
         # clans
         self.cb_pc_clan.clear()
         self.cb_pc_clan.addItem( self.tr("No Clan"), None )
-        
+
         for c in self.dstore.clans:
             self.cb_pc_clan.addItem( c.name, c.id )
 
     def load_schools(self, clan_id = None):
         print('load schools for clan_id {0}'.format(clan_id))
-                
+
         self.cb_pc_school.clear()
         schools = []
-        
+
         # TODO: Sort
         schools = dal.query.get_base_schools(self.dstore)
         if clan_id is not None:
             schools = [x for x in schools if x.clanid == clan_id]
-                                            
+
         self.cb_pc_school.addItem( self.tr("No School"), None )
         for s in schools:
             self.cb_pc_school.addItem( s.name, s.id )
 
     def load_families(self, clan_id):
         print('load families for clan_id {0}'.format(clan_id))
-        
+
         families = []
         self.cb_pc_family.clear()
         if clan_id:
@@ -2074,7 +2077,7 @@ class L5RMain(L5RCMCore):
                 self.cb_pc_clan.setCurrentIndex(i)
                 return
 
-    def set_family(self, family_id):        
+    def set_family(self, family_id):
         idx = self.cb_pc_family.currentIndex()
         f_uuid = self.cb_pc_family.itemData(idx)
 
@@ -2086,15 +2089,15 @@ class L5RMain(L5RCMCore):
                 return
 
     def set_school(self, school_id):
-        
+
         idx = self.cb_pc_school.currentIndex()
         s_uuid = self.cb_pc_school.itemData(idx)
-                
+
         if s_uuid == school_id:
-            return       
-        
+            return
+
         print('set school to {0}, current school is {1}'.format(school_id, s_uuid))
-            
+
         found = False
         self.cb_pc_school.blockSignals(True)
         for i in xrange(0, self.cb_pc_school.count()):
@@ -2186,8 +2189,8 @@ class L5RMain(L5RCMCore):
         self.tx_cur_tn   .setText( str(self.pc.get_cur_tn())      )
         # armor description
         self.tx_armor_nm.setToolTip( str(self.pc.get_armor_desc()) )
-       
-        self.display_health()       
+
+        self.display_health()
         self.update_wound_penalties()
         self.wnd_lb.setTitle(self.tr("Health / Wounds (x%d)") % self.pc.health_multiplier)
 
@@ -2205,14 +2208,14 @@ class L5RMain(L5RCMCore):
         self.tx_cur_init.setText( rules.format_rtk_t(self.pc.get_tot_initiative()) )
 
         # affinity / deficiency
-        self.lb_affin.setText(self.pc.get_affinity().capitalize())
-        self.lb_defic.setText(self.pc.get_deficiency().capitalize())
-        
+        self.lb_affin.setText(', '.join( [x.capitalize() for x in self.pc.get_affinity  ()] ) )
+        self.lb_defic.setText(', '.join( [x.capitalize() for x in self.pc.get_deficiency()] ) )
+
         # money
         pause_signals( [self.money_widget]   )
-        self.money_widget.set_value( self.pc.get_property('money', (0,0,0)) )         
+        self.money_widget.set_value( self.pc.get_property('money', (0,0,0)) )
         resume_signals( [self.money_widget]   )
-        
+
         self.hide_nicebar()
 
         # Show nicebar if pending wildcard skills
@@ -2270,7 +2273,7 @@ class L5RMain(L5RCMCore):
                 unicode.format(u'{0} (+{1})', wounds[i], penalties[i]))
 
         # TODO toku bushi school removes some penalties
-    
+
     def display_health        (self):
         settings = QtCore.QSettings()
         method   = settings.value('health_method', 'wounds')
@@ -2280,13 +2283,13 @@ class L5RMain(L5RCMCore):
             self.display_total_wounds  ()
         else:
             self.display_health_stacked()
-            
+
     def display_health_default(self):
         # health
         for i in xrange(0, 8):
             h = self.pc.get_health_rank(i)
             self.wounds[i][1].setText( str(h) )
-            self.wounds[i][2].setText( '' )                
+            self.wounds[i][2].setText( '' )
         # wounds
         pc_wounds = self.pc.wounds
         hr        = 0
@@ -2295,15 +2298,15 @@ class L5RMain(L5RCMCore):
             self.wounds[hr][2].setText( str(w) )
             pc_wounds -= w
             hr += 1
-            
+
     def display_health_stacked(self):
         # fill health level list
         hl = [0]*8
         for i in reversed( range(0, 8) ):
             if i == 7: hl[i] = self.pc.get_health_rank(i)
-            else: hl[i] = self.pc.get_health_rank(i) + hl[i+1]            
+            else: hl[i] = self.pc.get_health_rank(i) + hl[i+1]
             self.wounds[i][1].setText( str(hl[i]) )
-        
+
         wounds = self.pc.wounds
         # fill the health left for each wound level
         for i in range(0, 8):
@@ -2312,15 +2315,15 @@ class L5RMain(L5RCMCore):
             else: self.wounds[i][2].setText("")
             wounds -= h
             if wounds < 0: wounds = 0
-            
-    def display_total_wounds(self):  
+
+    def display_total_wounds(self):
         # fill health level list
         hl = [0]*8
         for i in range(0, 8):
             if i == 0: hl[i] = self.pc.get_health_rank(i)
-            else: hl[i] = self.pc.get_health_rank(i) + hl[i-1]            
+            else: hl[i] = self.pc.get_health_rank(i) + hl[i-1]
             self.wounds[i][1].setText( str(hl[i]) )
-    
+
         wounds = self.pc.wounds
         h      = 0
         # fill the health left for each wound level
@@ -2330,7 +2333,7 @@ class L5RMain(L5RCMCore):
             if wound_rank > 0:
                 self.wounds[i][2].setText( str(wound_rank) )
             if wounds <= h: break
-    
+
     def advise_conversion(self, *args):
         settings = QtCore.QSettings()
         if settings.value('advise_conversion', 'true') == 'false':
@@ -2349,7 +2352,7 @@ class L5RMain(L5RCMCore):
         msgBox.exec_()
         if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
             settings.setValue('advise_conversion', 'false')
-            
+
     def advise_successfull_import(self):
         settings = QtCore.QSettings()
         if settings.value('advise_successfull_import', 'true') == 'false':
@@ -2365,8 +2368,8 @@ class L5RMain(L5RCMCore):
         msgBox.setIcon(QtGui.QMessageBox.Information)
         msgBox.exec_()
         if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
-            settings.setValue('advise_successfull_import', 'false')        
-            
+            settings.setValue('advise_successfull_import', 'false')
+
     def advise_error(self, message, dtl = None):
         msgBox = QtGui.QMessageBox(self)
         msgBox.setWindowTitle('L5R: CM')
@@ -2377,7 +2380,7 @@ class L5RMain(L5RCMCore):
         msgBox.setIcon(QtGui.QMessageBox.Critical)
         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
         msgBox.exec_()
-        
+
     def advise_warning(self, message, dtl = None):
         msgBox = QtGui.QMessageBox(self)
         msgBox.setTextFormat(QtCore.Qt.RichText)
@@ -2387,7 +2390,7 @@ class L5RMain(L5RCMCore):
             msgBox.setInformativeText(dtl)
         msgBox.setIcon(QtGui.QMessageBox.Warning)
         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
-        msgBox.exec_()        
+        msgBox.exec_()
 
     def ask_to_save(self):
         msgBox = QtGui.QMessageBox(self)
@@ -2422,7 +2425,7 @@ class L5RMain(L5RCMCore):
 
         # SAVE GEOMETRY
         settings = QtCore.QSettings()
-        settings.setValue('geometry', self.saveGeometry())        
+        settings.setValue('geometry', self.saveGeometry())
 
         if self.pc.insight_calculation == rules.insight_calculation_2:
             settings.setValue('insight_calculation', 2)
@@ -2452,9 +2455,9 @@ class L5RMain(L5RCMCore):
                                 self.tr("Save Character"),
                                 last_dir,
                                 self.tr("L5R Character files (*.l5r)"))
-                                
+
         if len(fileName) != 2 or fileName[0] == u'':
-            return ''        
+            return ''
 
         last_dir = os.path.dirname(fileName[0])
         if last_dir != '':
@@ -2503,7 +2506,7 @@ class L5RMain(L5RCMCore):
         if fileName[0].endswith(file_ext):
             return fileName[0]
         return fileName[0] + file_ext
-        
+
     def select_import_data_pack(self):
         supported_ext     = ['.zip', '.l5rcmpack']
         supported_filters = [self.tr("L5R:CM Data Pack(*.l5rcmpack *.zip)"),
@@ -2516,10 +2519,10 @@ class L5RMain(L5RCMCore):
                                 self.tr("Load data pack"),
                                 last_data_dir,
                                 ";;".join(supported_filters))
-                                
+
         if len(fileName) != 2:
             return None
-            
+
         last_data_dir = os.path.dirname(fileName[0])
         if last_data_dir != '':
             #print 'save last_dir: %s' % last_dir
@@ -2532,22 +2535,22 @@ class L5RMain(L5RCMCore):
 
         if update_info is None:
             return
-            
-        # check extended module version        
+
+        # check extended module version
         if 'versionex' in update_info:
             need_update = autoupdate.need_update(APP_VERSION, update_info['versionex'])
         else:
             need_update = autoupdate.need_update(APP_VERSION, update_info['version'])
-            
+
         if need_update and self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
             import osutil
             osutil.portable_open(PROJECT_PAGE_LINK)
-            
+
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
         self.pc.set_insight_calc_method(method)
         self.update_from_model()
-        
+
     def on_change_health_visualization(self):
         method = self.sender().checkedAction().property('method')
         settings = QtCore.QSettings()
@@ -2556,7 +2559,10 @@ class L5RMain(L5RCMCore):
 
     def create_new_character(self):
         self.sink1.new_character()
-        
+
+    def get_health_rank(self, idx):
+        return self.wounds[idx][1].text()
+
 ### MAIN ###
 def dump_slots(obj, out_file):
     with open(out_file, 'wt') as fobj:
@@ -2564,7 +2570,7 @@ def dump_slots(obj, out_file):
         for i in xrange( mobj.methodOffset(), mobj.methodCount() ):
             if mobj.method(i).methodType() == QtCore.QMetaMethod.Slot:
                 fobj.write(mobj.method(i).signature() + ' ' + mobj.method(i).tag() + '\n')
-                
+
 OPEN_CMD_SWITCH   = '--open'
 IMPORT_CMD_SWITCH = '--import'
 DATA_CHECK_SWITCH = '--datacheck'
@@ -2579,13 +2585,13 @@ def main():
     # setup mimetypes
     mimetypes.add_type(MIME_L5R_CHAR, ".l5r")
     mimetypes.add_type(MIME_L5R_PACK, ".l5rcmpack")
-    
+
     if DATA_CHECK_SWITCH in sys.argv:
         import dal_check
         dc = dal_check.DataCheck()
         dc.check()
         return
-    
+
     if DATA_REPT_SWITCH in sys.argv:
         import dal.report
         dr = dal.report.ReportBuilder('./data_packs', './data_report')
@@ -2603,7 +2609,7 @@ def main():
     use_machine_locale = settings.value('use_machine_locale', 1)
     app_translator = QtCore.QTranslator()
     qt_translator  = QtCore.QTranslator()
-    
+
     print('use_machine_locale', use_machine_locale, QtCore.QLocale.system().name())
 
     if use_machine_locale == 1:
@@ -2627,7 +2633,7 @@ def main():
 
     # start main form
     print("create main form")
-    l5rcm = L5RMain(use_locale)    
+    l5rcm = L5RMain(use_locale)
     l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
     l5rcm.show()
     l5rcm.init()
@@ -2637,7 +2643,7 @@ def main():
     # check for updates
     #if sys.platform != 'linux2':
     l5rcm.check_updates()
-    
+
     # initialize new character
     l5rcm.create_new_character()
 
@@ -2655,10 +2661,10 @@ def main():
                 l5rcm.load_character_from(sys.argv[1])
             elif mime[0] == MIME_L5R_PACK:
                 l5rcm.import_data_pack(sys.argv[1])
-            
+
     # alert if not datapacks are installed
-    l5rcm.check_datapacks()          
-            
+    l5rcm.check_datapacks()
+
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
