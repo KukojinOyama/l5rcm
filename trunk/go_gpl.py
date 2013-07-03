@@ -46,25 +46,25 @@ def place_header(header, file, remove_old_header = True):
         f = open(file, 'r+')
     except:
         f = None
-        
+
     if f is None:
         return False
-    
+
     contents = [ x for x in f ]
     #print 'read %d lines' % len(contents)
-    idx = 0
+
     if contents[0].startswith(HEADER_TO_REMOVE):
         del contents[0]
-    
+
     if not contents[0].startswith(HEADER_CHECK_STRING):
         f.seek(0)
         if remove_old_header == False:
-            f.write(HEADER_TO_REMOVE + '\n')            
+            f.write(HEADER_TO_REMOVE + '\n')
         f.write(header + '\n')
         f.write(''.join(contents))
     f.close()
     return True
-    
+
 def visit_tree(path, func):
     for path, dirs, files in os.walk(path):
         dirn = os.path.basename(path)
@@ -76,7 +76,7 @@ def visit_tree(path, func):
                 continue
             if '.py' not in file_:
                 continue
-                
+
             file_path = os.path.join(path, file_)
             remove_old = not (file_ in EXCEPTS)
             if not func(GPL_HEADER, file_path, remove_old):
@@ -87,6 +87,6 @@ def main():
     #if not place_header(GPL_HEADER, "test.py"):
     #    print "Failure"
     visit_tree('.', place_header)
-        
+
 if __name__ == "__main__":
     main()
