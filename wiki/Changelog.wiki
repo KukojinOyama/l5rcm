@@ -13,10 +13,10 @@
   * [NEW] Customizable background, removed banner to save vertical space
   * [NEW] Generate random name buttons
   * [NEW] 2 new health display methods
-  * [NEW] Support for spell <Description> tag
+  * [NEW] Support for spell `<Description> tag`
 
 === COMMUNITY PACK 1.2 ===
-  * [ADD] a bunch of new tattoos
+  * [NEW] a bunch of new tattoos
 
 === CORE PACK 3.9 ===
   * [FIX] add missing "Perform: Storytelling" skill to Suzume Bushi School of the Sparrow clan. Issue #185
