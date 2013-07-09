@@ -12,29 +12,49 @@ class DataSideBar(QtGui.QScrollArea):
 
     def build_ui(self):
         self.setSizePolicy( QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding )
-        palette = self.palette()
-        palette.setColor( QtGui.QPalette.Window    , QtGui.QColor("#666")  )
-        palette.setColor( QtGui.QPalette.WindowText, QtGui.QColor("#ffe")  )
-        self.setPalette(palette)
-        self.fr   = QtGui.QFrame()
-        #self.vbox = animatedvboxlayout.AnimatedVBoxLayout(self.fr)
-        self.vbox = QtGui.QVBoxLayout(self.fr)
+
+        self.fr = QtGui.QTreeWidget()
+        palette = self.fr.palette()
+        palette.setColor( QtGui.QPalette.Base      , QtGui.QColor("#eee")  )
+        palette.setColor( QtGui.QPalette.WindowText, QtGui.QColor("#000")  )
+        self.fr.setPalette(palette)
+        #self.fr.setAutoFillBackground(True)
+        self.fr.setHeaderLabel("FILES")
+
         self.setWidget(self.fr)
         self.setWidgetResizable(True)
+
+        if sys.platform == 'win32':
+            # apply stylesheet
+            ss = """\
+QTreeWidget::branch:has-children:!has-siblings:closed,
+QTreeWidget::branch:closed:has-children:has-siblings {
+     border-image: none;
+     image: url(branch-closed.png);
+}
+
+QTreeWidget::branch:open:has-children:!has-siblings,
+QTreeWidget::branch:open:has-children:has-siblings  {
+     border-image: none;
+     image: url(branch-open.png);
+}
+"""
+
+            self.setStyleSheet(ss)
 
     def sizeHint(self):
         if self.parent() is not None:
             return QtCore.QSize( self.parent().width()*0.25, self.parent().height() )
 
-    def frame_layout(self):
-        return self.vbox
+    def tree_widget(self):
+        return self.fr
 
-class LightCentralWidget(QtGui.QFrame):
+class CentralWidget(QtGui.QFrame):
     def __init__(self, parent = None):
-        super(LightCentralWidget, self).__init__(parent)
+        super(CentralWidget, self).__init__(parent)
         self.setSizePolicy( QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding )
         palette = self.palette()
-        palette.setColor( QtGui.QPalette.Window, QtGui.QColor("#EEE")  )
+        palette.setColor( QtGui.QPalette.Window, QtGui.QColor("#666")  )
         self.setPalette(palette)
         self.setAutoFillBackground( True );
 
@@ -59,22 +79,26 @@ class DataEditor(QtGui.QDialog):
         self.hbox.addWidget(self.sidebar)
 
     def build_central_widget(self):
-        self.central_widget = LightCentralWidget(self)
+        self.central_widget = CentralWidget(self)
         self.hbox.addWidget(self.central_widget)
 
     def load_package(self, path):
         self.current_path = path
 
         for dir_, dirs_, files_ in os.walk(path):
+            rel_path = os.path.relpath(dir_, path)
+            if rel_path == ".": rel_path = "ROOT"
+            top_level_item = QtGui.QTreeWidgetItem( [rel_path, dir_] )
+            self.sidebar.tree_widget().addTopLevelItem(top_level_item)
             for file_ in files_:
-                file_path_ = os.path.join(dir_, file_)
-                rel_path   = os.path.relpath(file_path_, path)
-                self.add_sidebar_label( rel_path )
+                #file_path_ = os.path.join(dir_, file_)
+                #rel_path   = os.path.relpath(file_path_, path)
+                file_item = QtGui.QTreeWidgetItem( top_level_item, [file_] )
 
-    def add_sidebar_label(self, text):
-        lb = QtGui.QLabel(text, self)
-        lb.setCursor( QtCore.Qt.PointingHandCursor )
-        self.sidebar.frame_layout().addWidget(lb)
+    #def add_sidebar_label(self, text):
+    #    lb = QtGui.QLabel(text, self)
+    #    lb.setCursor( QtCore.Qt.PointingHandCursor )
+    #    self.sidebar.frame_layout().addWidget(lb)
 
 def launch_data_editor(data_pack_path):
     win = DataEditor()
