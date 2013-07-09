@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<L5RCM>
+  <School clanid="sparrow" name="Suzume Bushi School" id="sparrow_suzume_bushi_school">
+    <Trait>willpower</Trait>
+    <Honor>6.5</Honor>
+    <Tags>
+      <Tag>bushi</Tag>
+      <Tag>sparrow_bushi</Tag>
+    </Tags>
+    <Skills>
+      <Skill id="calligraphy" rank="1"/>
+      <Skill rank="1" id="kenjutsu" emphases="Katana"/>
+      <Skill id="lore_history" rank="1"/>
+      <Skill id="lore_theology" rank="1"/>
+      <Skill id="perform_storytelling" rank="1"/>
+      <PlayerChoose rank="1">
+        <Wildcard>any</Wildcard>
+      </PlayerChoose>
+      <PlayerChoose rank="1">
+        <Wildcard>lore</Wildcard>
+      </PlayerChoose>
+    </Skills>
+    <Spells/>
+    <Techs>
+      <Tech name="All Things In Time" rank="1" id="sparrow_all_things_in_time"></Tech>
+      <Tech name="Purity Of Chi" rank="2" id="sparrow_purity_of_chi"></Tech>
+      <Tech name="Wisdom Is The Greatest Weapon" rank="3" id="sparrow_wisdom_is_the_greatest_weapon"></Tech>
+      <Tech name="Quiet Spirit, Steady Blade" rank="4" id="sparrow_quiet_spirit_steady_blade"></Tech>
+      <Tech name="Slow And Deadly" rank="5" id="sparrow_slow_and_deadly"></Tech>
+    </Techs>
+    <Requirements/>
+  </School>
+</L5RCM>
