@@ -1,9 +1,26 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2011 Daniele Simonetti
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 
 import sys
 import os
-from PySide import QtCore, QtGui
+from PySide  import QtCore, QtGui
 from layouts import animatedvboxlayout
+from models  import docs
 
 class DataSideBar(QtGui.QScrollArea):
     def __init__(self, parent = None):
@@ -38,9 +55,20 @@ QTreeWidget::branch:open:has-children:has-siblings  {
      border-image: none;
      image: url(branch-open.png);
 }
+QTreeWidget { font-size: 16px; }
+QTreeWidget::item {
+    /* Spacing between items*/
+    margin: 2px 3px;
+    padding: 2px;
+    padding-left: 5px;
+
+    /* Fix size */
+    min-height: 20px;
+}
 """
 
             self.setStyleSheet(ss)
+            self.setCursor( QtGui.QCursor( QtCore.Qt.PointingHandCursor ) )
 
     def sizeHint(self):
         if self.parent() is not None:
@@ -61,6 +89,7 @@ class CentralWidget(QtGui.QFrame):
 class DataEditor(QtGui.QDialog):
 
     current_path = None
+    documents    = docs.OpenedDocuments()
 
     def __init__(self, parent = None):
         super(DataEditor, self).__init__(parent)
@@ -91,14 +120,7 @@ class DataEditor(QtGui.QDialog):
             top_level_item = QtGui.QTreeWidgetItem( [rel_path, dir_] )
             self.sidebar.tree_widget().addTopLevelItem(top_level_item)
             for file_ in files_:
-                #file_path_ = os.path.join(dir_, file_)
-                #rel_path   = os.path.relpath(file_path_, path)
                 file_item = QtGui.QTreeWidgetItem( top_level_item, [file_] )
-
-    #def add_sidebar_label(self, text):
-    #    lb = QtGui.QLabel(text, self)
-    #    lb.setCursor( QtCore.Qt.PointingHandCursor )
-    #    self.sidebar.frame_layout().addWidget(lb)
 
 def launch_data_editor(data_pack_path):
     win = DataEditor()
@@ -112,6 +134,7 @@ def test():
     dlg = DataEditor()
     dlg.show()
     dlg.load_package("C:\\Documents and Settings\\cns_dasi\\Application Data\\openningia\\l5rcm\\core.data\\core")
+    #dlg.load_package("C:\\Documents and Settings\\cns_dasi\\Application Data\\openningia\\l5rcm\\core.data\\core")
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
