@@ -1,6 +1,5 @@
 ? Aggiungere bottone "Rimuovi" dalla gestione dei pacchetti
-? Aggiungere funzionalit‡ di rimozione pacchetti ( vedi sopra )
-? Dopo qualche secondo dalla partenza il sistema controlla la versione dei pacchetti
+? Aggiungere funzionalit≈ï di rimozione pacchetti ( vedi sopra )? Dopo qualche secondo dalla partenza il sistema controlla la versione dei pacchetti
 
 ? Salvare il personaggio con tutti i dati dentro
 
@@ -23,3 +22,17 @@ decide if change the eligible string "You are a member of the Togashi Order"
 CHARACTER MESS
 --------------
 check datapack dependencies when loading a character
+
+
+OTHER
+=====
+
+Spells descriptions
+Techniques descriptions ( tooltip? )
+Perks descriptions
+Base school outfit
+
+PDF SHEET
+=========
+Write perk notes
+Write character background

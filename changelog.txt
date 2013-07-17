@@ -11,6 +11,9 @@
 * [NEW] Generate random name buttons
 * [NEW] 2 new health display methods
 * [NEW] Support for spell <Description> tag
+* [FIX] #193, PDF creation not working with Shugenja alternate Paths
+* [FIX] #191,Bow shows incorrect Damage Roll value if Strength is too low
+* [FIX] #190,Initiative doesn't understand straight modifiers
 
 === COMMUNITY PACK 1.2 ===
 * [ADD] a bunch of new tattoos
