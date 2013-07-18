@@ -1,7 +1,8 @@
 === L5RCM v3.9.1 ===
 * [NEW] Affinity and Deficiency now stacks and can neutralized each other
-* [FIX] Selected Health method now influence how Health is printed on character sheet
+* [FIX] Issue #196, Selected Health method now influence how Health is printed on character sheet
 * [FIX] A rare crash
+* [FIX] Issue #199, 'Friend of the Brotherhood' advandage doesn't reduce Kiho cost
 
 === L5RCM v3.9.0 ===
 * [NEW] Add weapon dedicated page to character sheet
