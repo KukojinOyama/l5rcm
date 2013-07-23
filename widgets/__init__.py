@@ -21,3 +21,4 @@ from widgets.spell_item_selection import *
 from widgets.cost_selection       import *
 from widgets.moneywidget          import *
 from widgets.requirementwidget    import *
+from widgets.simpledescr          import *
