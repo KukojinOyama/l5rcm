@@ -3,6 +3,8 @@
 * [FIX] Issue #196, Selected Health method now influence how Health is printed on character sheet
 * [FIX] A rare crash
 * [FIX] Issue #199, 'Friend of the Brotherhood' advandage doesn't reduce Kiho cost
+* [FIX] Included missing fonts in the windows installer
+* [FIX] Fixed a bug in the algorithm that export the weapons in the first page
 
 === L5RCM v3.9.0 ===
 * [NEW] Add weapon dedicated page to character sheet

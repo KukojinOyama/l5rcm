@@ -27,6 +27,7 @@ import sinks
 import dal
 import dal.query
 import mimetypes
+import traceback
 
 from PySide import QtGui, QtCore
 #from models.chmodel import models.ATTRIBS
@@ -2579,93 +2580,100 @@ DATA_REPT_SWITCH  = '--datareport'
 MIME_L5R_CHAR     = "applications/x-l5r-character"
 MIME_L5R_PACK     = "applications/x-l5r-pack"
 
+
+
 def main():
-    app = QtGui.QApplication(sys.argv)
+    try:
+        app = QtGui.QApplication(sys.argv)
 
-    # setup mimetypes
-    mimetypes.add_type(MIME_L5R_CHAR, ".l5r")
-    mimetypes.add_type(MIME_L5R_PACK, ".l5rcmpack")
+        # setup mimetypes
+        mimetypes.add_type(MIME_L5R_CHAR, ".l5r")
+        mimetypes.add_type(MIME_L5R_PACK, ".l5rcmpack")
 
-    if DATA_CHECK_SWITCH in sys.argv:
-        import dal_check
-        dc = dal_check.DataCheck()
-        dc.check()
-        return
+        if DATA_CHECK_SWITCH in sys.argv:
+            import dal_check
+            dc = dal_check.DataCheck()
+            dc.check()
+            return
 
-    if DATA_REPT_SWITCH in sys.argv:
-        import dal.report
-        dr = dal.report.ReportBuilder('./data_packs', './data_report')
-        dr.build()
-        return
+        if DATA_REPT_SWITCH in sys.argv:
+            import dal.report
+            dr = dal.report.ReportBuilder('./data_packs', './data_report')
+            dr.build()
+            return
 
-    QtCore.QCoreApplication.setApplicationName(APP_NAME)
-    QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
-    QtCore.QCoreApplication.setOrganizationName(APP_ORG)
+        QtCore.QCoreApplication.setApplicationName(APP_NAME)
+        QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
+        QtCore.QCoreApplication.setOrganizationName(APP_ORG)
 
-    app.setWindowIcon( QtGui.QIcon( get_app_icon_path() ) )
+        app.setWindowIcon( QtGui.QIcon( get_app_icon_path() ) )
 
-    # Setup translation
-    settings = QtCore.QSettings()
-    use_machine_locale = settings.value('use_machine_locale', 1)
-    app_translator = QtCore.QTranslator()
-    qt_translator  = QtCore.QTranslator()
+        # Setup translation
+        settings = QtCore.QSettings()
+        use_machine_locale = settings.value('use_machine_locale', 1)
+        app_translator = QtCore.QTranslator()
+        qt_translator  = QtCore.QTranslator()
 
-    print('use_machine_locale', use_machine_locale, QtCore.QLocale.system().name())
+        print('use_machine_locale', use_machine_locale, QtCore.QLocale.system().name())
 
-    if use_machine_locale == 1:
-        use_locale = QtCore.QLocale.system().name()
-    else:
-        use_locale = settings.value('use_locale')
-
-    print('current locale is {0}'.format(use_locale))
-
-    qt_loc  = 'qt_{0}'.format(use_locale[:2])
-
-    print(qt_loc)
-    app_loc = get_app_file('i18n/{0}'.format(use_locale))
-
-    print(QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
-
-    qt_translator .load(qt_loc, QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
-    app.installTranslator(qt_translator )
-    app_translator.load(app_loc)
-    app.installTranslator(app_translator)
-
-    # start main form
-    print("create main form")
-    l5rcm = L5RMain(use_locale)
-    l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
-    l5rcm.show()
-    l5rcm.init()
-
-    # dump_slots(l5rcm, 'startup.txt')
-
-    # check for updates
-    #if sys.platform != 'linux2':
-    l5rcm.check_updates()
-
-    # initialize new character
-    l5rcm.create_new_character()
-
-    if len(sys.argv) > 1:
-        if OPEN_CMD_SWITCH in sys.argv:
-            of   = sys.argv.index(OPEN_CMD_SWITCH)
-            l5rcm.load_character_from(sys.argv[of+1])
-        elif IMPORT_CMD_SWITCH in sys.argv:
-            imf  = sys.argv.index(IMPORT_CMD_SWITCH)
-            l5rcm.import_data_pack(sys.argv[imf+1])
+        if use_machine_locale == 1:
+            use_locale = QtCore.QLocale.system().name()
         else:
-            # check mimetype
-            mime = mimetypes.guess_type(sys.argv[1])
-            if mime[0] == MIME_L5R_CHAR:
-                l5rcm.load_character_from(sys.argv[1])
-            elif mime[0] == MIME_L5R_PACK:
-                l5rcm.import_data_pack(sys.argv[1])
+            use_locale = settings.value('use_locale')
 
-    # alert if not datapacks are installed
-    l5rcm.check_datapacks()
+        print('current locale is {0}'.format(use_locale))
 
-    sys.exit(app.exec_())
+        qt_loc  = 'qt_{0}'.format(use_locale[:2])
+
+        print(qt_loc)
+        app_loc = get_app_file('i18n/{0}'.format(use_locale))
+
+        print(QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
+
+        qt_translator .load(qt_loc, QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
+        app.installTranslator(qt_translator )
+        app_translator.load(app_loc)
+        app.installTranslator(app_translator)
+
+        # start main form
+        print("create main form")
+        l5rcm = L5RMain(use_locale)
+        l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
+        l5rcm.show()
+        l5rcm.init()
+
+        # dump_slots(l5rcm, 'startup.txt')
+
+        # check for updates
+        #if sys.platform != 'linux2':
+        l5rcm.check_updates()
+
+        # initialize new character
+        l5rcm.create_new_character()
+
+        if len(sys.argv) > 1:
+            if OPEN_CMD_SWITCH in sys.argv:
+                of   = sys.argv.index(OPEN_CMD_SWITCH)
+                l5rcm.load_character_from(sys.argv[of+1])
+            elif IMPORT_CMD_SWITCH in sys.argv:
+                imf  = sys.argv.index(IMPORT_CMD_SWITCH)
+                l5rcm.import_data_pack(sys.argv[imf+1])
+            else:
+                # check mimetype
+                mime = mimetypes.guess_type(sys.argv[1])
+                if mime[0] == MIME_L5R_CHAR:
+                    l5rcm.load_character_from(sys.argv[1])
+                elif mime[0] == MIME_L5R_PACK:
+                    l5rcm.import_data_pack(sys.argv[1])
+
+        # alert if not datapacks are installed
+        l5rcm.check_datapacks()
+
+        sys.exit(app.exec_())
+    except:
+        print("HOLYMOLY!")
+    finally:
+        print("KTHXBYE")
 
 if __name__ == '__main__':
     main()
