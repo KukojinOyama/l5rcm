@@ -254,6 +254,10 @@ class FDFExporterAll(FDFExporter):
             fields['BU'  ] = str( money[1] )
             fields['ZENI'] = str( money[2] )
 
+        # MISC
+        misc = f.tx_pc_notes.get_plain_text()
+        fields['MISCELLANEOUS'] = misc
+
         # EXPORT FIELDS
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)

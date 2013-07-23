@@ -668,8 +668,9 @@ class L5RMain(L5RCMCore):
 
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
-
         layout.addWidget(grp)
+
+        view.doubleClicked.connect( self.sink4.on_spell_item_activate )
 
         return view
 
@@ -682,8 +683,9 @@ class L5RMain(L5RCMCore):
         view.setModel(model)
         view.setItemDelegate(models.TechItemDelegate(self))
         vbox.addWidget(view)
-
         layout.addWidget(grp)
+
+        view.doubleClicked.connect( self.sink4.on_tech_item_activate )
 
         return view
 
@@ -834,7 +836,6 @@ class L5RMain(L5RCMCore):
 
         frame_ = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(frame_)
-        views_ = []
 
         self._build_spell_frame(sp_sort_model     , vbox)
         self._build_tech_frame (self.th_view_model, vbox)
@@ -856,7 +857,6 @@ class L5RMain(L5RCMCore):
 
         frame_ = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(frame_)
-        #views_ = []
 
         self.kata_view = self._build_kata_frame(ka_sort_model     , vbox)
         self.kiho_view = self._build_kiho_frame(ki_sort_model     , vbox)
@@ -1221,39 +1221,32 @@ class L5RMain(L5RCMCore):
         lb_info.setWordWrap(True)
         hbox.addWidget(lb_info)
 
-        lb_contact_gplus = QtGui.QLabel(
-        """<a href="{0}">Contact me on</a>
-        """.format(L5RCM_GPLUS_PAGE), self)
-        lb_contact_gplus.setOpenExternalLinks(True)
+        def on_contact_link_activate():
+            url = QtCore.QUrl(L5RCM_GPLUS_PAGE)
+            QtGui.QDesktopServices.openUrl(url)
 
-        lb_contact_gplus_img = QtGui.QLabel(
-        """
-        <a href="{0}"><img src="{1}" alt="googleplus_page"/></a>
-        """.format(L5RCM_GPLUS_PAGE, get_icon_path('new-g-plus-icon', (16, 16))), self)
-        lb_contact_gplus_img.setOpenExternalLinks(True)
+        def on_community_link_activate():
+            url = QtCore.QUrl(L5RCM_GPLUS_COMM)
+            QtGui.QDesktopServices.openUrl(url)
 
-        lb_join_community_gplus = QtGui.QLabel(
-        """
-        <a href="{0}">Join the Community on</a>
-        """.format(L5RCM_GPLUS_COMM), self)
-        lb_join_community_gplus.setOpenExternalLinks(True)
+        bt_contact_gplus = QtGui.QCommandLinkButton("Contact me", "but bring good news", self)
+        bt_contact_gplus.setIcon(
+            QtGui.QIcon(get_icon_path('new-g-plus-icon',(16, 16))))
+        #bt_contact_gplus.setFlat(True)
+        bt_contact_gplus.clicked.connect( on_contact_link_activate )
 
-        lb_join_community_gplus_img = QtGui.QLabel(
-        """
-        <a href="{0}"><img src="{1}" alt="googleplus_community"/></a>
-        """.format(L5RCM_GPLUS_COMM, get_icon_path('new-g-plus-icon', (16, 16))), self)
-        lb_join_community_gplus_img.setOpenExternalLinks(True)
+        bt_community_gplus = QtGui.QCommandLinkButton("Join the G+ Community", "for answers and support", self)
+        bt_community_gplus.setIcon(
+            QtGui.QIcon(get_icon_path('new-g-plus-icon',(16, 16))))
+        #bt_community_gplus.setFlat(True)
+        bt_community_gplus.clicked.connect( on_community_link_activate )
 
-        gplus_form = QtGui.QFormLayout()
-        gplus_form.addRow(
-            lb_contact_gplus,
-            lb_contact_gplus_img)
-        gplus_form.addRow(
-            lb_join_community_gplus,
-            lb_join_community_gplus_img)
+        gplus_form = QtGui.QVBoxLayout()
+        gplus_form.addWidget(bt_contact_gplus  )
+        gplus_form.addWidget(bt_community_gplus)
 
-        gplus_form.setLabelAlignment(QtCore.Qt.AlignRight)
-        gplus_form.setVerticalSpacing(6)
+        #gplus_form.setLabelAlignment(QtCore.Qt.AlignRight)
+        gplus_form.setSpacing(6)
 
         gplus_hbox = QtGui.QHBoxLayout()
         gplus_hbox.setContentsMargins(0,0,50,0)
@@ -2670,8 +2663,8 @@ def main():
         l5rcm.check_datapacks()
 
         sys.exit(app.exec_())
-    except:
-        print("HOLYMOLY!")
+    except Exception as e:
+        print("HOLYMOLY!", e)
     finally:
         print("KTHXBYE")
 

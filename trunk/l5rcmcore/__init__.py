@@ -18,12 +18,7 @@
 import sys
 import os
 import shutil
-import rules
 import models
-import widgets
-import dialogs
-import autoupdate
-import tempfile
 import exporters
 import dal
 import dal.query
@@ -35,7 +30,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.9.1'
+APP_VERSION = '3.9.2'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
