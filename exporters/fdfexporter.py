@@ -78,11 +78,11 @@ class FDFExporter(object):
 def zigzag(l1, l2):
     def _zigzag(l1_, l2_):
         rl = []
-        i = 0
-        for i in xrange(0, len(l2_)):
+        i  = 0
+        for i in range(0, len(l2_)):
             rl.append(l1_[i])
             rl.append(l2_[i])
-        return rl + l1_[i:]
+        return rl + l1_[len(l2_):]
 
     if len(l1) >= len(l2):
         return _zigzag(l1,l2)
@@ -164,7 +164,6 @@ class FDFExporterAll(FDFExporter):
         fields['WOUND_HEAL_CUR' ] = fields['WOUND_HEAL_BASE']
 
         # SKILLS
-        idx = 1
         count = min(23, len(f.sk_view_model.items))
         for i in xrange(1, count+1):
             sk = f.sk_view_model.items[i-1]
@@ -192,8 +191,9 @@ class FDFExporterAll(FDFExporter):
 
         # WEAPONS
         melee_weapons = f.melee_view_model .items
-        range_weapons = f.ranged_view_model.items
+        range_weapons = [x for x in f.ranged_view_model.items if 'melee' not in x.tags]
         wl = zigzag(melee_weapons, range_weapons)
+
         count = min(2, len(wl))
         for i in xrange(1, count+1):
             weap = wl[i-1]
