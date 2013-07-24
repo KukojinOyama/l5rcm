@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="monks" name="Order of the Wind" id="order_of_the_wind">
     <Trait>Reflexes</Trait>
@@ -66,7 +66,7 @@
     </Techs>
     <Requirements/>
   </School>
- <School clanid="monks" name="Fukurokujin's Eyes" id="fukurokujins_eyes">
+  <School clanid="monks" name="Fukurokujin's Eyes" id="fukurokujins_eyes">
     <Trait>Perception</Trait>
     <Honor>4.5</Honor>
     <Tags>
