@@ -89,9 +89,10 @@ class Sink4(QtCore.QObject):
         item = index.model().data(index, QtCore.Qt.UserRole)
 
         equip_list = self.form.pc.get_property('equip')
-        if equip_list:
+        if equip_list and item in equip_list:
             equip_list.remove(item)
-
+        elif item in self.form.pc.get_school_outfit():
+            self.form.pc.get_school_outfit().remove(item)
         self.form.update_from_model()
 
     def on_money_value_changed(self, value):

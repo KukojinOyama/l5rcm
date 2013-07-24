@@ -237,7 +237,7 @@ class FDFExporterAll(FDFExporter):
                 fields['CHILDREN.%d' % (i+1)] = chrows[i]
 
         # EQUIPMENT
-        equip_list = m.get_property('equip', [])
+        equip_list = m.get_school_outfit() + m.get_property('equip', [])
         equip_num  = min(50, len(equip_list))
         equip_cols = [18, 18, 15]
         c          = 0
