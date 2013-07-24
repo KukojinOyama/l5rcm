@@ -10,32 +10,32 @@
     <Skills/>
     <Spells/>
     <Techs>
-      <Tech name="The Eyes Of The General" rank="1" id="lion_the_eyes_of_the_general">
+      <Tech name="The Eyes Of The General" rank="1" id="lion_the_eyes_of_the_general"><Description>
 The Akodo Tactical Master spends his entire life studying
 the teachings of Lion generals from centuries past. He
 benefi ts from the wisdom of all of his ancestors and hones
 himself into the perfect general. You may reroll any one
 of your dice in each Battle Turn of Mass Combat. You may
 also reroll any one of your dice during an attack roll in
-which you called at least one Raise.      
-      </Tech>
-      <Tech name="Malleable As The Sea" rank="2" id="lion_malleable_as_the_sea">
+which you called at least one Raise.
+      </Description></Tech>
+      <Tech name="Malleable As The Sea" rank="2" id="lion_malleable_as_the_sea"><Description>
 The Tactical Master can navigate the sudden changes in
 the battlefi eld, adapting and reacting so his army can benefi
 t. You may spend a Void Point to choose any one Heroic
 Opportunity from the core rulebook to perform during a
 Mass Battle Turn. (This choice is subject to GM approval,
 since not all options will be suitable for the situation and
-the characters involved.)      
-      </Tech>
-      <Tech name="The Soul Of The Army" rank="3" id="lion_the_soul_of_the_army">
+the characters involved.)
+      </Description></Tech>
+      <Tech name="The Soul Of The Army" rank="3" id="lion_the_soul_of_the_army"><Description>
 The Tactical Master knows he is responsible for his army,
 and directs its strength where it may do the most damage.
 You may spend a Void Point to gain a +5k1 bonus to any
 Battle Skill Roll (rather than the usual +1k1), or to gain a
 +2k2 bonus to any Bugei Skill Roll (rather than the usual
-+1k1)      
-      </Tech>
++1k1)
+      </Description></Tech>
     </Techs>
     <Requirements>
       <Requirement field="water" type="ring" min="4">Water Ring: 4</Requirement>
