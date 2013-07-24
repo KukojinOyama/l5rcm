@@ -44,14 +44,14 @@
       </Tech>
     </Techs>
     <Requirements/>
-    <Outfit bu="0" koku="any one weapon" zeni="0">
+    <Outfit bu="0" koku="10" zeni="0">
       <Item>Riding or Heavy Armor</Item>
       <Item>Sturdy Clothing</Item>
       <Item>Daisho</Item>
       <Item>Heavy Weapon or Polearm</Item>
       <Item>Traveling Pack</Item>
       <Item>Horse (Unicorn riding horse)</Item>
-      <Item>10 koku</Item>
+      <Item>any 1 weapon</Item>
     </Outfit>
   </School>
   <School clanid="unicorn" id="unicorn_iuchi_shugenja_school" name="Iuchi Shugenja School">
