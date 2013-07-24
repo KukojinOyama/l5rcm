@@ -10,12 +10,12 @@
       <Tag>scorpion_shugenja</Tag>
     </Tags>
     <Skills>
-      <Skill rank="1" id="calligraphy" emphases="Cipher"/>      
+      <Skill rank="1" id="calligraphy" emphases="Cipher"/>
       <Skill id="etiquette" rank="1"/>
-      <Skill id="investigation" rank="1"/>     
+      <Skill id="investigation" rank="1"/>
       <Skill id="lore_theology" rank="1"/>
       <Skill id="spellcraft" rank="1"/>
-      <Skill id="stealth" rank="1"/>           
+      <Skill id="stealth" rank="1"/>
       <PlayerChoose rank="1">
         <Wildcard>high</Wildcard>
         <Wildcard>low</Wildcard>
@@ -26,10 +26,10 @@
       <Spell id="sense"/>
       <Spell id="summon"/>
       <PlayerChoose count="3" element="*any" tag="wards"/>
-      <PlayerChoose count="3" element="!void"/>      
+      <PlayerChoose count="3" element="!void"/>
     </Spells>
     <Techs>
-      <Tech name="Way of the Wardmaster" rank="1" id="scorpion_way_of_the_wardmaster">
+      <Tech name="Way of the Wardmaster" rank="1" id="scorpion_way_of_the_wardmaster"><Description>
 The Yogo are masters at creating wards for later use. When
 you cast any spell with the Wards keyword, you may Raise
 a number of times equal to the spell's Mastery Level to instead
@@ -49,8 +49,8 @@ You cannot recover the spell slot of a spell which has
 been cast into a paper ward until after the ward is discharged.
 If a ward is damaged or destroyed before it is
 discharged, it loses all power and you may regain the
-spell slot normally.      
-      </Tech>
+spell slot normally.
+      </Description></Tech>
     </Techs>
     <Requirements/>
   </School>

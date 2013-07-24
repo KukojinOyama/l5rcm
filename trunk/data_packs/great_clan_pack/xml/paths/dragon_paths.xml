@@ -8,7 +8,7 @@
 			<Tag>dragon_alternate</Tag>
 		</Tags>
 		<Techs>
-			<Tech name="The Ebb and Flow of Deception" rank="3" id="dragon_the_ebb_and_flow_of_deception">
+			<Tech name="The Ebb and Flow of Deception" rank="3" id="dragon_the_ebb_and_flow_of_deception"><Description>
 The Kitsuki Debater represents his clan in enemy courts
 across the Empire, fi ghting for every small advantage he
 can win for the Dragon. You can see the fl ow of a conversation
@@ -24,8 +24,8 @@ at a TN of 20 plus 5 for every Raise you successfully
 called. ( Again, the GM may apply circumstantial modifi ers
 as needed.) If he fails the roll he is visibly discomfi ted by
 the conversational trap, and suffers a -1k1 penalty to his
-next Social Skill Roll against you.           
-            </Tech>
+next Social Skill Roll against you.
+            </Description></Tech>
 		</Techs>
         <Skills/>
         <Spells/>
@@ -37,7 +37,7 @@ next Social Skill Roll against you.
             </RequirementOption>
 		</Requirements>
     </School>
-    
+
 	<School clanid="dragon" name="The Dragon's Flame" id="dragon_the_dragon_flame">
 		<Tags>
 			<Tag>bushi</Tag>
@@ -46,11 +46,11 @@ next Social Skill Roll against you.
 			<Tag>dragon_alternate</Tag>
 		</Tags>
 		<Techs>
-			<Tech name="Rain of Death" rank="4" id="dragon_rain_of_death">
+			<Tech name="Rain of Death" rank="4" id="dragon_rain_of_death"><Description>
 The Dragon’s Flame knows accuracy comes from finding
 tranquility within. You gain a +1k0 bonus to attack rolls,
-or +2k2 while using a bow.          
-            </Tech>
+or +2k2 while using a bow.
+            </Description></Tech>
 		</Techs>
         <Skills/>
         <Spells/>
@@ -70,13 +70,13 @@ or +2k2 while using a bow.
 			<Tag>dragon_alternate</Tag>
 		</Tags>
 		<Techs>
-			<Tech name="Power Within and Without" rank="3" id="dragon_power_within_and_without">
+			<Tech name="Power Within and Without" rank="3" id="dragon_power_within_and_without"><Description>
 The isezumi knows the kami cannot aid any man if he
 proves himself an unworthy physical vessel. While unarmored
 and with no Kiho or Tattoos active, you gain
 Reduction equal to 3 plus your Void Ring. You gain one
-additional Tattoo.       
-            </Tech>
+additional Tattoo.
+            </Description></Tech>
 		</Techs>
         <Skills/>
         <Spells/>
@@ -85,5 +85,5 @@ additional Tattoo.
                 <Requirement field="dragon_body_of_stone" type="rule"/>
             </RequirementOption>
 		</Requirements>
-    </School>      
+    </School>
 </L5RCM>

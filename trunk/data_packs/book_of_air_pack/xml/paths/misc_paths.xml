@@ -1,12 +1,16 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
-<L5RCM>  
+<L5RCM>
     <Clan name="Various" id="various"/>
 	<School clanid="various" name="Taoist Archer" id="taoist_archer">
 		<Tags>
 			<Tag>alternate</Tag>
 		</Tags>
 		<Techs>
-			<Tech name="Flight of Innocence" rank="5" id="flight_of_innocence">The Taoist Archers practice their art blindfolded. When making archery attacks, you ignore all TN and dice penalties for being Blind, for having a Missing Eye, or for the target being concealed by darkness, magical illusion, camouflage, and similar visual obstructions. Penalties for physical obstacles and obstructive conditions (such as the target being Prone, a normal or magical wind, etc.) are applied normally. In addition, when wielding a bow you may spend a Void Point for a +1k1 bonus on damage.</Tech>
+			<Tech name="Flight of Innocence" rank="5" id="flight_of_innocence">
+                <Description>
+                The Taoist Archers practice their art blindfolded. When making archery attacks, you ignore all TN and dice penalties for being Blind, for having a Missing Eye, or for the target being concealed by darkness, magical illusion, camouflage, and similar visual obstructions. Penalties for physical obstacles and obstructive conditions (such as the target being Prone, a normal or magical wind, etc.) are applied normally. In addition, when wielding a bow you may spend a Void Point for a +1k1 bonus on damage.
+                </Description>
+            </Tech>
 		</Techs>
         <Skills/>
         <Spells/>
@@ -19,11 +23,11 @@
                 <Requirement field="ronin" type="tag"/>
                 <Requirement field="monks_brotherhood" type="tag"/>
             </RequirementOption>
-            
-            <RequirementOption text="Replaces any Brotherhood Monk or Ronin 5">                                
+
+            <RequirementOption text="Replaces any Brotherhood Monk or Ronin 5">
                 <Requirement field="*monks_brotherhood" type="school" min="4" max="4"/>
                 <Requirement field="*ronin" type="school" min="4" max="4"/>
             </RequirementOption>
 		</Requirements>
-    </School>      
+    </School>
 </L5RCM>
