@@ -147,6 +147,7 @@ class CharacterSchool(object):
         self.emph        = {}
         self.spells      = []
         self.tags        = []
+        self.outfit      = []
         self.affinity    = None
         self.deficiency  = None
 
@@ -682,7 +683,12 @@ class AdvancedPcModel(BasePcModel):
 
     def get_weapons(self):
         return self.weapons
-
+        
+    def get_school_outfit(self):
+        if self.get_school(0):
+            return self.get_school(0).outfit
+        return []
+        
     def get_modifiers(self, filter_type = None):
         if not filter_type:
             return self.modifiers
@@ -782,7 +788,10 @@ class AdvancedPcModel(BasePcModel):
 
         for t in tags:
             self.get_school().add_tag(t)
-
+            
+        # reset money
+        self.set_property('money', (0,0,0))
+           
         # void ?
         # print('perk is: {0}'.format(perk))
         if perk == 'void':
@@ -803,6 +812,10 @@ class AdvancedPcModel(BasePcModel):
         school_.techs.append(tech_uuid)
         #if rule is not None:
         school_.tech_rules.append(rule or 'N/A')
+        
+    def set_school_outfit(self, outfit, money):
+        self.get_school(0).outfit = outfit
+        self.set_property('money', money)
 
     def add_tech(self, tech_uuid, rule = None):
         school_ = self.get_school()
