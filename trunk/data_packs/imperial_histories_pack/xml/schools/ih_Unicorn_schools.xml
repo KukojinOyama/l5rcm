@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="unicorn" name="Moto Death Priests" id="unicorn_moto_death_priests">
     <Trait>willpower</Trait>
@@ -29,7 +29,7 @@
       <PlayerChoose count="1" element="water"/>
     </Spells>
     <Techs>
-      <Tech name="Blessings of the Shi-Tien Yen-Wang" rank="1" id="unicorn_blessings_of_the_shitien_yenwang"></Tech>
+      <Tech name="Blessings of the Shi-Tien Yen-Wang" rank="1" id="unicorn_blessings_of_the_shitien_yenwang"/>
     </Techs>
     <Requirements/>
   </School>

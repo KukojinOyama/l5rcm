@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="phoenix" name="Asako Inquisitors" id="phoenix_asako_inquisitors">
     <Tags>
@@ -10,7 +10,8 @@
     <Skills/>
     <Spells/>
     <Techs>
-      <Tech name="Eye of the Inquisitor" rank="1" id="phoenix_eye_of_the_inquisitor"><Description>
+      <Tech name="Eye of the Inquisitor" rank="1" id="phoenix_eye_of_the_inquisitor">
+        <Description>
 The Asako Inquisitors are taught to focus their will to
 disrupt the unnatural magic of blasphemers and criminals.
 You are considered one Rank higher in your original
@@ -27,7 +28,8 @@ this is done, you must take another Complex Action if you
 wish to ready another disruption.
      </Description>
       </Tech>
-      <Tech name="The Trials of Jade" rank="2" id="phoenix_the_trials_of_jade"><Description>
+      <Tech name="The Trials of Jade" rank="2" id="phoenix_the_trials_of_jade">
+        <Description>
 An Inquisitor finds the weakness in his enemies and exploits
 it, bringing them the Emperor’s justice. When casting
 any spell, you may spend a Void Point for the spell to
@@ -37,8 +39,10 @@ If you cannot cast spells, you may instead make a melee
 attack as a Simple Action instead of a Complex Action
 when facing an opponent you know has violated the Empire’s
 laws regarding the legal forms of magic.
-      </Description></Tech>
-      <Tech name="Conviction of Purity" rank="3" id="phoenix_conviction_of_purity"><Description>
+      </Description>
+      </Tech>
+      <Tech name="Conviction of Purity" rank="3" id="phoenix_conviction_of_purity">
+        <Description>
 Those who commit the unpardonable sin of breaking the
 Emperor’s laws concerning magic are unable to stand
 against you. You are considered one Rank higher in
@@ -49,7 +53,8 @@ You may now prepare a disruption (as per your Rank One
 technique) as a Simple Action instead of a Complex Action,
 and opponents whose spells are disrupted require
 three additional Raises rather than two.
-      </Description></Tech>
+      </Description>
+      </Tech>
     </Techs>
     <Requirements>
       <Requirement field="void" type="ring" min="4">Void Ring: 4</Requirement>
