@@ -135,7 +135,6 @@ class Sink4(QtCore.QObject):
             dlg.description().set_title   (tech.name  )
             dlg.description().set_subtitle(school.name)
             dlg.description().set_content (tech.desc  )
-
             dlg.exec_()
         except Exception as e:
             print("cannot retrieve information from tech model.", e)
