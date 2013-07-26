@@ -50,13 +50,13 @@ class SimpleDescriptionView(QtGui.QWidget):
         vbox.addWidget(self.lb_content )
 
     def set_title(self, text):
-        self.lb_title.setText("""<h1>{}</h1>""".format(text))
+        self.lb_title.setText(u"""<h1>{}</h1>""".format(text))
 
     def set_subtitle(self, text):
-        self.lb_subtitle.setText("""<em><h3 style="color:#666;">{}</h3></em>""".format(text))
+        self.lb_subtitle.setText(u"""<em><h3 style="color:#666;">{}</h3></em>""".format(text))
 
     def set_content(self, text):
-        self.lb_content.setText("""<p>{}</p>""".format(text))
+        self.lb_content.setText(u"""<p>{}</p>""".format(text))
 
     def sizeHint(self):
         return QtCore.QSize(400, 300)
