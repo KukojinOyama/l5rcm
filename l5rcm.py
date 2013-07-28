@@ -2390,6 +2390,19 @@ class L5RMain(L5RCMCore):
         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
         msgBox.exec_()
 
+    def ask_warning(self, message, dtl = None):
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setTextFormat(QtCore.Qt.RichText)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(message)
+        if dtl:
+            msgBox.setInformativeText(dtl)
+        msgBox.setIcon(QtGui.QMessageBox.Warning)
+        msgBox.addButton(QtGui.QMessageBox.Ok)
+        msgBox.addButton(QtGui.QMessageBox.Cancel)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
+        return msgBox.exec_() == QtGui.QMessageBox.Ok
+
     def ask_to_save(self):
         msgBox = QtGui.QMessageBox(self)
         msgBox.setWindowTitle('L5R: CM')
@@ -2557,6 +2570,7 @@ class L5RMain(L5RCMCore):
 
     def create_new_character(self):
         self.sink1.new_character()
+        self.pc.unsaved = False
 
     def get_health_rank(self, idx):
         return self.wounds[idx][1].text()
@@ -2639,15 +2653,6 @@ def main():
         l5rcm.show()
         l5rcm.init()
 
-        # dump_slots(l5rcm, 'startup.txt')
-
-        # check for updates
-        #if sys.platform != 'linux2':
-        l5rcm.check_updates()
-
-        # initialize new character
-        l5rcm.create_new_character()
-
         if len(sys.argv) > 1:
             if OPEN_CMD_SWITCH in sys.argv:
                 of   = sys.argv.index(OPEN_CMD_SWITCH)
@@ -2665,6 +2670,13 @@ def main():
 
         # alert if not datapacks are installed
         l5rcm.check_datapacks()
+
+        # check for updates
+        #if sys.platform != 'linux2':
+        l5rcm.check_updates()
+
+        # initialize new character
+        l5rcm.create_new_character()       
 
         sys.exit(app.exec_())
     except Exception as e:

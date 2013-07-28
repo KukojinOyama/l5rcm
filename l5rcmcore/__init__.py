@@ -438,7 +438,7 @@ class L5RCMCore(QtGui.QMainWindow):
 
                 pack.export_to  (dest)
                 self.reload_data()
-                self.create_new_character()
+                #self.create_new_character()
                 self.advise_successfull_import()
         except Exception as e:
             self.advise_error(self.tr("Cannot import data pack."), e.message)
