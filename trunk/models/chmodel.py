@@ -871,11 +871,11 @@ class AdvancedPcModel(BasePcModel):
 
     def set_affinity(self, value):
         self.get_school().affinity = value
-        #self.step_2.affinity = value
+        self.unsaved = True
 
     def set_deficiency(self, value):
         self.get_school().deficiency = value
-        #self.step_2.deficiency = value
+        self.unsaved = True
 
     def add_advancement(self, adv):
         self.advans.append(adv)
@@ -944,6 +944,7 @@ class AdvancedPcModel(BasePcModel):
 
     def set_property(self, name, value):
         self.properties[name] = value
+        self.unsaved = True
 
 ### LOAD AND SAVE METHODS ###
 
