@@ -36,7 +36,7 @@ class SchoolSkill(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()   
+        return self.id.__hash__()   
 
 class SchoolSkillWildcard(object):
     @staticmethod
@@ -82,7 +82,7 @@ class SchoolTech(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()
+        return self.id.__hash__()
         
 class SchoolSpell(object):
     
@@ -99,7 +99,7 @@ class SchoolSpell(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()      
+        return self.id.__hash__()      
         
 class SchoolSpellWildcard(object):
 
@@ -199,6 +199,6 @@ class School(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()
+        return self.id.__hash__()
 
 

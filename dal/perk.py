@@ -38,7 +38,7 @@ class PerkCateg(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()        
+        return self.id.__hash__()        
         
 class PerkException(object):
     
@@ -97,4 +97,4 @@ class Perk(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()
+        return self.id.__hash__()

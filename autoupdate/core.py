@@ -37,10 +37,6 @@ def get_last_version():
         print 'Unable to get latest version info - URLError = ' + str(e.reason)
         return None
 
-    except httplib.HTTPException, e:
-        print 'Unable to get latest version info - HTTPException'
-        return None	
-
     except Exception, e:
         import traceback
         print 'Unable to get latest version info - Exception = ' + traceback.format_exc()
