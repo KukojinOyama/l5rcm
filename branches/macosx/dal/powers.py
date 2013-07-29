@@ -47,7 +47,7 @@ class Kiho(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()
+        return self.id.__hash__()
 
 class Kata(object):
 
@@ -76,5 +76,5 @@ class Kata(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()
+        return self.id.__hash__()
 

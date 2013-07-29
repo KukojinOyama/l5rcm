@@ -159,8 +159,8 @@ class DataPack(object):
         return not self.__eq__(obj)
 
     def __hash__(self):
-        if hasattr(obj, 'id'):
-            return obj.id.__hash__()
+        if self.id:
+            return self.id.__hash__()
         return 0
 
 def test():

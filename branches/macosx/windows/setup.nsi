@@ -2,7 +2,11 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Legend of the Five Rings: Character Manager"
+<<<<<<< .working
 !define PRODUCT_VERSION "3.9.0"
+=======
+!define PRODUCT_VERSION "3.9.1"
+>>>>>>> .merge-right.r518
 !define PRODUCT_PUBLISHER "openningia"
 !define PRODUCT_WEB_SITE "http://code.google.com/p/l5rcm/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\l5rcm.exe"
@@ -11,6 +15,11 @@
 
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
+
+; FONT INSTALLER
+!include FontReg.nsh
+!include FontName.nsh
+!include WinMessages.nsh
 
 ; MUI Settings
 !define MUI_ABORTWARNING
@@ -48,21 +57,32 @@ Section "MainSection" SEC01
   CreateDirectory "$SMPROGRAMS\OpenNingia\L5RCM"
   CreateShortCut "$SMPROGRAMS\OpenNingia\L5RCM\L5RCM.lnk" "$INSTDIR\l5rcm.exe"
   CreateShortCut "$DESKTOP\l5rcm.lnk" "$INSTDIR\l5rcm.exe"
-  
+
   # Register File Extension
   WriteRegStr HKCR ".l5r" "" "L5Rcm.Character"
   WriteRegStr HKCR ".l5rcmpack" "" "L5Rcm.Pack"
-  
+
   # Register File Type and assign an Icon
-  WriteRegStr HKCR "L5Rcm.Character" "" "L5R: CM - Character File"   
-  WriteRegStr HKCR "L5Rcm.Character\DefaultIcon" "" "$INSTDIR\l5rcm.exe,0"  
-  
-  WriteRegStr HKCR "L5Rcm.Pack" "" "L5R: CM - Data Pack File"   
-  WriteRegStr HKCR "L5Rcm.Pack\DefaultIcon" "" "$INSTDIR\l5rcm.exe,1"    
-  
+  WriteRegStr HKCR "L5Rcm.Character" "" "L5R: CM - Character File"
+  WriteRegStr HKCR "L5Rcm.Character\DefaultIcon" "" "$INSTDIR\l5rcm.exe,0"
+
+  WriteRegStr HKCR "L5Rcm.Pack" "" "L5R: CM - Data Pack File"
+  WriteRegStr HKCR "L5Rcm.Pack\DefaultIcon" "" "$INSTDIR\l5rcm.exe,1"
+
   # Register the Verbs
     WriteRegStr HKCR "L5Rcm.Character\shell\open\command" "" '"$INSTDIR\l5rcm.exe" --open "%1"'
 	WriteRegStr HKCR "L5Rcm.Pack\shell\open\command" "" '"$INSTDIR\l5rcm.exe" --import "%1"'
+SectionEnd
+
+Section "Fonts"
+  StrCpy $FONT_DIR $FONTS
+  #StrCpy $FONT_DIR "$WINDIR\Fonts"
+
+  !insertmacro InstallTTFFont "fonts\OLDSH___.TTF"
+  !insertmacro InstallTTFFont "fonts\OLDSIH__.TTF"
+  !insertmacro InstallTTFFont "fonts\OLDSSCH_.TTF"
+
+  SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
 SectionEnd
 
 Section -AdditionalIcons
@@ -92,7 +112,7 @@ Function un.onInit
   Abort
 FunctionEnd
 
-Section Uninstall  
+Section Uninstall
   Delete "$INSTDIR\*.*"
   Delete "$SMPROGRAMS\OpenNingia\L5RCM\Uninstall.lnk"
   Delete "$DESKTOP\L5RCM.lnk"
@@ -102,13 +122,13 @@ Section Uninstall
   RMDir /r "$INSTDIR"
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
-  
+
   # Remove File Type and icon
   DeleteRegKey HKCR "L5Rcm.Character"
   DeleteRegKey HKCR ".l5r"
-   
+
   DeleteRegKey HKCR "L5Rcm.Pack"
   DeleteRegKey HKCR ".l5rcmpack"
-   
+
   SetAutoClose true
 SectionEnd
