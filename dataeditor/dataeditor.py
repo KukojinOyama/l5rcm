@@ -29,6 +29,8 @@ from PySide  import QtCore, QtGui
 from layouts import animatedvboxlayout
 from models  import docs
 
+import tabbededitor
+
 class DataSideBar(QtGui.QScrollArea):
     def __init__(self, parent = None):
         super(DataSideBar, self).__init__(parent)
@@ -103,7 +105,7 @@ class CentralWidget(QtGui.QTabBar):
     def upd_document(self, item, st):
         pass
 
-class DataEditor(QtGui.QDialog):
+class DataEditor(QtGui.QMainWindow):
 
     current_path   = None
     documents      = None
@@ -114,30 +116,37 @@ class DataEditor(QtGui.QDialog):
 
     def __init__(self, parent = None):
         super(DataEditor, self).__init__(parent)
+        
+        self.documents = docs.OpenedDocuments(self)
+
         self.build_ui()
         self.reload_installed_data()
 
-        self.documents = docs.OpenedDocuments(self)
-        self.documents.doc_added        .connect( self.central_widget.add_document )
-        self.documents.doc_removed      .connect( self.central_widget.rem_document )
-        self.documents.doc_status_change.connect( self.central_widget.upd_document )
+        
+        #self.documents.doc_added        .connect( self.central_widget.add_document )
+        #self.documents.doc_removed      .connect( self.central_widget.rem_document )
+        #self.documents.doc_status_change.connect( self.central_widget.upd_document )
 
     def build_ui(self):
-        self.hbox = QtGui.QHBoxLayout(self)
-        self.hbox.setContentsMargins(0,0,0,0)
-        self.build_sidebar       ()
-        self.build_central_widget()
+        self.splitter = QtGui.QSplitter(self)        
+        self.splitter.addWidget( self.build_sidebar()        )
+        self.splitter.addWidget( self.build_central_widget() )
+        self.splitter.setStretchFactor(1, 2)
+
+        self.setCentralWidget(self.splitter)
+
+        self.setWindowTitle(u"L5R: CM - Data Editor")
 
         self.resize( 900, 500 )
 
     def build_sidebar(self):
-        self.sidebar = DataSideBar(self)
-        self.hbox.addWidget(self.sidebar)
+        self.sidebar = DataSideBar(self)        
         self.sidebar.tree_widget().itemActivated.connect( self.on_item_activate )
+        return self.sidebar
 
     def build_central_widget(self):
-        self.central_widget = CentralWidget(self)
-        self.hbox.addWidget(self.central_widget)
+        self.central_widget = tabbededitor.L5RCMTabbedEditor(self.documents, self)
+        return self.central_widget
 
     def reload_installed_data(self):
         if not self.installed_data:
@@ -199,7 +208,11 @@ def test():
 
     dlg = DataEditor()
     dlg.show()
-    dlg.load_package("C:\\Documents and Settings\\cns_dasi\\Application Data\\openningia\\l5rcm\\core.data\\core")
+
+    if os.name == 'nt':
+        dlg.load_package("C:\\Documents and Settings\\cns_dasi\\Application Data\\openningia\\l5rcm\\core.data\\core")
+    else:
+        dlg.load_package("/home/daniele/.config/openningia/l5rcm/core.data/core")
     #dlg.load_package("C:\\Documents and Settings\\cns_dasi\\Application Data\\openningia\\l5rcm\\core.data\\core")
     sys.exit(app.exec_())
 
