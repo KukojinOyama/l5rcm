@@ -147,8 +147,8 @@ class Sink4(QtCore.QObject):
             dlg   = widgets.SimpleDescriptionDialog(form)
             dlg.description().set_title   (spell.name  )
             element_name = dal.query.get_ring(form.dstore, spell.element)
-            if spell.element == 'all':
-                element_name = self.tr("Universal")
+            #if spell.element == 'all':
+            #    element_name = self.tr("Universal")
             dlg.description().set_subtitle(self.tr("{element}, Mastery {mastery}")
                 .format(element=element_name, mastery=spell.mastery))
             dlg.description().set_content (spell.desc  )

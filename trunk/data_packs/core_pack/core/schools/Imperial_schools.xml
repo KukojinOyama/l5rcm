@@ -137,6 +137,12 @@ Spells: Sense, Commune, Summon, 3 Fire, 2 Water, and 1 Air
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit bu="0" koku="10" zeni="0">
+      <Item>Traditional Clothing</Item>
+      <Item>Wakizashi</Item>
+      <Item>Knife</Item>
+      <Item>Calligraphy Set</Item>
+    </Outfit>
   </School>
   <School clanid="imperial" id="imperial_miya_herald_school" name="Miya Herald School">
     <Trait>awareness</Trait>

@@ -124,7 +124,6 @@ class L5RCMCore(QtGui.QMainWindow):
 
         # Data storage
         if not self.dstore:
-            print('Loading datapack data')
             self.dstore = dal.Data(
                 [osutil.get_user_data_path('core.data'),
                  osutil.get_user_data_path('data'),
@@ -570,3 +569,12 @@ class L5RCMCore(QtGui.QMainWindow):
         self.update_from_model()
 
         return CMErrors.NO_ERROR
+
+    def get_higher_tech(self):
+        mt = None
+        ms = None
+        for t in self.pc.get_techs():
+            school, tech = dal.query.get_tech(self.dstore, t)
+            if not mt or tech.rank > mt.rank:
+                ms, mt = school, tech
+        return ms, mt

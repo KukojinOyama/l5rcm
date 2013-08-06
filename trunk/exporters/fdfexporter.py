@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import string
 import models
 import rules
 import hashlib
@@ -280,7 +279,7 @@ class FDFExporterShugenja(FDFExporter):
             fields['SPELL_RANGE.%d.%d'  % (r, c)    ] = spell.range
             fields['SPELL_AREA.%d.%d'  % (r, c)     ] = spell.area
             fields['SPELL_DURATION.%d.%d'  % (r, c) ] = spell.duration
-            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = dal.query.get_ring(f.dstore, spell.ring)
+            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = spell.ring
 
             c += 1
             if c == 3:

@@ -22,18 +22,18 @@ from subprocess import call
 
 def main():
 	r = './data_packs'
-	for p in os.listdir(r):		
+	for p in os.listdir(r):
 		m  = os.path.join(r, p, 'manifest')
 		print(m)
-		if not os.path.exists(m): 
+		if not os.path.exists(m):
 			print('manifest not found', m)
 			continue
 		ms = {}
-		
+
 		try:
 			with open(m, 'r') as f:
 				ms = json.load(f)
-		except:		
+		except:
 			print('bad manifest', m)
 			continue
 
@@ -41,7 +41,10 @@ def main():
 			print('bad manifest', ms)
 			continue
 
-		c = './makepack.sh'
+		if os.name == 'nt':
+			c = 'makepack.bat'
+		else:
+			c = './makepack.sh'
 		call([c, os.path.join(r, p), "{0}-{1}".format(ms['id'], ms['version'])])
 
 if __name__ == "__main__":

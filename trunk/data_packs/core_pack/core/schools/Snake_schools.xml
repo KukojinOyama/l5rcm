@@ -45,5 +45,12 @@ Shadowlands Taint.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="3" bu="0" zeni="0">
+      <Item>Robes</Item>
+      <Item>Wakizashi</Item>
+      <Item>Knife</Item>
+      <Item>Scroll Satchel</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
 </L5RCM>

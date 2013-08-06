@@ -81,6 +81,13 @@ your opponent is in the Full Attack Posture, he still retains the
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="3" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Any 1 Weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="spider" name="Chuda Shugenja School" id="spider_chuda_shugenja_school">
     <Trait>willpower</Trait>
@@ -128,6 +135,13 @@ acquired by the spell to one Point.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="3" bu="0" zeni="0">
+      <Item>Robes</Item>
+      <Item>Wakizashi</Item>
+      <Item>Knife</Item>
+      <Item>Scroll Satchel</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="spider" name="Daigotsu Courtier School" id="spider_daigotsu_courtier_school">
     <Trait>perception</Trait>
@@ -236,6 +250,12 @@ person more than once per month.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="3" bu="0" zeni="0">
+      <Item>Sensible Clothing</Item>
+      <Item>Wakizashi</Item>
+      <Item>Calligraphy Set</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="spider" name="Order of the Spider Monk" id="spider_order_of_the_spider_monk">
     <Trait>agility</Trait>
@@ -301,5 +321,11 @@ Void Points, except they may also be spent to add a bonus of
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="3" bu="0" zeni="0">
+      <Item>Light or Heavy Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Any Heavy Weapon or Polearm</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
 </L5RCM>
