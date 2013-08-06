@@ -2,8 +2,9 @@
 #labels Featured
 
 === CORE PACK 4.0 ===
-* [FIX] added missing monks schools: The Temple Of Kaimetsu-Uo and The Shrine Of The Seven Thunders
-* [FIX] The Temples of the Thousand Fortunes now starts with 4 Kihos
+  * [FIX] added missing monks schools: The Temple Of Kaimetsu-Uo and The Shrine Of The Seven Thunders
+
+  * [FIX] The Temples of the Thousand Fortunes now starts with 4 Kihos
 
 
 === L5RCM v3.9.1 ===
