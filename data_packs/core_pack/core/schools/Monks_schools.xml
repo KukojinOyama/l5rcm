@@ -38,6 +38,11 @@ a High Skill Roll or a Social Skill Roll, you gain
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit bu="0" koku="0" zeni="2">
+      <Item>Bo (or pair of jo)</Item>
+      <Item>Coarse and plain Traveling Clothing</Item>
+      <Item>Scroll Satchel with passages from the Tao</Item>
+    </Outfit>
   </School>
   <School clanid="monks" name="Order of Heroes Monk School" id="monks_order_of_heroes_monk_school">
     <Trait>perception</Trait>
@@ -79,6 +84,11 @@ roll, for instance).
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit bu="0" koku="0" zeni="2">
+      <Item>Bo (or pair of jo)</Item>
+      <Item>Coarse and plain Traveling Clothing</Item>
+      <Item>Scroll Satchel with passages from the Tao</Item>
+    </Outfit>
   </School>
   <School clanid="monks" name="The Shrine Of The Seven Thunders Monk" id="shine_of_the_seven_thunders_monk_school">
     <Trait>stamina</Trait>
@@ -120,6 +130,11 @@ Level of Kiho from this element.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit bu="0" koku="0" zeni="2">
+      <Item>Bo (or pair of jo)</Item>
+      <Item>Coarse and plain Traveling Clothing</Item>
+      <Item>Scroll Satchel with passages from the Tao</Item>
+    </Outfit>
   </School>
   <School clanid="monks" name="The Temple Of Kaimetsu-Uo" id="temple_of_the_kaimetsu_uo_monk_school">
     <Trait>willpower</Trait>
@@ -162,6 +177,11 @@ roll.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit bu="0" koku="0" zeni="2">
+      <Item>Bo (or pair of jo)</Item>
+      <Item>Coarse and plain Traveling Clothing</Item>
+      <Item>Scroll Satchel with passages from the Tao</Item>
+    </Outfit>
   </School>
   <School clanid="monks" name="The Temple of Osano-Wo Monk School" id="monks_the_temple_of_osanowo_monk_school">
     <Trait>strength</Trait>
@@ -201,6 +221,11 @@ dice on unarmed damage.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit bu="0" koku="0" zeni="2">
+      <Item>Bo (or pair of jo)</Item>
+      <Item>Coarse and plain Traveling Clothing</Item>
+      <Item>Scroll Satchel with passages from the Tao</Item>
+    </Outfit>
   </School>
   <School clanid="monks" name="The Temples of the Thousand Fortunes Monk School" id="monks_the_temples_of_the_thousand_fortunes_monk_school">
     <Trait>agility</Trait>
@@ -244,5 +269,10 @@ you may do as normal).
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit bu="0" koku="0" zeni="2">
+      <Item>Bo (or pair of jo)</Item>
+      <Item>Coarse and plain Traveling Clothing</Item>
+      <Item>Scroll Satchel with passages from the Tao</Item>
+    </Outfit>
   </School>
 </L5RCM>

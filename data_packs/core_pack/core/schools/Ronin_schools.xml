@@ -32,6 +32,13 @@ Iaijutsu Skill Rolls.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="1" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="Forest Killers" id="ronin_forest_killers">
     <Trait>agility</Trait>
@@ -65,6 +72,13 @@ total of all damage rolls resulting from melee attacks.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="2" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="Tawagoto's Army" id="ronin_tawagotos_army">
     <Trait>agility</Trait>
@@ -98,6 +112,13 @@ Rank to the total of that roll.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="1" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="Tengoku's Justice" id="ronin_tengokus_justice">
     <Trait>strength</Trait>
@@ -121,6 +142,13 @@ how many damage dice you roll on that attack.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="1" bu="0" zeni="0">
+      <Item>Ashigaru or Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Bow with 20 Arrows or Knife</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="The Tessen" id="ronin_the_tessen">
     <Trait>stamina</Trait>
@@ -157,5 +185,13 @@ wielding a war fan.
       </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="2" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>War Fan</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
 </L5RCM>

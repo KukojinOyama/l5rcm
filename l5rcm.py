@@ -27,7 +27,6 @@ import sinks
 import dal
 import dal.query
 import mimetypes
-import traceback
 
 from PySide import QtGui, QtCore
 #from models.chmodel import models.ATTRIBS
@@ -1613,10 +1612,10 @@ class L5RMain(L5RCMCore):
 
         if tech0:
             self.pc.set_free_school_tech(tech0.id, tech0.id)
-            
+
         # outfit
         print('outfit', school.outfit)
-        self.pc.set_school_outfit( school.outfit, tuple(school.money) )          
+        self.pc.set_school_outfit( school.outfit, tuple(school.money) )
 
         # if shugenja get universal spells
         # also player should choose some spells from list
@@ -1798,19 +1797,18 @@ class L5RMain(L5RCMCore):
                 path.techs.append(tech.id)
                 print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))
         else:
-            next_rank = self.pc.get_school_rank() + 1
-            school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+            school, htech = self.get_higher_tech()
+            next_rank = htech.rank+1
 
-            # going back from a path?
-            last_ch_school = self.pc.schools[-1]
-            if last_ch_school and last_ch_school.is_path:
-                last_tech_id = self.pc.get_techs()[-1]
-                last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
-                next_rank = last_tech.rank+1
+            #going back from a path?
+            if 'alternate' in school.tags:
+                school = dal.query.get_school(self.dstore, self.pc.schools[-2].school_id)
+                print('go back to old school', school.id)
 
             for tech in [ x for x in school.techs if x.rank == next_rank ]:
                 self.pc.add_tech(tech.id, tech.id)
                 print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
+                break
 
         self.pc.recalc_ranks()
         self.pc.set_can_get_other_tech(False)
@@ -2676,7 +2674,7 @@ def main():
         l5rcm.check_updates()
 
         # initialize new character
-        l5rcm.create_new_character()       
+        l5rcm.create_new_character()
 
         sys.exit(app.exec_())
     except Exception as e:

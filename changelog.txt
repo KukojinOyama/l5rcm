@@ -1,5 +1,13 @@
+=== CORE PACK 4.1 ===
+* [NEW] Add school tech descriptions
+* [NEW] Added school starting outfits
+
 === L5RCM v3.9.2 ===
 * [NEW] Export character notes on PDF sheet
+* [NEW] Implemented school starting outfit
+* [NEW] Add tech descriptions
+* [FIX] Issue #205, when coming back from an alternate path old school was not correcly restored
+* [FIX] Spell element not exported on PDF sheet
 
 === CORE PACK 4.0 ===
 * [FIX] added missing monks schools: The Temple Of Kaimetsu-Uo and The Shrine Of The Seven Thunders
