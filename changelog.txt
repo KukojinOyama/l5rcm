@@ -1,3 +1,6 @@
+=== GREAT CLAN PACK 1.2 ===
+* [NEW] Added great clans ancestors
+
 === CORE PACK 4.1 ===
 * [NEW] Add school tech descriptions
 * [NEW] Added school starting outfits
