@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="crane" name="Daidoji Scout School" id="crane_ob_daidoji_scout_school">
     <Trait>reflexes</Trait>
@@ -22,19 +22,24 @@
     <Spells/>
     <Techs>
       <Tech name="Surveying The Land" rank="1" id="crane_surveying_the_land">
+        <Description>
 The Daidoji scouts are masters of observation and pursuit,
 tracking their opponents, harassing them, and delaying
 them with traps and ambushes. You gain +1k0 with Stealth
 and Hunting skill rolls. Any rural/improvised traps you create
 are exceptionally deadly, infl icting +1k1 extra damage.
+      </Description>
       </Tech>
       <Tech name="Scouring The Shadows" rank="2" id="crane_scouring_the_shadows">
+        <Description>
 Daidoji scouts strike from concealment, hitting their opponents
 with swift and devastating attacks. When attacking
 an unaware opponent you gain a bonus of +2k0 to your
-attack roll.      
+attack roll.
+      </Description>
       </Tech>
       <Tech name="Weaken The Resistance" rank="3" id="crane_weaken_the_resistance">
+        <Description>
 The Daidoji learn to strike with precision, hitting their opponents
 in weak spots and evading their armor. You may
 ignore any Reduction your opponent gains from wearing
@@ -42,15 +47,19 @@ armor or from school techniques. (You cannot ignore the
 natural Reduction of creatures, or Reduction bestowed by
 magical or supernatural effects.) If you attack an opponent
 who has no Reduction from armor or techniques, you gain
-+1k0 to your damage rolls.      
++1k0 to your damage rolls.
+      </Description>
       </Tech>
       <Tech name="Strike And Move" rank="4" id="crane_strike_and_move">
+        <Description>
 The Daidoji scout strikes with the swiftness of the wind
 itself. You may make attacks as a Simple Action instead
 of a Complex Action when wielding a katana, wakizashi,
-knife, or bow. Your traps now infl ict +2k1 extra damage.     
+knife, or bow. Your traps now infl ict +2k1 extra damage.
+      </Description>
       </Tech>
       <Tech name="Cunning Of Daidoji" rank="5" id="crane_cunning_of_daidoji">
+        <Description>
 The true master of the Daidoji scout school needs only a
 single strike, for his opponent never survives to see the
 second one. During a skirmish, you may spend a Void
@@ -61,12 +70,12 @@ same Turn). Any Maneuvers called on this attack require 1
 less Raise (to a minimum of 1 Raise), and if you successfully
 hit you gain a bonus of +1k1 to your Damage roll.
 Furthermore, if your opponent is unaware of you, your
-Raises on this attack are not limited by your Void.      
+Raises on this attack are not limited by your Void.
+      </Description>
       </Tech>
     </Techs>
     <Requirements/>
   </School>
-  
   <School clanid="crane" name="Kakita Artisan School" id="crane_ob_kakita_artisan_school">
     <Trait>awareness</Trait>
     <Honor>5.5</Honor>
@@ -95,6 +104,7 @@ Raises on this attack are not limited by your Void.
     <Spells/>
     <Techs>
       <Tech name="Soul Of The Artisan" rank="1" id="crane_soul_of_the_artisan">
+        <Description>
 The Kakita Artisan is taught from earliest youth to focus on
 one specifi c form of art above all others, devoting himself
 to it heart and soul and pursuing the goal of absolute perfection
@@ -107,9 +117,11 @@ art. When making skill rolls with your chosen art, you gain
 a +2k0 bonus and your Raises are not limited by your Void.
 Any time you are using Games: Sadane to criticize
 someone else's art or performance, you gain a Free Raise
-on your skill roll.      
+on your skill roll.
+      </Description>
       </Tech>
       <Tech name="The Soul's Dream" rank="2" id="crane_the_souls_dream">
+        <Description>
 The Kakita Artisan is taught to use his art to affect those
 around them, inspiring emotions and shifting the views
 of the audience. When presenting a public performance
@@ -129,15 +141,19 @@ to manipulate. The GM should normally have each individual
 audience member roll separately to resist this technique
 (this should always be done for PCs or important NPCs), but
 with large groups of ordinary NPCs the GM can opt to save
-time by making a single roll for most or all of them.      
+time by making a single roll for most or all of them.
+      </Description>
       </Tech>
       <Tech name="Free The Spirit" rank="3" id="crane_free_the_spirit">
+        <Description>
 You may select a second of your three chosen School Skills
 as a chosen art, and all Technique bonuses and effects which
 applied to your fi rst chosen art now apply to it as well. The
-bonus to your chosen art skill rolls increases to +2k1.      
+bonus to your chosen art skill rolls increases to +2k1.
+      </Description>
       </Tech>
       <Tech name="Undying Name" rank="4" id="crane_undying_name">
+        <Description>
 Your art is now so magnifi cent that you can make and break
 the reputations of others by depicting or referencing them in
 your work. You may create a piece of art referring to another
@@ -152,9 +168,11 @@ You may not target the same person with this technique
 more than once every six months. Furthermore, persons
 of high station cannot have their reputations damaged by
 artists lacking in prestige—the target's Status Rank cannot
-exceed your Glory or Status Rank (whichever is higher).      
+exceed your Glory or Status Rank (whichever is higher).
+      </Description>
       </Tech>
       <Tech name="Gift Beyond Price" rank="5" id="crane_gift_beyond_price">
+        <Description>
 You art is now so perfect that a gift of it can profoundly
 change another person's attitude toward you and your
 clan. Once per month, you may give a gift of your chosen
@@ -169,8 +187,9 @@ toward your clan/faction in a favorable direction. With a
 failure, the target becomes aware of your attempt to manipulate
 his emotions, and his attitude toward your clan/
 faction permanently shifts in a hostile direction.
+      </Description>
       </Tech>
     </Techs>
     <Requirements/>
-  </School> 
+  </School>
 </L5RCM>

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <KataDef mastery="3" element="air" id="breath_of_wind_style" name="Breath of Wind Style">
     <Description>Your initiative Score increases by 2 during the Reactions Stage of each Combat Round. This effect stacks but disappears immediately if the kata is no longer in effect</Description>
@@ -41,7 +41,7 @@
       <Requirement field="daidoji_iron_warrior" type="tag">Daidoji Iron Warrior</Requirement>
       <Requirement field="crab_hida_bushi_school" type="tag">Hida Bushi School</Requirement>
     </Requirements>
-  </KataDef>  
+  </KataDef>
   <KataDef mastery="3" element="earth" id="striking_as_earth" name="Striking as Earth">
     <Description>When in the Full Defense Stance you gain Reduction equal to your Earth Ring.  This is cumulative with other forms of Reduction</Description>
     <Requirements/>

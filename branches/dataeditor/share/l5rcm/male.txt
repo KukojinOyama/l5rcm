@@ -8,12 +8,14 @@
     * Amoro
     * Anou
     * Anzai
+    * Aramoro
     * Asano
     * Ashihei
     * Atarasi
+    * Atsuki
     * Atsumichi
     * Atsumori
-    * Atsutane 
+    * Atsutane
 
 [edit] B
 
@@ -24,7 +26,7 @@
     * Banuken
     * Benjiro
     * Bokaru
-    * Bugati 
+    * Bugati
 
 [edit] C
 
@@ -32,7 +34,7 @@
     * Chen
     * Chimoto
     * Chomei
-    * Chuai 
+    * Chuai
 
 
 [edit] D
@@ -45,7 +47,7 @@
     * Dayu
     * Domogu
     * Doreni
-    * Doukohito 
+    * Doukohito
 
 [edit] E
 
@@ -53,7 +55,7 @@
     * Ekei
     * Ekiken
     * Enai
-    * Endo 
+    * Endo
 
 [edit] F
 
@@ -63,7 +65,7 @@
     * Fumetsu
     * Fumisato
     * Fumitake
-    * Fumoki 
+    * Fumoki
 
 [edit] G
 
@@ -78,7 +80,7 @@
     * Goemon
     * Gombei
     * Gosuta
-    * Gudeta 
+    * Gudeta
 
 [edit] H
 
@@ -110,7 +112,7 @@
     * Hosaru
     * Hotei
     * Hotoke
-    * Hoturi 
+    * Hoturi
 
 [edit] I
 
@@ -124,7 +126,7 @@
     * Isamu
     * Ishi
     * Isoshi
-    * Itsuma 
+    * Itsuma
 
 [edit] J
 
@@ -134,8 +136,9 @@
     * Josuke
     * Jotaro
     * Junji
+    * Junzo
     * Jurian
-    * Jurobei 
+    * Jurobei
 
 [edit] K
 
@@ -157,6 +160,7 @@
     * Katai
     * Katomara
     * Katsura
+    * Kaukatsu
     * Kaze
     * Kazo
     * Kazu
@@ -194,11 +198,11 @@
     * Kuzan
     * Kuzume
     * Kyobu
-    * Kyuwa 
+    * Kyuwa
 
 [edit] L
 
-    * Latomu 
+    * Latomu
 
 [edit] M
 
@@ -222,7 +226,7 @@
     * Mokuna
     * Moshibaru
     * Motaro
-    * Munabu 
+    * Munabu
 
 [edit] N
 
@@ -242,7 +246,7 @@
     * Nizomi
     * Nobuhide
     * Nokatsu
-    * Norio 
+    * Norio
 
 [edit] O
 
@@ -258,12 +262,12 @@
     * Osuki
     * Otemi
     * Otojiro
-    * Otoya 
+    * Otoya
 
 [edit] P
 [edit] Q
 
-    * Quehao 
+    * Quehao
 
 [edit] R
 
@@ -282,16 +286,18 @@
     * Ryojiro
     * Ryuichi
     * Ryunosuke
-    * Ryute 
+    * Ryute
 
 [edit] S
 
     * Sabaru
     * Sadaharu
     * Sadao
+    * Saibankan
     * Sakamoto
     * Satsu
     * Satsume
+    * Seiki
     * Seishiro
     * Sekawa
     * Sekidera
@@ -302,6 +308,7 @@
     * Shimura
     * Shogusha
     * Shoichi
+    * Shoju
     * Shotoku
     * Shuzo
     * Soetsu
@@ -316,7 +323,7 @@
     * Suman
     * Sumata
     * Sunao
-    * Sunshin 
+    * Sunshin
 
 [edit] T
 
@@ -328,6 +335,7 @@
     * Taka
     * Takaaki
     * Takaniro
+    * Takasho
     * Takeji
     * Takemura
     * Taki
@@ -366,6 +374,7 @@
     * Toshi
     * Toshinobu
     * Toyoaki
+    * Tozasu
     * Tsanumi
     * Tsubakita
     * Tsubaru
@@ -374,7 +383,7 @@
     * Tsunemura
     * Tsuneo
     * Tsunesaburo
-    * Tsuru 
+    * Tsuru
 
 [edit] U
 
@@ -386,7 +395,7 @@
     * Usan
     * Utaemon
     * Utagu
-    * Utsu 
+    * Utsu
 
 [edit] V
 [edit] W
@@ -394,12 +403,12 @@
     * Wakou
     * Waotaka
     * Wasutsubo
-    * Wukau 
+    * Wukau
 
 [edit] X
 
     * Xie
-    * Xushen 
+    * Xushen
 
 [edit] Y
 
@@ -414,6 +423,7 @@
     * Yasuhiro
     * Yasurugi
     * Yataro
+    * Yojiro
     * Yome
     * Yori
     * Yosei
@@ -427,9 +437,9 @@
     * Yukinaga
     * Yuo
     * Yurei
-    * Yuzan 
+    * Yuzan
 
 [edit] Z
 
     * Zoushi
-    * Zunguri 
+    * Zunguri

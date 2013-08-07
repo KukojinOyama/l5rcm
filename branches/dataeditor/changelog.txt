@@ -1,7 +1,29 @@
+=== GREAT CLAN PACK 1.2 ===
+* [NEW] Added great clans ancestors
+
+=== CORE PACK 4.1 ===
+* [NEW] Add school tech descriptions
+* [NEW] Added school starting outfits
+
+=== L5RCM v3.9.2 ===
+* [NEW] Export character notes on PDF sheet
+* [NEW] Implemented school starting outfit
+* [NEW] Add tech descriptions
+* [FIX] Issue #205, when coming back from an alternate path old school was not correcly restored
+* [FIX] Spell element not exported on PDF sheet
+* [NEW] Added some Rokugani names
+
+=== CORE PACK 4.0 ===
+* [FIX] added missing monks schools: The Temple Of Kaimetsu-Uo and The Shrine Of The Seven Thunders
+* [FIX] The Temples of the Thousand Fortunes now starts with 4 Kihos
+
 === L5RCM v3.9.1 ===
 * [NEW] Affinity and Deficiency now stacks and can neutralized each other
-* [FIX] Selected Health method now influence how Health is printed on character sheet
+* [FIX] Issue #196, Selected Health method now influence how Health is printed on character sheet
 * [FIX] A rare crash
+* [FIX] Issue #199, 'Friend of the Brotherhood' advandage doesn't reduce Kiho cost
+* [FIX] Included missing fonts in the windows installer
+* [FIX] Fixed a bug in the algorithm that export the weapons in the first page
 
 === L5RCM v3.9.0 ===
 * [NEW] Add weapon dedicated page to character sheet

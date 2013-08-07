@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <KataDef mastery="4" element="air" id="north_wind_style" name="North Wind Style">
     <Description>You may add your Air Ring to the total of any attack roll made while attempting the Increased Damage Maneuver.</Description>
