@@ -209,17 +209,23 @@ class EquipmentListModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):
         super(EquipmentListModel, self).__init__(parent)
 
-        self.items = None
+        self.school_outfit = []
+        self.items         = []        
             
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
                             QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
-        self.item_size  = QtCore.QSize(28, 28)        
+        self.item_size  = QtCore.QSize(28, 28)    
+        
+        self.bold_font = None
+        if self.parent:
+            self.bold_font = parent.font()
+            self.bold_font.setBold(True)
 
     def rowCount(self, parent = QtCore.QModelIndex()):
-        if not self.items:
-            return 0
-        return len(self.items)
+        #if not self.items:
+        #    return 0
+        return len(self.items) + len(self.school_outfit)
 
     def flags(self, index):
         if not index.isValid():
@@ -230,25 +236,36 @@ class EquipmentListModel(QtCore.QAbstractListModel):
     def add_item(self, item):
         row = self.rowCount()
         self.beginInsertRows(QtCore.QModelIndex(), row, row)               
-        self.items.append(item)
+        #self.items.append(item)
         self.endInsertRows()
 
     def clean(self):
         self.beginResetModel()
-        self.items = []
+        self.school_outfit = []
+        self.items         = []  
         self.endResetModel()
+        
+    def is_school_item(self, index):
+        if not index.isValid(): return False
+        return index.row() < len( self.school_outfit )
 
     def update_from_model(self, model):
         self.clean()
         equip_list = model.get_property('equip', [])
-        for e in equip_list:
+        for e in model.get_school_outfit() + equip_list:
             self.add_item(e)
-        self.items = equip_list
+        self.items          = equip_list
+        self.school_outfit  = model.get_school_outfit()
             
     def data(self, index, role = QtCore.Qt.UserRole):
-        if not self.items or not index.isValid() or index.row() >= len(self.items):
-            return None
-        item = self.items[index.row()]
+        #if not self.items or not index.isValid() or index.row() >= len(self.items):
+        #    return None
+        if not index.isValid(): return None
+        
+        item = None
+        if self.is_school_item(index): item = self.school_outfit[index.row()]
+        else: item = self.items[index.row() - len(self.school_outfit)]       
+        
         if role == QtCore.Qt.DisplayRole:
             return item
         if role == QtCore.Qt.EditRole:
@@ -259,6 +276,9 @@ class EquipmentListModel(QtCore.QAbstractListModel):
             return self.bg_color[ index.row() % 2 ]            
         elif role == QtCore.Qt.SizeHintRole:
             return self.item_size
+        elif role == QtCore.Qt.FontRole:
+            if self.is_school_item(index):
+                return self.bold_font
         elif role == QtCore.Qt.UserRole:
             return item    
         return None
@@ -267,6 +287,9 @@ class EquipmentListModel(QtCore.QAbstractListModel):
         if role != QtCore.Qt.EditRole:
             return super(EquipmentListModel, self).setData(index, value, role)
         else:
-            self.items[index.row()] = str(value)
+            if self.is_school_item(index):
+                self.school_outfit[index.row()] = str(value)
+            else:
+                self.items[index.row() - len(self.school_outfit)] = str(value)
         return True
         

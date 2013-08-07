@@ -1,14 +1,15 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
-	<School clanid="crab" name="Toritaka Exorcist" id="crab_toritaka_exorcist">
-		<Tags>
-			<Tag>shugenja</Tag>
-			<Tag>crab_shugenja</Tag>
-			<Tag>alternate</Tag>
-			<Tag>crab_alternate</Tag>
-		</Tags>
-		<Techs>
-			<Tech name="Purge the Darkness" rank="2" id="crab_warrior_of_earth">
+  <School clanid="crab" name="Toritaka Exorcist" id="crab_toritaka_exorcist">
+    <Tags>
+      <Tag>shugenja</Tag>
+      <Tag>crab_shugenja</Tag>
+      <Tag>alternate</Tag>
+      <Tag>crab_alternate</Tag>
+    </Tags>
+    <Techs>
+      <Tech name="Purge the Darkness" rank="2" id="crab_warrior_of_earth">
+        <Description>
 You can sense the presence of dangerous spirits (ghosts,
 gaki, yokai, creatures from the spirit realms, etc) by making
 an Investigation (Notice) / Perception roll. The base
@@ -23,18 +24,19 @@ and make a Contested Willpower roll against the spirit; if
 you fi rst place an exorcism ward on the target (see sidebar),
 you gain +2k2 on the roll. With a success, you force
 the spirit to leave the body it is possessing; it cannot attempt
-to re-possess that same person for at least 24 hours.            
-            </Tech>
-		</Techs>
-        <Skills/>
-        <Spells/>
-		<Requirements>
-			<Requirement field="willpower" type="trait" min="3">Willpower: 3</Requirement>
-			<Requirement field="perception" type="trait" min="3">Perception: 3</Requirement>
-			<Requirement field="calligraphy" type="skill" min="3">Calligraphy: 3</Requirement>            
-            <RequirementOption text="Replaces Kuni Shugenja 2">
-                <Requirement field="crab_gaze_into_shadow" type="rule"/>
-            </RequirementOption>
-		</Requirements>
-    </School>        
+to re-possess that same person for at least 24 hours.
+            </Description>
+      </Tech>
+    </Techs>
+    <Skills/>
+    <Spells/>
+    <Requirements>
+      <Requirement field="willpower" type="trait" min="3">Willpower: 3</Requirement>
+      <Requirement field="perception" type="trait" min="3">Perception: 3</Requirement>
+      <Requirement field="calligraphy" type="skill" min="3">Calligraphy: 3</Requirement>
+      <RequirementOption text="Replaces Kuni Shugenja 2">
+        <Requirement field="crab_gaze_into_shadow" type="rule"/>
+      </RequirementOption>
+    </Requirements>
+  </School>
 </L5RCM>

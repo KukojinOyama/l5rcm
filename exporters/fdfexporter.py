@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import string
 import models
 import rules
 import hashlib
@@ -78,11 +77,11 @@ class FDFExporter(object):
 def zigzag(l1, l2):
     def _zigzag(l1_, l2_):
         rl = []
-        i = 0
-        for i in xrange(0, len(l2_)):
+        i  = 0
+        for i in range(0, len(l2_)):
             rl.append(l1_[i])
             rl.append(l2_[i])
-        return rl + l1_[i:]
+        return rl + l1_[len(l2_):]
 
     if len(l1) >= len(l2):
         return _zigzag(l1,l2)
@@ -164,7 +163,6 @@ class FDFExporterAll(FDFExporter):
         fields['WOUND_HEAL_CUR' ] = fields['WOUND_HEAL_BASE']
 
         # SKILLS
-        idx = 1
         count = min(23, len(f.sk_view_model.items))
         for i in xrange(1, count+1):
             sk = f.sk_view_model.items[i-1]
@@ -192,8 +190,9 @@ class FDFExporterAll(FDFExporter):
 
         # WEAPONS
         melee_weapons = f.melee_view_model .items
-        range_weapons = f.ranged_view_model.items
+        range_weapons = [x for x in f.ranged_view_model.items if 'melee' not in x.tags]
         wl = zigzag(melee_weapons, range_weapons)
+
         count = min(2, len(wl))
         for i in xrange(1, count+1):
             weap = wl[i-1]
@@ -237,7 +236,7 @@ class FDFExporterAll(FDFExporter):
                 fields['CHILDREN.%d' % (i+1)] = chrows[i]
 
         # EQUIPMENT
-        equip_list = m.get_property('equip', [])
+        equip_list = m.get_school_outfit() + m.get_property('equip', [])
         equip_num  = min(50, len(equip_list))
         equip_cols = [18, 18, 15]
         c          = 0
@@ -253,6 +252,10 @@ class FDFExporterAll(FDFExporter):
             fields['KOKU'] = str( money[0] )
             fields['BU'  ] = str( money[1] )
             fields['ZENI'] = str( money[2] )
+
+        # MISC
+        misc = f.tx_pc_notes.get_plain_text()
+        fields['MISCELLANEOUS'] = misc
 
         # EXPORT FIELDS
         for k in fields.iterkeys():
@@ -276,7 +279,7 @@ class FDFExporterShugenja(FDFExporter):
             fields['SPELL_RANGE.%d.%d'  % (r, c)    ] = spell.range
             fields['SPELL_AREA.%d.%d'  % (r, c)     ] = spell.area
             fields['SPELL_DURATION.%d.%d'  % (r, c) ] = spell.duration
-            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = dal.query.get_ring(f.dstore, spell.ring)
+            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = spell.ring
 
             c += 1
             if c == 3:

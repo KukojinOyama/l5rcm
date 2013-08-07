@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <SkillDef trait="strength" type="bugei" id="athletics" name="Athletics">
     <Tags/>
@@ -46,7 +46,7 @@
   </SkillDef>
   <SkillDef trait="agility" type="bugei" id="jiujutsu" name="Jiujutsu">
     <Tags>
-        <Tag>weapon</Tag>
+      <Tag>weapon</Tag>
     </Tags>
     <MasteryAbilities>
       <MasteryAbility rank="3">+1k0 to damage of all unarmed attacks.</MasteryAbility>
@@ -339,7 +339,7 @@
       <Tag>lore</Tag>
     </Tags>
     <MasteryAbilities/>
-  </SkillDef> 
+  </SkillDef>
   <SkillDef trait="intelligence" type="high" id="lore_elements" name="Lore (Elements)">
     <Tags>
       <Tag>lore</Tag>
@@ -423,7 +423,7 @@
       <Tag>lore</Tag>
     </Tags>
     <MasteryAbilities/>
-  </SkillDef>  
+  </SkillDef>
   <SkillDef trait="intelligence" type="high" id="medicine" name="Medicine">
     <Tags/>
     <MasteryAbilities>

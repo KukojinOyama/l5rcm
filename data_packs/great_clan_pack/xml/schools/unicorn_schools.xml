@@ -1,6 +1,6 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
- <School clanid="unicorn" name="Meishodo/Horiuchi Shugenja School" id="unicorn_meishodo_horiuchi_shugenja_school">
+  <School clanid="unicorn" name="Meishodo/Horiuchi Shugenja School" id="unicorn_meishodo_horiuchi_shugenja_school">
     <Trait>stamina</Trait>
     <Affinity>earth</Affinity>
     <Deficiency>air</Deficiency>
@@ -31,6 +31,7 @@
     </Spells>
     <Techs>
       <Tech name="Mysteries of Meishodo" rank="1" id="unicorn_mysteries_of_meishodo">
+        <Description>
 Meishodo is a mixture of gaijin and Rokugani magic, resulting
 in a fast and powerful method of calling the kami.
 Shugenja studying these methods learn to create meishodo
@@ -54,7 +55,8 @@ You may only create meishodo from spells of a Mastery
 Level equal or less than your Shugenja School Rank, and
 can never create meishodo from spells of Mastery Level 4,
 5 or 6. Other shugenja may use your meishodo if they are
-proficient in meishodo magic (e.g. trained in this school).      
+proficient in meishodo magic (e.g. trained in this school).
+      </Description>
       </Tech>
     </Techs>
     <Requirements/>
@@ -80,6 +82,7 @@ proficient in meishodo magic (e.g. trained in this school).
     <Spells/>
     <Techs>
       <Tech name="Purity of the Breath" rank="1" id="unicorn_purity_of_the_breath">
+        <Description>
 The Vindicator knows the only way to combat
 the Shadowlands is to maintain integrity in the
 face of the foulest corruption. At the beginning
@@ -91,29 +94,37 @@ Willpower. Or, you may instead choose to add a
 bonus to your Armor TN equal to your School Rank plus
 your Willpower.
 If you are in a skirmish against creatures of the
-Shadowlands, the chosen bonus is doubled.      
+Shadowlands, the chosen bonus is doubled.
+      </Description>
       </Tech>
       <Tech name="Facing the Dark Within" rank="2" id="unicorn_facing_the_dark_within">
+        <Description>
 The Vindicator learns to hone his senses so that he is never
 surprised by those who serve the darkness. You gain a
 +2k0 bonus to all Investigation rolls. This bonus is increased
 to +2k1 if you are specifi cally attempting to notice
-effects of the Shadowlands Taint.      
+effects of the Shadowlands Taint.
+      </Description>
       </Tech>
       <Tech name="Justice of our Ancestors" rank="3" id="unicorn_justice_of_our_ancestors">
+        <Description>
 The Vindicator's rage at his foes knows no bounds. You
 may make melee attacks as a Simple Action instead of a
-Complex Action.      
+Complex Action.
+      </Description>
       </Tech>
       <Tech name="Avenging our Own" rank="4" id="unicorn_avenging_our_own">
+        <Description>
 The Vindicator's fury is provoked the most when it is directed
 at those creatures he once called his brothers. You
 gain a bonus of +2k0 to your attack and damage rolls
 against any enemy who has attacked you in this skirmish
 and against any creature with the Shadowlands Taint
-whether it has attacked you or not.      
+whether it has attacked you or not.
+      </Description>
       </Tech>
       <Tech name="Bloodied but Unbowed" rank="5" id="unicorn_bloodied_but_unbowed">
+        <Description>
 The Vindicator can push on past physical limits once his
 goal is in sight. Once per skirmish, you may choose to keep
 fi ghting despite your injuries. Activating this Technique is
@@ -124,9 +135,10 @@ to the TN penalties you are suffering from Wound Ranks.
 from Advantages, spells, or other such effects.) The
 effects of this Technique last for two full Rounds. You may
 choose to extend the effects of this Technique for an additional
-Round by taking ten Wounds.      
+Round by taking ten Wounds.
+      </Description>
       </Tech>
     </Techs>
     <Requirements/>
-  </School>  
+  </School>
 </L5RCM>

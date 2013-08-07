@@ -667,8 +667,9 @@ class L5RMain(L5RCMCore):
 
         hbox.addWidget(_make_vertical_tb())
         hbox.addWidget(fr_)
-
         layout.addWidget(grp)
+
+        view.doubleClicked.connect( self.sink4.on_spell_item_activate )
 
         return view
 
@@ -681,8 +682,9 @@ class L5RMain(L5RCMCore):
         view.setModel(model)
         view.setItemDelegate(models.TechItemDelegate(self))
         vbox.addWidget(view)
-
         layout.addWidget(grp)
+
+        view.doubleClicked.connect( self.sink4.on_tech_item_activate )
 
         return view
 
@@ -833,7 +835,6 @@ class L5RMain(L5RCMCore):
 
         frame_ = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(frame_)
-        views_ = []
 
         self._build_spell_frame(sp_sort_model     , vbox)
         self._build_tech_frame (self.th_view_model, vbox)
@@ -855,7 +856,6 @@ class L5RMain(L5RCMCore):
 
         frame_ = QtGui.QFrame(self)
         vbox   = QtGui.QVBoxLayout(frame_)
-        #views_ = []
 
         self.kata_view = self._build_kata_frame(ka_sort_model     , vbox)
         self.kiho_view = self._build_kiho_frame(ki_sort_model     , vbox)
@@ -1220,39 +1220,32 @@ class L5RMain(L5RCMCore):
         lb_info.setWordWrap(True)
         hbox.addWidget(lb_info)
 
-        lb_contact_gplus = QtGui.QLabel(
-        """<a href="{0}">Contact me on</a>
-        """.format(L5RCM_GPLUS_PAGE), self)
-        lb_contact_gplus.setOpenExternalLinks(True)
+        def on_contact_link_activate():
+            url = QtCore.QUrl(L5RCM_GPLUS_PAGE)
+            QtGui.QDesktopServices.openUrl(url)
 
-        lb_contact_gplus_img = QtGui.QLabel(
-        """
-        <a href="{0}"><img src="{1}" alt="googleplus_page"/></a>
-        """.format(L5RCM_GPLUS_PAGE, get_icon_path('new-g-plus-icon', (16, 16))), self)
-        lb_contact_gplus_img.setOpenExternalLinks(True)
+        def on_community_link_activate():
+            url = QtCore.QUrl(L5RCM_GPLUS_COMM)
+            QtGui.QDesktopServices.openUrl(url)
 
-        lb_join_community_gplus = QtGui.QLabel(
-        """
-        <a href="{0}">Join the Community on</a>
-        """.format(L5RCM_GPLUS_COMM), self)
-        lb_join_community_gplus.setOpenExternalLinks(True)
+        bt_contact_gplus = QtGui.QCommandLinkButton("Contact me", "but bring good news", self)
+        bt_contact_gplus.setIcon(
+            QtGui.QIcon(get_icon_path('new-g-plus-icon',(16, 16))))
+        #bt_contact_gplus.setFlat(True)
+        bt_contact_gplus.clicked.connect( on_contact_link_activate )
 
-        lb_join_community_gplus_img = QtGui.QLabel(
-        """
-        <a href="{0}"><img src="{1}" alt="googleplus_community"/></a>
-        """.format(L5RCM_GPLUS_COMM, get_icon_path('new-g-plus-icon', (16, 16))), self)
-        lb_join_community_gplus_img.setOpenExternalLinks(True)
+        bt_community_gplus = QtGui.QCommandLinkButton("Join the G+ Community", "for answers and support", self)
+        bt_community_gplus.setIcon(
+            QtGui.QIcon(get_icon_path('new-g-plus-icon',(16, 16))))
+        #bt_community_gplus.setFlat(True)
+        bt_community_gplus.clicked.connect( on_community_link_activate )
 
-        gplus_form = QtGui.QFormLayout()
-        gplus_form.addRow(
-            lb_contact_gplus,
-            lb_contact_gplus_img)
-        gplus_form.addRow(
-            lb_join_community_gplus,
-            lb_join_community_gplus_img)
+        gplus_form = QtGui.QVBoxLayout()
+        gplus_form.addWidget(bt_contact_gplus  )
+        gplus_form.addWidget(bt_community_gplus)
 
-        gplus_form.setLabelAlignment(QtCore.Qt.AlignRight)
-        gplus_form.setVerticalSpacing(6)
+        #gplus_form.setLabelAlignment(QtCore.Qt.AlignRight)
+        gplus_form.setSpacing(6)
 
         gplus_hbox = QtGui.QHBoxLayout()
         gplus_hbox.setContentsMargins(0,0,50,0)
@@ -1620,6 +1613,10 @@ class L5RMain(L5RCMCore):
         if tech0:
             self.pc.set_free_school_tech(tech0.id, tech0.id)
 
+        # outfit
+        print('outfit', school.outfit)
+        self.pc.set_school_outfit( school.outfit, tuple(school.money) )
+
         # if shugenja get universal spells
         # also player should choose some spells from list
 
@@ -1800,19 +1797,18 @@ class L5RMain(L5RCMCore):
                 path.techs.append(tech.id)
                 print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))
         else:
-            next_rank = self.pc.get_school_rank() + 1
-            school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+            school, htech = self.get_higher_tech()
+            next_rank = htech.rank+1
 
-            # going back from a path?
-            last_ch_school = self.pc.schools[-1]
-            if last_ch_school and last_ch_school.is_path:
-                last_tech_id = self.pc.get_techs()[-1]
-                last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
-                next_rank = last_tech.rank+1
+            #going back from a path?
+            if 'alternate' in school.tags:
+                school = dal.query.get_school(self.dstore, self.pc.schools[-2].school_id)
+                print('go back to old school', school.id)
 
             for tech in [ x for x in school.techs if x.rank == next_rank ]:
                 self.pc.add_tech(tech.id, tech.id)
                 print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
+                break
 
         self.pc.recalc_ranks()
         self.pc.set_can_get_other_tech(False)
@@ -2392,6 +2388,19 @@ class L5RMain(L5RCMCore):
         msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
         msgBox.exec_()
 
+    def ask_warning(self, message, dtl = None):
+        msgBox = QtGui.QMessageBox(self)
+        msgBox.setTextFormat(QtCore.Qt.RichText)
+        msgBox.setWindowTitle('L5R: CM')
+        msgBox.setText(message)
+        if dtl:
+            msgBox.setInformativeText(dtl)
+        msgBox.setIcon(QtGui.QMessageBox.Warning)
+        msgBox.addButton(QtGui.QMessageBox.Ok)
+        msgBox.addButton(QtGui.QMessageBox.Cancel)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
+        return msgBox.exec_() == QtGui.QMessageBox.Ok
+
     def ask_to_save(self):
         msgBox = QtGui.QMessageBox(self)
         msgBox.setWindowTitle('L5R: CM')
@@ -2559,6 +2568,7 @@ class L5RMain(L5RCMCore):
 
     def create_new_character(self):
         self.sink1.new_character()
+        self.pc.unsaved = False
 
     def get_health_rank(self, idx):
         return self.wounds[idx][1].text()
@@ -2579,93 +2589,98 @@ DATA_REPT_SWITCH  = '--datareport'
 MIME_L5R_CHAR     = "applications/x-l5r-character"
 MIME_L5R_PACK     = "applications/x-l5r-pack"
 
+
+
 def main():
-    app = QtGui.QApplication(sys.argv)
+    try:
+        app = QtGui.QApplication(sys.argv)
 
-    # setup mimetypes
-    mimetypes.add_type(MIME_L5R_CHAR, ".l5r")
-    mimetypes.add_type(MIME_L5R_PACK, ".l5rcmpack")
+        # setup mimetypes
+        mimetypes.add_type(MIME_L5R_CHAR, ".l5r")
+        mimetypes.add_type(MIME_L5R_PACK, ".l5rcmpack")
 
-    if DATA_CHECK_SWITCH in sys.argv:
-        import dal_check
-        dc = dal_check.DataCheck()
-        dc.check()
-        return
+        if DATA_CHECK_SWITCH in sys.argv:
+            import dal_check
+            dc = dal_check.DataCheck()
+            dc.check()
+            return
 
-    if DATA_REPT_SWITCH in sys.argv:
-        import dal.report
-        dr = dal.report.ReportBuilder('./data_packs', './data_report')
-        dr.build()
-        return
+        if DATA_REPT_SWITCH in sys.argv:
+            import dal.report
+            dr = dal.report.ReportBuilder('./data_packs', './data_report')
+            dr.build()
+            return
 
-    QtCore.QCoreApplication.setApplicationName(APP_NAME)
-    QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
-    QtCore.QCoreApplication.setOrganizationName(APP_ORG)
+        QtCore.QCoreApplication.setApplicationName(APP_NAME)
+        QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
+        QtCore.QCoreApplication.setOrganizationName(APP_ORG)
 
-    app.setWindowIcon( QtGui.QIcon( get_app_icon_path() ) )
+        app.setWindowIcon( QtGui.QIcon( get_app_icon_path() ) )
 
-    # Setup translation
-    settings = QtCore.QSettings()
-    use_machine_locale = settings.value('use_machine_locale', 1)
-    app_translator = QtCore.QTranslator()
-    qt_translator  = QtCore.QTranslator()
+        # Setup translation
+        settings = QtCore.QSettings()
+        use_machine_locale = settings.value('use_machine_locale', 1)
+        app_translator = QtCore.QTranslator()
+        qt_translator  = QtCore.QTranslator()
 
-    print('use_machine_locale', use_machine_locale, QtCore.QLocale.system().name())
+        print('use_machine_locale', use_machine_locale, QtCore.QLocale.system().name())
 
-    if use_machine_locale == 1:
-        use_locale = QtCore.QLocale.system().name()
-    else:
-        use_locale = settings.value('use_locale')
-
-    print('current locale is {0}'.format(use_locale))
-
-    qt_loc  = 'qt_{0}'.format(use_locale[:2])
-
-    print(qt_loc)
-    app_loc = get_app_file('i18n/{0}'.format(use_locale))
-
-    print(QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
-
-    qt_translator .load(qt_loc, QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
-    app.installTranslator(qt_translator )
-    app_translator.load(app_loc)
-    app.installTranslator(app_translator)
-
-    # start main form
-    print("create main form")
-    l5rcm = L5RMain(use_locale)
-    l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
-    l5rcm.show()
-    l5rcm.init()
-
-    # dump_slots(l5rcm, 'startup.txt')
-
-    # check for updates
-    #if sys.platform != 'linux2':
-    l5rcm.check_updates()
-
-    # initialize new character
-    l5rcm.create_new_character()
-
-    if len(sys.argv) > 1:
-        if OPEN_CMD_SWITCH in sys.argv:
-            of   = sys.argv.index(OPEN_CMD_SWITCH)
-            l5rcm.load_character_from(sys.argv[of+1])
-        elif IMPORT_CMD_SWITCH in sys.argv:
-            imf  = sys.argv.index(IMPORT_CMD_SWITCH)
-            l5rcm.import_data_pack(sys.argv[imf+1])
+        if use_machine_locale == 1:
+            use_locale = QtCore.QLocale.system().name()
         else:
-            # check mimetype
-            mime = mimetypes.guess_type(sys.argv[1])
-            if mime[0] == MIME_L5R_CHAR:
-                l5rcm.load_character_from(sys.argv[1])
-            elif mime[0] == MIME_L5R_PACK:
-                l5rcm.import_data_pack(sys.argv[1])
+            use_locale = settings.value('use_locale')
 
-    # alert if not datapacks are installed
-    l5rcm.check_datapacks()
+        print('current locale is {0}'.format(use_locale))
 
-    sys.exit(app.exec_())
+        qt_loc  = 'qt_{0}'.format(use_locale[:2])
+
+        print(qt_loc)
+        app_loc = get_app_file('i18n/{0}'.format(use_locale))
+
+        print(QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
+
+        qt_translator .load(qt_loc, QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
+        app.installTranslator(qt_translator )
+        app_translator.load(app_loc)
+        app.installTranslator(app_translator)
+
+        # start main form
+        print("create main form")
+        l5rcm = L5RMain(use_locale)
+        l5rcm.setWindowTitle(APP_DESC + ' v' + APP_VERSION)
+        l5rcm.show()
+        l5rcm.init()
+
+        if len(sys.argv) > 1:
+            if OPEN_CMD_SWITCH in sys.argv:
+                of   = sys.argv.index(OPEN_CMD_SWITCH)
+                l5rcm.load_character_from(sys.argv[of+1])
+            elif IMPORT_CMD_SWITCH in sys.argv:
+                imf  = sys.argv.index(IMPORT_CMD_SWITCH)
+                l5rcm.import_data_pack(sys.argv[imf+1])
+            else:
+                # check mimetype
+                mime = mimetypes.guess_type(sys.argv[1])
+                if mime[0] == MIME_L5R_CHAR:
+                    l5rcm.load_character_from(sys.argv[1])
+                elif mime[0] == MIME_L5R_PACK:
+                    l5rcm.import_data_pack(sys.argv[1])
+
+        # alert if not datapacks are installed
+        l5rcm.check_datapacks()
+
+        # check for updates
+        #if sys.platform != 'linux2':
+        l5rcm.check_updates()
+
+        # initialize new character
+        l5rcm.create_new_character()
+
+        sys.exit(app.exec_())
+    except Exception as e:
+        print("HOLYMOLY!", e)
+    finally:
+        print("KTHXBYE")
 
 if __name__ == '__main__':
     main()

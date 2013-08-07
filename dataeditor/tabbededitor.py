@@ -59,24 +59,33 @@ class L5RCMTabbedEditor(QtGui.QWidget):
         self.model = model
 
     def on_doc_added(self, doc):
-        widget = self.widget_for_document(doc)
-    	self.add_tab(widget, doc.name, hash(doc))
+        index = self.find_tab(doc)
+        if index < 0:
+            widget = self.widget_for_document(doc)
+    	    self.add_tab(widget, doc.name, hash(doc))
+        else:
+            self.set_current(index)
 
     def on_doc_status_changed(self, doc):
-        print( repr(doc) )
-        tab_title = '*' + doc.name if doc.dirty else doc.name
+        tab_title = doc.name + "*" if doc.dirty else doc.name
+        tab_color = QtCore.Qt.red if doc.dirty else QtCore.Qt.black
+        print( 'status changed', tab_title, doc.status, doc.dirty )
         index     = self.find_tab(doc)
-        if index > 0:
-            self.tabs.setTabTitle(index, tab_title)
+        if index >= 0:
+            self.tabs.setTabText(index, tab_title)
+            self.tabs.setTabTextColor(index, tab_color)
 
     def on_doc_removed(self, doc):
         print( repr(doc) )
 
     def on_tab_close_requested(self, index):
         #TODO check document status and ask to save
+        doc_hash = self.tabs.tabData(index)
         self.tabs.removeTab   (index)
         w = self.widgets.widget(index)
         self.widgets.removeWidget(w)
+
+        self.model.remove_doc_hash(doc_hash)
 
     def add_tab(self, widget, text, data = None):
         index = self.tabs.addTab(text)
@@ -88,9 +97,13 @@ class L5RCMTabbedEditor(QtGui.QWidget):
 
     def find_tab(self, doc):
         for i in range(0, self.tabs.count()):
+            print(i, self.tabs.tabData(i), hash(doc))
             if self.tabs.tabData(i) == hash(doc):
                 return i
         return -1
+
+    def set_current(self, index):
+        self.tabs.setCurrentIndex(index)
 
     def widget_for_document(self, doc):
         if os.path.basename(doc.path) == 'manifest':

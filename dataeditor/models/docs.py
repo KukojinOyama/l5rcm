@@ -53,23 +53,24 @@ class DocumentItem(QtCore.QObject):
 
     @property
     def dirty(self):
-        return self.status == DOC_STATUS_DIRTY
+        return self._status == DOC_STATUS_DIRTY
 
     @property
     def status(self):
-        return self.status
+        return self._status
 
     @dirty.setter
     def dirty(self, value):
-        st = DOC_STATUS_DIRTY if flag else DOC_STATUS_CLEAN
+        st = DOC_STATUS_DIRTY if value else DOC_STATUS_CLEAN
         if st != self._status:
+            print('got dirty')
             self._status = st
             self.doc_status_change.emit(st)
 
     def __eq__(self, obj):
         return hash(self) == hash(obj)
 
-    def __hash(self):
+    def __hash__(self):
         return hash(self._path)
 
 class OpenedDocuments(QtCore.QObject):
@@ -98,6 +99,14 @@ class OpenedDocuments(QtCore.QObject):
             self.doc_removed.emit(doc_item)
             return True
         return False
+
+    def remove_doc_hash(self, doc_hash):
+        for d in self.items:
+            print(hash(d), doc_hash)
+            if hash(d) == doc_hash:
+                self.rem_document(d)
+                return
+        raise Exception("Document not found!")
 
     def on_document_status_change(self, st):
         self.doc_status_change.emit(self.sender(), st)

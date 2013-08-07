@@ -42,6 +42,7 @@ class DataManifest(object):
         self.authors      = []
         self.active       = True
         self.path         = None
+        self.min_cm_ver   = None
 
         if 'display_name' in d:
             self.display_name = d['display_name']
@@ -55,6 +56,8 @@ class DataManifest(object):
             self.update_uri = d['update-uri']
         if 'download-uri' in d:
             self.download_uri = d['download-uri']
+        if 'min-cm-version' in d:
+            self.min_cm_ver = d['min-cm-version']
 
 class Data(object):
     def __init__(self, data_dirs = [], blacklist = []):
@@ -118,6 +121,7 @@ class Data(object):
                             dm.active = False
                         dm.path = path
                         self.packs.append(dm)
+                        print('DATA PACK', dm.id, dm.display_name)
             except Exception as ex:
                 print(ex)
 

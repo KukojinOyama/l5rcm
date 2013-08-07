@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <EffectDef id="blowgun_special_rule">Triple an opponent's Armor TN bonus from armor. The damage increase from the Ninjutsu Skill increases the blowgun's damage to 1k1 at Rank 3 and 2k1 at Rank 7. Reloading a blowgun is a Free Action.</EffectDef>
   <EffectDef id="daikyu_rule">Increase the TN of all attack rolls by +10 if used on foot.</EffectDef>
