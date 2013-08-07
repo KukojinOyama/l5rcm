@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import os
 from PySide import QtCore
 
 DOC_STATUS_CLEAN = 0
@@ -24,27 +25,52 @@ class DocumentItem(QtCore.QObject):
 
     doc_status_change = QtCore.Signal(int)
 
-    obj    = None
-    path   = None
-    status = DOC_STATUS_CLEAN
+    _obj    = None
+    _path   = None
+    _name   = None
+    _status = DOC_STATUS_CLEAN
 
     def __init__(self, path, obj, parent = None):
         super(DocumentItem, self).__init__(parent)
 
-        self.path = path
-        self.obj  = obj
+        self._path = path
+        self._obj  = obj
 
-    def set_dirty(self, flag):
+        h, t = os.path.split(path)
+        self._name = t
+
+    @property
+    def object(self):
+        return self._obj
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def dirty(self):
+        return self.status == DOC_STATUS_DIRTY
+
+    @property
+    def status(self):
+        return self.status
+
+    @dirty.setter
+    def dirty(self, value):
         st = DOC_STATUS_DIRTY if flag else DOC_STATUS_CLEAN
-        if st != self.status:
-            self.status = st
+        if st != self._status:
+            self._status = st
             self.doc_status_change.emit(st)
 
     def __eq__(self, obj):
         return hash(self) == hash(obj)
 
     def __hash(self):
-        return hash(self.path)
+        return hash(self._path)
 
 class OpenedDocuments(QtCore.QObject):
 

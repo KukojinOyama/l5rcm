@@ -18,34 +18,82 @@
 from PySide import QtCore, QtGui
 import os
 
-class L5RCMTabbedEditor(QtGui.QTabWidget):
+from widgets.manifest import ManifestWidget
+
+class L5RCMTabbedEditor(QtGui.QWidget):
     def __init__(self, model, parent = None):
         super(L5RCMTabbedEditor, self).__init__(parent)
 
+        self.vbox = QtGui.QVBoxLayout(self)
+
+        self.tabs    = QtGui.QTabBar(self)
+        self.widgets = QtGui.QStackedWidget(self)
+
         self.setSizePolicy( QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding )
-        palette = self.palette()
-        palette.setColor( QtGui.QPalette.Window, QtGui.QColor("#666")  )
-        self.setPalette(palette)
-        self.setAutoFillBackground(True)
-        self.setDocumentMode(True)
-        self.setTabsClosable(True)
-        self.setMovable(True)
-        self.setUsesScrollButtons(True)
-        #self.setTabShape(QtGui.QTabBar.RoundedEast)
+
+        # TABS
+        self.tabs.setDocumentMode(False)
+        self.tabs.setTabsClosable(True)
+        self.tabs.setMovable(True)
+        self.tabs.setUsesScrollButtons(True)
+        self.tabs.setExpanding(False)
+
+        # WIDGETS
+        palette = self.widgets.palette()
+        palette.setColor( QtGui.QPalette.Window, QtGui.QColor("#fff")  )
+        self.widgets.setPalette(palette)
+        self.widgets.setAutoFillBackground(True)
+
+
+        # LAYOUT
+        self.vbox.addWidget(self.tabs   )
+        self.vbox.addWidget(self.widgets)
+
+        self.tabs.currentChanged.connect   (self.widgets.setCurrentIndex)
+        self.tabs.tabCloseRequested.connect(self.on_tab_close_requested )
 
         model.doc_added        .connect( self.on_doc_added          )
-        #model.doc_removed      .connect( self.on_doc_removed        )
-        #model.doc_status_change.connect( self.on_doc_status_changed )
+        model.doc_removed      .connect( self.on_doc_removed        )
+        model.doc_status_change.connect( self.on_doc_status_changed )
 
         self.model = model
 
     def on_doc_added(self, doc):
-    	short_name = os.path.basename(doc.path)
-    	self.addTab(QtGui.QLabel(doc.path), short_name)
+        widget = self.widget_for_document(doc)
+    	self.add_tab(widget, doc.name, hash(doc))
 
-   	def on_doc_removed(self, doc):
-   		pass
+    def on_doc_status_changed(self, doc):
+        print( repr(doc) )
+        tab_title = '*' + doc.name if doc.dirty else doc.name
+        index     = self.find_tab(doc)
+        if index > 0:
+            self.tabs.setTabTitle(index, tab_title)
 
-   	def on_doc_status_changed(self, doc):
-   		pass
+    def on_doc_removed(self, doc):
+        print( repr(doc) )
+
+    def on_tab_close_requested(self, index):
+        #TODO check document status and ask to save
+        self.tabs.removeTab   (index)
+        w = self.widgets.widget(index)
+        self.widgets.removeWidget(w)
+
+    def add_tab(self, widget, text, data = None):
+        index = self.tabs.addTab(text)
+        self.tabs.setTabData(index, data)
+        self.widgets.insertWidget(index, widget)
+
+        if hasattr(widget, 'load'):
+            widget.load()
+
+    def find_tab(self, doc):
+        for i in range(0, self.tabs.count()):
+            if self.tabs.tabData(i) == hash(doc):
+                return i
+        return -1
+
+    def widget_for_document(self, doc):
+        if os.path.basename(doc.path) == 'manifest':
+            return ManifestWidget(doc, self)
+        return QtGui.QLabel(doc.path, self)
 
