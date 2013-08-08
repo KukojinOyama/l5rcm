@@ -221,38 +221,28 @@ class L5RCMCore(QtGui.QMainWindow):
         os.fdopen(fd, 'wt').close()
         _flatten_pdf(source_fdf, source_pdf, fpath)
 
-        temp_files.append(fpath)
-        # SHUGENJA/BUSHI/MONK SHEET
-        if self.pc.has_tag('shugenja'):
-            source_pdf = get_app_file('sheet_shugenja.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterShugenja())
-            fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
-            _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)
-        elif self.pc.has_tag('bushi'):
-            source_pdf = get_app_file('sheet_bushi.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterBushi())
-            fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
-            _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)
-        elif self.pc.has_tag('monk'):
-            source_pdf = get_app_file('sheet_monk.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterMonk())
+        def _export(source, exporter):
+            source_pdf = get_app_file(source)
+            source_fdf = _create_fdf(exporter)
             fd, fpath = mkstemp(suffix='.pdf');
             os.fdopen(fd, 'wt').close()
             _flatten_pdf(source_fdf, source_pdf, fpath)
             temp_files.append(fpath)
 
+        temp_files.append(fpath)
+        # SHUGENJA/BUSHI/MONK SHEET
+        if self.pc.has_tag('shugenja'):
+            _export( 'sheet_shugenja.pdf', exporters.FDFExporterShugenja() )
+        elif self.pc.has_tag('bushi'):
+            _export( 'sheet_bushi.pdf', exporters.FDFExporterBushi() )
+        elif self.pc.has_tag('monk'):
+            _export( 'sheet_monk.pdf', exporters.FDFExporterMonk() )
+        elif self.pc.has_tag('courtier'):
+            _export( 'asd.pdf', exporters.FDFExporterCourtier() )
+
         # WEAPONS
         if len(self.pc.weapons) > 2:
-            source_pdf = get_app_file('sheet_weapons.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterWeapons())
-            fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
-            _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)
+            _export( 'sheet_weapons.pdf', exporters.FDFExporterWeapons() )
 
         if os.path.exists(export_file):
             os.remove(export_file)
@@ -388,7 +378,7 @@ class L5RCMCore(QtGui.QMainWindow):
         if school:
             count  = len(school.techs)
             print('check_if_tech_available', school.id, count, self.pc.get_school_rank())
-            return count > self.pc.get_school_rank()
+            return count >= self.pc.get_school_rank()
         return False
 
     def check_tech_school_requirements(self):
@@ -575,6 +565,17 @@ class L5RCMCore(QtGui.QMainWindow):
         ms = None
         for t in self.pc.get_techs():
             school, tech = dal.query.get_tech(self.dstore, t)
+            if not mt or tech.rank > mt.rank:
+                ms, mt = school, tech
+        return ms, mt
+
+    def get_higher_tech_in_current_school(self):
+        mt = None
+        ms = None
+        print( self.pc.get_techs() )
+        for t in self.pc.get_techs():
+            school, tech = dal.query.get_tech(self.dstore, t)
+            if school.id != self.pc.get_school_id(): continue
             if not mt or tech.rank > mt.rank:
                 ms, mt = school, tech
         return ms, mt

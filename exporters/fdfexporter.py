@@ -326,7 +326,7 @@ class FDFExporterBushi(FDFExporter):
         # schools
         schools = filter(lambda x: 'bushi' in x.tags, m.schools)
         techs   = [x for x in m.get_techs()]
-        print(techs)
+
         count = min(2, len(schools))
         for i in xrange(0, count):
             school = dal.query.get_school(f.dstore, schools[i].school_id)
@@ -459,6 +459,39 @@ class FDFExporterWeapons(FDFExporter):
                 fields['WEAPON.DMG.%d'   % j] = weap.base_dmg
             fields['WEAPON.NOTES.%d' % j] = weap.desc
             j+=1
+
+        # EXPORT FIELDS
+        for k in fields.iterkeys():
+            self.export_field(k, fields[k], io)
+
+class FDFExporterCourtier(FDFExporter):
+    def __init__(self):
+        super(FDFExporterCourtier, self).__init__()
+
+    def export_body(self, io):
+        m = self.model
+        f = self.form
+
+        fields = {}
+
+        # schools
+        schools = filter(lambda x: 'courtier' in x.tags, m.schools)
+        techs   = [x for x in m.get_techs()]
+
+        count = min(2, len(schools))
+        for i in xrange(0, count):
+            school = dal.query.get_school(f.dstore, schools[i].school_id)
+            fields['COURTIER_SCHOOL_NM.%d'  % i ] = school.name
+
+            for t in techs:
+                thsc, tech = dal.query.get_tech(f.dstore, t)
+                if not tech:
+                    break
+                if thsc != school:
+                    continue
+                rank = tech.rank-1 if tech.rank > 0 else 0
+                fields['COURTIER_SCHOOL_RANK.%d.%d' % (i, rank)] = tech.name
+                print('COURTIER_SCHOOL_RANK.%d.%d' % (i, rank), tech.name)
 
         # EXPORT FIELDS
         for k in fields.iterkeys():
