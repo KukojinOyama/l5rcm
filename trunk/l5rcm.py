@@ -1797,13 +1797,24 @@ class L5RMain(L5RCMCore):
                 path.techs.append(tech.id)
                 print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))
         else:
-            school, htech = self.get_higher_tech()
+            school, htech = self.get_higher_tech_in_current_school()
             next_rank = htech.rank+1
 
+            last_school = self.pc.schools[-1]
+            print('last school', last_school.school_id)
+            print('current school', school.id, 'last tech', htech.id)
+
             #going back from a path?
-            if 'alternate' in school.tags:
+            if last_school.is_path:
                 school = dal.query.get_school(self.dstore, self.pc.schools[-2].school_id)
+                hs, ht = self.get_higher_tech()
+                next_rank = ht.rank+1
                 print('go back to old school', school.id)
+
+            # changed school?
+            if self.pc.get_school_id() != school.id:
+                school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+                next_rank = 1
 
             for tech in [ x for x in school.techs if x.rank == next_rank ]:
                 self.pc.add_tech(tech.id, tech.id)

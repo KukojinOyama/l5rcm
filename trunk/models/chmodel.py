@@ -367,6 +367,9 @@ class AdvancedPcModel(BasePcModel):
     def get_insight_rank(self):
         value = self.get_insight()
 
+        if value > 349:
+            return int((value - 349)/25 + 10)
+        if value > 324: return 9
         if value > 299: return 8
         if value > 274: return 7
         if value > 249: return 6
