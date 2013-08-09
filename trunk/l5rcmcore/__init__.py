@@ -34,12 +34,13 @@ APP_VERSION = '3.9.2'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
-PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
-BUGTRAQ_LINK      = 'http://code.google.com/p/l5rcm/issues/list'
-PROJECT_PAGE_NAME = 'Project Page'
-AUTHOR_NAME       = 'Daniele Simonetti'
-L5R_RPG_HOME_PAGE = 'http://www.l5r.com/rpg/'
-ALDERAC_HOME_PAGE = 'http://www.alderac.com/'
+PROJECT_PAGE_LINK      = 'http://code.google.com/p/l5rcm/'
+BUGTRAQ_LINK           = 'http://code.google.com/p/l5rcm/issues/list'
+PROJECT_PAGE_NAME      = 'Project Page'
+AUTHOR_NAME            = 'Daniele Simonetti'
+L5R_RPG_HOME_PAGE      = 'http://www.l5r.com/rpg/'
+ALDERAC_HOME_PAGE      = 'http://www.alderac.com/'
+PROJECT_DOWNLOADS_LINK = 'https://sourceforge.net/projects/l5rcm/'
 
 L5RCM_GPLUS_PAGE  = "https://plus.google.com/114911686277310621574"
 L5RCM_GPLUS_COMM  = "https://plus.google.com/communities/107752342280671357654"
@@ -142,7 +143,7 @@ class L5RCMCore(QtGui.QMainWindow):
             self.advise_warning(self.tr("No Datapacks installed"),
                                 self.tr("Without data packs the software will be of little use."
                                         "<p>Download a datapack from <a href=\"{0}\">{0}</a>.</p>"
-                                        .format(PROJECT_PAGE_LINK)))
+                                        .format(PROJECT_DOWNLOADS_LINK)))
 
     def update_from_model(self):
         pass

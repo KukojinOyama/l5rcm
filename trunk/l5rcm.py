@@ -2556,15 +2556,18 @@ class L5RMain(L5RCMCore):
         if update_info is None:
             return
 
+        version_str = ''
         # check extended module version
         if 'versionex' in update_info:
             need_update = autoupdate.need_update(APP_VERSION, update_info['versionex'])
+            version_str = update_info['versionex']
         else:
             need_update = autoupdate.need_update(APP_VERSION, update_info['version'])
+            version_str = update_info['version']
 
-        if need_update and self.ask_to_upgrade(update_info['version']) == QtGui.QMessageBox.Yes:
+        if need_update and self.ask_to_upgrade(version_str) == QtGui.QMessageBox.Yes:
             import osutil
-            osutil.portable_open(PROJECT_PAGE_LINK)
+            osutil.portable_open(PROJECT_DOWNLOADS_LINK)
 
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
