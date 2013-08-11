@@ -2000,6 +2000,9 @@ class L5RMain(L5RCMCore):
                         self.cb_pc_school] )
         pause_signals( self.pers_info_widgets )
 
+        if not self.pc:
+            self.create_new_character()
+
         if self.pc.load_from(path):
             self.save_path = path
 
@@ -2665,6 +2668,9 @@ def main():
         l5rcm.show()
         l5rcm.init()
 
+        # initialize new character
+        l5rcm.create_new_character()        
+
         if len(sys.argv) > 1:
             if OPEN_CMD_SWITCH in sys.argv:
                 of   = sys.argv.index(OPEN_CMD_SWITCH)
@@ -2686,9 +2692,6 @@ def main():
         # check for updates
         #if sys.platform != 'linux2':
         l5rcm.check_updates()
-
-        # initialize new character
-        l5rcm.create_new_character()
 
         sys.exit(app.exec_())
     except Exception as e:
