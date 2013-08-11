@@ -856,8 +856,11 @@ class AdvancedPcModel(BasePcModel):
         self.honor = value - self.step_2.honor
         self.unsaved = True
 
-    def set_glory(self, value):
-        self.glory = value - self.step_0.glory
+    def set_glory(self, value):        
+        if self.has_tag('monk'):
+            self.glory = value
+        else:
+            self.glory = value - self.step_0.glory
         self.unsaved = True
 
     def set_infamy(self, value):
@@ -954,7 +957,7 @@ class AdvancedPcModel(BasePcModel):
     def save_to(self, file):
         self.unsaved = False
 
-        print 'saving to %s' % file
+        print('saving to',file)
 
         fp = open(file, 'wt')
         if fp:
