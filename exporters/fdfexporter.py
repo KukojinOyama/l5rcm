@@ -46,18 +46,17 @@ class FDFExporter(object):
     def export_footer(self, io):
         hash_ = hashlib.md5()
         hash_.update(str(datetime.now()))
-        io.write(str.format("] \n/F (dummy.pdf) /ID [ <{0}>\n] >>",
+        io.write(unicode.format(u"] \n/F (dummy.pdf) /ID [ <{0}>\n] >>",
                  hash_.hexdigest()))
-        io.write(" \n>> \nendobj\ntrailer\n")
-        io.write("<<\n/Root 1 0 R \n\n>>\n%%EOF\n")
+        io.write(u" \n>> \nendobj\ntrailer\n")
+        io.write(u"<<\n/Root 1 0 R \n\n>>\n%%EOF\n")
 
     def export_field(self, key, value, io):
         if type(value) == type(True):
-            io.write(str.format("<< /V /{1} /T({0})>>",
-                 key, 'Yes' if value else 'No'))
+            io.write(unicode.format(u"<< /V /{1} /T({0})>>", key, u'Yes' if value else u'No'))
         else:
-            io.write(str.format("<< /V({1}) /T({0})>>",
-                 key, value))
+            to_write = unicode.format(u"<< /V({1}) /T({0})>>", key, value).encode("iso-8859-15", "xmlcharrefreplace")
+            io.write(to_write)
 
     # HELPERS
 
@@ -71,7 +70,7 @@ class FDFExporter(object):
         return self.form.cb_pc_school.currentText()
 
     def get_exp(self):
-        return '%s / %s' % (self.model.get_px(), self.model.exp_limit)
+        return u'%s / %s' % (self.model.get_px(), self.model.exp_limit)
 
 
 def zigzag(l1, l2):

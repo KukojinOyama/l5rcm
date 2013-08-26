@@ -1,5 +1,10 @@
+=== CORE PACK 4.2 ===
+* [FIX] Fix Seppun family trait ( was intelligence now is agility )
+
 === L5RCM v3.9.3 ===
 * [FIX] Glory is badly calculated with monks characters
+* [NEW] Courier pdf sheet exported
+* [FIX] PDF export now works with non-ascii characters
 
 === GREAT CLAN PACK 1.2 ===
 * [NEW] Added great clans ancestors

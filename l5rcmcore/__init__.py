@@ -30,7 +30,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.9.2'
+APP_VERSION = '3.9.3'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -167,8 +167,8 @@ class L5RCMCore(QtGui.QMainWindow):
             exporter.set_form (self)
             exporter.set_model(self.pc     )
             #fpath = os.path.join(gettempdir(), 'l5rcm.fdf')
-            fd, fpath = mkstemp(suffix='.fdf', text=True)
-            with os.fdopen(fd, 'wt') as fobj:
+            fd, fpath = mkstemp(suffix='.fdf', text=False)
+            with os.fdopen(fd, 'wb') as fobj:
                 exporter.export(fobj)
 
             return fpath
@@ -210,23 +210,23 @@ class L5RCMCore(QtGui.QMainWindow):
         def _try_remove(fpath):
             try:
                 os.remove(fpath)
+                print('deleted temp file: {0}'.format(fpath))
             except:
-                pass
-            print('removed {0}'.format(fpath))
+                print('cannot delete temp file: {0}'.format(fpath))
 
         temp_files = []
         # GENERIC SHEET
         source_pdf = get_app_file('sheet_all.pdf')
         source_fdf = _create_fdf(exporters.FDFExporterAll())
         fd, fpath = mkstemp(suffix='.pdf');
-        os.fdopen(fd, 'wt').close()
+        os.fdopen(fd, 'wb').close()
         _flatten_pdf(source_fdf, source_pdf, fpath)
 
         def _export(source, exporter):
             source_pdf = get_app_file(source)
             source_fdf = _create_fdf(exporter)
             fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
+            os.fdopen(fd, 'wb').close()
             _flatten_pdf(source_fdf, source_pdf, fpath)
             temp_files.append(fpath)
 
@@ -239,7 +239,7 @@ class L5RCMCore(QtGui.QMainWindow):
         elif self.pc.has_tag('monk'):
             _export( 'sheet_monk.pdf', exporters.FDFExporterMonk() )
         elif self.pc.has_tag('courtier'):
-            _export( 'asd.pdf', exporters.FDFExporterCourtier() )
+            _export( 'sheet_courtier.pdf', exporters.FDFExporterCourtier() )
 
         # WEAPONS
         if len(self.pc.weapons) > 2:
