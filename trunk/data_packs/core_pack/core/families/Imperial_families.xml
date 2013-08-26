@@ -7,7 +7,7 @@
     <Trait>intelligence</Trait>
   </Family>
   <Family clanid="imperial" name="Seppun" id="imperial_seppun">
-    <Trait>intelligence</Trait>
+    <Trait>agility</Trait>
   </Family>
   <Family clanid="imperial" name="Hantei" id="imperial_hantei">
     <Trait>void</Trait>
