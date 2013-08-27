@@ -23,9 +23,9 @@ import exporters
 import dal
 import dal.query
 import dal.dataimport
+from houserule.loader import HouseRuleLoader
 import osutil
 from math import ceil
-
 from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
@@ -118,6 +118,10 @@ class L5RCMCore(QtGui.QMainWindow):
 
         # load data
         self.reload_data()
+
+        # extension loader
+        self.extension_loader = HouseRuleLoader()
+        self.extension_loader.search_path = osutil.get_user_data_path('.')
 
     def reload_data(self):
         settings = QtCore.QSettings()
