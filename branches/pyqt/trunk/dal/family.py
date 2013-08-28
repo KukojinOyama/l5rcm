@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
@@ -40,4 +39,4 @@ class Family(object):
         return not self.__eq__(obj)
         
     def __hash__(self):
-        return obj.id.__hash__()
+        return self.id.__hash__()

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="unicorn" name="Moto Death Priests" id="unicorn_moto_death_priests">
     <Trait>willpower</Trait>
@@ -29,7 +29,19 @@
       <PlayerChoose count="1" element="water"/>
     </Spells>
     <Techs>
-      <Tech name="Blessings of the Shi-Tien Yen-Wang" rank="1" id="unicorn_blessings_of_the_shitien_yenwang"></Tech>
+      <Tech name="Blessings of the Shi-Tien Yen-Wang" rank="1" id="unicorn_blessings_of_the_shitien_yenwang"/>
+      <Description>
+The Moto Death Priests carry the favor of gaijin death gods
+and bestow their blessings to their enemies. As a Simple
+Action you may sacrifice a spell slot and target one enemy
+(within a maximum range equal to your School Rank x
+100 feet). Make a Contested Willpower Roll against that
+opponent. If you are successful, the target may not benefit
+from exploding dice or from Advantages that allow him
+to re-roll a roll. This effect lasts for a number of Rounds
+equal to your School Rank.
+You gain a Free Raise on any spell with the Travel key-
+word.</Description>
     </Techs>
     <Requirements/>
   </School>

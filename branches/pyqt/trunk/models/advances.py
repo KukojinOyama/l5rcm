@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,24 +15,27 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from PyQt4 import QtCore, QtGui
+from datetime import datetime
+import time
 
 class Advancement(object):
     BUY_FOR_FREE = False
     @staticmethod
     def set_buy_for_free(flag):
         Advancement.BUY_FOR_FREE = flag
-        print 'set buy for free? %s ' % Advancement.BUY_FOR_FREE
+        print('set buy for free? %s ' % Advancement.BUY_FOR_FREE)
 
     @staticmethod
     def get_buy_for_free():
-        print 'get buy for free? %s ' % Advancement.BUY_FOR_FREE
+        print('get buy for free? %s ' % Advancement.BUY_FOR_FREE)
         return Advancement.BUY_FOR_FREE
-        
+
     def __init__(self, tag, cost):
-        self.type  = tag               
-        self.desc  = ''
-        self.rule  = None
-        
+        self.type      = tag
+        self.desc      = ''
+        self.rule      = None
+        self.timestamp = time.time()
+
         if Advancement.get_buy_for_free():
             self.cost = 0
         else:
@@ -61,30 +63,30 @@ class SkillEmph(Advancement):
         super(SkillEmph, self).__init__('emph', cost)
         self.skill = skill
         self.text  = text
-        
-class PerkAdv(Advancement):        
+
+class PerkAdv(Advancement):
     def __init__(self, perk, rank, cost, tag = None):
         super(PerkAdv, self).__init__('perk', cost)
         self.perk  = perk
         self.rank  = rank
         self.tag   = tag
         self.extra = ''
-        
-class KataAdv(Advancement):        
+
+class KataAdv(Advancement):
     def __init__(self, kata_id, rule, cost):
-        super(KataAdv, self).__init__('kata', cost)        
+        super(KataAdv, self).__init__('kata', cost)
         self.kata = kata_id
         self.rule = rule
-        
-class KihoAdv(Advancement):        
+
+class KihoAdv(Advancement):
     def __init__(self, kiho_id, rule, cost):
-        super(KihoAdv, self).__init__('kiho', cost)        
+        super(KihoAdv, self).__init__('kiho', cost)
         self.kiho = kiho_id
-        self.rule = rule        
-        
-class MemoSpellAdv(Advancement):        
+        self.rule = rule
+
+class MemoSpellAdv(Advancement):
     def __init__(self, spell_id, cost):
-        super(MemoSpellAdv, self).__init__('memo_spell', cost)        
+        super(MemoSpellAdv, self).__init__('memo_spell', cost)
         self.spell = spell_id
 
 class AdvancementViewModel(QtCore.QAbstractListModel):
@@ -164,7 +166,8 @@ class AdvancementItemDelegate(QtGui.QStyledItemDelegate):
         sub_font = QtGui.QFont().resolve(main_font)
         sub_font.setPointSize(7)
 
-        left_margin = 15
+        left_margin  = 15
+        right_margin = 15
 
         # paint the airdate with a smaller font over the item name
         # suppose to have 24 pixels in vertical
@@ -179,15 +182,29 @@ class AdvancementItemDelegate(QtGui.QStyledItemDelegate):
         painter.drawText(left_margin + option.rect.left(), option.rect.top() + adv_tp_rect.height(), adv_tp)
 
         # paint adv type & cost
-        main_font.setBold(True)
+        #main_font.setBold(True)
         painter.setFont(main_font)
         font_metric = painter.fontMetrics()
-        
+
         try:
             tmp = unicode(item).split(u',')
-        except:        
-            tmp         = str(item).split(',')
-            
+        except:
+            tmp = str(item).split(',')
+
+        adv_time      = None
+        if hasattr(item, 'timestamp') and item.timestamp is not None:
+            adv_time = "{0:%Y}-{0:%m}-{0:%d} {0:%H}:{0:%M}:{0:%S}".format(datetime.fromtimestamp(item.timestamp))
+
+        if adv_time:
+            adv_time_rect = font_metric.boundingRect(adv_time)
+            painter.drawText(left_margin + option.rect.left(),
+                             option.rect.top() + adv_tp_rect.height() + adv_time_rect.height(),
+                             adv_time)
+            left_margin += adv_time_rect.width() + left_margin
+
+        main_font.setBold(True)
+        painter.setFont  (main_font)
+
         adv_nm      = tmp[0]
         adv_nm_rect = font_metric.boundingRect(adv_nm)
         painter.drawText(left_margin + option.rect.left(),
@@ -198,7 +215,7 @@ class AdvancementItemDelegate(QtGui.QStyledItemDelegate):
         painter.setFont(main_font)
         adv_nm      = tmp[1]
         adv_nm_rect = font_metric.boundingRect(adv_nm)
-        painter.drawText(option.rect.right()-adv_nm_rect.width()-left_margin,
+        painter.drawText(option.rect.right()-adv_nm_rect.width()-right_margin,
                          option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
                          adv_nm)
 

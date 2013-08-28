@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,7 +28,8 @@ MOD_TYPES = {
     "atkr" : "Attack Roll",
     "hrnk" : "Health Rank",    
     "artn" : "Armor TN",
-    "arrd" : "Armor RD"
+    "arrd" : "Armor RD",
+    "init" : "Initiative"
 }
 
 MOD_DTLS = {
@@ -40,7 +40,8 @@ MOD_DTLS = {
     "wdmg": ("aweap", "Select Weapon"),
     'atkr': ("aweap", "Select Weapon"),
     "artn": ("none", "N/A"),
-    "arrd": ("none", "N/A")
+    "arrd": ("none", "N/A"),
+    "init": ("none", "N/A"),
 }
 
 class ModifierModel(object):

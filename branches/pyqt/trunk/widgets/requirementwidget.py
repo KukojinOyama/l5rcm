@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -83,25 +82,4 @@ class RequirementsWidget(QtGui.QWidget):
         for c in self.checks:
             if c.isChecked(): return True
         return False
-                
-### MAIN ###
-def main():
-    app = QtGui.QApplication(sys.argv)
 
-    dlg  = QtGui.QDialog()
-    vbox = QtGui.QVBoxLayout(dlg)
-    w    = RequirementsWidget(dlg) 
-    vbox.addWidget(w)
-    dlg.show()
-    
-    # add some requirements
-    d = dal.Data( ['data_packs'] )    
-    from dal import query
-    school = query.get_school(d, "mantis_tsuruchi_master_bowman")
-    
-    w.set_requirements( school.require )
-    
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    main()

@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -37,10 +36,6 @@ def get_last_version():
     except urllib2.URLError, e:
         print 'Unable to get latest version info - URLError = ' + str(e.reason)
         return None
-
-    except httplib.HTTPException, e:
-        print 'Unable to get latest version info - HTTPException'
-        return None	
 
     except Exception, e:
         import traceback

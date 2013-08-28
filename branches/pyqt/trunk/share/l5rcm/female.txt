@@ -10,12 +10,12 @@
     * Ariko
     * Asano
     * Aya
-    * Ayano 
+    * Ayano
 
 [edit] B
 
     * Barako
-    * Beniha 
+    * Beniha
 
 [edit] C
 
@@ -23,20 +23,20 @@
     * Chieri
     * Chiroku
     * Chitose
-    * Choshi 
+    * Choshi
 
 [edit] D
 
-    * Domotai 
+    * Domotai
 
 [edit] E
 
-    * Enko 
+    * Enko
 
 [edit] F
 
     * Fujie
-    * Funaki 
+    * Funaki
 
 [edit] G
 [edit] H
@@ -49,7 +49,7 @@
     * Hino
     * Hiruko
     * Hitomi
-    * Hoketuhime 
+    * Hoketuhime
 
 [edit] I
 
@@ -57,14 +57,14 @@
     * Ineko
     * Iseki
     * Itoeko
-    * Iweko 
+    * Iweko
 
 [edit] J
 
     * Jiyuna
     * Jorihime
     * Jun'ai
-    * Juneko 
+    * Juneko
 
 [edit] K
 
@@ -86,11 +86,11 @@
     * Konishiko
     * Kumi
     * Kumiko
-    * Kurako 
+    * Kurako
 
 [edit] L
 
-    * Lixue 
+    * Lixue
 
 [edit] M
 
@@ -108,7 +108,7 @@
     * Mioko
     * Miyako
     * Mizhime
-    * Murasaki 
+    * Murasaki
 
 [edit] N
 
@@ -120,7 +120,7 @@
     * Nazoko
     * Nichie
     * Nikako
-    * Nisobu 
+    * Nisobu
 
 [edit] O
 
@@ -129,7 +129,7 @@
     * Ochiba
     * Ochiyo
     * Osaku
-    * O-Ushi 
+    * O-Ushi
 
 [edit] P
 [edit] Q
@@ -143,7 +143,7 @@
     * Riake
     * Rina
     * Rohiteki
-    * Rumiko 
+    * Rumiko
 
 [edit] S
 
@@ -152,6 +152,7 @@
     * Saori
     * Sasumiko
     * Satomi
+    * Seiki
     * Seo
     * Setsuko
     * Shahai
@@ -161,7 +162,7 @@
     * Shizue
     * Shoan
     * Soh
-    * Sui 
+    * Sui
 
 [edit] T
 
@@ -185,19 +186,20 @@
     * Tsuneko
     * Tsukiko
     * Tsuriko
-    * Tsutomu 
+    * Tsutomu
 
 [edit] U
 
+    * Uesuko
     * Uidori
-    * Uona 
+    * Uona
 
 [edit] V
 [edit] W
 [edit] X
 
     * Xieng Chi
-    * Xiulian 
+    * Xiulian
 
 [edit] Y
 
@@ -207,11 +209,11 @@
     * Yasuko
     * Yasuyo
     * Yue
-    * Yumi 
+    * Yumi
 
 [edit] Z
 
-    * Zokusei 
+    * Zokusei
 
 
 

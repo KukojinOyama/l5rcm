@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,21 +24,22 @@ class TechItemModel(object):
         self.school_name = ''
         self.rank        = ''
         self.desc        = ''
+        self.id          = ''
 
     def __str__(self):
         return self.name
-        
+
     def __lt__(self, obj):
         return self.rank < obj.rank
-        
+
     def __eq__(self, obj):
         return self.rank == obj.rank
         
     def __ne__(self, obj):
         return not self.__eq__(obj)
-        
+
     def __hash__(self):
-        return obj.rank.__hash__()        
+        return self.rank.__hash__()
 
 class TechViewModel(QtCore.QAbstractListModel):
     def __init__(self, dstore, parent = None):
@@ -54,20 +54,21 @@ class TechViewModel(QtCore.QAbstractListModel):
 
     def rowCount(self, parent = QtCore.QModelIndex()):
         return len(self.items)
-        
+
     def build_item_model(self, tech_id, adjusted_rank = 0):
         itm = TechItemModel()
-        
+
         school, tech = dal.query.get_tech(self.dstore, tech_id)
-        if tech and school:          
+        if tech and school:
             itm.name         = tech.name
+            itm.id           = tech_id
             itm.school_name  = school.name
             if adjusted_rank == 0:
                 itm.rank         = str(tech.rank)
             else:
                 itm.rank         = str(adjusted_rank)
-        return itm        
-        
+        return itm
+
     def add_item(self, item_id, adjusted_rank):
         row = self.rowCount()
         self.beginInsertRows(QtCore.QModelIndex(), row, row)
@@ -81,19 +82,18 @@ class TechViewModel(QtCore.QAbstractListModel):
 
     def update_from_model(self, model):
         self.clean()
-        print('got {0} techs'.format( len(model.get_techs()) ))
         for tech in model.get_techs():
-            adjusted_rank = self.adjust_tech_rank(model, tech)                
+            adjusted_rank = self.adjust_tech_rank(model, tech)
             self.add_item(tech, adjusted_rank)
         # sort by rank
         self.items.sort()
-            
+
     def adjust_tech_rank(self, model, tech_id):
         paths = [x for x in model.schools if x.is_path and tech_id in x.techs]
         if len(paths):
             return paths[0].path_rank
         return 0
-        
+
     def data(self, index, role):
         if not index.isValid() or index.row() >= len(self.items):
             return None
@@ -126,7 +126,7 @@ class TechItemDelegate(QtGui.QStyledItemDelegate):
         hg_color.setStyle(QtCore.Qt.Dense3Pattern)
 
         painter.save()
-        
+
         painter.setRenderHint(QtGui.QPainter.Antialiasing, True);
 
         # fill the background color
@@ -154,13 +154,13 @@ class TechItemDelegate(QtGui.QStyledItemDelegate):
         tech_nm      = item.name
         tech_nm_rect = font_metric.boundingRect(tech_nm)
         rank         = item.rank
-        
+
         rank_pen = QtGui.QPen(text_color, 2)
-        painter.setPen(rank_pen)        
+        painter.setPen(rank_pen)
         rank_rect = QtCore.QRectF( float(option.rect.left() + margin),
                                    float(option.rect.top() + 5),
                                    float(option.rect.height() - 10), float(option.rect.height() - 10) )
-        painter.drawRect ( rank_rect ) 
+        painter.drawRect ( rank_rect )
         painter.drawText ( rank_rect.adjusted(8, 3.5, 0, 0), rank)
 
         margin += rank_rect.width() + margin
@@ -168,7 +168,7 @@ class TechItemDelegate(QtGui.QStyledItemDelegate):
         text_pen = QtGui.QPen(text_color, 1)
 
         painter.setPen(text_pen)
-        painter.drawText(margin + option.rect.left(), option.rect.top() + tech_nm_rect.height(), tech_nm)              
+        painter.drawText(margin + option.rect.left(), option.rect.top() + tech_nm_rect.height(), tech_nm)
 
         # paint adv type & cost
         painter.setFont(sub_font)

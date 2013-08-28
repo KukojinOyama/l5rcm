@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,3 +21,4 @@ from widgets.spell_item_selection import *
 from widgets.cost_selection       import *
 from widgets.moneywidget          import *
 from widgets.requirementwidget    import *
+from widgets.simpledescr          import *
