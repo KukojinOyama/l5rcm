@@ -1,4 +1,3 @@
-# -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
 # This program is free software; you can redistribute it and/or modify
@@ -67,8 +66,8 @@ class Sink2(QtCore.QObject):
         dlg = dialogs.BuyPerkDialog(form.pc, 'flaw',
                                     form.dstore, form)
 
-        dlg.load_item(sel_itm)
         dlg.set_edit_mode(True)        
+        dlg.load_item(sel_itm)                
         dlg.exec_()
         form.update_from_model()
 

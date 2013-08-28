@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="ronin" name="Disciples of Sun Tao" id="ronin_disciples_of_sun_tao">
     <Trait>reflexes</Trait>
@@ -23,9 +23,22 @@
     </Skills>
     <Spells/>
     <Techs>
-      <Tech name="Gaze of Sun Tao" rank="1" id="ronin_gaze_of_sun_tao"></Tech>
+      <Tech name="Gaze of Sun Tao" rank="1" id="ronin_gaze_of_sun_tao">
+        <Description>
+Students of Sun Tao understand the relationship between honor and
+skill. You may add your Honor Rank to the total of all
+Iaijutsu Skill Rolls.
+        </Description>
+      </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="1" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="Forest Killers" id="ronin_forest_killers">
     <Trait>agility</Trait>
@@ -48,9 +61,24 @@
     </Skills>
     <Spells/>
     <Techs>
-      <Tech name="Strength Of The Forest" rank="1" id="ronin_strength_of_the_forest"></Tech>
+      <Tech name="Strength Of The Forest" rank="1" id="ronin_strength_of_the_forest">
+        <Description>
+The Forest Killers are a formidable group who recruit only the toughest
+and most durable of warriors to join their band. You
+gain additional Wounds per Wound Rank equal to
+your Stamina. You may also add your Stamina to the
+total of all damage rolls resulting from melee attacks.
+        </Description>
+      </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="2" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="Tawagoto's Army" id="ronin_tawagotos_army">
     <Trait>agility</Trait>
@@ -63,19 +91,34 @@
     <Skills>
       <Skill id="battle" rank="1"/>
       <Skill id="defense" rank="1"/>
-      <Skill id="horsemanship" rank="1"/>
-      <Skill id="hunting" rank="1"/>
+      <Skill id="etiquette" rank="1"/>
+      <Skill id="investigation" rank="1"/>
       <Skill id="kenjutsu" rank="1"/>
-      <Skill id="kyujutsu" rank="1"/>
+      <Skill id="spears" rank="1"/>
       <PlayerChoose rank="1">
         <Wildcard>any</Wildcard>
       </PlayerChoose>
     </Skills>
     <Spells/>
     <Techs>
-      <Tech name="The People's Will" rank="1" id="ronin_the_peoples_will"></Tech>
+      <Tech name="The People's Will" rank="1" id="ronin_the_peoples_will">
+        <Description>
+Those who are guided by honor carry the strength of the Empire’s people in
+their actions. When you spend a Void Point to add a
+bonus of +1k1 to any Skill or Trait
+Roll, you may also add your Honor
+Rank to the total of that roll.
+        </Description>
+      </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="1" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="Tengoku's Justice" id="ronin_tengokus_justice">
     <Trait>strength</Trait>
@@ -88,9 +131,24 @@
     <Skills/>
     <Spells/>
     <Techs>
-      <Tech name="Heaven's Curse" rank="1" id="ronin_heavens_curse"></Tech>
+      <Tech name="Heaven's Curse" rank="1" id="ronin_heavens_curse">
+        <Description>
+The sheer ruthless, murderous nature of the Tengoku’s Justice fighting style
+could rival even that of the Forest Killers. Whenever
+you surprise an opponent in a skirmish, you may
+double your Strength for the purposes of determining
+how many damage dice you roll on that attack.
+        </Description>
+      </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="1" bu="0" zeni="0">
+      <Item>Ashigaru or Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>Bow with 20 Arrows or Knife</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
   <School clanid="ronin" name="The Tessen" id="ronin_the_tessen">
     <Trait>stamina</Trait>
@@ -114,8 +172,26 @@
     </Skills>
     <Spells/>
     <Techs>
-      <Tech name="Folds Of The Iron Fan" rank="1" id="ronin_folds_of_the_iron_fan"></Tech>
+      <Tech name="Folds Of The Iron Fan" rank="1" id="ronin_folds_of_the_iron_fan">
+        <Description>
+Few in Rokugan have mastered the facets of the iron
+fan with the same fluency as the Tessen. When
+wielding a war fan in your off hand, you suffer
+no penalties for attacks made with that hand.
+You also add your rank in War Fans to the
+total of your Armor TN at all times while
+wielding a war fan.
+        </Description>
+      </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="2" bu="0" zeni="0">
+      <Item>Light Armor</Item>
+      <Item>Sturdy Clothing</Item>
+      <Item>Daisho</Item>
+      <Item>War Fan</Item>
+      <Item>Any 1 weapon</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
 </L5RCM>

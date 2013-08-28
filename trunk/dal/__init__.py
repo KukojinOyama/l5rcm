@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2011 Daniele Simonetti
 #
@@ -31,7 +30,7 @@ import os
 import json
 import xml.etree.ElementTree
 import xml.etree.cElementTree as ET
-    
+
 class DataManifest(object):
     def __init__(self, d):
         self.id           = d['id']
@@ -39,11 +38,11 @@ class DataManifest(object):
         self.language     = None
         self.version      = None
         self.update_uri   = None
-        self.download_uri = None        
+        self.download_uri = None
         self.authors      = []
-        self.active       = True        
+        self.active       = True
         self.path         = None
-        
+
         if 'display_name' in d:
             self.display_name = d['display_name']
         if 'language' in d:
@@ -55,54 +54,53 @@ class DataManifest(object):
         if 'update-uri' in d:
             self.update_uri = d['update-uri']
         if 'download-uri' in d:
-            self.download_uri = d['download-uri']        
+            self.download_uri = d['download-uri']
 
 class Data(object):
     def __init__(self, data_dirs = [], blacklist = []):
         self.rebuild(data_dirs, blacklist)
-                
+
     def rebuild(self, data_dirs = [], blacklist = []):
         self.data_dirs = data_dirs
 
         self.blacklist = blacklist or []
         self.packs     = []
-        
+
         self.clans     = []
         self.families  = []
         self.schools   = []
-        
+
         self.spells    = []
         self.skills    = []
         self.merits    = []
         self.flaws     = []
         self.katas     = []
         self.kihos     = []
-        self.tattoos   = []
-        
+
         self.weapons   = []
         self.armors    = []
-        
-        self.skcategs       = []        
+
+        self.skcategs       = []
         self.perktypes      = []
         self.weapon_effects = []
-        
+
         self.rings  = []
         self.traits = []
-        
+
         for d in data_dirs:
             if d and os.path.exists(d):
                 self.load_data(d)
-                
+
     def append_to(self, collection, item):
         if item in collection:
             i = collection.index(item)
             collection[i] = item
         else:
             collection.append(item)
-            
+
     def get_packs(self):
         return self.packs
-    
+
     def load_data(self, data_path):
         # iter through all the data tree and import all xml files
         for path, dirs, files in os.walk(data_path):
@@ -110,23 +108,24 @@ class Data(object):
 
             if dirn.startswith('.'):
                 continue
-                       
+
             try:
-                manifest_path = os.path.join(path, 'manifest')                
+                manifest_path = os.path.join(path, 'manifest')
                 if os.path.exists(manifest_path):
                     with open(manifest_path, 'r') as manifest_fp:
                         dm = DataManifest(json.load(manifest_fp))
                         if dm.id in self.blacklist:
                             dm.active = False
                         dm.path = path
-                        self.packs.append(dm)                    
+                        self.packs.append(dm)
+                        print('DATA PACK', dm.id, dm.display_name)
             except Exception as ex:
-                print(ex)                
-                               
+                print(ex)
+
             if dirn in self.blacklist:
                 print('{0} is blacklisted'.format(dirn))
                 continue
-                
+
             for file_ in files:
                 if file_.startswith('.') or file_.endswith('~'):
                     continue
@@ -138,14 +137,14 @@ class Data(object):
                     print("cannot parse file {0}".format(file_))
                     import traceback
                     traceback.print_exc()
-        self.__log_imported_data()
-        
+        self.__log_imported_data(data_path)
+
     def __load_xml(self, xml_file):
         #print('load data from {0}'.format(xml_file))
         tree = ET.parse(xml_file)
         root = tree.getroot()
         if root is None or root.tag != 'L5RCM':
-            raise Exception("Not an L5RCM data file")       
+            raise Exception("Not an L5RCM data file")
         for elem in list(root):
             if elem.tag == 'Clan':
                 self.append_to(self.clans, Clan.build_from_xml(elem))
@@ -179,8 +178,8 @@ class Data(object):
                 self.append_to(self.rings, GenericId.build_from_xml(elem))
             elif elem.tag == 'TraitDef':
                 self.append_to(self.traits, GenericId.build_from_xml(elem))
-                
-    def __log_imported_data(self):
+
+    def __log_imported_data(self, source):
         map = {}
         map['clans'] = self.clans
         map['families'] = self.families
@@ -191,13 +190,12 @@ class Data(object):
         map['flaws'] = self.flaws
         map['katas'] = self.katas
         map['kihos'] = self.kihos
-        map['tattoos'] = self.tattoos
         map['weapons'] = self.weapons
         map['armors'] = self.armors
         map['skcategs'] = self.skcategs
         map['perktypes'] = self.perktypes
-        map['weapon_effects'] = self.weapon_effects  
-        
-        print('IMPORTED DATA')
+        map['weapon_effects'] = self.weapon_effects
+
+        print('IMPORTED DATA', source)
         for k in map:
             print("imported {0} {1}".format( len(map[k]), k))

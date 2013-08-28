@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <SpellDef name="Air Kami's Blessing" area="Caster" mastery="3" element="air" range="Personal" duration="8 Hours" id="air_kamis_blessing">
     <Tags/>

@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="dragon" name="Mirumoto Taoist Swordsman" id="dragon_ob_mirumoto_taoist_swordsman">
     <Trait>void</Trait>
@@ -21,11 +21,11 @@
     </Skills>
     <Spells/>
     <Techs>
-      <Tech name="Aligned With the Elements" rank="1" id="dragon_aligned_with_the_elements"></Tech>
-      <Tech name="Fist and Blade" rank="2" id="dragon_fist_and_blade"></Tech>
-      <Tech name="Strike of Harmony" rank="3" id="dragon_strike_of_harmony"></Tech>
-      <Tech name="Master of Steel" rank="4" id="dragon_master_of_steel"></Tech>
-      <Tech name="Balance in Nothingness" rank="5" id="dragon_balance_in_nothingness"></Tech>
+      <Tech name="Aligned With the Elements" rank="1" id="dragon_aligned_with_the_elements"/>
+      <Tech name="Fist and Blade" rank="2" id="dragon_fist_and_blade"/>
+      <Tech name="Strike of Harmony" rank="3" id="dragon_strike_of_harmony"/>
+      <Tech name="Master of Steel" rank="4" id="dragon_master_of_steel"/>
+      <Tech name="Balance in Nothingness" rank="5" id="dragon_balance_in_nothingness"/>
     </Techs>
     <Requirements/>
   </School>

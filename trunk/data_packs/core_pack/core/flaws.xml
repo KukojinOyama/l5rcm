@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <Flaw type="mental" id="ascetic" name="Ascetic">
     <Rank id="1" value="2">

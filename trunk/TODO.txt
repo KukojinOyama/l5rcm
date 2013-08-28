@@ -3,14 +3,23 @@
 ? Dopo qualche secondo dalla partenza il sistema controlla la versione dei pacchetti
 
 ? Salvare il personaggio con tutti i dati dentro
-- Redesign interfaccia dialogo
 
-----------
-KIHO MESS
-- Add a <StartingKiho count="x"/> optional tag to the School definition XML
-- Add a <Tattoo count="x" allowed="True|False"/> optional tag to the School definition XML
-- Store/Display the tattoos along Kihos ( tattoo tag in kihos ? )
-- Add Kiho dialog would allow tattoo based on the "tattoos_allowed" flag
-- Redo the Kiho selection dialog similar to the spell selection one
 
 ??? Moto Vindicator school has requirements but is not an advanced school
+
+----------
+UI MESS
+
+Add default background
+Add settings dialog ( it's really needed at this stage of the program )
+Move insight selection method to settings dialog
+Add inflict/cure wounds button next to health display
+
+-----------
+TATTOO MESS
+
+decide if change the eligible string "You are a member of the Togashi Order"
+
+CHARACTER MESS
+--------------
+check datapack dependencies when loading a character

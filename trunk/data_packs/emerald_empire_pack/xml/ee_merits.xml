@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <Merit name="The World of the Daimyo" id="the_world_of_the_daiymo" type="social">
     <Rank id="1" value="5">
@@ -8,4 +8,4 @@
     <Rank id="1" value="10">
     </Rank>
   </Merit>
-</L5RCM>  
+</L5RCM>

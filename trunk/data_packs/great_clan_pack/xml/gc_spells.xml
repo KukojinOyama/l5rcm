@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <SpellDef name="[MAHO] Eternal Unrest" area="Target corpse" mastery="2" element="earth" range="Touch" duration="1 month" id="maho_eternal_unrest">
     <Tags>
@@ -26,4 +26,4 @@ spell to summon forth corpses for use with their insidious
 Technique.    
     </Text>
   </SpellDef>
-</L5RCM>  
+</L5RCM>

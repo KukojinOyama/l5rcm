@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <School clanid="bat" name="Komori Shugenja School" id="bat_komori_shugenja_school">
     <Trait>awareness</Trait>
@@ -28,8 +28,19 @@
       <PlayerChoose count="2" element="water"/>
     </Spells>
     <Techs>
-      <Tech name="The Kami's Whispers" rank="1" id="bat_the_kamis_whispers"></Tech>
+      <Tech name="The Kami's Whispers" rank="1" id="bat_the_kamis_whispers">
+        <Description>
+The Komori practice the rituals of the koumori spirits from whom their founder is descended, and ferry messages from one to another via the kami. You may expend one spell slot to send a whispered message to another individual known to you. This message must be no longer in length than thirty seconds per School Rank, and may be delivered a maximum distance equal to your School Rank x 100 miles.
+        </Description>
+      </Tech>
     </Techs>
     <Requirements/>
+    <Outfit koku="3" bu="0" zeni="0">
+      <Item>Robes</Item>
+      <Item>Wakizashi</Item>
+      <Item>any 1 weapon</Item>
+      <Item>Scroll Satchel</Item>
+      <Item>Traveling Pack</Item>
+    </Outfit>
   </School>
 </L5RCM>
