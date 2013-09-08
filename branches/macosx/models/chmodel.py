@@ -147,6 +147,7 @@ class CharacterSchool(object):
         self.emph        = {}
         self.spells      = []
         self.tags        = []
+        self.outfit      = []
         self.affinity    = None
         self.deficiency  = None
 
@@ -366,6 +367,9 @@ class AdvancedPcModel(BasePcModel):
     def get_insight_rank(self):
         value = self.get_insight()
 
+        if value > 349:
+            return int((value - 349)/25 + 10)
+        if value > 324: return 9
         if value > 299: return 8
         if value > 274: return 7
         if value > 249: return 6
@@ -683,6 +687,11 @@ class AdvancedPcModel(BasePcModel):
     def get_weapons(self):
         return self.weapons
 
+    def get_school_outfit(self):
+        if self.get_school(0):
+            return self.get_school(0).outfit
+        return []
+
     def get_modifiers(self, filter_type = None):
         if not filter_type:
             return self.modifiers
@@ -783,6 +792,9 @@ class AdvancedPcModel(BasePcModel):
         for t in tags:
             self.get_school().add_tag(t)
 
+        # reset money
+        self.set_property('money', (0,0,0))
+
         # void ?
         # print('perk is: {0}'.format(perk))
         if perk == 'void':
@@ -803,6 +815,10 @@ class AdvancedPcModel(BasePcModel):
         school_.techs.append(tech_uuid)
         #if rule is not None:
         school_.tech_rules.append(rule or 'N/A')
+
+    def set_school_outfit(self, outfit, money):
+        self.get_school(0).outfit = outfit
+        self.set_property('money', money)
 
     def add_tech(self, tech_uuid, rule = None):
         school_ = self.get_school()
@@ -840,8 +856,11 @@ class AdvancedPcModel(BasePcModel):
         self.honor = value - self.step_2.honor
         self.unsaved = True
 
-    def set_glory(self, value):
-        self.glory = value - self.step_0.glory
+    def set_glory(self, value):        
+        if self.has_tag('monk'):
+            self.glory = value
+        else:
+            self.glory = value - self.step_0.glory
         self.unsaved = True
 
     def set_infamy(self, value):
@@ -858,11 +877,11 @@ class AdvancedPcModel(BasePcModel):
 
     def set_affinity(self, value):
         self.get_school().affinity = value
-        #self.step_2.affinity = value
+        self.unsaved = True
 
     def set_deficiency(self, value):
         self.get_school().deficiency = value
-        #self.step_2.deficiency = value
+        self.unsaved = True
 
     def add_advancement(self, adv):
         self.advans.append(adv)
@@ -931,13 +950,14 @@ class AdvancedPcModel(BasePcModel):
 
     def set_property(self, name, value):
         self.properties[name] = value
+        self.unsaved = True
 
 ### LOAD AND SAVE METHODS ###
 
     def save_to(self, file):
         self.unsaved = False
 
-        print 'saving to %s' % file
+        print('saving to',file)
 
         fp = open(file, 'wt')
         if fp:

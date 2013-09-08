@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <Merit name="Broken Wave Citizen" id="broken_wave_citizen" type="social">
     <Rank id="1" value="3">
@@ -55,4 +55,4 @@
     <Rank id="1" value="3">
     </Rank>
   </Merit>
-</L5RCM>  
+</L5RCM>

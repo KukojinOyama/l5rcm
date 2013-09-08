@@ -18,12 +18,7 @@
 import sys
 import os
 import shutil
-import rules
 import models
-import widgets
-import dialogs
-import autoupdate
-import tempfile
 import exporters
 import dal
 import dal.query
@@ -35,16 +30,17 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.9.1'
+APP_VERSION = '3.9.3'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
-PROJECT_PAGE_LINK = 'http://code.google.com/p/l5rcm/'
-BUGTRAQ_LINK      = 'http://code.google.com/p/l5rcm/issues/list'
-PROJECT_PAGE_NAME = 'Project Page'
-AUTHOR_NAME       = 'Daniele Simonetti'
-L5R_RPG_HOME_PAGE = 'http://www.l5r.com/rpg/'
-ALDERAC_HOME_PAGE = 'http://www.alderac.com/'
+PROJECT_PAGE_LINK      = 'http://code.google.com/p/l5rcm/'
+BUGTRAQ_LINK           = 'http://code.google.com/p/l5rcm/issues/list'
+PROJECT_PAGE_NAME      = 'Project Page'
+AUTHOR_NAME            = 'Daniele Simonetti'
+L5R_RPG_HOME_PAGE      = 'http://www.l5r.com/rpg/'
+ALDERAC_HOME_PAGE      = 'http://www.alderac.com/'
+PROJECT_DOWNLOADS_LINK = 'https://sourceforge.net/projects/l5rcm/'
 
 L5RCM_GPLUS_PAGE  = "https://plus.google.com/114911686277310621574"
 L5RCM_GPLUS_COMM  = "https://plus.google.com/communities/107752342280671357654"
@@ -129,7 +125,6 @@ class L5RCMCore(QtGui.QMainWindow):
 
         # Data storage
         if not self.dstore:
-            print('Loading datapack data')
             self.dstore = dal.Data(
                 [osutil.get_user_data_path('core.data'),
                  osutil.get_user_data_path('data'),
@@ -148,7 +143,7 @@ class L5RCMCore(QtGui.QMainWindow):
             self.advise_warning(self.tr("No Datapacks installed"),
                                 self.tr("Without data packs the software will be of little use."
                                         "<p>Download a datapack from <a href=\"{0}\">{0}</a>.</p>"
-                                        .format(PROJECT_PAGE_LINK)))
+                                        .format(PROJECT_DOWNLOADS_LINK)))
 
     def update_from_model(self):
         pass
@@ -172,8 +167,8 @@ class L5RCMCore(QtGui.QMainWindow):
             exporter.set_form (self)
             exporter.set_model(self.pc     )
             #fpath = os.path.join(gettempdir(), 'l5rcm.fdf')
-            fd, fpath = mkstemp(suffix='.fdf', text=True)
-            with os.fdopen(fd, 'wt') as fobj:
+            fd, fpath = mkstemp(suffix='.fdf', text=False)
+            with os.fdopen(fd, 'wb') as fobj:
                 exporter.export(fobj)
 
             return fpath
@@ -215,50 +210,40 @@ class L5RCMCore(QtGui.QMainWindow):
         def _try_remove(fpath):
             try:
                 os.remove(fpath)
+                print('deleted temp file: {0}'.format(fpath))
             except:
-                pass
-            print('removed {0}'.format(fpath))
+                print('cannot delete temp file: {0}'.format(fpath))
 
         temp_files = []
         # GENERIC SHEET
         source_pdf = get_app_file('sheet_all.pdf')
         source_fdf = _create_fdf(exporters.FDFExporterAll())
         fd, fpath = mkstemp(suffix='.pdf');
-        os.fdopen(fd, 'wt').close()
+        os.fdopen(fd, 'wb').close()
         _flatten_pdf(source_fdf, source_pdf, fpath)
+
+        def _export(source, exporter):
+            source_pdf = get_app_file(source)
+            source_fdf = _create_fdf(exporter)
+            fd, fpath = mkstemp(suffix='.pdf');
+            os.fdopen(fd, 'wb').close()
+            _flatten_pdf(source_fdf, source_pdf, fpath)
+            temp_files.append(fpath)
 
         temp_files.append(fpath)
         # SHUGENJA/BUSHI/MONK SHEET
         if self.pc.has_tag('shugenja'):
-            source_pdf = get_app_file('sheet_shugenja.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterShugenja())
-            fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
-            _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)
+            _export( 'sheet_shugenja.pdf', exporters.FDFExporterShugenja() )
         elif self.pc.has_tag('bushi'):
-            source_pdf = get_app_file('sheet_bushi.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterBushi())
-            fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
-            _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)
+            _export( 'sheet_bushi.pdf', exporters.FDFExporterBushi() )
         elif self.pc.has_tag('monk'):
-            source_pdf = get_app_file('sheet_monk.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterMonk())
-            fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
-            _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)
+            _export( 'sheet_monk.pdf', exporters.FDFExporterMonk() )
+        elif self.pc.has_tag('courtier'):
+            _export( 'sheet_courtier.pdf', exporters.FDFExporterCourtier() )
 
         # WEAPONS
         if len(self.pc.weapons) > 2:
-            source_pdf = get_app_file('sheet_weapons.pdf')
-            source_fdf = _create_fdf(exporters.FDFExporterWeapons())
-            fd, fpath = mkstemp(suffix='.pdf');
-            os.fdopen(fd, 'wt').close()
-            _flatten_pdf(source_fdf, source_pdf, fpath)
-            temp_files.append(fpath)
+            _export( 'sheet_weapons.pdf', exporters.FDFExporterWeapons() )
 
         if os.path.exists(export_file):
             os.remove(export_file)
@@ -394,7 +379,7 @@ class L5RCMCore(QtGui.QMainWindow):
         if school:
             count  = len(school.techs)
             print('check_if_tech_available', school.id, count, self.pc.get_school_rank())
-            return count > self.pc.get_school_rank()
+            return count >= self.pc.get_school_rank()
         return False
 
     def check_tech_school_requirements(self):
@@ -443,7 +428,7 @@ class L5RCMCore(QtGui.QMainWindow):
 
                 pack.export_to  (dest)
                 self.reload_data()
-                self.create_new_character()
+                #self.create_new_character()
                 self.advise_successfull_import()
         except Exception as e:
             self.advise_error(self.tr("Cannot import data pack."), e.message)
@@ -575,3 +560,23 @@ class L5RCMCore(QtGui.QMainWindow):
         self.update_from_model()
 
         return CMErrors.NO_ERROR
+
+    def get_higher_tech(self):
+        mt = None
+        ms = None
+        for t in self.pc.get_techs():
+            school, tech = dal.query.get_tech(self.dstore, t)
+            if not mt or tech.rank > mt.rank:
+                ms, mt = school, tech
+        return ms, mt
+
+    def get_higher_tech_in_current_school(self):
+        mt = None
+        ms = None
+        print( self.pc.get_techs() )
+        for t in self.pc.get_techs():
+            school, tech = dal.query.get_tech(self.dstore, t)
+            if school.id != self.pc.get_school_id(): continue
+            if not mt or tech.rank > mt.rank:
+                ms, mt = school, tech
+        return ms, mt
