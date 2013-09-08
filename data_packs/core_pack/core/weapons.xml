@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <L5RCM>
   <Weapon dr_alt="0k1" skill="chain_weapons" cost="5k" dr="0k2" name="Kusarigama">
     <Tags>
@@ -320,5 +320,5 @@
     <Tags>
       <Tag>melee</Tag>
     </Tags>
-  </Weapon>  
+  </Weapon>
 </L5RCM>

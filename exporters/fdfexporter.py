@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import string
 import models
 import rules
 import hashlib
@@ -47,18 +46,17 @@ class FDFExporter(object):
     def export_footer(self, io):
         hash_ = hashlib.md5()
         hash_.update(str(datetime.now()))
-        io.write(str.format("] \n/F (dummy.pdf) /ID [ <{0}>\n] >>",
+        io.write(unicode.format(u"] \n/F (dummy.pdf) /ID [ <{0}>\n] >>",
                  hash_.hexdigest()))
-        io.write(" \n>> \nendobj\ntrailer\n")
-        io.write("<<\n/Root 1 0 R \n\n>>\n%%EOF\n")
+        io.write(u" \n>> \nendobj\ntrailer\n")
+        io.write(u"<<\n/Root 1 0 R \n\n>>\n%%EOF\n")
 
     def export_field(self, key, value, io):
         if type(value) == type(True):
-            io.write(str.format("<< /V /{1} /T({0})>>",
-                 key, 'Yes' if value else 'No'))
+            io.write(unicode.format(u"<< /V /{1} /T({0})>>", key, u'Yes' if value else u'No'))
         else:
-            io.write(str.format("<< /V({1}) /T({0})>>",
-                 key, value))
+            to_write = unicode.format(u"<< /V({1}) /T({0})>>", key, value).encode("iso-8859-15", "xmlcharrefreplace")
+            io.write(to_write)
 
     # HELPERS
 
@@ -72,7 +70,7 @@ class FDFExporter(object):
         return self.form.cb_pc_school.currentText()
 
     def get_exp(self):
-        return '%s / %s' % (self.model.get_px(), self.model.exp_limit)
+        return u'%s / %s' % (self.model.get_px(), self.model.exp_limit)
 
 
 def zigzag(l1, l2):
@@ -237,7 +235,7 @@ class FDFExporterAll(FDFExporter):
                 fields['CHILDREN.%d' % (i+1)] = chrows[i]
 
         # EQUIPMENT
-        equip_list = m.get_property('equip', [])
+        equip_list = m.get_school_outfit() + m.get_property('equip', [])
         equip_num  = min(50, len(equip_list))
         equip_cols = [18, 18, 15]
         c          = 0
@@ -253,6 +251,10 @@ class FDFExporterAll(FDFExporter):
             fields['KOKU'] = str( money[0] )
             fields['BU'  ] = str( money[1] )
             fields['ZENI'] = str( money[2] )
+
+        # MISC
+        misc = f.tx_pc_notes.get_plain_text()
+        fields['MISCELLANEOUS'] = misc
 
         # EXPORT FIELDS
         for k in fields.iterkeys():
@@ -276,7 +278,7 @@ class FDFExporterShugenja(FDFExporter):
             fields['SPELL_RANGE.%d.%d'  % (r, c)    ] = spell.range
             fields['SPELL_AREA.%d.%d'  % (r, c)     ] = spell.area
             fields['SPELL_DURATION.%d.%d'  % (r, c) ] = spell.duration
-            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = dal.query.get_ring(f.dstore, spell.ring)
+            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = spell.ring
 
             c += 1
             if c == 3:
@@ -323,7 +325,7 @@ class FDFExporterBushi(FDFExporter):
         # schools
         schools = filter(lambda x: 'bushi' in x.tags, m.schools)
         techs   = [x for x in m.get_techs()]
-        print(techs)
+
         count = min(2, len(schools))
         for i in xrange(0, count):
             school = dal.query.get_school(f.dstore, schools[i].school_id)
@@ -456,6 +458,39 @@ class FDFExporterWeapons(FDFExporter):
                 fields['WEAPON.DMG.%d'   % j] = weap.base_dmg
             fields['WEAPON.NOTES.%d' % j] = weap.desc
             j+=1
+
+        # EXPORT FIELDS
+        for k in fields.iterkeys():
+            self.export_field(k, fields[k], io)
+
+class FDFExporterCourtier(FDFExporter):
+    def __init__(self):
+        super(FDFExporterCourtier, self).__init__()
+
+    def export_body(self, io):
+        m = self.model
+        f = self.form
+
+        fields = {}
+
+        # schools
+        schools = filter(lambda x: 'courtier' in x.tags, m.schools)
+        techs   = [x for x in m.get_techs()]
+
+        count = min(2, len(schools))
+        for i in xrange(0, count):
+            school = dal.query.get_school(f.dstore, schools[i].school_id)
+            fields['COURTIER_SCHOOL_NM.%d'  % i ] = school.name
+
+            for t in techs:
+                thsc, tech = dal.query.get_tech(f.dstore, t)
+                if not tech:
+                    break
+                if thsc != school:
+                    continue
+                rank = tech.rank-1 if tech.rank > 0 else 0
+                fields['COURTIER_SCHOOL_RANK.%d.%d' % (i, rank)] = tech.name
+                print('COURTIER_SCHOOL_RANK.%d.%d' % (i, rank), tech.name)
 
         # EXPORT FIELDS
         for k in fields.iterkeys():
