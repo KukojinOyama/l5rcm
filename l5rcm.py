@@ -1792,10 +1792,11 @@ class L5RMain(L5RCMCore):
             last_tech_id = self.pc.get_techs()[-1]
             last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
 
-            school = dal.query.get_school(self.dstore, path.school_id)
-            for tech in [ x for x in school.techs if x.rank == (last_tech.rank+1) ]:
-                path.techs.append(tech.id)
-                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, tech.id))
+            school      = dal.query.get_school(self.dstore, path.school_id)
+            avail_techs = [ x for x in school.techs if x.rank > last_tech.rank ]
+            if len(avail_techs) > 0:
+                path.techs.append(avail_techs[0].id)
+                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, avail_techs[0].id))
         else:
             school, htech = self.get_higher_tech_in_current_school()
             next_rank = htech.rank+1
@@ -2669,7 +2670,7 @@ def main():
         l5rcm.init()
 
         # initialize new character
-        l5rcm.create_new_character()        
+        l5rcm.create_new_character()
 
         if len(sys.argv) > 1:
             if OPEN_CMD_SWITCH in sys.argv:
