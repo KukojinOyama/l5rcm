@@ -1612,6 +1612,10 @@ class L5RMain(L5RCMCore):
 
         if tech0:
             self.pc.set_free_school_tech(tech0.id, tech0.id)
+            
+        # outfit
+        print('outfit', school.outfit)
+        self.pc.set_school_outfit( school.outfit, tuple(school.money) )
 
         # outfit
         print('outfit', school.outfit)
