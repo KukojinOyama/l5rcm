@@ -1612,7 +1612,7 @@ class L5RMain(L5RCMCore):
 
         if tech0:
             self.pc.set_free_school_tech(tech0.id, tech0.id)
-            
+
         # outfit
         print('outfit', school.outfit)
         self.pc.set_school_outfit( school.outfit, tuple(school.money) )
@@ -1839,6 +1839,9 @@ class L5RMain(L5RCMCore):
             # get 3 spells each rank
             if self.pc.has_tag('shugenja'):
                 self.pc.set_pending_spells_count( self.pc.get_spells_per_rank() )
+            elif self.pc.has_tag('brotherhood'):
+                # hey free kihos!
+                self.pc.set_free_kiho_count(2)
 
             lb = QtGui.QLabel(self.tr("You reached the next rank, you have an opportunity"
                                       " to decide your destiny."), self)
@@ -2011,12 +2014,16 @@ class L5RMain(L5RCMCore):
         if self.pc.load_from(path):
             self.save_path = path
 
-            print('successfully save character. saving file path', self.save_path)
-
             try:
+                if self.pc.last_rank > self.pc.get_insight_rank():
+                    print("ERROR. last_rank should never be > insight rank. I'll try to fix this.")
+                    self.pc.last_rank = self.pc.get_insight_rank()
+
                 self.last_rank = self.pc.last_rank
             except:
                 self.last_rank = self.pc.get_insight_rank()
+
+            print('successfully load character from {0}, last rank: {1}; insight rank: {2}'.format(self.save_path, self.last_rank, self.pc.get_insight_rank()))
 
             def school_free_kiho_count():
                 school = dal.query.get_school( self.dstore, self.pc.get_school_id(0) )
