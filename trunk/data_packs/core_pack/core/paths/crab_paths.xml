@@ -44,6 +44,8 @@ the amount that would normally kill you.
     <Spells/>
     <Requirements>
       <Requirement field="earth" type="ring" min="4">Earth: 4</Requirement>
+      <Requirement field="*crab_bushi" type="school" min="1" max="1">Replaces Any Crab Bushi School Rank 2</Requirement>
+      <!--
       <RequirementOption text="Replaces Any Crab Bushi School Rank 2">
         <Requirement field="crab_the_way_of_the_crab" type="rule"/>
         <Requirement field="crab_torchs_flame_flickers" type="rule"/>
@@ -52,6 +54,7 @@ the amount that would normally kill you.
         <Requirement field="crab_the_flames_of_purity" type="rule"/>
         <Requirement field="crab_the_kaiu_method" type="rule"/>
       </RequirementOption>
+      -->
     </Requirements>
   </School>
 

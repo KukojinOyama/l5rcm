@@ -2,6 +2,7 @@
 * [NEW] Crab Alternate Paths
 * [NEW] Crane Alternate Paths
 * [NEW] Dragon Alternate Paths
+* [NEW] Lion Alternate Paths
 
 === L5RCM v3.9.4 ===
 * [FIX] Apply school outfit on character creation

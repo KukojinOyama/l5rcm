@@ -23,3 +23,7 @@ decide if change the eligible string "You are a member of the Togashi Order"
 CHARACTER MESS
 --------------
 check datapack dependencies when loading a character
+
+SCHOOL MESS
+-----------
+rethink the whole Alternate Path / Advanced School thing
