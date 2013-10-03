@@ -675,13 +675,47 @@ class L5RMain(L5RCMCore):
 
     def _build_tech_frame(self, model, layout):
         grp    = QtGui.QGroupBox(self.tr("Techs"), self)
-        vbox   = QtGui.QVBoxLayout(grp)
+        hbox   = QtGui.QHBoxLayout(grp)
+
+        fr_    = QtGui.QFrame(self)
+        vbox   = QtGui.QVBoxLayout(fr_)
+        vbox.setContentsMargins(3,3,3,3)
+
+        # advantages/disadvantage vertical toolbar
+        def _make_vertical_tb():
+            vtb = widgets.VerticalToolBar(self)
+            vtb.addStretch()
+
+            cb_view    = self.sink4.on_tech_item_activate
+            #cb_replace = self.sink4.act_replace_tech
+            cb_replace = self.sink4.on_tech_item_activate
+
+            self.view_tech_bt = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('view',(16,16))),
+                                self.tr("View technique details"), cb_view)
+
+            self.replace_rank_bt  = vtb.addButton(
+                                QtGui.QIcon(get_icon_path('switch',(16,16))),
+                                self.tr("Replace school rank"), cb_replace)
+
+            self.view_tech_bt   .setEnabled(True)
+            self.replace_rank_bt.setEnabled(True)
+
+            vtb.addStretch()
+            return vtb
+
 
         # View
         view  = QtGui.QListView(self)
         view.setModel(model)
         view.setItemDelegate(models.TechItemDelegate(self))
         vbox.addWidget(view)
+
+        self.tech_view = view
+
+        hbox.addWidget(_make_vertical_tb())
+        hbox.addWidget(fr_)
+
         layout.addWidget(grp)
 
         view.doubleClicked.connect( self.sink4.on_tech_item_activate )
