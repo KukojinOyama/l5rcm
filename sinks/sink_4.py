@@ -126,8 +126,16 @@ class Sink4(QtCore.QObject):
 
         self.form.update_background_image()
 
-    def on_tech_item_activate(self, index):
+    def on_tech_item_activate(self, index = None):
         form = self.form
+
+        if index == None:
+            # get selected index
+            index = form.tech_view.selectionModel().currentIndex()
+
+        if not index.isValid():
+            return
+
         item = form.th_view_model.data(index, QtCore.Qt.UserRole)
         try:
             school, tech = dal.query.get_tech(form.dstore, item.id)
