@@ -158,7 +158,6 @@ class FDFExporterAll(FDFExporter):
 
         fields['WOUND_HEAL_BASE'] = (m.get_mod_attrib_rank(models.ATTRIBS.STAMINA)*2
                                      + m.get_insight_rank())
-        #fields['WOUND_HEAL_MOD' ] = ''
         fields['WOUND_HEAL_CUR' ] = fields['WOUND_HEAL_BASE']
 
         # SKILLS
@@ -168,7 +167,8 @@ class FDFExporterAll(FDFExporter):
             fields['SKILL_IS_SCHOOL.%d' % i] = sk.is_school
             fields['SKILL_NAME.%d'    % i  ] = sk.name
             fields['SKILL_RANK.%d'    % i  ] = sk.rank
-            fields['SKILL_TRAIT.%d'   % i  ] = dal.query.get_trait(f.dstore, sk.trait)
+            fields['SKILL_TRAIT.%d'   % i  ] = (dal.query.get_trait(f.dstore, sk.trait) or
+                                                dal.query.get_ring (f.dstore, sk.trait))
             fields['SKILL_EMPH_MA.%d' % i  ] = ', '.join(sk.emph)
 
         # MERITS AND FLAWS
