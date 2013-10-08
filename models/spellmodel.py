@@ -155,7 +155,6 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
         spells = model.get_spells()
         self.clean()
         
-        print 'update spells from model'
         memo_spells = [x for x in model.get_memorized_spells()]
                
         for s in spells:

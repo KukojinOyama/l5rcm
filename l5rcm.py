@@ -1620,7 +1620,7 @@ class L5RMain(L5RCMCore):
             return
 
         uuid  = self.cb_pc_school.itemData(index)
-        if uuid == self.pc.school:
+        if uuid == self.pc.current_school_id:
             return
 
         # should modify step_2 character
@@ -1945,7 +1945,7 @@ class L5RMain(L5RCMCore):
     def check_affinity_wc(self):
         if self.nicebar: return
 
-        print('check affinity wc: {0}'.format(self.pc.get_affinity()))
+        # print('check affinity wc: {0}'.format(self.pc.get_affinity()))
         if ( 'any' in self.pc.get_affinity() or
              'nonvoid' in self.pc.get_affinity() ):
             lb = QtGui.QLabel(self.tr("You school grant you to choose an elemental affinity."), self)
@@ -2045,7 +2045,13 @@ class L5RMain(L5RCMCore):
         if not self.pc:
             self.create_new_character()
 
-        if self.pc.load_from(path):
+        from models.chmodel import CharacterLoader
+        cl = CharacterLoader()
+
+        #if self.pc.load_from(path):
+        if cl.load_from_file(path):
+
+            self.pc = cl.model()
             self.save_path = path
 
             try:
@@ -2648,6 +2654,7 @@ OPEN_CMD_SWITCH   = '--open'
 IMPORT_CMD_SWITCH = '--import'
 DATA_CHECK_SWITCH = '--datacheck'
 DATA_REPT_SWITCH  = '--datareport'
+DEBUG_SWITCH      = '--debug'
 
 MIME_L5R_CHAR     = "applications/x-l5r-character"
 MIME_L5R_PACK     = "applications/x-l5r-pack"
@@ -2655,7 +2662,7 @@ MIME_L5R_PACK     = "applications/x-l5r-pack"
 
 
 def main():
-    try:
+    #try:
         app = QtGui.QApplication(sys.argv)
 
         # setup mimetypes
@@ -2714,6 +2721,9 @@ def main():
         l5rcm.show()
         l5rcm.init()
 
+        if len(sys.argv) > 1 and DEBUG_SWITCH in sys.argv:
+            l5rcm.debug = True
+
         # initialize new character
         l5rcm.create_new_character()
 
@@ -2740,10 +2750,10 @@ def main():
         l5rcm.check_updates()
 
         sys.exit(app.exec_())
-    except Exception as e:
-        print("HOLYMOLY!", e)
-    finally:
-        print("KTHXBYE")
+    #except Exception as e:
+    #    print("HOLYMOLY!", e)
+    #finally:
+    #    print("KTHXBYE")
 
 if __name__ == '__main__':
     main()

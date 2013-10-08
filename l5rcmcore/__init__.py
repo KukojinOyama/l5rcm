@@ -99,6 +99,7 @@ class CMErrors(object):
 class L5RCMCore(QtGui.QMainWindow):
 
     dstore = None
+    debug  = False
 
     def __init__(self, locale, parent = None):
         super(L5RCMCore, self).__init__(parent)
@@ -401,9 +402,9 @@ class L5RCMCore(QtGui.QMainWindow):
         school_id = self.pc.get_school_id()
         school = dal.query.get_school(self.dstore, school_id)
         if school:
-            print('check requirement for school {0}'.format(school_id))
+            #print('check requirement for school {0}'.format(school_id))
             for sk in school.skills:
-                print('needed {0}, got rank {1}'.format(sk.id, self.pc.get_skill_rank(sk.id)))
+                #print('needed {0}, got rank {1}'.format(sk.id, self.pc.get_skill_rank(sk.id)))
                 if self.pc.get_skill_rank(sk.id) < 1:
                     list_.append(sk.id)
         return list_
