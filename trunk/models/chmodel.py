@@ -119,6 +119,8 @@ class BasePcModel(object):
         self.void    = 2
         self.attribs = [2, 2, 2, 2, 2, 2, 2, 2]
         self.rank    = 1
+        self.status  = 1.0
+        self.glory   = 1.0
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -273,6 +275,10 @@ class AdvancedPcModel(BasePcModel):
         self.notify_change('clan', self._clan, value, self)
         self._clan = value
 
+        # only brotherhood monks get glory penalty
+        if value == 'monks':
+            self.step_0.glory = 0.0
+
     @property
     def family(self):
         return self._family
@@ -420,10 +426,6 @@ class AdvancedPcModel(BasePcModel):
     @property
     def schools(self):
         return self._schools
-
-    @property
-    def armor(self):
-        return self._armor
 
     @property
     def mastery_abilities(self):
@@ -1110,10 +1112,6 @@ class AdvancedPcModel(BasePcModel):
         self._schools = [ CharacterSchool(school_id) ]
 
         self.step_2.honor = honor
-
-        # monks starts with glory 0
-        if 'monk' not in tags:
-            self.step_2.glory = 1.0
 
         self.set_current_school_id(school_id)
 
