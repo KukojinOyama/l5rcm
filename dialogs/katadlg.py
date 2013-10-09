@@ -70,8 +70,9 @@ class KataDialog(QtGui.QDialog):
         self.tx_mastery   = QtGui.QLabel(self)
         self.tx_ring_need = QtGui.QLabel(self)
         self.tx_cost      = QtGui.QLabel(self)
-        self.tx_detail    = QtGui.QLabel(self)
-        self.tx_detail.setWordWrap(True)
+        self.tx_detail    = QtGui.QTextEdit(self)
+        self.tx_detail.setReadOnly(True)
+        #self.tx_detail.setWordWrap(True)
 
         # this should display as "Mastery 3 - you need at least 3 in your Air Ring"
         fr_mastery = QtGui.QFrame(self)
@@ -88,13 +89,13 @@ class KataDialog(QtGui.QDialog):
         cfr_fbox.addRow(self.tr("Details"       ), self.tx_detail )
 
         cfr_fbox.setContentsMargins(120, 20, 120, 20)
-        cfr_fbox.setVerticalSpacing(8)
+        cfr_fbox.setVerticalSpacing(9)
 
         self.vbox_lo.addWidget(self.header)
         self.vbox_lo.addWidget(center_fr  )
         self.vbox_lo.addWidget(bottom_bar )
 
-        self.resize( 600, 300 )
+        self.resize( 600, 480 )
 
     def connect_signals(self):
         self.bt_ok.clicked.connect( self.accept )
