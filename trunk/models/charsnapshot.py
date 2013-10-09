@@ -28,7 +28,11 @@ class CharacterSnapshot(object):
 
     schools  = {} # id ==> rank
 
+    insight_rank = 0
+
     model  = None
+
+    honor  = 0.0
 
     def __init__(self, pc):
         self.model = pc
@@ -54,6 +58,9 @@ class CharacterSnapshot(object):
         for s in pc.schools:
             self.rules += s.tech_rules
         self.rules += [ x.rule for x in pc.advans if hasattr(x,'rule') ]
+
+        self.insight_rank = pc.get_insight_rank()
+        self.honor        = pc.get_honor()
 
     def get_skills(self):
         return self.model.get_skills()
@@ -102,3 +109,8 @@ class CharacterSnapshot(object):
     def get_skill_emphases(self, skid):
         return self.model.get_skill_emphases(skid)
 
+    def get_insight_rank(self):
+        return self.insight_rank
+
+    def get_honor(self):
+        return self.honor

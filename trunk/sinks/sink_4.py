@@ -165,4 +165,14 @@ class Sink4(QtCore.QObject):
             print("cannot retrieve information from spell model.", e)
 
     def act_replace_tech(self):
-        pass
+        form = self.form
+        dlg = dialogs.SchoolChoiceDlg(
+            form.pc,
+            form.dstore,
+            [dialogs.SchoolChoiceDlg.ALTERNATE_PATH],
+            parent = form)
+
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            alternate_path = dlg.get_school_id()
+            form.join_alternate_path( alternate_path )
+

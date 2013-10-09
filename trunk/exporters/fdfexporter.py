@@ -328,6 +328,8 @@ class FDFExporterBushi(FDFExporter):
         schools = [x for x in m.schools if 'bushi' in x.tags or ('monk' in x.tags and not 'brotherhood' in x.tags) ]
         techs   = [x for x in m.get_techs()]
 
+        print([x.school_id for x in m.schools], techs)
+
         count = min(2, len(schools))
         for i in xrange(0, count):
             school = dal.query.get_school(f.dstore, schools[i].school_id)

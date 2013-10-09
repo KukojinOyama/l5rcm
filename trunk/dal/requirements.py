@@ -70,6 +70,8 @@ class Requirement(object):
             return pc.has_rule(self.field)
         if self.type == 'school':
             return self.has_school(pc, self.field)
+        if self.type == 'rank':
+            return self.in_range( pc.get_insight_rank() )
         return True
 
     def has_school(self, pc, school_id):
