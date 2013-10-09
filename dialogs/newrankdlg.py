@@ -68,7 +68,7 @@ what would you want to do?
         self.bt_new_school_2.clicked.connect(self.join_new_school)
 
     def join_new_school(self):
-        dlg = SchoolChoiceDlg(self.pc, self.dstore, self)
+        dlg = SchoolChoiceDlg(self.pc, self.dstore, parent = self)
         if dlg.exec_() == QtGui.QDialog.Rejected:
             #self.reject()
             return
@@ -99,6 +99,7 @@ what would you want to do?
         self.accept()
 
     def merit_plus_school(self):
+
         mult_school_merit = dal.query.get_merit(self.dstore, 'multiple_schools')
         try:
             uuid = mult_school_merit.id
@@ -138,7 +139,12 @@ what would you want to do?
         self.accept()
 
 class SchoolChoiceDlg(QtGui.QDialog):
-    def __init__(self, pc, dstore, parent = None):
+
+    BASIC_SCHOOL    = 1
+    ADVANCED_SCHOOL = 2
+    ALTERNATE_PATH  = 3
+
+    def __init__(self, pc, dstore, filters = None, parent = None):
         super(SchoolChoiceDlg,self).__init__(parent)
 
         self.pc     = pc
@@ -148,6 +154,13 @@ class SchoolChoiceDlg(QtGui.QDialog):
         self.school_id  = 0
         self.school_tg  = []
         self.schools    = []
+
+        if filters is not None:
+            self.flags = filters
+        else:
+            self.flags      = [
+                self.BASIC_SCHOOL,
+                self.ADVANCED_SCHOOL]
 
         self.build_ui       ()
         self.setWindowTitle(self.tr("L5R: CM - Select School"))
@@ -163,9 +176,19 @@ class SchoolChoiceDlg(QtGui.QDialog):
             self.cx_base_schools = QtGui.QCheckBox(self.tr("Base schools"), self)
             self.cx_advc_schools = QtGui.QCheckBox(self.tr("Advanced schools"), self)
             self.cx_path_schools = QtGui.QCheckBox(self.tr("Alternate paths"), self)
-            vb.addWidget(self.cx_base_schools)
-            vb.addWidget(self.cx_advc_schools)
-            vb.addWidget(self.cx_path_schools)
+            if self.BASIC_SCHOOL in self.flags:
+                vb.addWidget(self.cx_base_schools)
+            else:
+                self.cx_base_schools.hide()
+            if self.ADVANCED_SCHOOL in self.flags:
+                vb.addWidget(self.cx_advc_schools)
+            else:
+                self.cx_advc_schools.hide()
+            if self.ALTERNATE_PATH in self.flags:
+                vb.addWidget(self.cx_path_schools)
+            else:
+                self.cx_path_schools.hide()
+
             return fr
 
         def build_requirements_panel():
@@ -201,7 +224,10 @@ class SchoolChoiceDlg(QtGui.QDialog):
 
         # Filter
         fr = build_filter_panel()
-        form.addRow(self.tr("Filters"), fr)
+
+        # only if more than one choice
+        if len(self.flags) > 1:
+            form.addRow(self.tr("Filters"), fr)
 
         # Requirements
         fr = build_requirements_panel()
@@ -229,7 +255,18 @@ class SchoolChoiceDlg(QtGui.QDialog):
         self.bt_box.accepted.connect(self.on_accept)
         self.bt_box.rejected.connect(self.reject   )
 
-        self.cx_base_schools.setChecked(True)
+        if len(self.flags) == 1:
+            if self.BASIC_SCHOOL in self.flags:
+                self.cx_base_schools.setChecked(True)
+            elif self.ADVANCED_SCHOOL in self.flags:
+                self.cx_advc_schools.setChecked(True)
+            else:
+                self.cx_path_schools.setChecked(True)
+            self.cx_base_schools.hide()
+            self.cx_path_schools.hide()
+            self.cx_advc_schools.hide()
+        else:
+            self.cx_base_schools.setChecked(True)
 
     def refresh_data(self):
         clans   = []
@@ -288,7 +325,18 @@ class SchoolChoiceDlg(QtGui.QDialog):
         if clan and school:
             self.school_tg = [clan.id] + school.tags
 
-            self.req_list.set_requirements( self.pc, self.dstore, school.require )
+            extra_requirements = []
+            if len(school.techs) > 0:
+                rank_requirement = dal.Requirement()
+                rank_requirement.field = ''
+                rank_requirement.type  = 'rank'
+                rank_requirement.min   = school.techs[0].rank
+                rank_requirement.max   = 999
+                rank_requirement.trg   = None
+                rank_requirement.text  = self.tr("Insight Rank {0}".format(school.techs[0].rank))
+                extra_requirements     = [rank_requirement]
+
+            self.req_list.set_requirements( self.pc, self.dstore, extra_requirements + school.require )
 
         self.setUpdatesEnabled(True)
         self.resize( self.sizeHint() )
@@ -327,4 +375,3 @@ def test():
 
 if __name__ == '__main__':
     test()
-
