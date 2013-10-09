@@ -570,7 +570,7 @@ class L5RCMCore(QtGui.QMainWindow):
 
         return CMErrors.NO_ERROR
 
-    def get_higher_tech(self):
+    def get_highest_tech(self):
         mt = None
         ms = None
         for t in self.pc.get_techs():
@@ -579,7 +579,7 @@ class L5RCMCore(QtGui.QMainWindow):
                 ms, mt = school, tech
         return ms, mt
 
-    def get_higher_tech_in_current_school(self):
+    def get_highest_tech_in_current_school(self):
         mt = None
         ms = None
         print( self.pc.get_techs() )
@@ -619,7 +619,7 @@ class L5RCMCore(QtGui.QMainWindow):
         school_model.deficiency = school_obj.deficiency
 
         school_model.is_path = True
-        school_obj.path_rank = path_rank
+        school_model.path_rank = path_rank
 
         # JOIN SCHOOL
         self.pc.schools.append(school_model)
@@ -636,7 +636,9 @@ class L5RCMCore(QtGui.QMainWindow):
             tmp, tech_obj = dal.query.get_tech(self.dstore, t)
             if tech_obj and tech_obj.rank == path_rank:
                 self.pc.remove_tech(tech_obj.id)
-                print("replacing technique {} with {}".format(tech_obj.id, school_tech.id))
+                print("replacing technique {} with {}, path rank {}".format(tech_obj.id, school_tech.id, path_rank))
 
         # ADD SCHOOL TECH
         self.pc.add_tech(school_tech.id, school_tech.id)
+
+        self.update_from_model()

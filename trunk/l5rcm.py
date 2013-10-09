@@ -1830,47 +1830,42 @@ class L5RMain(L5RCMCore):
 
 
     def learn_next_school_tech(self):
-        # first of all let's check if the pc has a path for
-        # that target rank
-        # otherwise proceed with the current school
-        path = [x for x in self.pc.schools if x.is_path and x.path_rank == self.pc.get_insight_rank()]
 
-        if len(path):
-            path   = path[0]
-            print('path', path.school_id)
-            # get last learned techs
-            last_tech_id = self.pc.get_techs()[-1]
-            last_school, last_tech = dal.query.get_tech(self.dstore, last_tech_id)
+        last_added_school = self.pc.schools [-1]
 
-            school      = dal.query.get_school(self.dstore, path.school_id)
-            avail_techs = [ x for x in school.techs if x.rank > last_tech.rank ]
-            if len(avail_techs) > 0:
-                path.techs.append(avail_techs[0].id)
-                print('learn next tech from alternate path {0}. tech: {1}'.format(school.id, avail_techs[0].id))
+        # next rank to learn
+        # next_rank = th.rank + 1
+
+        # tech to learn
+        tech_to_learn = None
+
+        # if this school was a path should go back to my old school
+        if last_added_school.is_path:
+            previous_school = dal.query.get_school(self.dstore, self.pc.current_school_id)
+            path_technique  = dal.query.get_school(self.dstore, last_added_school.school_id).techs[0]
+
+            if not previous_school:
+                print('cannot find previous school')
+                return False
+
+            tech_to_learn = dal.query.get_school_tech(previous_school, path_technique.rank+1)
         else:
-            school, htech = self.get_higher_tech_in_current_school()
-            next_rank = htech.rank+1
+            current_school_obj = dal.query.get_school(self.pc.current_school_id)
+            # should check if I changed my school
+            if len (self.pc.get_current_school().techs) == 0:
+                print('I just joined this school ( {} ) and needs to learn the first technique'.format(self.pc.current_school_id))
+                tech_to_learn = current_school_obj.techs[0]
+            else:
+                next_rank = self.pc.get_highest_tech_in_current_school() + 1
+                print('I continue my path on the school {} learning the next ranked technique, rank {}'.format(self.pc.current_school_id, next_rank))
+                tech_to_learn = dal.query.get_school_tech(current_school_obj, next_rank)
 
-            last_school = self.pc.schools[-1]
-            print('last school', last_school.school_id)
-            print('current school', school.id, 'last tech', htech.id)
+        if not tech_to_learn:
+            print('cannot find next ranked technique')
+            return False
 
-            #going back from a path?
-            if last_school.is_path:
-                school = dal.query.get_school(self.dstore, self.pc.schools[-2].school_id)
-                hs, ht = self.get_higher_tech()
-                next_rank = ht.rank+1
-                print('go back to old school', school.id)
-
-            # changed school?
-            if self.pc.current_school_id != school.id:
-                school = dal.query.get_school(self.dstore, self.pc.current_school_id)
-                next_rank = 1
-
-            for tech in [ x for x in school.techs if x.rank == next_rank ]:
-                self.pc.add_tech(tech.id, tech.id)
-                print('learn next tech from school {0}. tech: {1}'.format(school.id, tech.id))
-                break
+        self.pc.add_tech(tech_to_learn.id, tech_to_learn.id)
+        print('learn tech {}'.format(tech_to_learn.id))
 
         self.pc.recalc_ranks()
         self.pc.can_get_another_tech = False
@@ -2189,6 +2184,7 @@ class L5RMain(L5RCMCore):
             school = dal.query.get_school(self.dstore, school_id)
             if school:
                 self.cb_pc_school.addItem( school.name, school.id )
+                self.cb_pc_school.setCurrentIndex(  self.cb_pc_school.count() - 1 )
         self.cb_pc_school.blockSignals(False)
 
     def set_void_points(self, value):
