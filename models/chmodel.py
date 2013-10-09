@@ -19,7 +19,6 @@ import outfit
 import modifiers
 import dal.school
 import json
-import os
 import rules
 
 from copy import deepcopy
@@ -120,8 +119,6 @@ class BasePcModel(object):
         self.void    = 2
         self.attribs = [2, 2, 2, 2, 2, 2, 2, 2]
         self.rank    = 1
-        self.glory   = 1.0
-        self.status  = 1.0
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -243,20 +240,11 @@ class AdvancedPcModel(BasePcModel):
 
     def set_property(self, name, value):
         self.properties[name] = value
-        self.unsaved = True
+        self.set_dirty()
 
     def notify_change(self, property_name, old_value, new_value, sender):
         if old_value != new_value and self.observer is not None:
             self.observer.property_changed(property_name, old_value, new_value)
-
-    @property
-    def unsaved(self):
-        return self._unsaved
-
-    @unsaved.setter
-    def unsaved(self, value):
-        self.notify_change('unsaved', self._unsaved, value, self)
-        self._unsaved = value
 
     @property
     def version(self):
@@ -458,9 +446,16 @@ class AdvancedPcModel(BasePcModel):
     def load_default(self):
         self.step_0.load_default()
 
-    # DEPRECATE
     def is_dirty(self):
-        return self.unsaved
+        return self._unsaved
+
+    def set_dirty(self):
+        self.notify_change('unsaved', self._unsaved, True, self)
+        self._unsaved = True
+
+    def clean_dirty(self):
+        self.notify_change('unsaved', self._unsaved, False, self)
+        self._unsaved = False
 
     def get_ring_rank(self, idx):
         if idx == RINGS.VOID:
@@ -573,12 +568,12 @@ class AdvancedPcModel(BasePcModel):
 
 ### GLORY ###
     def get_honor(self):
-        return self.step_2.honor + self.honor
+        return self.step_0.honor + self.step_1.honor + self.step_2.honor + self.honor
 
     def get_base_glory(self):
-        if self.has_tag('monk'):
-            return self.glory
-        return self.step_0.glory + self.glory
+        #if self.has_tag('monk'):
+        #    return self.glory
+        return self.step_0.glory + self.step_1.glory + self.step_2.glory + self.glory
 
     def get_glory(self):
         if self.has_rule('fame'):
@@ -592,9 +587,10 @@ class AdvancedPcModel(BasePcModel):
 
 ### STATUS ###
     def get_status(self):
+        value = self.step_0.status + self.step_1.status + self.step_2.status + self.status
         if self.has_rule('social_disadvantage'):
-            return self.status
-        return self.step_0.status + self.status
+            value -= self.step_0.status
+        return value
 ### ------ ###
 
     # DEPRECATE
@@ -1114,6 +1110,11 @@ class AdvancedPcModel(BasePcModel):
         self._schools = [ CharacterSchool(school_id) ]
 
         self.step_2.honor = honor
+
+        # monks starts with glory 0
+        if 'monk' not in tags:
+            self.step_2.glory = 1.0
+
         self.set_current_school_id(school_id)
 
         for t in tags:
@@ -1156,14 +1157,16 @@ class AdvancedPcModel(BasePcModel):
         self.unsaved = True
 
     def set_honor(self, value):
-        self.honor = value - self.step_2.honor
+        self.honor = round(value - self.step_2.honor, 1)
         self.unsaved = True
 
     def set_glory(self, value):
-        if self.has_tag('monk'):
-            self.glory = value
-        else:
-            self.glory = value - self.step_0.glory
+        #if self.has_tag('monk'):
+        #    self.glory = value
+        #else:
+        base_glory = self.step_0.glory + self.step_1.glory + self.step_2.glory
+
+        self.glory = value - base_glory
         self.unsaved = True
 
     def set_infamy(self, value):
@@ -1171,7 +1174,8 @@ class AdvancedPcModel(BasePcModel):
         self.unsaved = True
 
     def set_status(self, value):
-        self.status = value - self.step_0.status
+        base_status = self.step_0.status + self.step_1.status + self.step_2.status
+        self.status = value - base_status
         self.unsaved = True
 
     def set_taint(self, value):
@@ -1242,101 +1246,6 @@ class AdvancedPcModel(BasePcModel):
                 self.get_school().school_rank += (insight_-tot_rank)
                 print('school {0} is now rank {1}'.format(self.get_school_id(), self.get_school_rank()))
 
-### LOAD AND SAVE METHODS ###
-
-    def save_to(self, file_):
-        self.unsaved = False
-
-        print('saving to',file_)
-
-        fp = open(file_, 'wt')
-        if fp:
-            json.dump( self, fp, cls=MyJsonEncoder, indent=4 )
-            fp.close()
-            return True
-        return False
-
-    def load_from(self, file_):
-        if len(file_) == 0 or not os.path.exists(file_):
-            return False
-
-        def _load_obj(in_dict, out_obj):
-            for k in in_dict.iterkeys():
-                out_obj.__dict__[k] = in_dict[k]
-
-        fp = open(file_, 'rt')
-        if fp:
-            obj = json.load(fp)
-            fp.close()
-
-            _load_obj(deepcopy(obj), self)
-
-            self.step_0 = BasePcModel()
-            self.step_1 = BasePcModel()
-            self.step_2 = BasePcModel()
-
-            _load_obj(deepcopy(obj['step_0']), self.step_0)
-            _load_obj(deepcopy(obj['step_1']), self.step_1)
-            _load_obj(deepcopy(obj['step_2']), self.step_2)
-
-            # pending wildcard object in step2
-            self.step_2.pending_wc = []
-            if 'pending_wc' in obj['step_2']:
-                for m in obj['step_2']['pending_wc']:
-                    item = dal.school.SchoolSkillWildcardSet()
-                    _load_obj(deepcopy(m), item)
-                    for i in xrange(0, len(item.wildcards)):
-                        s_item = dal.school.SchoolSkillWildcard()
-                        _load_obj(deepcopy(item.wildcards[i]), s_item)
-                        item.wildcards[i] = s_item
-
-                    self.add_pending_wc_skill(item)
-
-            # schools
-            # self.schools = []
-            if 'schools' in obj:
-                for s in obj['schools']:
-                    item = CharacterSchool()
-                    _load_obj(deepcopy(s), item)
-                    self.schools.append(item)
-
-            #self.advans = []
-            for ad in obj['advans']:
-                a = adv.Advancement(None, None)
-                _load_obj(deepcopy(ad), a)
-                self.advans.append(a)
-
-            # armor
-            self._armor = outfit.ArmorOutfit()
-            if obj['armor'] is not None:
-                _load_obj(deepcopy(obj['armor']), self._armor)
-
-            #self.weapons = []
-            if 'weapons' in obj:
-                # weapons
-                for w in obj['weapons']:
-                    item = outfit.WeaponOutfit()
-                    _load_obj(deepcopy(w), item)
-                    self.add_weapon(item)
-
-            #self.modifiers = []
-            if 'modifiers' in obj:
-                for m in obj['modifiers']:
-                    item = modifiers.ModifierModel()
-                    _load_obj(deepcopy(m), item)
-                    self.add_modifier(item)
-
-            try:
-                if self.get_current_school() is None and len(self.schools) > 0:
-                    print('missing current school. old save?')
-                    self.current_school_id = self.schools[-1].school_id
-            except:
-                print('cannot recover current school')
-
-            self.unsaved  = False
-            return True
-        return False
-
 
 class CharacterLoader(object):
 
@@ -1370,22 +1279,25 @@ class CharacterLoader(object):
 
     def load_from_string(self, obj):
 
-        self.load_step_0( obj )
-        self.load_step_1( obj )
-        self.load_step_2( obj )
+        try:
+            self.load_step_0( obj )
+            self.load_step_1( obj )
+            self.load_step_2( obj )
 
-        self.load_character_info( obj )
-        self.load_game_info     ( obj )
-        self.load_schools       ( obj )
-        self.load_advancements  ( obj )
-        self.load_outfit        ( obj )
-        self.load_modifiers     ( obj )
+            self.load_character_info( obj )
+            self.load_game_info     ( obj )
+            self.load_schools       ( obj )
+            self.load_advancements  ( obj )
+            self.load_outfit        ( obj )
+            self.load_modifiers     ( obj )
+        except Exception as e:
+            print('load from string error: {0}'.format(e))
 
         try:
             if self.pc.get_current_school() is None and len(self.pc.schools) > 0:
                 print('missing current school. old save?')
                 self.pc.current_school_id = self.pc.schools[-1].school_id
-                old_save = True
+                self.old_save = True
         except:
             print('cannot recover current school')
 

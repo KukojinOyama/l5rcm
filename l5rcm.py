@@ -2637,7 +2637,6 @@ class L5RMain(L5RCMCore):
 
     def create_new_character(self):
         self.sink1.new_character()
-        self.pc.unsaved = False
 
     def get_health_rank(self, idx):
         return self.wounds[idx][1].text()
