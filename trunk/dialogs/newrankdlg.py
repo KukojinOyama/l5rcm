@@ -93,8 +93,8 @@ what would you want to do?
             school_obj.is_path = True
             school_obj.path_rank = self.pc.get_insight_rank()
 
-        self.pc.set_current_school_id(sc.id)
-        self.pc.set_can_get_other_tech(True)
+        self.pc.current_school_id  = sc.id
+        self.pc.can_get_another_tech = True
 
         self.accept()
 
@@ -132,9 +132,9 @@ what would you want to do?
             # find the first school that is not a path
             for s in reversed(self.pc.schools):
                 if not s.is_path:
-                    self.pc.set_current_school_id(s.school_id)
+                    self.pc.current_school_id = s.school_id
 
-        self.pc.set_can_get_other_tech(True)
+        self.pc.can_get_another_tech = True
         self.accept()
 
 class SchoolChoiceDlg(QtGui.QDialog):

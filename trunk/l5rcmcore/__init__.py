@@ -385,7 +385,7 @@ class L5RCMCore(QtGui.QMainWindow):
                 return
 
     def check_if_tech_available(self):
-        school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+        school = dal.query.get_school(self.dstore, self.pc.current_school_id)
         if school:
             count  = len(school.techs)
             print('check_if_tech_available', school.id, count, self.pc.get_school_rank())
@@ -399,7 +399,7 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def get_missing_school_requirements(self):
         list_     = []
-        school_id = self.pc.get_school_id()
+        school_id = self.pc.current_school_id
         school = dal.query.get_school(self.dstore, school_id)
         if school:
             #print('check requirement for school {0}'.format(school_id))
@@ -586,7 +586,7 @@ class L5RCMCore(QtGui.QMainWindow):
         print( self.pc.get_techs() )
         for t in self.pc.get_techs():
             school, tech = dal.query.get_tech(self.dstore, t)
-            if school.id != self.pc.get_school_id(): continue
+            if school.id != self.pc.current_school_id: continue
             if not mt or tech.rank > mt.rank:
                 ms, mt = school, tech
         return ms, mt

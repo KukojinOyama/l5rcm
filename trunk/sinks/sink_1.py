@@ -39,7 +39,7 @@ class Sink1(QtCore.QObject):
         form.load_families('')
         form.load_schools ('')
         form.tx_pc_notes.set_content('')
-        form.pc.set_insight_calc_method(form.ic_calc_method)
+        form.pc.insight_calc_method = form.ic_calc_method
 
         if form.debug:
             import debug
