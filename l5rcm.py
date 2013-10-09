@@ -1849,6 +1849,9 @@ class L5RMain(L5RCMCore):
                 return False
 
             tech_to_learn = dal.query.get_school_tech(previous_school, path_technique.rank+1)
+
+            # swap the schools
+            self.pc.schools[-1], self.pc.schools[-2] = self.pc.schools[-2], self.pc.schools[-1]
         else:
             current_school_obj = dal.query.get_school(self.pc.current_school_id)
             # should check if I changed my school
