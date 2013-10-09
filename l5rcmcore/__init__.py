@@ -31,7 +31,6 @@ from PySide import QtCore, QtGui
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
 APP_VERSION = '3.9.4'
-DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK      = 'http://code.google.com/p/l5rcm/'
@@ -590,3 +589,9 @@ class L5RCMCore(QtGui.QMainWindow):
             if not mt or tech.rank > mt.rank:
                 ms, mt = school, tech
         return ms, mt
+
+    def set_debug_observer(self):
+        import debug
+        observer = debug.DebugObserver()
+        observer.on_property_changed.connect(self.sink1.on_debug_prop_change)
+        self.pc.set_observer( observer )

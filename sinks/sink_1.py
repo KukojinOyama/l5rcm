@@ -21,7 +21,7 @@ import dialogs
 import models
 import os
 
-from l5rcmcore import get_app_file, DB_VERSION, get_icon_path
+from l5rcmcore import get_app_file, get_icon_path
 
 class Sink1(QtCore.QObject):
     def __init__(self, parent = None):
@@ -39,13 +39,10 @@ class Sink1(QtCore.QObject):
         form.load_families('')
         form.load_schools ('')
         form.tx_pc_notes.set_content('')
-        form.pc.insight_calc_method = form.ic_calc_method
+        form.pc.insight_calculation = form.ic_calc_method
 
         if form.debug:
-            import debug
-            observer = debug.DebugObserver()
-            observer.on_property_changed.connect(self.on_debug_prop_change)
-            form.pc.set_observer( observer )
+            form.set_debug_observer()
 
         form.update_from_model()
 
@@ -63,7 +60,6 @@ class Sink1(QtCore.QObject):
             form.save_path = form.select_save_path()
 
         if form.save_path is not None and len(form.save_path) > 0:
-            form.pc.version = DB_VERSION
             form.pc.extra_notes = form.tx_pc_notes.get_content()
             # pending rank advancement?
             form.pc.last_rank = form.last_rank
