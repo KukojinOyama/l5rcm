@@ -1610,7 +1610,7 @@ class L5RMain(L5RCMCore):
             return
 
         uuid  = self.cb_pc_family.itemData(index)
-        if uuid == self.pc.get_family():
+        if uuid == self.pc.family:
             return
         # should modify step_1 character
         # get family perk
@@ -1692,7 +1692,7 @@ class L5RMain(L5RCMCore):
 
         # free kihos ?
         if school.kihos:
-            self.pc.set_free_kiho_count( school.kihos.count )
+            self.pc.free_kiho_count = school.kihos.count
 
         self.update_from_model()
 
@@ -1887,7 +1887,7 @@ class L5RMain(L5RCMCore):
                 self.pc.set_pending_spells_count( self.pc.get_spells_per_rank() )
             elif self.pc.has_tag('brotherhood'):
                 # hey free kihos!
-                self.pc.set_free_kiho_count(2)
+                self.pc.free_kiho_count = 2
 
             lb = QtGui.QLabel(self.tr("You reached the next rank, you have an opportunity"
                                       " to decide your destiny."), self)
@@ -1920,8 +1920,8 @@ class L5RMain(L5RCMCore):
         if self.nicebar: return
 
         # Show nicebar if can get free kihos
-        if self.pc.get_free_kiho_count():
-            lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.get_free_kiho_count()), self)
+        if self.pc.free_kiho_count:
+            lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.free_kiho_count, self)
             bt = QtGui.QPushButton(self.tr("Learn Kihos"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
@@ -2083,8 +2083,8 @@ class L5RMain(L5RCMCore):
                 return school.kihos.count
 
             # HACK. Fix free kiho for old characters created with 3 free kihos
-            if self.pc.get_free_kiho_count() == 3 and school_free_kiho_count() != 3:
-                self.pc.set_free_kiho_count(school_free_kiho_count())
+            if self.pc.free_kiho_count == 3 and school_free_kiho_count() != 3:
+                self.pc.free_kiho_count = school_free_kiho_count()
 
             #TODO: checks for books / data extensions
 
@@ -2212,7 +2212,7 @@ class L5RMain(L5RCMCore):
 
         self.tx_pc_name.setText( self.pc.name            )
         self.set_clan          ( self.pc.clan            )
-        self.set_family        ( self.pc.get_family   () )
+        self.set_family        ( self.pc.family          )
         self.set_school        ( self.pc.get_school_id() )
 
         for w in self.pers_info_widgets:
@@ -2243,11 +2243,11 @@ class L5RMain(L5RCMCore):
         pause_signals( self.pc_flags_rank   )
         pause_signals( [self.void_points]   )
 
-        self.set_honor  ( self.pc.get_honor()  )
-        self.set_glory  ( self.pc.get_glory()  )
-        self.set_infamy ( self.pc.get_infamy() )
+        self.set_honor  ( self.pc.get_honor () )
+        self.set_glory  ( self.pc.get_glory () )
         self.set_status ( self.pc.get_status() )
-        self.set_taint  ( self.pc.get_taint()  )
+        self.set_infamy ( self.pc.infamy       )
+        self.set_taint  ( self.pc.taint        )
 
         self.set_void_points( self.pc.void_points )
 

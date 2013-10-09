@@ -549,10 +549,10 @@ class L5RCMCore(QtGui.QMainWindow):
         adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, adv.cost )
 
         # monks can get free kihos
-        if self.pc.get_free_kiho_count() > 0:
+        if self.pc.free_kiho_count > 0:
             adv.cost = 0
-            self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
-            print('remaing free kihos', self.pc.get_free_kiho_count())
+            self.pc.free_kiho_count -= 1
+            print('remaing free kihos', self.pc.free_kiho_count)
 
         if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
             return CMErrors.NOT_ENOUGH_XP

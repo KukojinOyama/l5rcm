@@ -113,7 +113,7 @@ class FDFExporterAll(FDFExporter):
         hvalue, hdots = rules.split_decimal(m.get_honor ())
         gvalue, gdots = rules.split_decimal(m.get_glory ())
         svalue, sdots = rules.split_decimal(m.get_status())
-        tvalue, tdots = rules.split_decimal(m.get_taint ())
+        tvalue, tdots = rules.split_decimal(m.taint       )
 
         fields['HONOR' ] = hvalue
         fields['GLORY' ] = gvalue
