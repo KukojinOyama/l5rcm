@@ -1737,14 +1737,14 @@ class L5RMain(L5RCMCore):
             self.pc.set_status( float(val + float(pt)/10 ) )
         elif fl == self.pc_flags_rank[3]:
             pt = self.pc_flags_points[3].value
-            self.pc.set_taint( float(val + float(pt)/10 ) )
+            self.pc.taint = float(val + float(pt)/10 )
         else:
             pt = self.pc_flags_points[4].value
-            self.pc.set_infamy( float(val + float(pt)/10 ) )
+            self.pc.infamy = float(val + float(pt)/10 )
 
     def on_void_points_change(self):
         val = self.void_points.value
-        self.pc.set_void_points(val)
+        self.pc.void_points = val
 
     def on_buy_skill_rank(self):
         # get selected skill
@@ -1941,12 +1941,13 @@ class L5RMain(L5RCMCore):
             self.show_nicebar([lb, bt])
 
     def check_rules(self):
+        # HACK. fix old saves ???
+
         for t in self.pc.get_techs():
             school, tech = dal.query.get_tech(self.dstore, t)
             if school is not None and tech is not None:
                 self.pc.add_tech(tech.id, tech.id)
             else:
-                # TODO: alert
                 print('cannot load character technique')
 
         for adv in self.pc.advans:
@@ -2066,6 +2067,9 @@ class L5RMain(L5RCMCore):
             self.pc = cl.model()
             self.save_path = path
 
+            if self.debug:
+                self.set_debug_observer()
+
             try:
                 if self.pc.last_rank > self.pc.get_insight_rank():
                     print("ERROR. last_rank should never be > insight rank. I'll try to fix this.")
@@ -2084,6 +2088,7 @@ class L5RMain(L5RCMCore):
 
             # HACK. Fix free kiho for old characters created with 3 free kihos
             if self.pc.free_kiho_count == 3 and school_free_kiho_count() != 3:
+                print("Fix free kiho for old characters created with 3 free kihos")
                 self.pc.free_kiho_count = school_free_kiho_count()
 
             #TODO: checks for books / data extensions
@@ -2095,7 +2100,7 @@ class L5RMain(L5RCMCore):
                 self.load_schools (self.pc.clan)
 
             self.tx_pc_notes.set_content(self.pc.extra_notes)
-            self.pc.insight_calc_method = self.ic_calc_method
+            self.pc.insight_calculation = self.ic_calc_method
             self.check_rules()
             self.update_from_model()
         else:
@@ -2256,11 +2261,11 @@ class L5RMain(L5RCMCore):
         resume_signals( self.pc_flags_rank   )
 
         # armor
-        self.tx_armor_nm .setText( str(self.pc.get_armor_name())  )
-        self.tx_base_tn  .setText( str(self.pc.get_base_tn())     )
-        self.tx_armor_tn .setText( str(self.pc.get_armor_tn())    )
-        self.tx_armor_rd .setText( str(self.pc.get_full_rd())    )
-        self.tx_cur_tn   .setText( str(self.pc.get_cur_tn())      )
+        self.tx_armor_nm .setText( str(self.pc.get_armor_name()) )
+        self.tx_base_tn  .setText( str(self.pc.get_base_tn   ()) )
+        self.tx_armor_tn .setText( str(self.pc.get_armor_tn  ()) )
+        self.tx_armor_rd .setText( str(self.pc.get_full_rd   ()) )
+        self.tx_cur_tn   .setText( str(self.pc.get_cur_tn    ()) )
         # armor description
         self.tx_armor_nm.setToolTip( str(self.pc.get_armor_desc()) )
 
@@ -2269,15 +2274,7 @@ class L5RMain(L5RCMCore):
         self.wnd_lb.setTitle(self.tr("Health / Wounds (x%d)") % self.pc.health_multiplier)
 
         # initiative
-        #r, k = self.pc.get_base_initiative()
         self.tx_base_init.setText( rules.format_rtk_t(self.pc.get_base_initiative()) )
-        #rtk = self.tx_mod_init.text()
-        #r1, k1 = rules.parse_rtk(rtk)
-        #if r1 and k1:
-        #    self.tx_cur_init.setText( rules.format_rtk(r+r1, k+k1) )
-        #    self.pc.mod_init = (r1, k1)
-        #else:
-        #    self.tx_cur_init.setText( self.tx_base_init.text() )
         self.tx_mod_init.setText( rules.format_rtk_t(self.pc.get_init_modifiers()) )
         self.tx_cur_init.setText( rules.format_rtk_t(self.pc.get_tot_initiative()) )
 
@@ -2302,14 +2299,12 @@ class L5RMain(L5RCMCore):
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.act_choose_skills )
             self.show_nicebar([lb, bt])
-        #else:
-        #    self.hide_nicebar()
 
-        self.check_affinity_wc()
-        self.check_rank_advancement()
-        self.check_missing_requirements()
+        self.check_affinity_wc           ()
+        self.check_rank_advancement      ()
+        self.check_missing_requirements  ()
         self.check_school_tech_and_spells()
-        self.check_free_kihos()
+        self.check_free_kihos            ()
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0
@@ -2407,25 +2402,6 @@ class L5RMain(L5RCMCore):
             if wound_rank > 0:
                 self.wounds[i][2].setText( str(wound_rank) )
             if wounds <= h: break
-
-    def advise_conversion(self, *args):
-        settings = QtCore.QSettings()
-        if settings.value('advise_conversion', 'true') == 'false':
-            return
-        msgBox = QtGui.QMessageBox(self)
-        msgBox.setWindowTitle('L5R: CM')
-        msgBox.setText(self.tr("The character has been updated."))
-        msgBox.setInformativeText(self.tr("This character was created with an older version of the program.\n"
-                                          "I've done my best to convert and update your character, hope you don't mind :).\n"
-                                          "I also created a backup of your character file in\n\n%s.") % args)
-        do_not_prompt_again = QtGui.QCheckBox(self.tr("Do not prompt again"), msgBox)
-        do_not_prompt_again.blockSignals(True) # PREVENT MSGBOX TO CLOSE ON CLICK
-        msgBox.addButton(QtGui.QMessageBox.Ok)
-        msgBox.addButton(do_not_prompt_again, QtGui.QMessageBox.ActionRole)
-        msgBox.setDefaultButton(QtGui.QMessageBox.Ok)
-        msgBox.exec_()
-        if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
-            settings.setValue('advise_conversion', 'false')
 
     def advise_successfull_import(self):
         settings = QtCore.QSettings()
@@ -2638,7 +2614,7 @@ class L5RMain(L5RCMCore):
 
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
-        self.pc.insight_calc_method = method
+        self.pc.insight_calculation = method
         self.update_from_model()
 
     def on_change_health_visualization(self):
@@ -2669,8 +2645,6 @@ DEBUG_SWITCH      = '--debug'
 
 MIME_L5R_CHAR     = "applications/x-l5r-character"
 MIME_L5R_PACK     = "applications/x-l5r-pack"
-
-
 
 def main():
     #try:

@@ -210,11 +210,11 @@ class AdvancedPcModel(BasePcModel):
         self.observer = observer
 
         from debug import observable_list
-        self._advans            = observable_list('advancements'     , [], observer)
-        self._weapons           = observable_list('weapons'          , [], observer)
-        self._schools           = observable_list('schools'          , [], observer)
-        self._mastery_abilities = observable_list('mastery_abilities', [], observer)
-        self._modifiers         = observable_list('modifiers'        , [], observer)
+        self._advans            = observable_list('advancements'     , self._advans           , observer)
+        self._weapons           = observable_list('weapons'          , self._weapons          , observer)
+        self._schools           = observable_list('schools'          , self._schools          , observer)
+        self._mastery_abilities = observable_list('mastery_abilities', self._mastery_abilities, observer)
+        self._modifiers         = observable_list('modifiers'        , self._modifiers        , observer)
 
     # PROPERTIES
     def has_property(self, name):
@@ -808,9 +808,10 @@ class AdvancedPcModel(BasePcModel):
         #print 'add tech %s, rule %s' % ( repr(tech_uuid), rule )
         if tech_uuid not in self.get_techs():
             school_.techs.append(tech_uuid)
+            self.set_dirty()
         if rule is not None and not self.has_rule(rule):
             school_.tech_rules.append(rule)
-        self.set_dirty()
+            self.set_dirty()
 ### ---------- ###
 
 ### SPELLS ###
@@ -1149,7 +1150,7 @@ class AdvancedPcModel(BasePcModel):
 
 class CharacterLoader(object):
 
-    SAVE_FILE_VERSION = "2.0"
+    SAVE_FILE_VERSION = "4.0"
 
     def __init__(self):
         self.old_save = False
@@ -1163,9 +1164,13 @@ class CharacterLoader(object):
     def load_from_file(self, file_):
 
         obj = None
-        with open(file_, 'rt') as fp:
-            if not fp: return False
-            obj = json.load(fp)
+        try:
+            with open(file_, 'rt') as fp:
+                if not fp: return False
+                obj = json.load(fp)
+        except IOError as e:
+            print('cannot read file {}, {}'.format(file_, e))
+
         if not obj: return False
 
         res = self.load_from_string(obj)
@@ -1269,6 +1274,9 @@ class CharacterLoader(object):
 
         self.version = source['version']
         print('Savefile version {}'.format(self.version))
+
+        if self.version != self.SAVE_FILE_VERSION:
+            self.old_save = True
 
         dest.name    = source['name'   ]
         dest.clan    = source['clan'   ]
@@ -1437,7 +1445,9 @@ class CharacterLoader(object):
         obj['weapons'] = []
         for s in source._weapons:
             obj['weapons'].append( s.__dict__ )
-        obj['armor'] = source.armor.__dict__
+
+        if source.armor is not None:
+            obj['armor'] = source.armor.__dict__
 
     def save_modifiers(self, obj):
         source = self.pc
