@@ -701,8 +701,8 @@ class L5RMain(L5RCMCore):
             vtb.addStretch()
 
             cb_view    = self.sink4.on_tech_item_activate
-            #cb_replace = self.sink4.act_replace_tech
-            cb_replace = self.sink4.on_tech_item_activate
+            cb_replace = self.sink4.act_replace_tech
+            #cb_replace = self.sink4.on_tech_item_activate
 
             self.view_tech_bt = vtb.addButton(
                                 QtGui.QIcon(get_icon_path('view',(16,16))),
