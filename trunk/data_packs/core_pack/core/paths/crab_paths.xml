@@ -44,7 +44,7 @@ the amount that would normally kill you.
     <Spells/>
     <Requirements>
       <Requirement field="earth" type="ring" min="4">Earth: 4</Requirement>
-      <Requirement field="*crab_bushi" type="school" min="1" max="1">Replaces Any Crab Bushi School Rank 2</Requirement>
+      <Requirement field="*crab_bushi" type="school" min="2">Replaces Any Crab Bushi School Rank 2</Requirement>
       <!--
       <RequirementOption text="Replaces Any Crab Bushi School Rank 2">
         <Requirement field="crab_the_way_of_the_crab" type="rule"/>
@@ -93,7 +93,7 @@ the circle is active, you gain one less Earth spell slot per day.
     <Spells/>
     <Requirements>
       <Requirement field="lore_shadowlands" type="skill" min="3">Lore: Shadowlands 3</Requirement>
-      <Requirement field="crab_kuni_shugenja_school" type="school" min="2" max="2">Replaces Kuni Shugenja 3</Requirement>
+      <Requirement field="crab_kuni_shugenja_school" type="school" min="3">Replaces Kuni Shugenja 3</Requirement>
     </Requirements>
   </School>
 
