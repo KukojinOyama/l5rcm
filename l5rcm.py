@@ -1718,10 +1718,10 @@ class L5RMain(L5RCMCore):
             self.pc.set_status( float(val + float(pt)/10 ) )
         elif fl == self.pc_flags_points[3]:
             val = int(self.pc_flags_rank[3].text())
-            self.pc.set_taint( float(val + float(pt)/10 ) )
+            self.pc.taint = float(val + float(pt)/10 )
         else:
             val = int(self.pc_flags_rank[4].text())
-            self.pc.set_infamy( float(val + float(pt)/10 ) )
+            self.pc.infamy = float(val + float(pt)/10 )
 
     def on_flag_rank_change(self):
         fl  = self.sender()
@@ -1863,8 +1863,8 @@ class L5RMain(L5RCMCore):
                 print('go back to old school', school.id)
 
             # changed school?
-            if self.pc.get_school_id() != school.id:
-                school = dal.query.get_school(self.dstore, self.pc.get_school_id())
+            if self.pc.current_school_id != school.id:
+                school = dal.query.get_school(self.dstore, self.pc.current_school_id)
                 next_rank = 1
 
             for tech in [ x for x in school.techs if x.rank == next_rank ]:
@@ -1873,7 +1873,7 @@ class L5RMain(L5RCMCore):
                 break
 
         self.pc.recalc_ranks()
-        self.pc.set_can_get_other_tech(False)
+        self.pc.can_get_another_tech = False
         self.update_from_model()
 
     def check_rank_advancement(self):
@@ -1884,7 +1884,7 @@ class L5RMain(L5RCMCore):
 
             # get 3 spells each rank
             if self.pc.has_tag('shugenja'):
-                self.pc.set_pending_spells_count( self.pc.get_spells_per_rank() )
+                self.pc.pending_spells_count = self.pc.spells_per_rank
             elif self.pc.has_tag('brotherhood'):
                 # hey free kihos!
                 self.pc.free_kiho_count = 2
@@ -1904,7 +1904,7 @@ class L5RMain(L5RCMCore):
         if self.nicebar: return
 
         # Show nicebar if can get another school tech
-        if (self.pc.can_get_other_techs() and
+        if (self.pc.can_get_another_tech and
             self.check_if_tech_available() and
             self.check_tech_school_requirements()):
             self.learn_next_school_tech()
@@ -1921,7 +1921,7 @@ class L5RMain(L5RCMCore):
 
         # Show nicebar if can get free kihos
         if self.pc.free_kiho_count:
-            lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.free_kiho_count, self)
+            lb = QtGui.QLabel(self.tr("You can learn {0} kihos for free").format(self.pc.free_kiho_count), self)
             bt = QtGui.QPushButton(self.tr("Learn Kihos"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
@@ -1986,7 +1986,7 @@ class L5RMain(L5RCMCore):
                                      <h3><i>Choose with care.</i></h3></center>"))
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.pc.clear_pending_wc_spells()
-            self.pc.set_pending_spells_count(0)
+            self.pc.pending_spells_count = 0
             self.update_from_model()
 
     def learn_next_free_kiho(self):
@@ -2095,7 +2095,7 @@ class L5RMain(L5RCMCore):
                 self.load_schools (self.pc.clan)
 
             self.tx_pc_notes.set_content(self.pc.extra_notes)
-            self.pc.set_insight_calc_method(self.ic_calc_method)
+            self.pc.insight_calc_method = self.ic_calc_method
             self.check_rules()
             self.update_from_model()
         else:
@@ -2210,10 +2210,10 @@ class L5RMain(L5RCMCore):
                         self.cb_pc_school] )
         pause_signals( self.pers_info_widgets )
 
-        self.tx_pc_name.setText( self.pc.name            )
-        self.set_clan          ( self.pc.clan            )
-        self.set_family        ( self.pc.family          )
-        self.set_school        ( self.pc.get_school_id() )
+        self.tx_pc_name.setText( self.pc.name              )
+        self.set_clan          ( self.pc.clan              )
+        self.set_family        ( self.pc.family            )
+        self.set_school        ( self.pc.current_school_id )
 
         for w in self.pers_info_widgets:
             if hasattr(w, 'link'):
@@ -2638,7 +2638,7 @@ class L5RMain(L5RCMCore):
 
     def on_change_insight_calculation(self):
         method = self.sender().checkedAction().property('method')
-        self.pc.set_insight_calc_method(method)
+        self.pc.insight_calc_method = method
         self.update_from_model()
 
     def on_change_health_visualization(self):

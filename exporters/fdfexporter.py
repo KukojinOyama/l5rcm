@@ -444,10 +444,10 @@ class FDFExporterWeapons(FDFExporter):
         fields = {}
         # WEAPONS
 
-        count = min(10, len(m.get_weapons()))
+        count = min(10, len(m.weapons))
         j = 0
 
-        for weap in m.get_weapons()[0:count]:
+        for weap in m.weapons[0:count]:
             weap.base_atk = rules.format_rtk_t(rules.calculate_base_attack_roll(m, weap))
             weap.max_atk  = rules.format_rtk_t(rules.calculate_mod_attack_roll (m, weap))
             weap.base_dmg = rules.format_rtk_t(rules.calculate_base_damage_roll(m, weap))
