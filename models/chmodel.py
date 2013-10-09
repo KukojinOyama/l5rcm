@@ -265,6 +265,7 @@ class AdvancedPcModel(BasePcModel):
     def name(self, value):
         self.notify_change('name', self._name, value, self)
         self._name = value
+        self.set_dirty()
 
     @property
     def clan(self):
@@ -274,10 +275,10 @@ class AdvancedPcModel(BasePcModel):
     def clan(self, value):
         self.notify_change('clan', self._clan, value, self)
         self._clan = value
-
-        # only brotherhood monks get glory penalty
+        # brotherhood monks get glory penalty ( NOT clan monks )
         if value == 'monks':
             self.step_0.glory = 0.0
+        self.set_dirty()
 
     @property
     def family(self):
@@ -287,6 +288,7 @@ class AdvancedPcModel(BasePcModel):
     def family(self, value):
         self.notify_change('family', self._family, value, self)
         self._family = value
+        self.set_dirty()
 
     @property
     def armor(self):
@@ -296,6 +298,7 @@ class AdvancedPcModel(BasePcModel):
     def armor(self, value):
         self.notify_change('armor', self._armor, value, self)
         self._armor = value
+        self.set_dirty()
 
     @property
     def current_school_id(self):
@@ -305,6 +308,7 @@ class AdvancedPcModel(BasePcModel):
     def current_school_id(self, value):
         self.notify_change('current_school_id', self._current_school_id, value, self)
         self._current_school_id = value
+        self.set_dirty()
 
     @property
     def void_cost(self):
@@ -314,6 +318,7 @@ class AdvancedPcModel(BasePcModel):
     def void_cost(self, value):
         self.notify_change('void_cost', self._void_cost, value, self)
         self._void_cost = value
+        self.set_dirty()
 
     @property
     def health_multiplier(self):
@@ -323,6 +328,7 @@ class AdvancedPcModel(BasePcModel):
     def health_multiplier(self, value):
         self.notify_change('health_multiplier', self._health_multiplier, value, self)
         self._health_multiplier = value
+        self.set_dirty()
 
     @property
     def spells_per_rank(self):
@@ -332,6 +338,7 @@ class AdvancedPcModel(BasePcModel):
     def spells_per_rank(self, value):
         self.notify_change('spells_per_rank', self._spells_per_rank, value, self)
         self._spells_per_rank = value
+        self.set_dirty()
 
     @property
     def pending_spells_count(self):
@@ -341,6 +348,7 @@ class AdvancedPcModel(BasePcModel):
     def pending_spells_count(self, value):
         self.notify_change('pending_spells_count', self._pending_spells_count, value, self)
         self._pending_spells_count = value
+        self.set_dirty()
 
     @property
     def exp_limit(self):
@@ -350,6 +358,7 @@ class AdvancedPcModel(BasePcModel):
     def exp_limit(self, value):
         self.notify_change('exp_limit', self._exp_limit, value, self)
         self._exp_limit = value
+        self.set_dirty()
 
     @property
     def wounds(self):
@@ -359,6 +368,7 @@ class AdvancedPcModel(BasePcModel):
     def wounds(self, value):
         self.notify_change('wounds', self._wounds, value, self)
         self._wounds = value
+        self.set_dirty()
 
     @property
     def void_points(self):
@@ -368,6 +378,7 @@ class AdvancedPcModel(BasePcModel):
     def void_points(self, value):
         self.notify_change('void_points', self._void_points, value, self)
         self._void_points = value
+        self.set_dirty()
 
     @property
     def unlock_schools(self):
@@ -377,6 +388,7 @@ class AdvancedPcModel(BasePcModel):
     def unlock_schools(self, value):
         self.notify_change('unlock_schools', self._unlock_schools, value, self)
         self._unlock_schools = value
+        self.set_dirty()
 
     @property
     def extra_notes(self):
@@ -386,6 +398,7 @@ class AdvancedPcModel(BasePcModel):
     def extra_notes(self, value):
         self.notify_change('extra_notes', self._extra_notes, value, self)
         self._extra_notes = value
+        self.set_dirty()
 
     @property
     def insight_calculation(self):
@@ -404,6 +417,7 @@ class AdvancedPcModel(BasePcModel):
     def can_get_another_tech(self, value):
         self.notify_change('can_get_another_tech', self._can_get_another_tech, value, self)
         self._can_get_another_tech = value
+        self.set_dirty()
 
     @property
     def free_kiho_count(self):
@@ -413,6 +427,7 @@ class AdvancedPcModel(BasePcModel):
     def free_kiho_count(self, value):
         self.notify_change('free_kiho_count', self._free_kiho_count, value, self)
         self._free_kiho_count = value
+        self.set_dirty()
 
     ### lists are not settable ###
     @property
@@ -469,14 +484,6 @@ class AdvancedPcModel(BasePcModel):
 
         return min(a, b)
 
-    # DEPRECATE
-    def get_free_kiho_count(self):
-        return self.free_kiho_count
-
-    # DEPRECATE
-    def set_free_kiho_count(self, value):
-        self.free_kiho_count = value
-
     def get_attrib_rank(self, attrib):
         a = self.step_0.attribs[attrib]
         b = self.step_1.attribs[attrib]
@@ -484,10 +491,8 @@ class AdvancedPcModel(BasePcModel):
 
         d = a+b+c
 
-        for adv in self.advans:
-            if adv.type != 'attrib':
-                continue
-            if adv.attrib == attrib: d += 1
+        advancements = [x for x in self.advans if x.type == 'attrib' and x.attrib == attrib]
+        d += len(advancements)
 
         return d
 
@@ -498,10 +503,8 @@ class AdvancedPcModel(BasePcModel):
 
         d = a+b+c
 
-        for adv in self.advans:
-            if adv.type != 'attrib':
-                continue
-            if adv.attrib == attrib: d += 1
+        advancements = [x for x in self.advans if x.type == 'attrib' and x.attrib == attrib]
+        d += len(advancements)
 
         weakness_flaw = 'weak_%s' % attrib_name_from_id(attrib)
         if self.has_rule(weakness_flaw):
@@ -511,24 +514,10 @@ class AdvancedPcModel(BasePcModel):
     def get_void_rank(self):
         v = self.step_0.void + self.step_1.void + self.step_2.void
 
-        for adv in self.advans:
-            if adv.type != 'void':
-                continue
-            v += 1
+        advancements = [x for x in self.advans if x.type == 'void']
+        v += len(advancements)
 
         return v
-
-    # DEPRECATE
-    def get_family(self):
-        return self.family
-
-    # DEPRECATE
-    def set_current_school_id(self, school_id):
-        self.current_school_id = school_id
-
-    # DEPRECATE
-    def get_current_school_id(self):
-        return self.current_school_id
 
     def get_current_school(self):
         school = [x for x in self.schools if x.school_id == self.current_school_id]
@@ -583,10 +572,6 @@ class AdvancedPcModel(BasePcModel):
         return self.get_base_glory()
 ### ----- ###
 
-    # DEPRECATE
-    def get_infamy(self):
-        return self.infamy
-
 ### STATUS ###
     def get_status(self):
         value = self.step_0.status + self.step_1.status + self.step_2.status + self.status
@@ -594,10 +579,6 @@ class AdvancedPcModel(BasePcModel):
             value -= self.step_0.status
         return value
 ### ------ ###
-
-    # DEPRECATE
-    def get_taint(self):
-        return self.taint
 
 ### MAGIC AFFINITY ###
     def get_affinity(self):
@@ -628,8 +609,6 @@ class AdvancedPcModel(BasePcModel):
         if value > 149: return 2
         return 1
 
-    def set_insight_calc_method(self, func):
-        self.insight_calculation = func
 ### ------- ###
 
 
@@ -705,7 +684,7 @@ class AdvancedPcModel(BasePcModel):
 ### INITIATIVE ###
     def get_base_initiative(self):
         return (self.get_insight_rank() +
-               self.get_mod_attrib_rank(ATTRIBS.REFLEXES),
+                self.get_mod_attrib_rank(ATTRIBS.REFLEXES),
                 self.get_mod_attrib_rank(ATTRIBS.REFLEXES))
 
     def get_init_modifiers (self):
@@ -729,10 +708,7 @@ class AdvancedPcModel(BasePcModel):
 
 ### EXPERIENCE ###
     def get_px(self):
-        count = 0
-        for a in self.advans:
-            count += a.cost
-        return count
+        return sum( [x.cost for x in self.advans ] )
 
     def get_attrib_cost(self, idx):
         return self.attrib_costs[idx]
@@ -1113,7 +1089,7 @@ class AdvancedPcModel(BasePcModel):
 
         self.step_2.honor = honor
 
-        self.set_current_school_id(school_id)
+        self.current_school_id = school_id
 
         for t in tags:
             self.get_school().add_tag(t)
