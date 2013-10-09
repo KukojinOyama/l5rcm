@@ -595,3 +595,48 @@ class L5RCMCore(QtGui.QMainWindow):
         observer = debug.DebugObserver()
         observer.on_property_changed.connect(self.sink1.on_debug_prop_change)
         self.pc.set_observer( observer )
+
+    def join_alternate_path(self, school_id):
+        school_obj = dal.query.get_school(self.dstore, school_id)
+
+        if 'alternate' not in school_obj.tags:
+            print('{} is not an alternate path'.format(school_id))
+            return False
+
+        if len(school_obj.techs) != 1:
+            print('{} is not a valid alternate path.'.format(school_id))
+            return False
+
+        school_tech = school_obj.techs[0]
+        path_rank   = school_tech.rank
+
+        # create model object
+        school_model             = models.CharacterSchool(school_obj.id)
+        school_model.tags        = school_obj.tags
+        school_model.school_rank = path_rank # ???
+
+        school_model.affinity   = school_obj.affinity
+        school_model.deficiency = school_obj.deficiency
+
+        school_model.is_path = True
+        school_obj.path_rank = path_rank
+
+        # JOIN SCHOOL
+        self.pc.schools.append(school_model)
+
+        # check free kihos
+        if school_obj.kihos:
+            self.pc.free_kiho_count = school_obj.kihos.count
+
+        self.pc.current_school_id    = school_obj.id
+        self.pc.can_get_another_tech = False
+
+        # REMOVE THE OTHER TECH OF SAME RANK
+        for t in self.pc.get_techs():
+            tmp, tech_obj = dal.query.get_tech(self.dstore, t)
+            if tech_obj and tech_obj.rank == path_rank:
+                self.pc.remove_tech(tech_obj.id)
+                print("replacing technique {} with {}".format(tech_obj.id, school_tech.id))
+
+        # ADD SCHOOL TECH
+        self.pc.add_tech(school_tech.id, school_tech.id)

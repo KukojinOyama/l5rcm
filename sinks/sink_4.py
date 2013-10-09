@@ -163,3 +163,6 @@ class Sink4(QtCore.QObject):
             dlg.exec_()
         except Exception as e:
             print("cannot retrieve information from spell model.", e)
+
+    def act_replace_tech(self):
+        pass

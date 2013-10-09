@@ -812,6 +812,13 @@ class AdvancedPcModel(BasePcModel):
         if rule is not None and not self.has_rule(rule):
             school_.tech_rules.append(rule)
             self.set_dirty()
+
+    def remove_tech(self, tech_id):
+        for s in self.schools:
+            if tech_id in s.techs:
+                s.techs.remove(tech_id)
+                self.set_dirty()
+
 ### ---------- ###
 
 ### SPELLS ###
