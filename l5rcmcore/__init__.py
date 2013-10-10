@@ -543,21 +543,25 @@ class L5RCMCore(QtGui.QMainWindow):
         return False
 
     def buy_kiho(self, kiho):
-        adv = models.KihoAdv(kiho.id, kiho.id, self.calculate_kiho_cost(kiho))
-        adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, adv.cost )
+        rank_adv = self.pc.get_current_rank_advancement()
 
-        # monks can get free kihos
-        if self.pc.free_kiho_count > 0:
-            adv.cost = 0
+        if rank_adv and self.pc.free_kiho_count > 0:
+            rank_adv.kiho.append(kiho.id)
             self.pc.free_kiho_count -= 1
-            print('remaing free kihos', self.pc.free_kiho_count)
+        else:
+            adv = models.KihoAdv(kiho.id, kiho.id, self.calculate_kiho_cost(kiho))
 
-        if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
-            return CMErrors.NOT_ENOUGH_XP
+            # monks can get free kihos
+            if self.pc.free_kiho_count > 0:
+                adv.cost = 0
+                self.pc.free_kiho_count -= 1
 
-        self.pc.add_advancement( adv )
+            adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, adv.cost )
+            if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
+                return CMErrors.NOT_ENOUGH_XP
+            self.pc.add_advancement( adv )
+
         self.update_from_model()
-
         return CMErrors.NO_ERROR
 
     def buy_tattoo(self, kiho):
@@ -568,26 +572,6 @@ class L5RCMCore(QtGui.QMainWindow):
         self.update_from_model()
 
         return CMErrors.NO_ERROR
-
-    def get_highest_tech(self):
-        mt = None
-        ms = None
-        for t in self.pc.get_techs():
-            school, tech = dal.query.get_tech(self.dstore, t)
-            if not mt or tech.rank > mt.rank:
-                ms, mt = school, tech
-        return ms, mt
-
-    def get_highest_tech_in_current_school(self):
-        mt = None
-        ms = None
-        #print( self.pc.get_techs() )
-        for t in self.pc.get_techs():
-            school, tech = dal.query.get_tech(self.dstore, t)
-            if school.id != self.pc.current_school_id: continue
-            if not mt or tech.rank > mt.rank:
-                ms, mt = school, tech
-        return ms, mt
 
     def get_tech_rank(self, rank, school_id):
         for t in self.pc.get_techs():

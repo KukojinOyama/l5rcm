@@ -845,13 +845,21 @@ class AdvancedPcModel(BasePcModel):
         ls = []
         for s in self.schools:
             ls += s.spells
+        for a in self.get_rank_advancements():
+            ls += a.spells
+        for e in self.get_extra_spells():
+            ls.append(e)
         return ls
+
+    def get_extra_spells(self):
+        for obj in self.advans:
+            if obj.type == 'spell':
+                yield obj.spell
 
     def get_memorized_spells(self):
         for obj in self.advans:
-            if obj.type != 'memo_spell':
-                continue
-            yield obj.spell
+            if obj.type == 'memo_spell':
+                yield obj.spell
 
     def can_get_other_spells(self):
         if not self.has_tag('shugenja'):
@@ -862,26 +870,6 @@ class AdvancedPcModel(BasePcModel):
         if not self.has_tag('shugenja'):
             return 0
         return self.pending_spells_count
-
-    def pop_spells(self, count):
-        print('pop {0} spells'.format(count))
-        spells_count = len(self.get_spells())
-        print('I got {0} spells'.format(spells_count))
-        if count >= spells_count:
-            for s in self.schools:
-                print('resetting school spells')
-                s.spells = []
-        else:
-            for s in reversed(self.schools):
-                if s.school_id == self.get_school_id(0) and s.school_rank == 1:
-                    break
-                while count > 0 and len(s.spells) > 0:
-                    s.spells.pop()
-                    count -= 1
-                if count <= 0:
-                    break
-            print('now i got {} spells'.format(len(self.get_spells())))
-        self.set_dirty()
 
     def remove_spell(self, spell_id):
         for s in self.schools:
@@ -899,11 +887,15 @@ class AdvancedPcModel(BasePcModel):
         self.set_dirty()
 
     def add_spell(self, spell_uuid):
-        school_ = self.get_school()
-        if school_ is None or spell_uuid in self.get_spells():
+        if spell_uuid in self.get_spells():
             return
-        school_.spells.append(spell_uuid)
+        cur_rank_adv = self.get_current_rank_advancement()
+        if cur_rank_adv:
+            cur_rank_adv.spells.append(spell_uuid)
+        else:
+            self.add_free_spell(spell_uuid)
         self.set_dirty()
+
 ### ------ ###
 
 
@@ -930,28 +922,19 @@ class AdvancedPcModel(BasePcModel):
 
 ### KATA / KIHO ###
     def get_kata(self):
-        for obj in self.advans:
-            if obj.type != 'kata':
-                continue
-            yield obj
+        return [x.kata for x in self.advans if x.type == 'kata']
 
     def get_kiho(self):
-        for obj in self.advans:
-            if obj.type != 'kiho':
-                continue
-            yield obj
+        kl  = [x.kiho for x in self.advans if x.type == 'kiho']
+        for a in self.get_rank_advancements():
+            kl += a.kiho
+        return kl
 
     def has_kiho(self, kiho_id):
-        for obj in self.advans:
-            if obj.type == 'kiho' and kiho_id == obj.kiho:
-                return True
-        return False
+        return kiho_id in self.get_kiho()
 
     def has_kata(self, kata_id):
-        for obj in self.advans:
-            if obj.type == 'kata' and kata_id == obj.kata:
-                return True
-        return False
+        return kata_id in self.get_kata()
 
 ### ----------- ###
 
@@ -1140,48 +1123,6 @@ class AdvancedPcModel(BasePcModel):
         self.unlock_schools = not self.unlock_schools
         self.set_dirty()
 
-    def recalc_ranks(self):
-        insight_ = self.get_insight_rank()
-        schools_to_remove = []
-        print('I got {0} schools'.format(len(self.schools)))
-        for s in self.schools:
-            print('school {0}, rank {1}'.format( s.school_id, s.school_rank ))
-        tot_rank = sum( [x.school_rank for x in self.schools] )
-
-        print('insight rank: {0}, tot_rank: {1}'.format( insight_, tot_rank ))
-        if tot_rank > insight_:
-            diff_ = tot_rank - insight_
-            print('diff ranks: {0}'.format(diff_))
-            for s in reversed(self.schools):
-                while diff_ > 0 and s.school_rank > 0:
-                    if s.school_id == self.get_school_id(0) and s.school_rank == 1:
-                        break
-                    print('school {0} rank from {1} to {2}'.format(s.school_id, s.school_rank, s.school_rank-1))
-
-                    if len(s.techs) > 0:
-                        s.techs.pop()
-                    if len(s.tech_rules) > 0:
-                        s.tech_rules.pop()
-
-                    self.pop_spells(self.spells_per_rank)
-
-                    diff_         -= 1
-                    s.school_rank -= 1
-
-                    if s.school_rank == 0:
-                        schools_to_remove.append(s)
-                if diff_ <= 0:
-                    break
-            for s in schools_to_remove:
-                print('remove school', s)
-                self.schools.remove(s)
-
-        elif tot_rank < insight_:
-            if self.get_school() is not None:
-                self.get_school().school_rank += (insight_-tot_rank)
-                print('school {0} is now rank {1}'.format(self.current_school_id, self.get_school_rank()))
-
-
 class CharacterLoader(object):
 
     SAVE_FILE_VERSION = "4.0"
@@ -1363,7 +1304,6 @@ class CharacterLoader(object):
             a = adv.Advancement(None, None)
             self._load_obj(deepcopy(ad), a)
             dest.advans.append(a)
-
 
     def load_outfit(self, obj):
         dest = self.pc

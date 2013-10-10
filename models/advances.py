@@ -84,6 +84,11 @@ class KihoAdv(Advancement):
         self.kiho = kiho_id
         self.rule = rule
 
+class SpellAdv(Advancement):
+    def __init__(self, spell_id):
+        super(SpellAdv, self).__init__('spell', 0)
+        self.spell = spell_id
+
 class MemoSpellAdv(Advancement):
     def __init__(self, spell_id, cost):
         super(MemoSpellAdv, self).__init__('memo_spell', cost)
