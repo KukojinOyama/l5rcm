@@ -199,7 +199,6 @@ class AdvancedPcModel(BasePcModel):
         self._extra_notes = ''
         self._insight_calculation = None
         self._free_kiho_count = 0
-        self._can_get_another_tech = False
 
         self._modifiers  = []
         self._properties = {}
@@ -395,14 +394,15 @@ class AdvancedPcModel(BasePcModel):
         self._insight_calculation = value
 
     @property
-    def can_get_another_tech(self):
-        return self._can_get_another_tech
+    def can_advance_rank(self):
+        return (
+            self.get_insight_rank() > 1 and
+            len ([x for x in self.advans if x.type == 'rank' and x.insight_rank == self.get_insight_rank()]) == 0 )
 
-    @can_get_another_tech.setter
-    def can_get_another_tech(self, value):
-        self.notify_change('can_get_another_tech', self._can_get_another_tech, value, self)
-        self._can_get_another_tech = value
-        self.set_dirty()
+    @property
+    def can_get_another_tech(self):
+        rank_adv = self.get_current_rank_advancement()
+        return rank_adv and rank_adv.tech_id == None
 
     @property
     def free_kiho_count(self):
@@ -525,11 +525,13 @@ class AdvancedPcModel(BasePcModel):
         except Exception as e:
             return None
 
-    def get_school_rank(self, index = -1):
+    def get_school_rank(self, school_id = None):
+        if not school_id:
+            school_id = self.current_school_id
         try:
-            return self.get_school(index).school_rank
+            return max ( [x.school_rank for x in self.get_rank_advancements() if x.school_id == school_id] )
         except:
-            return 0
+            return 1
 
     def get_skill_rank(self, uuid):
         if uuid in self.get_school_skills():
@@ -796,10 +798,27 @@ class AdvancedPcModel(BasePcModel):
         ls = []
         for s in self.schools:
             ls += s.techs
+
+        for s in self.get_rank_advancements():
+            tech_replacement = self.get_tech_replacement(s.school_id, s.tech_id)
+            if tech_replacement:
+                ls.append(tech_replacement)
+            elif s.tech_id:
+                ls.append(s.tech_id)
+
+        #ls += [x.tech_id for x in self.get_rank_advancements() if x.tech_id]
+
         #if (self.step_2.school_tech is not None and
         #    self.step_2.school_tech not in ls):
         #       ls.insert(0, self.step_2.school_tech)
         return ls
+
+    def get_tech_replacement(self, school_id, tech_id):
+        for s in [x for x in self.advans if x.type == 'alternate_path']:
+            if (s.original_school_id == school_id and
+                s.original_tech_id   == tech_id ):
+                return s.tech_id
+        return None
 
     def add_tech(self, tech_uuid, rule = None):
         school_ = self.get_school()
@@ -1107,6 +1126,14 @@ class AdvancedPcModel(BasePcModel):
     def pop_advancement(self):
         self.advans.pop()
         self.set_dirty()
+
+    def get_rank_advancements(self):
+        return [x for x in self.advans if x.type == 'rank']
+
+    def get_current_rank_advancement(self):
+        l = [x for x in self.advans if x.type == 'rank' and not x.completed]
+        if len(l) > 0: return l[0]
+        return None
 ### ----------- ###
 
     def toggle_unlock_schools(self):
@@ -1315,10 +1342,6 @@ class CharacterLoader(object):
         dest.void_points          = source['void_points']
         dest.unlock_schools       = source['unlock_schools']
         dest.free_kiho_count      = source['free_kiho_count']
-        dest.can_get_another_tech = source['can_get_another_tech']
-
-        if 'last_rank' in source:
-            dest.last_rank = source['last_rank']
 
     def load_schools(self, obj):
         dest = self.pc
@@ -1431,8 +1454,6 @@ class CharacterLoader(object):
         obj['void_points'         ] = source.void_points
         obj['unlock_schools'      ] = source.unlock_schools
         obj['free_kiho_count'     ] = source.free_kiho_count
-        obj['can_get_another_tech'] = source.can_get_another_tech
-        obj['last_rank'           ] = source.last_rank
 
     def save_schools(self, obj):
         source = self.pc

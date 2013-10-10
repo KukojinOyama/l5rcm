@@ -1831,51 +1831,48 @@ class L5RMain(L5RCMCore):
 
     def learn_next_school_tech(self):
 
-        last_added_school = self.pc.schools [-1]
-
-        # next rank to learn
-        # next_rank = th.rank + 1
-
-        # tech to learn
-        tech_to_learn = None
-
-        # if this school was a path should go back to my old school
-        if last_added_school.is_path:
-            previous_school = dal.query.get_school(self.dstore, self.pc.current_school_id)
-            path_technique  = dal.query.get_school(self.dstore, last_added_school.school_id).techs[0]
-
-            if not previous_school:
-                print('cannot find previous school')
-                return False
-
-            tech_to_learn = dal.query.get_school_tech(previous_school, path_technique.rank+1)
-
-        else:
-            current_school_obj = dal.query.get_school(self.pc.current_school_id)
-            # should check if I changed my school
-            if len (self.pc.get_current_school().techs) == 0:
-                print('I just joined this school ( {} ) and needs to learn the first technique'.format(self.pc.current_school_id))
-                tech_to_learn = current_school_obj.techs[0]
-            else:
-                next_rank = self.pc.get_highest_tech_in_current_school() + 1
-                print('I continue my path on the school {} learning the next ranked technique, rank {}'.format(self.pc.current_school_id, next_rank))
-                tech_to_learn = dal.query.get_school_tech(current_school_obj, next_rank)
-
-        if not tech_to_learn:
-            print('cannot find next ranked technique')
+        adv = self.pc.get_current_rank_advancement()
+        if not adv:
+            print('learn_next_school_tech, no rank advancement found')
             return False
 
-        self.pc.add_tech(tech_to_learn.id, tech_to_learn.id)
-        print('learn tech {}'.format(tech_to_learn.id))
+        adv.school_id = self.pc.current_school_id
+        print("learn next school tech of {}".format(adv.school_id))
 
-        self.pc.recalc_ranks()
-        self.pc.can_get_another_tech = False
+        school_dal   = dal.query.get_school(self.dstore, adv.school_id)
+        school_techs = sorted( school_dal.techs,
+            cmp =lambda x,y: cmp(x.rank, y.rank) )
+
+        learned_tech = None
+
+        for t in school_techs:
+            if not self.has_tech_rank( t.rank, school_dal.id ):
+                adv.tech_rank   = t.rank
+                adv.tech_id     = t.id
+                adv.school_rank = t.rank
+                learned_tech = t
+                break
+
+        if not learned_tech:
+            print('I did not find any technique to learn')
+            return
+
+        try:
+            adv.desc = "{s1} {r1}, {t1}".format(
+                s1 = school_dal.name,
+                t1 = learned_tech.name,
+                r1 = adv.school_rank)
+        except:
+            print('cannot update advancement description')
+
+        self.pc.set_dirty()
+        #self.pc.recalc_ranks()
         self.update_from_model()
 
     def check_rank_advancement(self):
         if self.nicebar: return
 
-        if self.pc.get_insight_rank() > self.last_rank:
+        if self.pc.can_advance_rank:
             # HEY, NEW RANK DUDE!
 
             # get 3 spells each rank
@@ -1892,16 +1889,21 @@ class L5RMain(L5RCMCore):
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.show_advance_rank_dlg )
             self.show_nicebar([lb, bt])
+        else:
 
-            # debug
-            # dump_slots(self, 'after_a_while.txt')
+            rank_advancement_ended = (
+                not self.can_get_another_tech   () and
+                not self.pc.can_get_other_spells() and
+                self.pc.free_kiho_count == 0 )
+
+            if rank_advancement_ended:
+                self.end_rank_advancement()
 
     def check_school_tech_and_spells(self):
         if self.nicebar: return
 
         # Show nicebar if can get another school tech
-        if (self.pc.can_get_another_tech and
-            self.check_if_tech_available() and
+        if (self.can_get_another_tech() and
             self.check_tech_school_requirements()):
             self.learn_next_school_tech()
         elif self.pc.can_get_other_spells():
@@ -1973,7 +1975,7 @@ class L5RMain(L5RCMCore):
             self.show_nicebar([lb, bt])
 
     def learn_next_school_spells(self):
-        self.pc.recalc_ranks()
+        #self.pc.recalc_ranks()
 
         #dlg = dialogs.SelWcSpells(self.pc, self.dstore, self)
         dlg = dialogs.SpellAdvDialog(self.pc, self.dstore, 'bounded', self)
@@ -1994,7 +1996,7 @@ class L5RMain(L5RCMCore):
     def show_advance_rank_dlg(self):
         dlg = dialogs.NextRankDlg(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            self.last_rank = self.pc.get_insight_rank()
+            self.start_rank_advancement()
             self.update_from_model()
 
     def show_buy_skill_dlg(self):
@@ -2066,16 +2068,7 @@ class L5RMain(L5RCMCore):
             if self.debug:
                 self.set_debug_observer()
 
-            try:
-                if self.pc.last_rank > self.pc.get_insight_rank():
-                    print("ERROR. last_rank should never be > insight rank. I'll try to fix this.")
-                    self.pc.last_rank = self.pc.get_insight_rank()
-
-                self.last_rank = self.pc.last_rank
-            except:
-                self.last_rank = self.pc.get_insight_rank()
-
-            print('successfully load character from {0}, last rank: {1}; insight rank: {2}'.format(self.save_path, self.last_rank, self.pc.get_insight_rank()))
+            print('successfully load character from {}, insight rank: {}'.format(self.save_path, self.pc.get_insight_rank()))
 
             def school_free_kiho_count():
                 school = dal.query.get_school( self.dstore, self.pc.get_school_id(0) )
