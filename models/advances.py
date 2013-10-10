@@ -89,6 +89,30 @@ class MemoSpellAdv(Advancement):
         super(MemoSpellAdv, self).__init__('memo_spell', cost)
         self.spell = spell_id
 
+class RankAdv(Advancement):
+    def __init__(self, rank):
+        super(RankAdv, self).__init__('rank', 0)
+        self.insight_rank = rank
+
+        self.school_id    = None
+        self.school_rank  = 0
+        self.tech_id      = None
+        self.tech_rank    = 0
+        self.kiho         = []
+        self.kata         = []
+        self.spells       = []
+        self.tattoos      = []
+        self.completed    = False
+
+class AlternatePathAdv(Advancement):
+    def __init__(self, rank):
+        super(AlternatePathAdv, self).__init__('alternate_path', 0)
+        self.rank               = rank
+        self.school_id          = None
+        self.tech_id            = None
+        self.original_school_id = None
+        self.original_tech_id   = None
+
 class AdvancementViewModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):
         super(AdvancementViewModel, self).__init__(parent)
@@ -205,18 +229,20 @@ class AdvancementItemDelegate(QtGui.QStyledItemDelegate):
         main_font.setBold(True)
         painter.setFont  (main_font)
 
-        adv_nm      = tmp[0]
-        adv_nm_rect = font_metric.boundingRect(adv_nm)
-        painter.drawText(left_margin + option.rect.left(),
-                         option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
-                         adv_nm)
+        if len( tmp ) > 0:
+            adv_nm      = tmp[0]
+            adv_nm_rect = font_metric.boundingRect(adv_nm)
+            painter.drawText(left_margin + option.rect.left(),
+                             option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
+                             adv_nm)
 
-        main_font.setBold(False)
-        painter.setFont(main_font)
-        adv_nm      = tmp[1]
-        adv_nm_rect = font_metric.boundingRect(adv_nm)
-        painter.drawText(option.rect.right()-adv_nm_rect.width()-right_margin,
-                         option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
-                         adv_nm)
+        if len( tmp ) > 1:
+            main_font.setBold(False)
+            painter.setFont(main_font)
+            adv_nm      = tmp[1]
+            adv_nm_rect = font_metric.boundingRect(adv_nm)
+            painter.drawText(option.rect.right()-adv_nm_rect.width()-right_margin,
+                             option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
+                             adv_nm)
 
         painter.restore()

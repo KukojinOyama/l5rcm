@@ -105,11 +105,6 @@ class L5RCMCore(QtGui.QMainWindow):
         #print(repr(self))
         self.pc = None
 
-        # character stored insight rank
-        # used to knew if the character
-        # get new insight rank
-        self.last_rank = 1
-
         # Flag to lock advancement refunds in order
         self.lock_advancements = True
 
@@ -388,8 +383,12 @@ class L5RCMCore(QtGui.QMainWindow):
         if school:
             count  = len(school.techs)
             print('check_if_tech_available', school.id, count, self.pc.get_school_rank())
-            return count >= self.pc.get_school_rank()
+            return count > self.pc.get_school_rank()
         return False
+
+    def can_get_another_tech(self):
+        return ( self.pc.can_get_another_tech and
+                 self.check_if_tech_available() )
 
     def check_tech_school_requirements(self):
         # one should have at least one rank in all school skills
@@ -582,7 +581,7 @@ class L5RCMCore(QtGui.QMainWindow):
     def get_highest_tech_in_current_school(self):
         mt = None
         ms = None
-        print( self.pc.get_techs() )
+        #print( self.pc.get_techs() )
         for t in self.pc.get_techs():
             school, tech = dal.query.get_tech(self.dstore, t)
             if school.id != self.pc.current_school_id: continue
@@ -590,11 +589,39 @@ class L5RCMCore(QtGui.QMainWindow):
                 ms, mt = school, tech
         return ms, mt
 
+    def get_tech_rank(self, rank, school_id):
+        for t in self.pc.get_techs():
+            school, tech = dal.query.get_tech(self.dstore, t)
+            if not tech  : continue
+            if not school: continue
+            if school.id == school_id and tech.rank == rank: return tech
+        return None
+
+    def has_tech_rank(self, rank, school_id):
+        return self.get_tech_rank(rank, school_id) != None
+
     def set_debug_observer(self):
         import debug
         observer = debug.DebugObserver()
         observer.on_property_changed.connect(self.sink1.on_debug_prop_change)
         self.pc.set_observer( observer )
+
+    def start_rank_advancement(self):
+        # begin rank advancement
+        print('begin rank advancement')
+        adv = models.RankAdv( self.pc.get_insight_rank() )
+        adv.desc = "{}, {} {}".format(
+            self.tr("Rank advancement"),
+            self.tr("Insight Rank"),
+            self.pc.get_insight_rank() )
+        self.pc.add_advancement(adv)
+
+    def end_rank_advancement(self):
+        # end rank advancement
+        print('end rank advancement')
+        for adv in [x for x in self.pc.advans if x.type == 'rank' and not x.completed]:
+            adv.completed = True
+            self.pc.set_dirty()
 
     def join_alternate_path(self, school_id):
         school_obj = dal.query.get_school(self.dstore, school_id)
@@ -610,35 +637,19 @@ class L5RCMCore(QtGui.QMainWindow):
         school_tech = school_obj.techs[0]
         path_rank   = school_tech.rank
 
-        # create model object
-        school_model             = models.CharacterSchool(school_obj.id)
-        school_model.tags        = school_obj.tags
-        school_model.school_rank = path_rank # ???
+        replaced_tech = self.get_tech_rank(path_rank, self.pc.current_school_id)
+        if not replaced_tech:
+            print("cannot find the technique to replace")
 
-        school_model.affinity   = school_obj.affinity
-        school_model.deficiency = school_obj.deficiency
+        adv = models.AlternatePathAdv(path_rank)
+        adv.original_school_id = self.pc.current_school_id
+        adv.original_tech_id   = replaced_tech.id
+        adv.school_id          = school_id
+        adv.tech_id            = school_tech.id
+        adv.desc               = "{}, {}".format( school_obj.name, school_tech.name )
 
-        school_model.is_path = True
-        school_model.path_rank = path_rank
+        print('replace {} with {} of {}'.format(adv.original_tech_id, adv.tech_id, adv.school_id ))
 
-        # JOIN SCHOOL
-        self.pc.schools.append(school_model)
-
-        # check free kihos
-        if school_obj.kihos:
-            self.pc.free_kiho_count = school_obj.kihos.count
-
-        self.pc.current_school_id    = school_obj.id
-        self.pc.can_get_another_tech = False
-
-        # REMOVE THE OTHER TECH OF SAME RANK
-        for t in self.pc.get_techs():
-            tmp, tech_obj = dal.query.get_tech(self.dstore, t)
-            if tech_obj and tech_obj.rank == path_rank:
-                self.pc.remove_tech(tech_obj.id)
-                print("replacing technique {} with {}, path rank {}".format(tech_obj.id, school_tech.id, path_rank))
-
-        # ADD SCHOOL TECH
-        self.pc.add_tech(school_tech.id, school_tech.id)
-
+        self.pc.add_advancement(adv)
+        self.pc.current_school_id = school_id
         self.update_from_model()

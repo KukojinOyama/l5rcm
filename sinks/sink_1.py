@@ -31,7 +31,6 @@ class Sink1(QtCore.QObject):
     def new_character(self):
         form = self.form
 
-        form.last_rank = 1
         form.save_path = ''
         form.pc = models.AdvancedPcModel()
         form.pc.load_default()
@@ -61,9 +60,6 @@ class Sink1(QtCore.QObject):
 
         if form.save_path is not None and len(form.save_path) > 0:
             form.pc.extra_notes = form.tx_pc_notes.get_content()
-            # pending rank advancement?
-            form.pc.last_rank = form.last_rank
-            #form.pc.save_to(form.save_path)
 
             from models.chmodel import CharacterLoader
             cl = CharacterLoader()
@@ -108,15 +104,15 @@ class Sink1(QtCore.QObject):
         form = self.form
 
         form.pc.advans = []
-        form.pc.recalc_ranks()
+        #form.pc.recalc_ranks()
         form.update_from_model()
 
     def refund_last_adv(self):
         form = self.form
         '''pops last advancement and recalculate ranks'''
         if len(form.pc.advans) > 0:
-            adv = form.pc.advans.pop()
-            form.pc.recalc_ranks()
+            form.pc.advans.pop()
+            #form.pc.recalc_ranks()
             form.update_from_model()
 
     def act_buy_perk(self):
@@ -247,7 +243,7 @@ class Sink1(QtCore.QObject):
 
         if self.warn_about_refund():
             del form.pc.advans[adv_idx]
-            form.pc.recalc_ranks()
+            #form.pc.recalc_ranks()
             form.update_from_model()
             return True
         return False
