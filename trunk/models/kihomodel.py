@@ -36,7 +36,7 @@ class KihoTableViewModel(QtCore.QAbstractTableModel):
         self.headers = ['Name', 'Mastery', 'Element']
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
-                            QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
+                            QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]
         self.item_size = QtCore.QSize(28, 28)
         self.dstore = dstore
 
@@ -67,7 +67,7 @@ class KihoTableViewModel(QtCore.QAbstractTableModel):
         elif role == QtCore.Qt.ForegroundRole:
             return self.text_color
         elif role == QtCore.Qt.BackgroundRole:
-            return self.bg_color[ index.row() % 2 ]            
+            return self.bg_color[ index.row() % 2 ]
         elif role == QtCore.Qt.SizeHintRole:
             return self.item_size
         elif role == QtCore.Qt.UserRole:
@@ -93,7 +93,7 @@ class KihoTableViewModel(QtCore.QAbstractTableModel):
 
     def build_item_model(self, ki_id):
         itm = KihoItemModel()
-        ki = dal.query.get_kiho(self.dstore, ki_id.kiho)
+        ki = dal.query.get_kiho(self.dstore, ki_id)
         if ki:
             itm.id       = ki.id
             itm.adv      = ki_id
@@ -104,20 +104,19 @@ class KihoTableViewModel(QtCore.QAbstractTableModel):
             except:
                 itm.element = ki.element
             itm.text     = ki.desc
+
+            if ki.type == 'tattoo':
+                itm.mastery = "N/A"
+                itm.element = "Tattoo"
         else:
-            print('cannot find kiho: {0}'.format(ki_id.kiho))
-            
-        if ki.type == 'tattoo':
-            itm.mastery = "N/A"
-            itm.element = "Tattoo"
-        
+            print('cannot find kiho: {0}'.format(ki_id))
+
         return itm
 
     def update_from_model(self, model):
         kiho = model.get_kiho()
 
         self.clean()
-        for s in kiho:           
+        for s in kiho:
             itm = self.build_item_model(s)
             self.add_item(itm)
-     

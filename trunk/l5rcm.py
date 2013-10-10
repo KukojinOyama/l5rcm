@@ -1663,10 +1663,6 @@ class L5RMain(L5RCMCore):
         print('outfit', school.outfit)
         self.pc.set_school_outfit( school.outfit, tuple(school.money) )
 
-        # outfit
-        print('outfit', school.outfit)
-        self.pc.set_school_outfit( school.outfit, tuple(school.money) )
-
         # if shugenja get universal spells
         # also player should choose some spells from list
 
@@ -1889,7 +1885,7 @@ class L5RMain(L5RCMCore):
                               QtGui.QSizePolicy.Preferred)
             bt.clicked.connect( self.show_advance_rank_dlg )
             self.show_nicebar([lb, bt])
-        else:
+        elif self.pc.get_current_rank_advancement() is not None:
 
             rank_advancement_ended = (
                 not self.can_get_another_tech   () and

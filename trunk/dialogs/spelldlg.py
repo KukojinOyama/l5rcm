@@ -220,6 +220,14 @@ class SpellAdvDialog(QtGui.QDialog):
     def accept(self):
         for s in self.selected:
             if not s: return False # do not exit the form!!!
-            self.pc.add_spell(s.id)
+
+            if self.mode == 'freeform':
+                # add spell advancement
+                adv = models.SpellAdv(s.id)
+                adv.desc = "{}, {} {}".format(s.name, s.element, s.mastery)
+                self.pc.add_advancement(adv)
+            else:
+                self.pc.add_spell(s.id)
+
         super(SpellAdvDialog, self).accept()
 
