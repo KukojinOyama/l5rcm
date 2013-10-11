@@ -396,7 +396,7 @@ class AdvancedPcModel(BasePcModel):
     @property
     def can_advance_rank(self):
         return (
-            self.get_insight_rank() > 1 and
+            #self.get_insight_rank() > 1 and
             len ([x for x in self.advans if x.type == 'rank' and x.insight_rank == self.get_insight_rank()]) == 0 )
 
     @property
@@ -568,10 +568,21 @@ class AdvancedPcModel(BasePcModel):
 
 ### MAGIC AFFINITY ###
     def get_affinity(self):
-        return [ x.affinity for x in self.schools if x.affinity is not None ]
+        return set(
+            [x.affinity for x in self.get_rank_advancements() if x.affinity is not None])
+        #return [ x.affinity for x in self.schools if x.affinity is not None ]
 
     def get_deficiency(self):
-        return [ x.deficiency for x in self.schools if x.deficiency is not None ]
+        return set(
+            [x.deficiency for x in self.get_rank_advancements() if x.deficiency is not None])
+
+    def set_affinity(self, value): pass
+        #self.get_school().affinity = value
+        #self.set_dirty()
+
+    def set_deficiency(self, value): pass
+        #self.get_school().deficiency = value
+        #self.set_dirty()
 ### -------------- ###
 
 ### INSIGHT ###
@@ -736,16 +747,22 @@ class AdvancedPcModel(BasePcModel):
 ### --------- ###
 
 ### SKILLS ###
+    def get_school_skills_dict(self):
+        skills = {}
+        for sl in [x.skills for x in self.get_rank_advancements()]:
+            skills += sl
+        return skills
+
     def get_school_skills(self):
-        school_ = self.get_school(0)
-        if school_ is None: return []
-        return school_.skills.keys()
+        return self.get_school_skills_dict().keys()
+        #school_ = self.get_school(0)
+        #if school_ is None: return []
+        #return school_.skills.keys()
 
     def get_school_skill_rank(self, uuid):
-        s_id = str(uuid)
-        school_ = self.get_school(0)
-        if school_ is None or s_id not in school_.skills: return 0
-        return school_.skills[s_id]
+        sd = self.get_school_skills_dict()
+        if uuid not in sd: return 0
+        return sd[uuid]
 
     def get_skills(self, school = True):
         l = []
@@ -806,11 +823,6 @@ class AdvancedPcModel(BasePcModel):
             elif s.tech_id:
                 ls.append(s.tech_id)
 
-        #ls += [x.tech_id for x in self.get_rank_advancements() if x.tech_id]
-
-        #if (self.step_2.school_tech is not None and
-        #    self.step_2.school_tech not in ls):
-        #       ls.insert(0, self.step_2.school_tech)
         return ls
 
     def get_tech_replacement(self, school_id, tech_id):
@@ -824,7 +836,7 @@ class AdvancedPcModel(BasePcModel):
         school_ = self.get_school()
         if school_ is None:
             return
-        #print 'add tech %s, rule %s' % ( repr(tech_uuid), rule )
+
         if tech_uuid not in self.get_techs():
             school_.techs.append(tech_uuid)
             self.set_dirty()
@@ -1090,14 +1102,6 @@ class AdvancedPcModel(BasePcModel):
     def set_status(self, value):
         base_status = self.step_0.status + self.step_1.status + self.step_2.status
         self.status = value - base_status
-        self.set_dirty()
-
-    def set_affinity(self, value):
-        self.get_school().affinity = value
-        self.set_dirty()
-
-    def set_deficiency(self, value):
-        self.get_school().deficiency = value
         self.set_dirty()
 ### --------------------------- ###
 

@@ -590,10 +590,16 @@ class L5RCMCore(QtGui.QMainWindow):
         observer.on_property_changed.connect(self.sink1.on_debug_prop_change)
         self.pc.set_observer( observer )
 
-    def start_rank_advancement(self):
+    def start_rank_advancement(self, new_school):
         # begin rank advancement
         print('begin rank advancement')
         adv = models.RankAdv( self.pc.get_insight_rank() )
+
+        if new_school:
+            print('character joins a new school {}'.format(new_school.school_id))
+            adv.school_id = new_school.school_id
+            adv.affinity  = new_school.affinity
+
         adv.desc = "{}, {} {}".format(
             self.tr("Rank advancement"),
             self.tr("Insight Rank"),
