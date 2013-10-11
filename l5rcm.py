@@ -151,7 +151,7 @@ class L5RMain(L5RCMCore):
         self.sink1 = sinks.Sink1(self) # Menu Sink
         self.sink2 = sinks.Sink2(self) # MeritFlaw Sink
         self.sink3 = sinks.Sink3(self) # Weapons Sink
-        self.sink4 = sinks.Sink4(self) # Weapons Sink
+        self.sink4 = sinks.Sink4(self) # Misc Sink
 
         # Build interface and menus
         self.build_ui()
@@ -1585,7 +1585,6 @@ class L5RMain(L5RCMCore):
             self.not_enough_xp_advise(self)
 
     def on_clan_change(self, text):
-        #print 'on_clan_change %s' % text
         #self.cb_pc_family.clear()
         index = self.cb_pc_clan.currentIndex()
         if index < 0:
@@ -1992,7 +1991,7 @@ class L5RMain(L5RCMCore):
     def show_advance_rank_dlg(self):
         dlg = dialogs.NextRankDlg(self.pc, self.dstore, self)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            self.start_rank_advancement()
+            self.start_rank_advancement(dlg.new_school)
             self.update_from_model()
 
     def show_buy_skill_dlg(self):
@@ -2055,7 +2054,6 @@ class L5RMain(L5RCMCore):
         from models.chmodel import CharacterLoader
         cl = CharacterLoader()
 
-        #if self.pc.load_from(path):
         if cl.load_from_file(path):
 
             self.pc = cl.model()
@@ -2065,16 +2063,6 @@ class L5RMain(L5RCMCore):
                 self.set_debug_observer()
 
             print('successfully load character from {}, insight rank: {}'.format(self.save_path, self.pc.get_insight_rank()))
-
-            def school_free_kiho_count():
-                school = dal.query.get_school( self.dstore, self.pc.get_school_id(0) )
-                if school.kihos == None: return 0
-                return school.kihos.count
-
-            # HACK. Fix free kiho for old characters created with 3 free kihos
-            if self.pc.free_kiho_count == 3 and school_free_kiho_count() != 3:
-                print("Fix free kiho for old characters created with 3 free kihos")
-                self.pc.free_kiho_count = school_free_kiho_count()
 
             #TODO: checks for books / data extensions
 
@@ -2086,7 +2074,7 @@ class L5RMain(L5RCMCore):
 
             self.tx_pc_notes.set_content(self.pc.extra_notes)
             self.pc.insight_calculation = self.ic_calc_method
-            self.check_rules()
+            #self.check_rules()
             self.update_from_model()
         else:
             print('character load failure')
@@ -2297,6 +2285,9 @@ class L5RMain(L5RCMCore):
         self.cb_pc_clan  .setEnabled( not has_adv )
         self.cb_pc_school.setEnabled( not has_adv )
         self.cb_pc_family.setEnabled( not has_adv )
+
+        # FIXME, this is temporary
+        self.cb_pc_school.setEnabled( False )
 
         # Update view-models
         self.sk_view_model    .update_from_model(self.pc)

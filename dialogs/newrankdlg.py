@@ -22,6 +22,9 @@ import models
 import widgets
 
 class NextRankDlg(QtGui.QDialog):
+
+    _new_school = None
+
     def __init__(self, pc, dstore, parent = None):
         super(NextRankDlg, self).__init__(parent)
         self.pc     = pc
@@ -32,6 +35,14 @@ class NextRankDlg(QtGui.QDialog):
 
         #self.setWindowFlags(QtCore.Qt.Tool)
         self.setWindowTitle(self.tr("L5R: CM - Advance Rank"))
+
+    def exec_(self):
+        # first school ?
+        if self.pc.get_insight_rank() == 1:
+            self.join_new_school()
+            return QtGui.QDialog.DialogCode.Accepted
+        else:
+            return super(NextRankDlg, self).exec_()
 
     def build_ui(self):
         vbox = QtGui.QVBoxLayout(self)
@@ -58,14 +69,18 @@ what would you want to do?
         vbox.setSpacing(12)
 
         # check if the PC is following an alternate path
-        if self.pc.get_school().is_path:
-            # offer to going back
-            self.bt_go_on.setText( self.tr("Go back to your old school"))
+        #if self.pc.get_school().is_path:
+        #    # offer to going back
+        #    self.bt_go_on.setText( self.tr("Go back to your old school"))
 
     def connect_signals(self):
         self.bt_go_on.clicked.connect(self.simply_go_on)
         self.bt_new_school_1.clicked.connect(self.merit_plus_school)
         self.bt_new_school_2.clicked.connect(self.join_new_school)
+
+    @property
+    def new_school(self):
+        return self._new_school
 
     def join_new_school(self):
         dlg = SchoolChoiceDlg(self.pc, self.dstore, parent = self)
@@ -74,7 +89,6 @@ what would you want to do?
             return
         sc = dal.query.get_school(self.dstore, dlg.get_school_id())
 
-        school_nm  = sc.name
         school_obj = models.CharacterSchool(sc.id)
         school_obj.tags = sc.tags
         school_obj.school_rank = 0
@@ -82,16 +96,12 @@ what would you want to do?
         school_obj.affinity   = sc.affinity
         school_obj.deficiency = sc.deficiency
 
-        self.pc.schools.append(school_obj)
+        #self.pc.schools.append(school_obj)
+        self._new_school = school_obj
 
         # check free kihos
         if sc.kihos:
             self.pc.free_kiho_count = sc.kihos.count
-
-        # check for alternate path
-        if school_obj.has_tag('alternate'):
-            school_obj.is_path = True
-            school_obj.path_rank = self.pc.get_insight_rank()
 
         self.pc.current_school_id  = sc.id
 

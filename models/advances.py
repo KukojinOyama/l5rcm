@@ -106,7 +106,12 @@ class RankAdv(Advancement):
         self.kiho         = []
         self.kata         = []
         self.spells       = []
-        self.tattoos      = []
+        self.tags         = []
+        self.outfit       = []
+        self.skills       = {}
+        self.emph         = {}
+        self.affinity     = None
+        self.deficiency   = None
         self.completed    = False
 
 class AlternatePathAdv(Advancement):
