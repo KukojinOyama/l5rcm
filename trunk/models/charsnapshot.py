@@ -46,9 +46,12 @@ class CharacterSnapshot(object):
         for k, v in [ (ring_name_from_id(i), pc.get_ring_rank(i)) for i in xrange(0, 5) ]:
             self.rings[k] = v
 
-        for k, v in [ (x.school_id, x.school_rank) for x in pc.schools ]:
+        for k, v in [ (x.school_id, x.school_rank) for x in pc.get_rank_advancements() ]:
             print('copy school {} rank {}'.format(k, v))
-            self.schools[k] = v
+            if k in self.schools:
+                self.schools[k] = max( v, self.schools[k] )
+            else:
+                self.schools[k] = v
 
         self.tags += pc.tags
         self.tags += pc.step_1.tags
