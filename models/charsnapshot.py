@@ -55,8 +55,8 @@ class CharacterSnapshot(object):
         for s in pc.schools:
             self.tags += s.tags
 
-        for s in pc.schools:
-            self.rules += s.tech_rules
+        #for s in pc.schools:
+        #    self.rules += s.tech_rules
         self.rules += [ x.rule for x in pc.advans if hasattr(x,'rule') ]
 
         self.insight_rank = pc.get_insight_rank()

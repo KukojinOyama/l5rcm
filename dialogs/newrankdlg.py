@@ -33,14 +33,15 @@ class NextRankDlg(QtGui.QDialog):
         self.build_ui()
         self.connect_signals()
 
-        #self.setWindowFlags(QtCore.Qt.Tool)
         self.setWindowTitle(self.tr("L5R: CM - Advance Rank"))
 
     def exec_(self):
         # first school ?
         if self.pc.get_insight_rank() == 1:
-            self.join_new_school()
-            return QtGui.QDialog.DialogCode.Accepted
+            if self.join_new_school():
+                return QtGui.QDialog.DialogCode.Accepted
+            else:
+                return QtGui.QDialog.DialogCode.Rejected
         else:
             return super(NextRankDlg, self).exec_()
 
@@ -85,8 +86,7 @@ what would you want to do?
     def join_new_school(self):
         dlg = SchoolChoiceDlg(self.pc, self.dstore, parent = self)
         if dlg.exec_() == QtGui.QDialog.Rejected:
-            #self.reject()
-            return
+            return False
         sc = dal.query.get_school(self.dstore, dlg.get_school_id())
 
         school_obj = models.CharacterSchool(sc.id)
@@ -106,6 +106,8 @@ what would you want to do?
         self.pc.current_school_id  = sc.id
 
         self.accept()
+
+        return True
 
     def merit_plus_school(self):
 

@@ -112,6 +112,7 @@ class RankAdv(Advancement):
         self.emph         = {}
         self.affinity     = None
         self.deficiency   = None
+        self.bonus_trait  = None
         self.completed    = False
 
 class AlternatePathAdv(Advancement):
