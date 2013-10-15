@@ -126,6 +126,9 @@ class Requirement(object):
         return r
 
     def match_wc_school(self, pc, dstore):
+
+        print('need a school {} of rank in range {}-{}'.format(self.field, self.min, self.max))
+
         r = False
         if self.field == '*any': # any school
             for k in pc.get_schools():

@@ -576,13 +576,21 @@ class L5RCMCore(QtGui.QMainWindow):
     def get_tech_rank(self, rank, school_id):
         for t in self.pc.get_techs():
             school, tech = dal.query.get_tech(self.dstore, t)
-            if not tech  : continue
-            if not school: continue
+            if not tech or not school: continue
             if school.id == school_id and tech.rank == rank: return tech
         return None
 
+    def get_alternate_tech_rank(self, rank, school_id):
+        for t in self.pc.get_alternate_paths():
+            if ( t.original_school_id == school_id and t.rank == rank ):
+                school, tech = dal.query.get_tech(self.dstore, t.tech_id)
+                if not tech or not school: continue
+                return tech
+        return None
+
     def has_tech_rank(self, rank, school_id):
-        return self.get_tech_rank(rank, school_id) != None
+        return ( self.get_tech_rank(rank, school_id) is not None or
+                 self.get_alternate_tech_rank(rank, school_id) )
 
     def set_debug_observer(self):
         import debug
@@ -592,7 +600,7 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def start_rank_advancement(self, new_school):
         # begin rank advancement
-        print('begin rank advancement')
+        print('begin rank advancement for insight rank {}'.format( self.pc.get_insight_rank()) )
         adv = models.RankAdv( self.pc.get_insight_rank() )
 
         if new_school:
@@ -630,6 +638,7 @@ class L5RCMCore(QtGui.QMainWindow):
         replaced_tech = self.get_tech_rank(path_rank, self.pc.current_school_id)
         if not replaced_tech:
             print("cannot find the technique to replace")
+            return False
 
         adv = models.AlternatePathAdv(path_rank)
         adv.original_school_id = self.pc.current_school_id

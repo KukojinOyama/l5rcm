@@ -67,9 +67,10 @@ def new_item_groupbox(name, widget):
 def new_small_plus_bt(parent = None):
     bt = QtGui.QToolButton(parent)
     bt.setAutoRaise(True)
-    bt.setText('+')
+    #bt.setText('+')
     bt.setIcon( QtGui.QIcon.fromTheme('gtk-add', QtGui.QIcon( get_icon_path('add', (16,16)))) )
-    bt.setMaximumSize(16,16)
+    bt.setIconSize( QtCore.QSize(16,16) )
+    bt.setMaximumSize(24,24)
     bt.setMinimumSize(16,16)
     bt.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
     return bt
@@ -1832,7 +1833,6 @@ class L5RMain(L5RCMCore):
             return False
 
         adv.school_id = self.pc.current_school_id
-        print("learn next school tech of {}".format(adv.school_id))
 
         school_dal   = dal.query.get_school(self.dstore, adv.school_id)
         school_techs = sorted( school_dal.techs,
@@ -1847,6 +1847,8 @@ class L5RMain(L5RCMCore):
                 adv.school_rank = t.rank
                 learned_tech = t
                 break
+
+        print("learn next school tech of {}: {}, rank {}".format(adv.school_id, adv.tech_id, adv.tech_rank))
 
         if not learned_tech:
             print('I did not find any technique to learn')

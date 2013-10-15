@@ -1136,6 +1136,9 @@ class AdvancedPcModel(BasePcModel):
         l = [x for x in self.advans if x.type == 'rank' and not x.completed]
         if len(l) > 0: return l[0]
         return None
+
+    def get_alternate_paths(self):
+        return [x for x in self.advans if x.type == 'alternate_path']
 ### ----------- ###
 
     def toggle_unlock_schools(self):

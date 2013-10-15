@@ -139,12 +139,14 @@ what would you want to do?
 
     def simply_go_on(self):
         # check if the PC is following an alternate path
-        if self.pc.get_school().is_path:
+        #if self.pc.get_school().is_path:
             # the PC want to go back to the old school.
             # find the first school that is not a path
-            for s in reversed(self.pc.schools):
-                if not s.is_path:
-                    self.pc.current_school_id = s.school_id
+        #    for s in reversed(self.pc.schools):
+        #        if not s.is_path:
+        #            self.pc.current_school_id = s.school_id
+
+        self.pc.current_school_id = self.pc.get_rank_advancements() [-1].school_id
 
         self.accept()
 
