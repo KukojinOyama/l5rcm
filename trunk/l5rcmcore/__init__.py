@@ -643,3 +643,71 @@ class L5RCMCore(QtGui.QMainWindow):
         self.pc.add_advancement(adv)
         self.pc.current_school_id = school_id
         self.update_from_model()
+
+    def do_first_advancement(self, school_id):
+
+        # on first advancement
+        # we need to:
+        # 1. add the first school technique
+        # 2. add school outfit
+        # 3. add affinity / deficiency
+        # 4. add free kihos
+        # 5. add pending/wildcard stuff
+        # 6. tags, rules
+
+        cur_adv = self.pc.get_current_rank_advancement()
+        cur_adv.school_id = school_id
+        if not cur_adv: return False
+
+        school = dal.query.get_school(self.dstore, cur_adv.school_id)
+        clan   = dal.query.get_clan  (self.dstore, school.clanid)
+
+        try:
+            self.pc.set_school(school.id, school.trait, 1, school.honor, school.tags + [school.id, clan.id])
+        except:
+            self.pc.set_school(school.id, None, None, None)
+
+        for sk in school.skills:
+            self.pc.add_school_skill(sk.id, sk.rank, sk.emph)
+
+        # player choose ( aka wildcards )
+        for sk in school.skills_pc:
+            self.pc.add_pending_wc_skill(sk)
+
+        # get school tech rank 1
+        tech0 = dal.query.get_school_tech(school, 1)
+        # rule == techid ???
+
+        if tech0:
+            self.pc.set_free_school_tech(tech0.id, tech0.id)
+
+        # outfit
+        print('outfit', school.outfit)
+        self.pc.set_school_outfit( school.outfit, tuple(school.money) )
+
+        # if shugenja get universal spells
+        # also player should choose some spells from list
+
+        if 'shugenja' in school.tags:
+            count = 0
+            for spell in school.spells:
+                self.pc.add_free_spell(spell.id)
+                count += 1
+
+            for spell in school.spells_pc:
+                self.pc.add_pending_wc_spell((spell.element, spell.count, spell.tag))
+                count += spell.count
+
+            print('starting spells count are {0}'.format(count))
+            self.pc.set_school_spells_qty(count)
+
+            # affinity / deficiency
+            print('school: {0}, affinity: {1}, deficiency: {2}'.format(school, school.affinity, school.deficiency))
+            cur_adv.affinity   = school.affinity
+            cur_adv.deficiency = school.deficiency
+
+        # free kihos ?
+        if school.kihos:
+            self.pc.free_kiho_count = school.kihos.count
+
+        self.update_from_model()

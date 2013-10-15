@@ -568,13 +568,11 @@ class AdvancedPcModel(BasePcModel):
 
 ### MAGIC AFFINITY ###
     def get_affinity(self):
-        return set(
-            [x.affinity for x in self.get_rank_advancements() if x.affinity is not None])
+        return [x.affinity for x in self.get_rank_advancements() if x.affinity is not None]
         #return [ x.affinity for x in self.schools if x.affinity is not None ]
 
     def get_deficiency(self):
-        return set(
-            [x.deficiency for x in self.get_rank_advancements() if x.deficiency is not None])
+        return [x.deficiency for x in self.get_rank_advancements() if x.deficiency is not None]
 
     def set_affinity(self, value): pass
         #self.get_school().affinity = value
@@ -750,7 +748,8 @@ class AdvancedPcModel(BasePcModel):
     def get_school_skills_dict(self):
         skills = {}
         for sl in [x.skills for x in self.get_rank_advancements()]:
-            skills += sl
+            skills.update(sl)
+            #skills += sl
         return skills
 
     def get_school_skills(self):
@@ -789,9 +788,10 @@ class AdvancedPcModel(BasePcModel):
                 emph.append(obj.text)
         return emph
 
-    def add_school_skill(self, skill_uid, skill_rank, emph = None):
-        s_id = str(skill_uid)
-        school_ = self.get_school(0)
+    def add_school_skill(self, s_id, skill_rank, emph = None):
+        if len ( self.get_rank_advancements() ) == 0:
+            return
+        school_ = self.get_rank_advancements() [0]
         if school_ is None:
             return
 
@@ -802,7 +802,6 @@ class AdvancedPcModel(BasePcModel):
         if emph is not None:
             if s_id not in school_.emph:
                 school_.emph[s_id] = []
-
             if emph.startswith('*'):
                 self.add_pending_wc_emph( s_id )
             else:
@@ -840,9 +839,9 @@ class AdvancedPcModel(BasePcModel):
         if tech_uuid not in self.get_techs():
             school_.techs.append(tech_uuid)
             self.set_dirty()
-        if rule is not None and not self.has_rule(rule):
-            school_.tech_rules.append(rule)
-            self.set_dirty()
+        #if rule is not None and not self.has_rule(rule):
+        #    school_.tech_rules.append(rule)
+        #    self.set_dirty()
 
     def remove_tech(self, tech_id):
         for s in self.schools:
@@ -892,7 +891,9 @@ class AdvancedPcModel(BasePcModel):
         self.set_dirty()
 
     def add_free_spell(self, spell_uuid):
-        school_ = self.get_school(0)
+        if len( self.get_rank_advancements() ) == 0:
+            return
+        school_ = self.get_rank_advancements() [0]
         if school_ is None or spell_uuid in self.get_spells():
             return
         school_.spells.append(spell_uuid)
@@ -952,38 +953,44 @@ class AdvancedPcModel(BasePcModel):
 
 ### TAGS AND RULES ###
     def has_tag(self, tag):
-        school_tags = []
-        for s in self.schools:
-            school_tags += s.tags
+        advancement_tags = []
+        for a in self.get_rank_advancements():
+            advancement_tags += a.tags
         return (tag in self.tags or
+                tag in advancement_tags or
                 self.step_1.has_tag(tag) or
-                tag in school_tags)
+                self.step_2.has_tag(tag))
 
     def has_rule(self, rule):
-        school_rules = []
-        for s in self.schools:
-            school_rules += s.tech_rules
+        #school_rules = []
+        #for s in self.schools:
+        #    school_rules += s.tech_rules
 
         for obj in self.advans:
             if hasattr(obj, 'rule') and obj.rule == rule:
                 return True
-        return rule in school_rules
+
+        # rules might include tags
+        return self.has_tag(rule)
 
     def cnt_rule(self, rule):
-        school_rules = []
-        for s in self.schools:
-            school_rules += s.tech_rules
+        #school_rules = []
+        #for s in self.schools:
+        #    school_rules += s.tech_rules
         count = 0
-        for obj in (self.advans+school_rules):
+
+        for obj in self.advans:
             if hasattr(obj, 'rule') and obj.rule == rule:
                 count += 1
+
         return count
 ### -------------- ###
 
 ### OUTFIT ###
     def get_school_outfit(self):
-        if self.get_school(0):
-            return self.get_school(0).outfit
+        for a in self.get_rank_advancements():
+            if len(a.outfit) > 0:
+                return a.outfit
         return []
 
     def add_weapon(self, item):
@@ -1040,17 +1047,20 @@ class AdvancedPcModel(BasePcModel):
         self.clear_pending_wc_skills()
         self.clear_pending_wc_spells()
         self.clear_pending_wc_emphs ()
-        if school_id == 0:
+        if school_id == 0 or self.get_current_rank_advancement() is None:
             return
 
-        self._schools = [ CharacterSchool(school_id) ]
+        #self._schools = [ CharacterSchool(school_id) ]
 
-        self.step_2.honor = honor
+        cur_adv = self.get_current_rank_advancement()
 
+        self.step_2.honor      = honor
         self.current_school_id = school_id
 
-        for t in tags:
-            self.get_school().add_tag(t)
+        cur_adv.tags = [x for x in tags]
+
+        #for t in tags:
+        #    self.get_school().add_tag(t)
 
         # reset money
         self.set_property('money', (0,0,0))
@@ -1067,17 +1077,22 @@ class AdvancedPcModel(BasePcModel):
         return False
 
     def set_free_school_tech(self, tech_uuid, rule = None):
-        school_ = self.get_school(0)
+        school_ = self.get_current_rank_advancement()
         if school_ is None:
             return
-        #self.step_2.school_tech = tech_uuid
-        school_.techs.append(tech_uuid)
+
+        #school_.techs.append(tech_uuid)
+
+        # should be always rank 1 ???
+        school_.tech_id   = tech_uuid
+        school_.tech_rank = 1
+
         #if rule is not None:
-        school_.tech_rules.append(rule or 'N/A')
+        #school_.tech_rules.append(rule or 'N/A')
         self.set_dirty()
 
     def set_school_outfit(self, outfit, money):
-        self.get_school(0).outfit = outfit
+        self.get_current_rank_advancement().outfit = outfit
         self.set_property('money', money)
         self.set_dirty()
 

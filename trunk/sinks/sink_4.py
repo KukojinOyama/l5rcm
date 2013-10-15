@@ -176,3 +176,15 @@ class Sink4(QtCore.QObject):
             alternate_path = dlg.get_school_id()
             form.join_alternate_path( alternate_path )
 
+    def show_first_school_dlg(self):
+
+        form = self.form
+        dlg = dialogs.SchoolChoiceDlg(
+            form.pc,
+            form.dstore,
+            [dialogs.SchoolChoiceDlg.BASIC_SCHOOL],
+            parent = form)
+
+        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
+            form.start_rank_advancement(None)
+            form.do_first_advancement(dlg.get_school_id())

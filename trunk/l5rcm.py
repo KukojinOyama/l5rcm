@@ -1882,7 +1882,11 @@ class L5RMain(L5RCMCore):
             bt = QtGui.QPushButton(self.tr("Advance rank"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
                               QtGui.QSizePolicy.Preferred)
-            bt.clicked.connect( self.show_advance_rank_dlg )
+
+            if self.pc.get_insight_rank() > 1:
+                bt.clicked.connect( self.show_advance_rank_dlg )
+            else:
+                bt.clicked.connect( self.sink4.show_first_school_dlg )
             self.show_nicebar([lb, bt])
         elif self.pc.get_current_rank_advancement() is not None:
 
