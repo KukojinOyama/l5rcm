@@ -100,10 +100,17 @@ what would you want to do?
         self._new_school = school_obj
 
         # check free kihos
+        # TODO, if this is the first path
+        # get only 1 kiho
+        # if this is not the first path,
+        # get no kiho
         if sc.kihos:
             self.pc.free_kiho_count = sc.kihos.count
 
         self.pc.current_school_id  = sc.id
+
+        # TODO. if this is a path
+        # join_alternate_path
 
         self.accept()
 
