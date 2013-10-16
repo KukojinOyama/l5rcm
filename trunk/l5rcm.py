@@ -1595,12 +1595,12 @@ class L5RMain(L5RCMCore):
             self.pc.clan = clan_id
 
         self.load_families(self.pc.clan)
-        if self.pc.unlock_schools:
-            self.load_schools ()
-        else:
-            self.load_schools(self.pc.clan)
+        #if self.pc.unlock_schools:
+        #    self.load_schools ()
+        #else:
+        #    self.load_schools(self.pc.clan)
         self.cb_pc_family.setCurrentIndex(0)
-        self.cb_pc_school.setCurrentIndex(0)
+        #self.cb_pc_school.setCurrentIndex(0)
 
     def on_family_change(self, text):
         index = self.cb_pc_family.currentIndex()
@@ -1907,7 +1907,8 @@ class L5RMain(L5RCMCore):
         if (self.can_get_another_tech() and
             self.check_tech_school_requirements()):
             self.learn_next_school_tech()
-        elif self.pc.can_get_other_spells():
+
+        if self.pc.can_get_other_spells():
             lb = QtGui.QLabel(self.tr("You now fit the requirements to learn other Spells"), self)
             bt = QtGui.QPushButton(self.tr("Learn Spells"), self)
             bt.setSizePolicy( QtGui.QSizePolicy.Maximum,
@@ -2073,10 +2074,10 @@ class L5RMain(L5RCMCore):
             #TODO: checks for books / data extensions
 
             self.load_families(self.pc.clan)
-            if self.pc.unlock_schools:
-                self.load_schools ()
-            else:
-                self.load_schools (self.pc.clan)
+            #if self.pc.unlock_schools:
+            #    self.load_schools ()
+            #else:
+            #    self.load_schools (self.pc.clan)
 
             self.tx_pc_notes.set_content(self.pc.extra_notes)
             self.pc.insight_calculation = self.ic_calc_method
@@ -2288,9 +2289,9 @@ class L5RMain(L5RCMCore):
 
         # disable step 0-1-2 if any xp are spent
         has_adv = len(self.pc.advans) > 0
-        self.cb_pc_clan  .setEnabled( not has_adv )
-        self.cb_pc_school.setEnabled( not has_adv )
-        self.cb_pc_family.setEnabled( not has_adv )
+        #self.cb_pc_clan  .setEnabled( not has_adv )
+        #self.cb_pc_school.setEnabled( not has_adv )
+        #self.cb_pc_family.setEnabled( not has_adv )
 
         # FIXME, this is temporary
         self.cb_pc_school.setEnabled( False )

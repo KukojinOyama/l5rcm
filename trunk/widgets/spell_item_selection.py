@@ -68,7 +68,9 @@ class SpellItemSelection(QtGui.QWidget):
 
         self.tx_descr.setReadOnly(True)
 
-        form_lo         = QtGui.QFormLayout()
+        form_lo = QtGui.QFormLayout()
+        form_lo.setVerticalSpacing(9)
+        form_lo.setHorizontalSpacing(9)
         form_lo.addRow(self.lb_ring, self.cb_element)
         form_lo.addRow(self.lb_mastery, self.cb_mastery)
         form_lo.addRow(self.lb_spell, self.cb_spell)
