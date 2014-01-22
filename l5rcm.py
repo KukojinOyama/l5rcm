@@ -263,17 +263,17 @@ class L5RMain(L5RCMCore):
             self.tx_pc_ins    = QtGui.QLineEdit(self)
 
             # 1st column
-            fr_school = QtGui.QFrame(self)
-            hb_school = QtGui.QHBoxLayout(fr_school)
-            hb_school.setContentsMargins(0,0,0,0)
+            #fr_school = QtGui.QFrame(self)
+            #hb_school = QtGui.QHBoxLayout(fr_school)
+            #hb_school.setContentsMargins(0,0,0,0)
             lb_school = QtGui.QLabel(self.tr("School"), self)
-            bt_lock   = QtGui.QToolButton( self )
-            bt_lock.setCheckable(True)
-            bt_lock.setToolTip(self.tr("Toggle show schools from all the clans"))
-            bt_lock.setAutoRaise(True)
-            bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
-            hb_school.addWidget(lb_school)
-            hb_school.addWidget(bt_lock)
+            #bt_lock   = QtGui.QToolButton( self )
+            #bt_lock.setCheckable(True)
+            #bt_lock.setToolTip(self.tr("Toggle show schools from all the clans"))
+            #bt_lock.setAutoRaise(True)
+            #bt_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
+            #hb_school.addWidget(lb_school)
+            #hb_school.addWidget(bt_lock)
 
             # Place "generate random name" near the Name label
             lb_name            = QtGui.QLabel(self.tr("Name"), self)
@@ -300,9 +300,9 @@ class L5RMain(L5RCMCore):
             grid.addLayout( hb_name, 0, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Clan"  ), self), 1, 0 )
             grid.addWidget( QtGui.QLabel(self.tr("Family"), self), 2, 0 )
-            grid.addWidget( fr_school, 3, 0 )
+            grid.addWidget( lb_school, 3, 0 )
 
-            self.bt_school_lock          = bt_lock
+            #self.bt_school_lock          = bt_lock
 
             # 3rd column
             fr_exp = QtGui.QFrame(self)
@@ -1516,7 +1516,7 @@ class L5RMain(L5RCMCore):
         self.ic_act_grp.triggered.connect(self.on_change_insight_calculation )
         self.hm_act_grp.triggered.connect(self.on_change_health_visualization)
 
-        self.bt_school_lock.clicked.connect( self.sink1.on_unlock_school_act )
+        #self.bt_school_lock.clicked.connect( self.sink1.on_unlock_school_act )
         self.bt_set_exp_points.clicked.connect( self.sink1.on_set_exp_limit )
 
     def show_nicebar(self, wdgs):

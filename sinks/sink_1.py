@@ -188,18 +188,18 @@ class Sink1(QtCore.QObject):
         if ok:
             form.damage_health(val)
 
-    def on_unlock_school_act(self):
-        form = self.form
-        form.cb_pc_school.blockSignals(True)
-        form.pc.toggle_unlock_schools()
-        if form.pc.unlock_schools:
-            form.bt_school_lock.setIcon( QtGui.QIcon(get_icon_path('lock_open',(16,16))) )
-            form.load_schools ()
-        else:
-            form.bt_school_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
-            form.load_schools(form.pc.clan or '')
-        form.cb_pc_school.blockSignals(False)
-        form.update_from_model()
+    def on_unlock_school_act(self): pass
+        #form = self.form
+        #form.cb_pc_school.blockSignals(True)
+        #form.pc.toggle_unlock_schools()
+        #if form.pc.unlock_schools:
+        #    form.bt_school_lock.setIcon( QtGui.QIcon(get_icon_path('lock_open',(16,16))) )
+        #    form.load_schools ()
+        #else:
+        #    form.bt_school_lock.setIcon( QtGui.QIcon(get_icon_path('lock_close',(16,16))) )
+        #    form.load_schools(form.pc.clan or '')
+        #form.cb_pc_school.blockSignals(False)
+        #form.update_from_model()
 
     def warn_about_refund(self):
         form = self.form

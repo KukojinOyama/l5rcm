@@ -574,11 +574,16 @@ class AdvancedPcModel(BasePcModel):
     def get_deficiency(self):
         return [x.deficiency for x in self.get_rank_advancements() if x.deficiency is not None]
 
-    def set_affinity(self, value): pass
+    def set_affinity(self, value):
+        cur_rank_adv = self.get_current_rank_advancement()
+        cur_rank_adv.affinity = value
         #self.get_school().affinity = value
         #self.set_dirty()
 
-    def set_deficiency(self, value): pass
+    def set_deficiency(self, value):
+        cur_rank_adv = self.get_current_rank_advancement()
+        cur_rank_adv.deficiency = value
+
         #self.get_school().deficiency = value
         #self.set_dirty()
 ### -------------- ###
