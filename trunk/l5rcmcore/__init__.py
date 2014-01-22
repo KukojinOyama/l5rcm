@@ -464,10 +464,10 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def pc_is_monk(self):
         # is monk ?
-        monk_schools        = [ x for x in self.pc.schools if x.has_tag('monk') ]
+        monk_schools        = [ x for x in self.pc.get_rank_advancements() if 'monk' in x.tags ]
         is_monk             = len(monk_schools) > 0
         # is brotherhood monk?
-        brotherhood_schools = [ x for x in monk_schools if x.has_tag('brotherhood') ]
+        brotherhood_schools = [ x for x in monk_schools if 'brotherhood' in x.tags ]
         is_brotherhood      = len(brotherhood_schools) > 0
 
         # a friend of the brotherhood pay the same as the brotherhood members
@@ -477,13 +477,13 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def pc_is_ninja(self):
         # is ninja?
-        ninja_schools       = [ x for x in self.pc.schools if x.has_tag('ninja') ]
+        ninja_schools       = [ x for x in self.pc.get_rank_advancements() if 'ninja' in x.tags ]
         is_ninja            = len(ninja_schools) > 0
         return is_ninja
 
     def pc_is_shugenja(self):
         # is shugenja?
-        shugenja_schools    = [ x for x in self.pc.schools if x.has_tag('shugenja') ]
+        shugenja_schools    = [ x for x in self.pc.get_rank_advancements() if 'shugenja' in x.tags ]
         is_shugenja         = len(shugenja_schools) > 0
         return is_shugenja
 
