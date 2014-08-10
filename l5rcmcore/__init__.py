@@ -23,14 +23,15 @@ import exporters
 import dal
 import dal.query
 import dal.dataimport
-from houserule.loader import HouseRuleLoader
 import osutil
 from math import ceil
+
 from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
 APP_VERSION = '3.9.4'
+DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
 PROJECT_PAGE_LINK      = 'http://code.google.com/p/l5rcm/'
@@ -98,12 +99,16 @@ class CMErrors(object):
 class L5RCMCore(QtGui.QMainWindow):
 
     dstore = None
-    debug  = False
 
     def __init__(self, locale, parent = None):
         super(L5RCMCore, self).__init__(parent)
         #print(repr(self))
         self.pc = None
+
+        # character stored insight rank
+        # used to knew if the character
+        # get new insight rank
+        self.last_rank = 1
 
         # Flag to lock advancement refunds in order
         self.lock_advancements = True
@@ -113,10 +118,6 @@ class L5RCMCore(QtGui.QMainWindow):
 
         # load data
         self.reload_data()
-
-        # extension loader
-        self.extension_loader = HouseRuleLoader()
-        self.extension_loader.search_path = osutil.get_user_data_path('.')
 
     def reload_data(self):
         settings = QtCore.QSettings()
@@ -230,19 +231,14 @@ class L5RCMCore(QtGui.QMainWindow):
             temp_files.append(fpath)
 
         temp_files.append(fpath)
-
-        # SAMURAI MONKS ALSO FITS IN THE BUSHI CHARACTER SHEET
-        is_monk, is_brotherhood = self.pc_is_monk    ()
-        is_samurai_monk = is_monk and not is_brotherhood
-
         # SHUGENJA/BUSHI/MONK SHEET
         if self.pc.has_tag('shugenja'):
             _export( 'sheet_shugenja.pdf', exporters.FDFExporterShugenja() )
-        if self.pc.has_tag('bushi') or is_samurai_monk:
+        elif self.pc.has_tag('bushi'):
             _export( 'sheet_bushi.pdf', exporters.FDFExporterBushi() )
-        if is_monk:
+        elif self.pc.has_tag('monk'):
             _export( 'sheet_monk.pdf', exporters.FDFExporterMonk() )
-        if self.pc.has_tag('courtier'):
+        elif self.pc.has_tag('courtier'):
             _export( 'sheet_courtier.pdf', exporters.FDFExporterCourtier() )
 
         # WEAPONS
@@ -379,16 +375,12 @@ class L5RCMCore(QtGui.QMainWindow):
                 return
 
     def check_if_tech_available(self):
-        school = dal.query.get_school(self.dstore, self.pc.current_school_id)
+        school = dal.query.get_school(self.dstore, self.pc.get_school_id())
         if school:
             count  = len(school.techs)
             print('check_if_tech_available', school.id, count, self.pc.get_school_rank())
-            return count > self.pc.get_school_rank()
+            return count >= self.pc.get_school_rank()
         return False
-
-    def can_get_another_tech(self):
-        return ( self.pc.can_get_another_tech and
-                 self.check_if_tech_available() )
 
     def check_tech_school_requirements(self):
         # one should have at least one rank in all school skills
@@ -397,12 +389,12 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def get_missing_school_requirements(self):
         list_     = []
-        school_id = self.pc.current_school_id
+        school_id = self.pc.get_school_id()
         school = dal.query.get_school(self.dstore, school_id)
         if school:
-            #print('check requirement for school {0}'.format(school_id))
+            print('check requirement for school {0}'.format(school_id))
             for sk in school.skills:
-                #print('needed {0}, got rank {1}'.format(sk.id, self.pc.get_skill_rank(sk.id)))
+                print('needed {0}, got rank {1}'.format(sk.id, self.pc.get_skill_rank(sk.id)))
                 if self.pc.get_skill_rank(sk.id) < 1:
                     list_.append(sk.id)
         return list_
@@ -464,10 +456,10 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def pc_is_monk(self):
         # is monk ?
-        monk_schools        = [ x for x in self.pc.get_rank_advancements() if 'monk' in x.tags ]
+        monk_schools        = [ x for x in self.pc.schools if x.has_tag('monk') ]
         is_monk             = len(monk_schools) > 0
         # is brotherhood monk?
-        brotherhood_schools = [ x for x in monk_schools if 'brotherhood' in x.tags ]
+        brotherhood_schools = [ x for x in monk_schools if x.has_tag('brotherhood') ]
         is_brotherhood      = len(brotherhood_schools) > 0
 
         # a friend of the brotherhood pay the same as the brotherhood members
@@ -477,13 +469,13 @@ class L5RCMCore(QtGui.QMainWindow):
 
     def pc_is_ninja(self):
         # is ninja?
-        ninja_schools       = [ x for x in self.pc.get_rank_advancements() if 'ninja' in x.tags ]
+        ninja_schools       = [ x for x in self.pc.schools if x.has_tag('ninja') ]
         is_ninja            = len(ninja_schools) > 0
         return is_ninja
 
     def pc_is_shugenja(self):
         # is shugenja?
-        shugenja_schools    = [ x for x in self.pc.get_rank_advancements() if 'shugenja' in x.tags ]
+        shugenja_schools    = [ x for x in self.pc.schools if x.has_tag('shugenja') ]
         is_shugenja         = len(shugenja_schools) > 0
         return is_shugenja
 
@@ -543,25 +535,21 @@ class L5RCMCore(QtGui.QMainWindow):
         return False
 
     def buy_kiho(self, kiho):
-        rank_adv = self.pc.get_current_rank_advancement()
+        adv = models.KihoAdv(kiho.id, kiho.id, self.calculate_kiho_cost(kiho))
+        adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, adv.cost )
 
-        if rank_adv and self.pc.free_kiho_count > 0:
-            rank_adv.kiho.append(kiho.id)
-            self.pc.free_kiho_count -= 1
-        else:
-            adv = models.KihoAdv(kiho.id, kiho.id, self.calculate_kiho_cost(kiho))
+        # monks can get free kihos
+        if self.pc.get_free_kiho_count() > 0:
+            adv.cost = 0
+            self.pc.set_free_kiho_count( self.pc.get_free_kiho_count() - 1 )
+            print('remaing free kihos', self.pc.get_free_kiho_count())
 
-            # monks can get free kihos
-            if self.pc.free_kiho_count > 0:
-                adv.cost = 0
-                self.pc.free_kiho_count -= 1
+        if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
+            return CMErrors.NOT_ENOUGH_XP
 
-            adv.desc = self.tr('{0}, Cost: {1} xp').format( kiho.name, adv.cost )
-            if (adv.cost + self.pc.get_px()) > self.pc.exp_limit:
-                return CMErrors.NOT_ENOUGH_XP
-            self.pc.add_advancement( adv )
-
+        self.pc.add_advancement( adv )
         self.update_from_model()
+
         return CMErrors.NO_ERROR
 
     def buy_tattoo(self, kiho):
@@ -573,150 +561,22 @@ class L5RCMCore(QtGui.QMainWindow):
 
         return CMErrors.NO_ERROR
 
-    def get_tech_rank(self, rank, school_id):
+    def get_higher_tech(self):
+        mt = None
+        ms = None
         for t in self.pc.get_techs():
             school, tech = dal.query.get_tech(self.dstore, t)
-            if not tech or not school: continue
-            if school.id == school_id and tech.rank == rank: return tech
-        return None
+            if not mt or tech.rank > mt.rank:
+                ms, mt = school, tech
+        return ms, mt
 
-    def get_alternate_tech_rank(self, rank, school_id):
-        for t in self.pc.get_alternate_paths():
-            if ( t.original_school_id == school_id and t.rank == rank ):
-                school, tech = dal.query.get_tech(self.dstore, t.tech_id)
-                if not tech or not school: continue
-                return tech
-        return None
-
-    def has_tech_rank(self, rank, school_id):
-        return ( self.get_tech_rank(rank, school_id) is not None or
-                 self.get_alternate_tech_rank(rank, school_id) )
-
-    def set_debug_observer(self):
-        import debug
-        observer = debug.DebugObserver()
-        observer.on_property_changed.connect(self.sink1.on_debug_prop_change)
-        self.pc.set_observer( observer )
-
-    def start_rank_advancement(self, new_school):
-        # begin rank advancement
-        print('begin rank advancement for insight rank {}'.format( self.pc.get_insight_rank()) )
-        adv = models.RankAdv( self.pc.get_insight_rank() )
-
-        if new_school:
-            print('character joins a new school {}'.format(new_school.school_id))
-            adv.school_id = new_school.school_id
-            adv.affinity  = new_school.affinity
-
-        adv.desc = "{}, {} {}".format(
-            self.tr("Rank advancement"),
-            self.tr("Insight Rank"),
-            self.pc.get_insight_rank() )
-        self.pc.add_advancement(adv)
-
-    def end_rank_advancement(self):
-        # end rank advancement
-        print('end rank advancement')
-        for adv in [x for x in self.pc.advans if x.type == 'rank' and not x.completed]:
-            adv.completed = True
-            self.pc.set_dirty()
-
-    def join_alternate_path(self, school_id):
-        school_obj = dal.query.get_school(self.dstore, school_id)
-
-        if 'alternate' not in school_obj.tags:
-            print('{} is not an alternate path'.format(school_id))
-            return False
-
-        if len(school_obj.techs) != 1:
-            print('{} is not a valid alternate path.'.format(school_id))
-            return False
-
-        school_tech = school_obj.techs[0]
-        path_rank   = school_tech.rank
-
-        replaced_tech = self.get_tech_rank(path_rank, self.pc.current_school_id)
-        if not replaced_tech:
-            print("cannot find the technique to replace")
-            return False
-
-        adv = models.AlternatePathAdv(path_rank)
-        adv.original_school_id = self.pc.current_school_id
-        adv.original_tech_id   = replaced_tech.id
-        adv.school_id          = school_id
-        adv.tech_id            = school_tech.id
-        adv.desc               = "{}, {}".format( school_obj.name, school_tech.name )
-
-        print('replace {} with {} of {}'.format(adv.original_tech_id, adv.tech_id, adv.school_id ))
-
-        self.pc.add_advancement(adv)
-        self.pc.current_school_id = school_id
-        self.update_from_model()
-
-    def do_first_advancement(self, school_id):
-
-        # on first advancement
-        # we need to:
-        # 1. add the first school technique
-        # 2. add school outfit
-        # 3. add affinity / deficiency
-        # 4. add free kihos
-        # 5. add pending/wildcard stuff
-        # 6. tags, rules
-
-        cur_adv = self.pc.get_current_rank_advancement()
-        cur_adv.school_id = school_id
-        if not cur_adv: return False
-
-        school = dal.query.get_school(self.dstore, cur_adv.school_id)
-        clan   = dal.query.get_clan  (self.dstore, school.clanid)
-
-        try:
-            self.pc.set_school(school.id, school.trait, 1, school.honor, school.tags + [school.id, clan.id])
-        except:
-            self.pc.set_school(school.id, None, None, None)
-
-        for sk in school.skills:
-            self.pc.add_school_skill(sk.id, sk.rank, sk.emph)
-
-        # player choose ( aka wildcards )
-        for sk in school.skills_pc:
-            self.pc.add_pending_wc_skill(sk)
-
-        # get school tech rank 1
-        tech0 = dal.query.get_school_tech(school, 1)
-        # rule == techid ???
-
-        if tech0:
-            self.pc.set_free_school_tech(tech0.id, tech0.id)
-
-        # outfit
-        print('outfit', school.outfit)
-        self.pc.set_school_outfit( school.outfit, tuple(school.money) )
-
-        # if shugenja get universal spells
-        # also player should choose some spells from list
-
-        if 'shugenja' in school.tags:
-            count = 0
-            for spell in school.spells:
-                self.pc.add_free_spell(spell.id)
-                count += 1
-
-            for spell in school.spells_pc:
-                self.pc.add_pending_wc_spell((spell.element, spell.count, spell.tag))
-                count += spell.count
-
-            print('starting spells count are {0}'.format(count))
-            self.pc.set_school_spells_qty(count)
-
-            # affinity / deficiency
-            print('school: {0}, affinity: {1}, deficiency: {2}'.format(school, school.affinity, school.deficiency))
-            cur_adv.affinity   = school.affinity
-            cur_adv.deficiency = school.deficiency
-
-        # free kihos ?
-        if school.kihos:
-            self.pc.free_kiho_count = school.kihos.count
-
-        self.update_from_model()
+    def get_higher_tech_in_current_school(self):
+        mt = None
+        ms = None
+        print( self.pc.get_techs() )
+        for t in self.pc.get_techs():
+            school, tech = dal.query.get_tech(self.dstore, t)
+            if school.id != self.pc.get_school_id(): continue
+            if not mt or tech.rank > mt.rank:
+                ms, mt = school, tech
+        return ms, mt

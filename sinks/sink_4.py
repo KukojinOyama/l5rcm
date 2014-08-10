@@ -67,12 +67,6 @@ class Sink4(QtCore.QObject):
             self.form.update_data_blacklist()
             self.reload_data_act           ()
 
-    def open_data_dir_act(self):
-        path = os.path.normpath(osutil.get_user_data_path())
-        if not os.path.exists(path):
-            os.makedirs(path)
-        osutil.portable_open(path)
-
     def reload_data_act(self):
         self.form.reload_data  ()
         self.form.create_new_character()
@@ -98,44 +92,8 @@ class Sink4(QtCore.QObject):
     def on_money_value_changed(self, value):
         self.form.pc.set_property('money', value)
 
-    def open_image_dialog(self):
-        supported_ext     = ['.png']
-        supported_filters = [self.tr("PNG Images (*.png)")]
-
-        settings = QtCore.QSettings()
-        last_data_dir = settings.value('last_open_image_dir', QtCore.QDir.homePath())
-        fileName = QtGui.QFileDialog.getOpenFileName(
-                                self.form,
-                                self.tr("Open image"),
-                                last_data_dir,
-                                ";;".join(supported_filters))
-        if len(fileName) != 2:
-            return None
-
-        last_data_dir = os.path.dirname(fileName[0])
-        if last_data_dir != '':
-            settings.setValue('last_open_image_dir', last_data_dir)
-        return fileName[0]
-
-    def on_set_background(self):
-        file = self.open_image_dialog()
-        if not file: return
-
-        settings = QtCore.QSettings()
-        settings.setValue('background_image', file)
-
-        self.form.update_background_image()
-
-    def on_tech_item_activate(self, index = None):
+    def on_tech_item_activate(self, index):
         form = self.form
-
-        if index == None:
-            # get selected index
-            index = form.tech_view.selectionModel().currentIndex()
-
-        if not index.isValid():
-            return
-
         item = form.th_view_model.data(index, QtCore.Qt.UserRole)
         try:
             school, tech = dal.query.get_tech(form.dstore, item.id)
@@ -163,28 +121,3 @@ class Sink4(QtCore.QObject):
             dlg.exec_()
         except Exception as e:
             print("cannot retrieve information from spell model.", e)
-
-    def act_replace_tech(self):
-        form = self.form
-        dlg = dialogs.SchoolChoiceDlg(
-            form.pc,
-            form.dstore,
-            [dialogs.SchoolChoiceDlg.ALTERNATE_PATH],
-            parent = form)
-
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            alternate_path = dlg.get_school_id()
-            form.join_alternate_path( alternate_path )
-
-    def show_first_school_dlg(self):
-
-        form = self.form
-        dlg = dialogs.SchoolChoiceDlg(
-            form.pc,
-            form.dstore,
-            [dialogs.SchoolChoiceDlg.BASIC_SCHOOL],
-            parent = form)
-
-        if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
-            form.start_rank_advancement(None)
-            form.do_first_advancement(dlg.get_school_id())

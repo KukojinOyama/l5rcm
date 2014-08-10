@@ -36,7 +36,7 @@ class KataTableViewModel(QtCore.QAbstractTableModel):
         self.headers = ['Name', 'Mastery', 'Element']
         self.text_color = QtGui.QBrush(QtGui.QColor(0x15, 0x15, 0x15))
         self.bg_color   = [ QtGui.QBrush(QtGui.QColor(0xFF, 0xEB, 0x82)),
-                            QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]
+                            QtGui.QBrush(QtGui.QColor(0xEB, 0xFF, 0x82)) ]        
         self.item_size = QtCore.QSize(28, 28)
         self.dstore = dstore
 
@@ -93,7 +93,7 @@ class KataTableViewModel(QtCore.QAbstractTableModel):
 
     def build_item_model(self, ka_id):
         itm = KataItemModel()
-        ka = dal.query.get_kata(self.dstore, ka_id)
+        ka = dal.query.get_kata(self.dstore, ka_id.kata)
         if ka:
             itm.id       = ka.id
             itm.adv      = ka_id
@@ -103,8 +103,8 @@ class KataTableViewModel(QtCore.QAbstractTableModel):
             itm.element  = dal.query.get_ring(self.dstore, ka.element).text
             itm.text     = ka.desc
         else:
-            print('cannot find kata: {0}'.format(ka_id))
-
+            print('cannot find kata: {0}'.format(ka_id.kata))
+        
         # TODO: translate element
         return itm
 
@@ -112,6 +112,7 @@ class KataTableViewModel(QtCore.QAbstractTableModel):
         kata = model.get_kata()
 
         self.clean()
-        for s in kata:
+        for s in kata:           
             itm = self.build_item_model(s)
             self.add_item(itm)
+     

@@ -23,19 +23,19 @@ class Advancement(object):
     @staticmethod
     def set_buy_for_free(flag):
         Advancement.BUY_FOR_FREE = flag
-        #print('set buy for free? %s ' % Advancement.BUY_FOR_FREE)
+        print 'set buy for free? %s ' % Advancement.BUY_FOR_FREE
 
     @staticmethod
     def get_buy_for_free():
-        #print('get buy for free? %s ' % Advancement.BUY_FOR_FREE)
+        print 'get buy for free? %s ' % Advancement.BUY_FOR_FREE
         return Advancement.BUY_FOR_FREE
-
+        
     def __init__(self, tag, cost):
-        self.type      = tag
+        self.type      = tag               
         self.desc      = ''
         self.rule      = None
         self.timestamp = time.time()
-
+        
         if Advancement.get_buy_for_free():
             self.cost = 0
         else:
@@ -63,66 +63,31 @@ class SkillEmph(Advancement):
         super(SkillEmph, self).__init__('emph', cost)
         self.skill = skill
         self.text  = text
-
-class PerkAdv(Advancement):
+        
+class PerkAdv(Advancement):        
     def __init__(self, perk, rank, cost, tag = None):
         super(PerkAdv, self).__init__('perk', cost)
         self.perk  = perk
         self.rank  = rank
         self.tag   = tag
         self.extra = ''
-
-class KataAdv(Advancement):
+        
+class KataAdv(Advancement):        
     def __init__(self, kata_id, rule, cost):
-        super(KataAdv, self).__init__('kata', cost)
+        super(KataAdv, self).__init__('kata', cost)        
         self.kata = kata_id
         self.rule = rule
-
-class KihoAdv(Advancement):
+        
+class KihoAdv(Advancement):        
     def __init__(self, kiho_id, rule, cost):
-        super(KihoAdv, self).__init__('kiho', cost)
+        super(KihoAdv, self).__init__('kiho', cost)        
         self.kiho = kiho_id
-        self.rule = rule
-
-class SpellAdv(Advancement):
-    def __init__(self, spell_id):
-        super(SpellAdv, self).__init__('spell', 0)
-        self.spell = spell_id
-
-class MemoSpellAdv(Advancement):
+        self.rule = rule        
+        
+class MemoSpellAdv(Advancement):        
     def __init__(self, spell_id, cost):
-        super(MemoSpellAdv, self).__init__('memo_spell', cost)
+        super(MemoSpellAdv, self).__init__('memo_spell', cost)        
         self.spell = spell_id
-
-class RankAdv(Advancement):
-    def __init__(self, rank):
-        super(RankAdv, self).__init__('rank', 0)
-        self.insight_rank = rank
-
-        self.school_id    = None
-        self.school_rank  = 0
-        self.tech_id      = None
-        self.tech_rank    = 0
-        self.kiho         = []
-        self.kata         = []
-        self.spells       = []
-        self.tags         = []
-        self.outfit       = []
-        self.skills       = {}
-        self.emph         = {}
-        self.affinity     = None
-        self.deficiency   = None
-        self.bonus_trait  = None
-        self.completed    = False
-
-class AlternatePathAdv(Advancement):
-    def __init__(self, rank):
-        super(AlternatePathAdv, self).__init__('alternate_path', 0)
-        self.rank               = rank
-        self.school_id          = None
-        self.tech_id            = None
-        self.original_school_id = None
-        self.original_tech_id   = None
 
 class AdvancementViewModel(QtCore.QAbstractListModel):
     def __init__(self, parent = None):
@@ -220,40 +185,38 @@ class AdvancementItemDelegate(QtGui.QStyledItemDelegate):
         #main_font.setBold(True)
         painter.setFont(main_font)
         font_metric = painter.fontMetrics()
-
+        
         try:
             tmp = unicode(item).split(u',')
-        except:
+        except:        
             tmp = str(item).split(',')
-
-        adv_time      = None
+            
+        adv_time      = None        
         if hasattr(item, 'timestamp') and item.timestamp is not None:
             adv_time = "{0:%Y}-{0:%m}-{0:%d} {0:%H}:{0:%M}:{0:%S}".format(datetime.fromtimestamp(item.timestamp))
-
+        
         if adv_time:
             adv_time_rect = font_metric.boundingRect(adv_time)
             painter.drawText(left_margin + option.rect.left(),
                              option.rect.top() + adv_tp_rect.height() + adv_time_rect.height(),
                              adv_time)
             left_margin += adv_time_rect.width() + left_margin
+        
+        main_font.setBold(True)  
+        painter.setFont  (main_font)        
+        
+        adv_nm      = tmp[0]
+        adv_nm_rect = font_metric.boundingRect(adv_nm)
+        painter.drawText(left_margin + option.rect.left(),
+                         option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
+                         adv_nm)
 
-        main_font.setBold(True)
-        painter.setFont  (main_font)
-
-        if len( tmp ) > 0:
-            adv_nm      = tmp[0]
-            adv_nm_rect = font_metric.boundingRect(adv_nm)
-            painter.drawText(left_margin + option.rect.left(),
-                             option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
-                             adv_nm)
-
-        if len( tmp ) > 1:
-            main_font.setBold(False)
-            painter.setFont(main_font)
-            adv_nm      = tmp[1]
-            adv_nm_rect = font_metric.boundingRect(adv_nm)
-            painter.drawText(option.rect.right()-adv_nm_rect.width()-right_margin,
-                             option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
-                             adv_nm)
+        main_font.setBold(False)
+        painter.setFont(main_font)
+        adv_nm      = tmp[1]
+        adv_nm_rect = font_metric.boundingRect(adv_nm)
+        painter.drawText(option.rect.right()-adv_nm_rect.width()-right_margin,
+                         option.rect.top() + adv_tp_rect.height() + adv_nm_rect.height(),
+                         adv_nm)
 
         painter.restore()
