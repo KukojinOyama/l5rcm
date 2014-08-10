@@ -14,12 +14,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+from PySide import QtGui, QtCore
+from datetime import datetime
 import models
 import rules
 import hashlib
 import dal
 import dal.query
-from datetime import datetime
+
 
 class FDFExporter(object):
     def __init__(self):
@@ -113,7 +115,7 @@ class FDFExporterAll(FDFExporter):
         hvalue, hdots = rules.split_decimal(m.get_honor ())
         gvalue, gdots = rules.split_decimal(m.get_glory ())
         svalue, sdots = rules.split_decimal(m.get_status())
-        tvalue, tdots = rules.split_decimal(m.taint       )
+        tvalue, tdots = rules.split_decimal(m.get_taint ())
 
         fields['HONOR' ] = hvalue
         fields['GLORY' ] = gvalue
@@ -158,6 +160,7 @@ class FDFExporterAll(FDFExporter):
 
         fields['WOUND_HEAL_BASE'] = (m.get_mod_attrib_rank(models.ATTRIBS.STAMINA)*2
                                      + m.get_insight_rank())
+        #fields['WOUND_HEAL_MOD' ] = ''
         fields['WOUND_HEAL_CUR' ] = fields['WOUND_HEAL_BASE']
 
         # SKILLS
@@ -167,8 +170,7 @@ class FDFExporterAll(FDFExporter):
             fields['SKILL_IS_SCHOOL.%d' % i] = sk.is_school
             fields['SKILL_NAME.%d'    % i  ] = sk.name
             fields['SKILL_RANK.%d'    % i  ] = sk.rank
-            fields['SKILL_TRAIT.%d'   % i  ] = (dal.query.get_trait(f.dstore, sk.trait) or
-                                                dal.query.get_ring (f.dstore, sk.trait))
+            fields['SKILL_TRAIT.%d'   % i  ] = dal.query.get_trait(f.dstore, sk.trait)
             fields['SKILL_EMPH_MA.%d' % i  ] = ', '.join(sk.emph)
 
         # MERITS AND FLAWS
@@ -271,21 +273,27 @@ class FDFExporterShugenja(FDFExporter):
         fields = {}
 
         # spells
-        r, c = 0, 0
+        print('Starting Spells Export')
+        lPageNumber, lControlNumber = 1, 1
+        lShortDescription = ''
         for spell in f.sp_view_model.items:
-            fields['SPELL_NM.%d.%d'  % (r, c)       ] = spell.name
-            fields['SPELL_MASTERY.%d.%d'  % (r, c)  ] = spell.mastery
-            fields['SPELL_RANGE.%d.%d'  % (r, c)    ] = spell.range
-            fields['SPELL_AREA.%d.%d'  % (r, c)     ] = spell.area
-            fields['SPELL_DURATION.%d.%d'  % (r, c) ] = spell.duration
-            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = spell.ring
+            fields['SPELL_NM.%d.%d'  % (lPageNumber, lControlNumber)       ] = spell.name
+            fields['SPELL_MASTERY.%d.%d'  % (lPageNumber, lControlNumber)  ] = spell.mastery
+            fields['SPELL_RANGE.%d.%d'  % (lPageNumber, lControlNumber)    ] = spell.range
+            fields['SPELL_AREA.%d.%d'  % (lPageNumber, lControlNumber)     ] = spell.area
+            fields['SPELL_DURATION.%d.%d'  % (lPageNumber, lControlNumber) ] = spell.duration
+            fields['SPELL_ELEM.%d.%d'  % (lPageNumber, lControlNumber)     ] = spell.ring
+            fields['SPELL_RAISE.%d.%d'  % (lPageNumber, lControlNumber)    ] = spell.raises
+            fields['SPELL_TAGS.%d.%d'  % (lPageNumber, lControlNumber)     ] = spell.tags
+            fields['SPELL_EFFECT.%d.%d'  % (lPageNumber, lControlNumber)   ] = self.shorten_string(spell.desc) or ''
 
-            c += 1
-            if c == 3:
-                c = 0
-                r += 1
+            lControlNumber += 1
+            if lControlNumber == 9 and lPageNumber == 1:
+                lControlNumber = 1
+                lPageNumber += 1
 
         # schools
+        print('Starting Schools Export')
         schools = filter(lambda x: 'shugenja' in x.tags, m.schools)
         count = min(3, len(schools))
         for i in xrange(0, count):
@@ -304,13 +312,77 @@ class FDFExporterShugenja(FDFExporter):
                     fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
                     fields['AFFINITY.%d'  % (i+1)     ] = aff_
                     fields['DEFICIENCY.%d'  % (i+1)   ] = def_
-                    fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
+                    fields['SCHOOL_TECH.%d'  % (i+1)] = tech.desc
             else:
                 print('cannot export character school', schools[i].school_id)
 
-        # EXPORT FIELDS
+        # EXPORT FIELDS5
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)
+
+    def shorten_string(self, text, max_characters = 615):
+        try:
+            #TODO: REGEX
+            #TODO: Pixel Length of string
+            lShortDescription = (text[:max_characters] + "...") if len(text) > max_characters else text
+
+            lOpenParenCount = lShortDescription.count("(")
+            lClosedParenCount = lShortDescription.count(")")
+
+            for i in xrange(0, lOpenParenCount-lClosedParenCount):
+                lShortDescription+=")"
+
+            return lShortDescription
+
+
+            #max_pixel_length = 1926
+            #metrics = QtGui.QFontMetrics(self.form.font())
+            #actualWidth = metrics.boundingRect(text).width()
+            #lShortDescription = ''
+            #if actualWidth > max_pixel_length:
+            #    lWords = text.split()
+            #    for word in lWords:
+            #        lShortDescription+= " " + word
+            #        if metrics.boundingRect(lShortDescription).width() >= max_pixel_length:
+            #            break
+            #else:
+            #    lShortDescription = text
+
+        except Exception as e:
+            print( repr(e) )
+            return None   
+
+    def split_in_parts(self, text, max_lines = 6):
+        try:
+            words = text.split(' ')
+            tl    = len(text)
+            avg_chars_per_line = int(tl / max_lines)
+
+            lines = []
+
+            cl = 0
+            i  = 0
+            line = ''
+            while True:
+                if len(lines) >= max_lines or i >= len(words):
+                    break
+                if cl < (avg_chars_per_line-3):
+                    line += words[i]+ ' '
+                    cl = len(line)
+                    i += 1
+                else:
+                    cl = 0
+                    lines.append(line)
+                    line = ''
+
+            if len(line):
+                lines.append(line)
+
+            return lines
+
+        except Exception as e:
+            print( repr(e) )
+            return None            
 
 class FDFExporterBushi(FDFExporter):
     def __init__(self):
@@ -323,12 +395,8 @@ class FDFExporterBushi(FDFExporter):
         fields = {}
 
         # schools
-        #schools = filter(lambda x: 'bushi' in x.tags, m.schools)
-        # FIX FOR SAMURAI MONKS
-        schools = [x for x in m.schools if 'bushi' in x.tags or ('monk' in x.tags and not 'brotherhood' in x.tags) ]
+        schools = filter(lambda x: 'bushi' in x.tags, m.schools)
         techs   = [x for x in m.get_techs()]
-
-        print([x.school_id for x in m.schools], techs)
 
         count = min(2, len(schools))
         for i in xrange(0, count):
@@ -370,15 +438,11 @@ class FDFExporterMonk(FDFExporter):
         fields = {}
 
         # schools
-        #schools = filter(lambda x: 'monk' in x.tags, m.schools)
-        # ONLY BROTHERHOOD SCHOOLS
-        schools = [x for x in m.schools if 'brotherhood' in x.tags]
+        schools = filter(lambda x: 'monk' in x.tags, m.schools)
         count = min(3, len(schools))
         for i in xrange(0, count):
             school = dal.query.get_school(f.dstore, schools[i].school_id)
-            if school is None: break
             tech   = dal.query.get_school_tech(school, 1)
-            if tech is None: break
 
             fields['MONK_SCHOOL.%d'  % (i+1) ] = school.name
             fields['MONK_TECH.%d' % (i+1)] = tech.name
@@ -446,10 +510,10 @@ class FDFExporterWeapons(FDFExporter):
         fields = {}
         # WEAPONS
 
-        count = min(10, len(m.weapons))
+        count = min(10, len(m.get_weapons()))
         j = 0
 
-        for weap in m.weapons[0:count]:
+        for weap in m.get_weapons()[0:count]:
             weap.base_atk = rules.format_rtk_t(rules.calculate_base_attack_roll(m, weap))
             weap.max_atk  = rules.format_rtk_t(rules.calculate_mod_attack_roll (m, weap))
             weap.base_dmg = rules.format_rtk_t(rules.calculate_base_damage_roll(m, weap))
