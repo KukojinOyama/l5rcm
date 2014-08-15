@@ -28,9 +28,10 @@ class SpellItemModel(object):
         self.area      = ''
         self.duration  = ''
         self.raises    = ''
+        self.desc      = ''
         self.memo      = False
         self.is_school = False
-        self.tags      = []
+        self.tags      = ''
         self.spell_id  = 0
         self.adv       = None
 
@@ -147,6 +148,8 @@ class SpellTableViewModel(QtCore.QAbstractTableModel):
         itm.area     = spell.area
         itm.duration = spell.duration
         itm.raises   = ', '.join(spell.raises)
+        itm.desc     = spell.desc
+        itm.tags     = ', '.join(spell.tags)
         itm.spell_id = sp_id
 
         return itm

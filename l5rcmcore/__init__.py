@@ -30,7 +30,7 @@ from PySide import QtCore, QtGui
 
 APP_NAME    = 'l5rcm'
 APP_DESC    = 'Legend of the Five Rings: Character Manager'
-APP_VERSION = '3.9.3'
+APP_VERSION = '3.9.4'
 DB_VERSION  = '3.0'
 APP_ORG     = 'openningia'
 
@@ -411,6 +411,20 @@ class L5RCMCore(QtGui.QMainWindow):
         self.pc.set_deficiency(deficiency.lower())
         self.update_from_model()
 
+    def import_data_packs(self, data_pack_file):
+        
+        imported = 0
+    
+        for dp in data_pack_file:
+            if self.import_data_pack(dp):
+                imported += 1
+                
+        if imported > 0:
+            self.reload_data()
+            self.advise_successfull_import( imported )
+        else:
+            self.advise_error(self.tr("Cannot import data pack."))        
+            
     def import_data_pack(self, data_pack_file):
         try:
             dal.dataimport.CM_VERSION = APP_VERSION
@@ -427,11 +441,9 @@ class L5RCMCore(QtGui.QMainWindow):
                     dest = os.path.join(dest, 'data')
 
                 pack.export_to  (dest)
-                self.reload_data()
-                #self.create_new_character()
-                self.advise_successfull_import()
+            return True
         except Exception as e:
-            self.advise_error(self.tr("Cannot import data pack."), e.message)
+            return False
 
     def update_data_blacklist(self):
         self.data_pack_blacklist = [ x.id for x in self.dstore.packs if x.active == False ]
