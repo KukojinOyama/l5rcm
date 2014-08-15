@@ -20,6 +20,7 @@ import rules
 import dialogs
 import models
 import os
+import osutil
 
 from l5rcmcore import get_app_file, DB_VERSION, get_icon_path
 
@@ -222,10 +223,7 @@ class Sink1(QtCore.QObject):
         if result == QtGui.QMessageBox.Yes:
             return True
         return False          
-
-    def on_toggle_buy_for_free(self, flag):
-        models.Advancement.set_buy_for_free(flag)
-            
+          
     def refund_advancement(self, adv_idx = -1):
         '''refund the specified advancement and recalculate ranks'''        
         form = self.form
@@ -241,3 +239,103 @@ class Sink1(QtCore.QObject):
             form.update_from_model()
             return True
         return False
+
+
+    #OPTIONS
+    def on_toggle_buy_for_free(self, flag):
+        models.Advancement.set_buy_for_free(flag)
+
+    def on_toggle_display_banner(self):
+        form = self.form
+
+        settings = QtCore.QSettings()
+        lIsBannerEnabled = settings.value('isbannerenabled')
+
+        if(lIsBannerEnabled == 1):
+            lIsBannerEnabled = 0
+        else:
+            lIsBannerEnabled = 1
+        settings.setValue('isbannerenabled', lIsBannerEnabled)
+
+        for i in xrange(0, form.mvbox.count()):
+            logo = form.mvbox.itemAt(i).widget()
+            if (logo.objectName() == 'BANNER'):
+                if(lIsBannerEnabled == 1):
+                    logo.show()
+                else:
+                    logo.hide()
+                    form.widgets.adjustSize()
+                    form.widgets.resize(1,1)
+                    form.widgets.setGeometry( QtCore.QRect(0, 0, 727, 573) )
+                break
+        #form.widgets.adjustSize()
+
+    def open_image_dialog(self):
+        supported_ext     = ['.png']
+        supported_filters = [self.tr("PNG Images (*.png)")]
+
+        settings = QtCore.QSettings()
+        last_data_dir = settings.value('last_open_image_dir', QtCore.QDir.homePath())
+        fileName = QtGui.QFileDialog.getOpenFileName(
+                                self.form,
+                                self.tr("Open image"),
+                                last_data_dir,
+                                ";;".join(supported_filters))
+        if len(fileName) != 2:
+            return None
+
+        last_data_dir = os.path.dirname(fileName[0])
+        if last_data_dir != '':
+            settings.setValue('last_open_image_dir', last_data_dir)
+        return fileName[0]
+
+    def open_color_dialog(self):
+        form = self.form
+        settings = QtCore.QSettings()
+        lBackgroundColor = settings.value('backgroundcolor')
+        color = QtGui.QColor()
+
+        if(lBackgroundColor is not None):
+            color = QtGui.QColor(lBackgroundColor)
+        
+        if(not color.isValid()):
+            color = QtGui.QColor('#000000')
+
+        color = QtGui.QColorDialog.getColor(color, form)
+        return color
+
+    def on_set_background_color(self):
+        form = self.form
+        color = self.open_color_dialog()
+        if not color: return
+
+        if color.isValid():
+            form.view.setStyleSheet("background-color:%s;" % color.name())
+            settings = QtCore.QSettings()
+            settings.setValue('backgroundcolor', color.name())
+
+    def on_set_background(self):
+        file = self.open_image_dialog()
+        if not file: return
+
+        settings = QtCore.QSettings()
+        settings.setValue('background_image', file)
+
+        self.form.update_background_image()
+
+    def on_rem_background(self):
+        form = self.form
+        settings = QtCore.QSettings()
+        settings.setValue('background_image', '')
+        form.view.set_wallpaper( None )
+            
+    def open_data_dir_act(self):
+        path = os.path.normpath(osutil.get_user_data_path())
+        if not os.path.exists(path):
+            os.makedirs(path)
+        osutil.portable_open(path)
+
+    def on_reset_geometry(self):
+        form = self.form
+        form.reset_geometry()
+

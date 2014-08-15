@@ -14,12 +14,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+from PySide import QtGui, QtCore
+from datetime import datetime
 import models
 import rules
 import hashlib
 import dal
 import dal.query
-from datetime import datetime
+
 
 class FDFExporter(object):
     def __init__(self):
@@ -271,21 +273,27 @@ class FDFExporterShugenja(FDFExporter):
         fields = {}
 
         # spells
-        r, c = 0, 0
+        print('Starting Spells Export')
+        lPageNumber, lControlNumber = 1, 1
+        lShortDescription = ''
         for spell in f.sp_view_model.items:
-            fields['SPELL_NM.%d.%d'  % (r, c)       ] = spell.name
-            fields['SPELL_MASTERY.%d.%d'  % (r, c)  ] = spell.mastery
-            fields['SPELL_RANGE.%d.%d'  % (r, c)    ] = spell.range
-            fields['SPELL_AREA.%d.%d'  % (r, c)     ] = spell.area
-            fields['SPELL_DURATION.%d.%d'  % (r, c) ] = spell.duration
-            fields['SPELL_ELEM.%d.%d'  % (r, c)     ] = spell.ring
+            fields['SPELL_NM.%d.%d'  % (lPageNumber, lControlNumber)       ] = spell.name
+            fields['SPELL_MASTERY.%d.%d'  % (lPageNumber, lControlNumber)  ] = spell.mastery
+            fields['SPELL_RANGE.%d.%d'  % (lPageNumber, lControlNumber)    ] = spell.range
+            fields['SPELL_AREA.%d.%d'  % (lPageNumber, lControlNumber)     ] = spell.area
+            fields['SPELL_DURATION.%d.%d'  % (lPageNumber, lControlNumber) ] = spell.duration
+            fields['SPELL_ELEM.%d.%d'  % (lPageNumber, lControlNumber)     ] = spell.ring
+            fields['SPELL_RAISE.%d.%d'  % (lPageNumber, lControlNumber)    ] = spell.raises
+            fields['SPELL_TAGS.%d.%d'  % (lPageNumber, lControlNumber)     ] = spell.tags
+            fields['SPELL_EFFECT.%d.%d'  % (lPageNumber, lControlNumber)   ] = self.shorten_string(spell.desc) or ''
 
-            c += 1
-            if c == 3:
-                c = 0
-                r += 1
+            lControlNumber += 1
+            if lControlNumber == 9 and lPageNumber == 1:
+                lControlNumber = 1
+                lPageNumber += 1
 
         # schools
+        print('Starting Schools Export')
         schools = filter(lambda x: 'shugenja' in x.tags, m.schools)
         count = min(3, len(schools))
         for i in xrange(0, count):
@@ -304,13 +312,77 @@ class FDFExporterShugenja(FDFExporter):
                     fields['SCHOOL_NM.%d'  % (i+1)    ] = school.name
                     fields['AFFINITY.%d'  % (i+1)     ] = aff_
                     fields['DEFICIENCY.%d'  % (i+1)   ] = def_
-                    fields['SCHOOL_TECH_1.%d'  % (i+1)] = tech.name
+                    fields['SCHOOL_TECH.%d'  % (i+1)] = tech.desc
             else:
                 print('cannot export character school', schools[i].school_id)
 
-        # EXPORT FIELDS
+        # EXPORT FIELDS5
         for k in fields.iterkeys():
             self.export_field(k, fields[k], io)
+
+    def shorten_string(self, text, max_characters = 615):
+        try:
+            #TODO: REGEX
+            #TODO: Pixel Length of string
+            lShortDescription = (text[:max_characters] + "...") if len(text) > max_characters else text
+
+            lOpenParenCount = lShortDescription.count("(")
+            lClosedParenCount = lShortDescription.count(")")
+
+            for i in xrange(0, lOpenParenCount-lClosedParenCount):
+                lShortDescription+=")"
+
+            return lShortDescription
+
+
+            #max_pixel_length = 1926
+            #metrics = QtGui.QFontMetrics(self.form.font())
+            #actualWidth = metrics.boundingRect(text).width()
+            #lShortDescription = ''
+            #if actualWidth > max_pixel_length:
+            #    lWords = text.split()
+            #    for word in lWords:
+            #        lShortDescription+= " " + word
+            #        if metrics.boundingRect(lShortDescription).width() >= max_pixel_length:
+            #            break
+            #else:
+            #    lShortDescription = text
+
+        except Exception as e:
+            print( repr(e) )
+            return None   
+
+    def split_in_parts(self, text, max_lines = 6):
+        try:
+            words = text.split(' ')
+            tl    = len(text)
+            avg_chars_per_line = int(tl / max_lines)
+
+            lines = []
+
+            cl = 0
+            i  = 0
+            line = ''
+            while True:
+                if len(lines) >= max_lines or i >= len(words):
+                    break
+                if cl < (avg_chars_per_line-3):
+                    line += words[i]+ ' '
+                    cl = len(line)
+                    i += 1
+                else:
+                    cl = 0
+                    lines.append(line)
+                    line = ''
+
+            if len(line):
+                lines.append(line)
+
+            return lines
+
+        except Exception as e:
+            print( repr(e) )
+            return None            
 
 class FDFExporterBushi(FDFExporter):
     def __init__(self):

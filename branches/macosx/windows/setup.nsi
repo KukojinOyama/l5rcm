@@ -4,11 +4,15 @@
 !define PRODUCT_NAME "Legend of the Five Rings: Character Manager"
 <<<<<<< .working
 <<<<<<< .working
+<<<<<<< .working
 !define PRODUCT_VERSION "3.9.0"
 =======
 !define PRODUCT_VERSION "3.9.1"
 =======
 !define PRODUCT_VERSION "3.9.3"
+=======
+!define PRODUCT_VERSION "3.9.4"
+>>>>>>> .merge-right.r599
 >>>>>>> .merge-right.r555
 >>>>>>> .merge-right.r518
 !define PRODUCT_PUBLISHER "openningia"

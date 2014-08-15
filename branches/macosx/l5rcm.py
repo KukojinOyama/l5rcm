@@ -188,31 +188,45 @@ class L5RMain(L5RCMCore):
     def build_ui(self):
         # Main interface widgets
         self.view = ZoomableView(self)
-
         settings = QtCore.QSettings()
+
+        #Set Background Color        
+        lBackgroundColor = settings.value('backgroundcolor')
+        color = QtGui.QColor()
+        if(lBackgroundColor is not None):
+            color = QtGui.QColor(lBackgroundColor)
+        if(not color.isValid()):
+            color = QtGui.QColor('#000000')
+        self.view.setStyleSheet("background-color:%s;" % color.name())
 
         self.widgets = QtGui.QFrame()
         self.widgets.setFrameShape( QtGui.QFrame.StyledPanel )
         self.widgets.setLineWidth ( 1 )
-        #self.widgets.setMaximumSize( QtCore.QSize(9999, 9999) )
         self.tabs = QtGui.QTabWidget(self)
-        #self.setCentralWidget(self.widgets)
         self.scene = QtGui.QGraphicsScene(self)
         proxy_widget = self.scene.addWidget(self.widgets, QtCore.Qt.Widget)
         proxy_widget.setOpacity(float(settings.value('opacity', 0.96)))
         self.view.setScene(self.scene)
         self.view.setInteractive(True)
         self.setCentralWidget(self.view)
-
         self.nicebar = None
-
         mvbox = QtGui.QVBoxLayout(self.widgets)
         logo = QtGui.QLabel(self)
-        #logo.setScaledContents(True)
-        #logo.setPixmap( QtGui.QPixmap( get_app_file('banner_ss.png') ) )
-        mvbox.addWidget(logo)
-        mvbox.addWidget(self.tabs)
 
+        #Set Banner
+        lIsBannerEnabled = settings.value('isbannerenabled')
+        if(lIsBannerEnabled) is None:
+            lIsBannerEnabled = 1
+        settings.setValue('isbannerenabled', lIsBannerEnabled)
+        logo.setScaledContents(True)
+        logo.setPixmap( QtGui.QPixmap( get_app_file('banner.png') ) )
+        logo.setObjectName('BANNER')
+        if(lIsBannerEnabled == 0):
+            logo.hide()
+        mvbox.addWidget(logo)
+
+
+        mvbox.addWidget(self.tabs)
         self.mvbox = mvbox
 
         # LOAD SETTINGS
@@ -221,7 +235,7 @@ class L5RMain(L5RCMCore):
         if geo is not None:
             self.restoreGeometry(geo)
         else:
-            self.setGeometry( QtCore.QRect(100, 100, 820, 720) )
+            self.reset_geometry()
 
         self.ic_idx = int(settings.value('insight_calculation', 1))-1
         ic_calcs    = [rules.insight_calculation_1,
@@ -238,6 +252,12 @@ class L5RMain(L5RCMCore):
         wallpaper_ = settings.value('background_image', '')
         if os.path.exists( wallpaper_ ):
             self.view.set_wallpaper( QtGui.QImage( wallpaper_ ) )
+
+    def reset_geometry(self):
+        self.setGeometry( QtCore.QRect(100, 100, 820, 720) )
+
+    def reset_layout_geometry(self):
+        self.mvbox.setGeometry( QtCore.QRect(1, 1, 727, 573) )
 
     def build_ui_page_1(self):
 
@@ -1294,10 +1314,6 @@ class L5RMain(L5RCMCore):
         resetadv_act.triggered.connect( self.sink1.reset_adv           )
         refund_act  .triggered.connect( self.sink1.refund_last_adv     )
 
-        # Dice roller menu
-        dice_roll_act = QtGui.QAction(self.tr("Dice &Roller..."), self)
-        dice_roll_act  .triggered.connect( self.sink1.show_dice_roller )
-
         # Outfit menu
         # actions, select armor, add weapon, add misc item
         sel_armor_act      = QtGui.QAction(self.tr("Wear Armor..."       ), self)
@@ -1313,7 +1329,6 @@ class L5RMain(L5RCMCore):
         # Rules menu
         set_exp_limit_act  = QtGui.QAction(self.tr("Set Experience Limit..." ), self)
         set_wound_mult_act = QtGui.QAction(self.tr("Set Health Multiplier..."), self)
-        buy_for_free_act   = QtGui.QAction(self.tr("Free Shopping"           ), self)
         damage_act         = QtGui.QAction(self.tr("Cure/Inflict Damage...")  , self)
 
         # insight calculation submenu
@@ -1350,24 +1365,49 @@ class L5RMain(L5RCMCore):
             if act.property('method') == hm_mode:
                 act.setChecked(True)
 
-        buy_for_free_act .setCheckable(True)
-        buy_for_free_act .setChecked(False)
-
         set_exp_limit_act .triggered.connect(self.sink1.on_set_exp_limit      )
         set_wound_mult_act.triggered.connect(self.sink1.on_set_wnd_mult       )
         damage_act        .triggered.connect(self.sink1.on_damage_act         )
-        buy_for_free_act  .toggled  .connect(self.sink1.on_toggle_buy_for_free)
+
 
         # Data menu
         import_data_act   = QtGui.QAction(self.tr("Import Data pack..." ), self)
         manage_data_act   = QtGui.QAction(self.tr("Manage Data packs..."), self)
-        open_data_dir_act = QtGui.QAction(self.tr("Open Data Directory" ), self)
         reload_data_act   = QtGui.QAction(self.tr("Reload data"         ), self)
 
-        # Background
-        set_background_act = QtGui.QAction(self.tr("Background image..."), self)
-        set_background_act.triggered.connect(self.sink4.on_set_background)
+        # Options
+        m_options                       = self.app_menu.addMenu(self.tr("Options"))
+        self.options_act_grp            = QtGui.QActionGroup(self)
+        self.options_act_grp.setExclusive(False)
 
+        options_set_background_act       = QtGui.QAction(self.tr("Set background image   " ), self)
+        options_rem_background_act       = QtGui.QAction(self.tr("Remove background image" ), self)
+        options_set_background_color_act = QtGui.QAction(self.tr("Set background color"    ), self)
+        options_banner_act               = QtGui.QAction(self.tr("Toggle banner display"   ), self)
+        options_buy_for_free_act         = QtGui.QAction(self.tr("Free Shopping"           ), self)
+        options_open_data_dir_act        = QtGui.QAction(self.tr("Open Data Directory"     ), self)
+        options_dice_roll_act            = QtGui.QAction(self.tr("Dice &Roller..."         ), self)
+        #options_reset_geometry_act       = QtGui.QAction(self.tr("Reset window size"       ), self)
+
+        options_list = [options_set_background_act, options_rem_background_act, options_set_background_color_act, options_banner_act, options_buy_for_free_act, options_open_data_dir_act, options_dice_roll_act] #, options_reset_geometry_act
+        for act in options_list:
+            self.options_act_grp.addAction(act)
+            m_options.addAction(act)
+            if(act.text() != 'Set background image   '):
+                m_options.addSeparator()
+
+        options_buy_for_free_act.setCheckable(True)
+        options_buy_for_free_act.setChecked(False)
+        options_set_background_act.triggered.connect(self.sink1.on_set_background)
+        options_rem_background_act.triggered.connect(self.sink1.on_rem_background)
+        options_set_background_color_act.triggered.connect(self.sink1.on_set_background_color)
+        options_banner_act.triggered.connect(self.sink1.on_toggle_display_banner)
+        options_buy_for_free_act.toggled.connect(self.sink1.on_toggle_buy_for_free)
+        options_open_data_dir_act.triggered.connect(self.sink1.open_data_dir_act)
+        options_dice_roll_act.triggered.connect(self.sink1.show_dice_roller)
+        #options_reset_geometry_act.triggered.connect(self.sink1.on_reset_geometry)
+
+        # GENERAL MENU
         self.app_menu_tb.setAutoRaise(True)
         self.app_menu_tb.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
         self.app_menu_tb.setPopupMode( QtGui.QToolButton.InstantPopup )
@@ -1381,13 +1421,12 @@ class L5RMain(L5RCMCore):
         self.app_menu.addAction(save_act)
         self.app_menu.addAction(export_pdf_act)
         self.app_menu.addSeparator()
+        # OPTIONS
+        self.app_menu.addMenu(m_options)
+        self.app_menu.addSeparator()
         # ADV
         self.app_menu.addAction(resetadv_act)
         self.app_menu.addAction(refund_act)
-        self.app_menu.addSeparator()
-        # TOOLS
-        self.app_menu.addAction(dice_roll_act)
-        self.app_menu.addAction(set_background_act)
         self.app_menu.addSeparator()
         # OUTFIT
         self.app_menu.addAction(sel_armor_act)
@@ -1398,7 +1437,6 @@ class L5RMain(L5RCMCore):
         # RULES
         self.app_menu.addAction(set_exp_limit_act)
         self.app_menu.addAction(set_wound_mult_act)
-        self.app_menu.addAction(buy_for_free_act)
         self.app_menu.addSeparator()
         # INSIGHT
         self.app_menu.addMenu(m_insight_calc)
@@ -1409,9 +1447,9 @@ class L5RMain(L5RCMCore):
         # DATA
         self.app_menu.addAction(import_data_act)
         self.app_menu.addAction(manage_data_act)
-        self.app_menu.addAction(open_data_dir_act)
         self.app_menu.addAction(reload_data_act)
         self.app_menu.addSeparator()
+
         # EXIT
         self.app_menu.addAction(exit_act)
 
@@ -1420,7 +1458,6 @@ class L5RMain(L5RCMCore):
 
         import_data_act  .triggered.connect(self.sink4.import_data_act  )
         manage_data_act  .triggered.connect(self.sink4.manage_data_act  )
-        open_data_dir_act.triggered.connect(self.sink4.open_data_dir_act)
         reload_data_act  .triggered.connect(self.sink4.reload_data_act  )
 
     def init(self):
@@ -2363,13 +2400,13 @@ class L5RMain(L5RCMCore):
         if do_not_prompt_again.checkState() == QtCore.Qt.Checked:
             settings.setValue('advise_conversion', 'false')
 
-    def advise_successfull_import(self):
+    def advise_successfull_import(self, count):
         settings = QtCore.QSettings()
         if settings.value('advise_successfull_import', 'true') == 'false':
             return
         msgBox = QtGui.QMessageBox(self)
         msgBox.setWindowTitle('L5R: CM')
-        msgBox.setText(self.tr("Data pack imported succesfully."))
+        msgBox.setText(self.tr("{0} data pack(s) imported succesfully.").format(count))
         do_not_prompt_again = QtGui.QCheckBox(self.tr("Do not prompt again"), msgBox)
         do_not_prompt_again.blockSignals(True) # PREVENT MSGBOX TO CLOSE ON CLICK
         msgBox.addButton(QtGui.QMessageBox.Ok)
@@ -2537,20 +2574,25 @@ class L5RMain(L5RCMCore):
 
         settings = QtCore.QSettings()
         last_data_dir = settings.value('last_open_data_dir', QtCore.QDir.homePath())
-        fileName = QtGui.QFileDialog.getOpenFileName(
+        ret = QtGui.QFileDialog.getOpenFileNames(
                                 self,
                                 self.tr("Load data pack"),
                                 last_data_dir,
                                 ";;".join(supported_filters))
-
-        if len(fileName) != 2:
+        
+        if len(ret) < 2:
+            return None
+           
+        files = ret[0]
+        
+        if not len(files):
             return None
 
-        last_data_dir = os.path.dirname(fileName[0])
+        last_data_dir = os.path.dirname(files[0])
         if last_data_dir != '':
             #print 'save last_dir: %s' % last_dir
             settings.setValue('last_open_data_dir', last_data_dir)
-        return fileName[0]
+        return files
 
     def check_updates(self):
         update_info = autoupdate.get_last_version()

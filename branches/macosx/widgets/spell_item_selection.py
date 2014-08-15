@@ -62,6 +62,7 @@ class SpellItemSelection(QtGui.QWidget):
         self.lb_mastery = QtGui.QLabel(self.tr('Mastery'), self)
         self.lb_spell   = QtGui.QLabel(self.tr('Spell'), self)
         self.lb_descr   = QtGui.QLabel(self)
+        self.lb_descr.setWordWrap(True)
 
         self.cb_element.setEditable(False)
         self.cb_mastery.setEditable(False)

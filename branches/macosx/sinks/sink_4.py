@@ -57,21 +57,14 @@ class Sink4(QtCore.QObject):
 
     # DATA MENU
     def import_data_act(self):
-        data_pack_file = self.form.select_import_data_pack()
-        if data_pack_file:
-            self.form.import_data_pack(data_pack_file)
+        data_pack_files = self.form.select_import_data_pack()
+        self.form.import_data_packs(data_pack_files)
 
     def manage_data_act(self):
         dlg = dialogs.ManageDataPackDlg(self.form.dstore, self.form)
         if dlg.exec_() == QtGui.QDialog.DialogCode.Accepted:
             self.form.update_data_blacklist()
             self.reload_data_act           ()
-
-    def open_data_dir_act(self):
-        path = os.path.normpath(osutil.get_user_data_path())
-        if not os.path.exists(path):
-            os.makedirs(path)
-        osutil.portable_open(path)
 
     def reload_data_act(self):
         self.form.reload_data  ()
@@ -97,34 +90,6 @@ class Sink4(QtCore.QObject):
 
     def on_money_value_changed(self, value):
         self.form.pc.set_property('money', value)
-
-    def open_image_dialog(self):
-        supported_ext     = ['.png']
-        supported_filters = [self.tr("PNG Images (*.png)")]
-
-        settings = QtCore.QSettings()
-        last_data_dir = settings.value('last_open_image_dir', QtCore.QDir.homePath())
-        fileName = QtGui.QFileDialog.getOpenFileName(
-                                self.form,
-                                self.tr("Open image"),
-                                last_data_dir,
-                                ";;".join(supported_filters))
-        if len(fileName) != 2:
-            return None
-
-        last_data_dir = os.path.dirname(fileName[0])
-        if last_data_dir != '':
-            settings.setValue('last_open_image_dir', last_data_dir)
-        return fileName[0]
-
-    def on_set_background(self):
-        file = self.open_image_dialog()
-        if not file: return
-
-        settings = QtCore.QSettings()
-        settings.setValue('background_image', file)
-
-        self.form.update_background_image()
 
     def on_tech_item_activate(self, index):
         form = self.form
