@@ -15,25 +15,37 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import uuid
+import lxml.etree as ET
+
 class GenericId(object):
+
+    def __init__(self):
+        self.id     = uuid.uuid1().hex
+        self.text   = None
+
     @staticmethod
     def build_from_xml(elem):
         f = GenericId()
         f.id = elem.attrib['id']
         f.text = elem.text
-        return f  	
-        
+        return f
+
+    def write_into(self, name, elem):
+        ec = ET.SubElement(elem, name,
+            { 'id'    : self.id } ).text = self.text
+
     def __str__(self):
         return self.text
 
     def __unicode__(self):
-        return self.text        
-        
+        return self.text
+
     def __eq__(self, obj):
         return obj and obj.id == self.id
 
     def __ne__(self, obj):
         return not self.__eq__(obj)
-        
+
     def __hash__(self):
-        return self.id.__hash__()        
+        return self.id.__hash__()

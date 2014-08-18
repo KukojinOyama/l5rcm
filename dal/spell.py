@@ -17,32 +17,51 @@
 
 from requirements import Requirement, RequirementOption, read_requirements_list
 from xmlutils import *
+import uuid
+import lxml.etree as ET
 
 class Spell(object):
+
+    def __init__(self):
+        self.id    = uuid.uuid1().hex
+
+        self.name     = None
+        self.area     = None
+        self.mastery  = None
+        self.range    = None
+        self.duration = None
+        self.element  = None
+        self.tags     = None
+        self.require  = None
+        self.desc     = None
+        self.raises   = []
 
     @staticmethod
     def build_from_xml(elem):
         f = Spell()
         f.id       = elem.attrib['id']
-        f.name     = read_attribute(elem, 'name')        
+        f.name     = read_attribute(elem, 'name')
         f.area     = read_attribute(elem, 'area')
         f.mastery  = read_attribute_int(elem, 'mastery')
         f.range    = read_attribute(elem, 'range')
         f.duration = read_attribute(elem, 'duration')
-        f.element  = read_attribute(elem, 'element')        
+        f.element  = read_attribute(elem, 'element')
         f.tags     = read_tag_list(elem)
-        f.require  = read_requirements_list(elem)        
+        f.require  = read_requirements_list(elem)
         f.desc     = read_sub_element_text(elem, 'Description', "")
         f.raises = []
         if elem.find('Raises') is not None:
             for se in elem.find('Raises').iter():
                 if se.tag == 'Raise':
-                    f.raises.append(se.text) 
+                    f.raises.append(se.text)
         return f
-        
+
+    def write_into(self, elem):
+        pass
+
     def __str__(self):
         return self.name or self.id
-        
+
     def __unicode__(self):
         return self.name or self.id
 
@@ -51,7 +70,7 @@ class Spell(object):
 
     def __ne__(self, obj):
         return not self.__eq__(obj)
-        
+
     def __hash__(self):
         return self.id.__hash__()
 

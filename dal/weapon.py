@@ -15,7 +15,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import uuid
+import lxml.etree as ET
+
 class WeaponEffect(object):
+
+    def __init__(self):
+        self.id    = uuid.uuid1().hex
+        self.text  = None
 
     @staticmethod
     def build_from_xml(elem):
@@ -24,7 +31,18 @@ class WeaponEffect(object):
         f.text = elem.text
         return f
 
-class Armor(object):  
+    def write_into(self, elem):
+        pass
+
+class Armor(object):
+
+    def __init__(self):
+        self.name     = None
+        self.tn       = None
+        self.rd       = None
+        self.cost     = None
+        self.effectid = None
+
     @staticmethod
     def build_from_xml(elem):
         f = Armor()
@@ -32,19 +50,35 @@ class Armor(object):
         f.tn     = int(elem.attrib['tn'])
         f.rd     = int(elem.attrib['rd'])
         f.cost   = elem.attrib['cost']
-        
+
         f.effectid = None
         eff = elem.find('Effect')
         if eff is not None: f.effectid = eff.attrib['id']
         return f
-        
+
+    def write_into(self, elem):
+        pass
+
     def __str__(self):
         return self.name
-        
+
     def __unicode__(self):
-        return self.name           
-        
+        return self.name
+
 class Weapon(object):
+
+    def __init__(self):
+        self.name         = None
+        self.skill        = None
+        self.cost         = None
+        self.dr           = None
+        self.dr2          = None
+        self.range        = None
+        self.strength     = None
+        self.min_strength = None
+        self.effectid     = None
+
+        self.tags  = []
 
     @staticmethod
     def build_from_xml(elem):
@@ -62,15 +96,18 @@ class Weapon(object):
         for se in elem.find('Tags').iter():
             if se.tag == 'Tag':
                 f.tags.append(se.text)
-                
-        f.effectid = None    
+
+        f.effectid = None
         eff = elem.find('Effect')
-        if eff: f.effectid = eff.attrib['id']       
+        if eff: f.effectid = eff.attrib['id']
 
         return f
-        
+
+    def write_into(self, elem):
+        pass
+
     def __str__(self):
         return self.name
-        
+
     def __unicode__(self):
-        return self.name        
+        return self.name

@@ -16,8 +16,17 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from xmlutils import *
+import lxml.etree as ET
 
 class Requirement(object):
+
+    def __init__(self):
+        self.field = None
+        self.type  = None
+        self.min   = None
+        self.max   = None
+        self.trg   = None
+        self.text  = None
 
     @staticmethod
     def build_from_xml(elem):
@@ -29,6 +38,9 @@ class Requirement(object):
         f.trg   = read_attribute    ( elem, 'trg'     )
         f.text = elem.text
         return f
+
+    def write_into(self, elem):
+        pass
 
     def __str__(self):
         return self.text
@@ -167,6 +179,12 @@ class Requirement(object):
         return True
 
 class RequirementOption(object):
+
+    def __init__(self):
+        self.require = []
+        self.type    = None
+        self.text    = None
+
     @staticmethod
     def build_from_xml(elem):
         f = RequirementOption()
@@ -177,6 +195,9 @@ class RequirementOption(object):
             if se.tag == 'Requirement':
                 f.require.append(Requirement.build_from_xml(se))
         return f
+
+    def write_into(self, elem):
+        pass
 
     def match(self, model, dstore):
         # at least one should match
