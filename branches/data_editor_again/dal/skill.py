@@ -15,8 +15,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import uuid
+import lxml.etree as ET
+
 class MasteryAbility(object):
-    
+
+    def __init__(self):
+        self.rank = None
+        self.rule = None
+        self.desc = None
+
     @staticmethod
     def build_from_xml(elem):
         f = MasteryAbility()
@@ -24,31 +32,52 @@ class MasteryAbility(object):
         f.rule = elem.attrib['rule'] if ('rule' in elem.attrib) else None
         f.desc = elem.text
         return f
-        
-class SkillCateg(object):        
+
+    def write_into(self, elem):
+        pass
+
+class SkillCateg(object):
+
+    def __init__(self):
+        self.id    = uuid.uuid1().hex
+        self.name  = None
+
     @staticmethod
     def build_from_xml(elem):
         f = SkillCateg()
         f.id = elem.attrib['id']
         f.name = elem.text
         return f
-    
+
+    def write_into(self, elem):
+        pass
+
     def __str__(self):
         return self.name
-        
+
     def __unicode__(self):
-        return self.name        
-        
+        return self.name
+
     def __eq__(self, obj):
         return obj and obj.id == self.id
-        
+
     def __ne__(self, obj):
         return not self.__eq__(obj)
-        
+
     def __hash__(self):
         return self.id.__hash__()
-        
+
 class Skill(object):
+
+    def __init__(self):
+        self.id    = uuid.uuid1().hex
+
+        self.name  = None
+        self.trait = None
+        self.type  = None
+
+        self.tags              = []
+        self.mastery_abilities = []
 
     @staticmethod
     def build_from_xml(elem):
@@ -57,7 +86,7 @@ class Skill(object):
         f.id    = elem.attrib['id']
         f.trait = elem.attrib['trait']
         f.type  = elem.attrib['type']
-        f.tags  = [f.type]        
+        f.tags  = [f.type]
         if elem.find('Tags'):
             for se in elem.find('Tags').iter():
                 if se.tag == 'Tag':
@@ -67,11 +96,14 @@ class Skill(object):
             for se in elem.find('MasteryAbilities').iter():
                 if se.tag == 'MasteryAbility':
                     f.mastery_abilities.append(MasteryAbility.build_from_xml(se))
-        return f        
-        
+        return f
+
+    def write_into(self, elem):
+        pass
+
     def __str__(self):
         return self.name or self.id
-        
+
     def __unicode__(self):
         return self.name
 
@@ -80,7 +112,7 @@ class Skill(object):
 
     def __ne__(self, obj):
         return not self.__eq__(obj)
-        
+
     def __hash__(self):
         return self.id.__hash__()
 

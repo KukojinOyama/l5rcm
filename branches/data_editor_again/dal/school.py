@@ -17,8 +17,15 @@
 
 from requirements import read_requirements_list
 from xmlutils import *
+import uuid
+import lxml.etree as ET
 
 class SchoolSkill(object):
+
+    def __init__(self):
+        self.id     = uuid.uuid1().hex
+        self.rank   = None
+        self.emph   = None
 
     @staticmethod
     def build_from_xml(elem):
@@ -27,6 +34,9 @@ class SchoolSkill(object):
         f.rank = read_attribute_int( elem, 'rank'     )
         f.emph = read_attribute    ( elem, 'emphases' )
         return f
+
+    def write_into(self, elem):
+        pass
 
     def __eq__(self, obj):
         return obj and obj.id == self.id
@@ -38,6 +48,11 @@ class SchoolSkill(object):
         return self.id.__hash__()
 
 class SchoolSkillWildcard(object):
+
+    def __init__(self):
+        self.value    = None
+        self.modifier = None
+
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSkillWildcard()
@@ -45,7 +60,14 @@ class SchoolSkillWildcard(object):
         f.modifier = read_attribute( elem, 'modifier', 'or' )
         return f
 
+    def write_into(self, elem):
+        pass
+
 class SchoolSkillWildcardSet(object):
+
+    def __init__(self):
+        self.rank      = None
+        self.wildcards = []
 
     @staticmethod
     def build_from_xml(elem):
@@ -57,7 +79,16 @@ class SchoolSkillWildcardSet(object):
                 f.wildcards.append(SchoolSkillWildcard.build_from_xml(se))
         return f
 
+    def write_into(self, elem):
+        pass
+
 class SchoolTech(object):
+
+    def __init__(self):
+        self.id     = uuid.uuid1().hex
+        self.name   = None
+        self.rank   = None
+        self.desc   = None
 
     @staticmethod
     def build_from_xml(elem):
@@ -69,6 +100,9 @@ class SchoolTech(object):
         if f.desc == "":
             print("miss tech info: {tech_id}".format(tech_id=f.id))
         return f
+
+    def write_into(self, elem):
+        pass
 
     def __str__(self):
         return self.name or self.id
@@ -87,11 +121,17 @@ class SchoolTech(object):
 
 class SchoolSpell(object):
 
+    def __init__(self):
+        self.id     = uuid.uuid1().hex
+
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSpell()
         f.id = read_attribute( elem, 'id' )
         return f
+
+    def write_into(self, elem):
+        pass
 
     def __eq__(self, obj):
         return obj and obj.id == self.id
@@ -104,6 +144,11 @@ class SchoolSpell(object):
 
 class SchoolSpellWildcard(object):
 
+    def __init__(self):
+        self.count   = None
+        self.element = None
+        self.tag     = None
+
     @staticmethod
     def build_from_xml(elem):
         f = SchoolSpellWildcard()
@@ -112,7 +157,14 @@ class SchoolSpellWildcard(object):
         f.tag     = read_attribute    ( elem, 'tag'     )
         return f
 
+    def write_into(self, elem):
+        pass
+
 class SchoolKiho(object):
+
+    def __init__(self):
+        self.count = None
+        self.text  = None
 
     @staticmethod
     def build_from_xml(elem):
@@ -121,7 +173,15 @@ class SchoolKiho(object):
         f.text    = elem.text
         return f
 
+    def write_into(self, elem):
+        pass
+
 class SchoolTattoo(object):
+
+    def __init__(self):
+        self.count   = None
+        self.allowed = None
+        self.text    = None
 
     @staticmethod
     def build_from_xml(elem):
@@ -131,7 +191,32 @@ class SchoolTattoo(object):
         f.text    = elem.text
         return f
 
+    def write_into(self, elem):
+        pass
+
 class School(object):
+
+    def __init__(self):
+        self.id     = uuid.uuid1().hex
+        self.name   = None
+        self.clanid = None
+        self.trait  = None
+
+        self.affinity    = None
+        self.deficiency  = None
+        self.honor       = None
+        self.kihos       = None
+        self.tattoos     = None
+
+        self.tags       = []
+        self.skills     = []
+        self.skills_pc  = []
+        self.techs      = []
+        self.spells     = []
+        self.spells_pc  = []
+        self.outfit     = []
+        self.money      = [0]*3 # koku, bu, zeni
+        self.require    = []
 
     @staticmethod
     def build_from_xml(elem):
@@ -199,6 +284,9 @@ class School(object):
             f.tattoos = SchoolTattoo.build_from_xml( elem.find('Tattoos') )
 
         return f
+
+    def write_into(self, elem):
+        pass
 
     def __str__(self):
         return self.name or self.id

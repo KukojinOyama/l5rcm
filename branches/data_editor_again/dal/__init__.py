@@ -42,6 +42,7 @@ class DataManifest(object):
         self.authors      = []
         self.active       = True
         self.path         = None
+        self.min_cm_ver   = None
 
         if 'display_name' in d:
             self.display_name = d['display_name']
@@ -55,6 +56,8 @@ class DataManifest(object):
             self.update_uri = d['update-uri']
         if 'download-uri' in d:
             self.download_uri = d['download-uri']
+        if 'min-cm-version' in d:
+            self.min_cm_ver = d['min-cm-version']
 
 class Data(object):
     def __init__(self, data_dirs = [], blacklist = []):
@@ -139,6 +142,10 @@ class Data(object):
                     traceback.print_exc()
         self.__log_imported_data(data_path)
 
+    def load_from_file(self, path):
+        self.rebuild()
+        return self.__load_xml(path)
+
     def __load_xml(self, xml_file):
         #print('load data from {0}'.format(xml_file))
         tree = ET.parse(xml_file)
@@ -179,6 +186,9 @@ class Data(object):
             elif elem.tag == 'TraitDef':
                 self.append_to(self.traits, GenericId.build_from_xml(elem))
 
+        del root
+        del tree
+
     def __log_imported_data(self, source):
         map = {}
         map['clans'] = self.clans
@@ -199,3 +209,45 @@ class Data(object):
         print('IMPORTED DATA', source)
         for k in map:
             print("imported {0} {1}".format( len(map[k]), k))
+
+class DataFile(Data):
+    def __init__(self, fp = None):
+        super(DataFile, self).__init__()
+
+        self.path = None
+        if fp is not None:
+            self.load_from_file(fp)
+
+    def save(self, new_path = None):
+
+        if new_path:
+            self.path = new_path
+
+        print( 'saving to', self.path )
+
+        import lxml.etree as XML
+        root = XML.Element('L5RCM')
+
+        stuff = ( self.clans + self.families + self.schools + self.spells +
+                     self.skills + self.katas + self.kihos + self.weapons +
+                     self.armors + self.skcategs + self.perktypes + self.weapon_effects )
+
+        for e in stuff:
+            e.write_into(root)
+
+        for m in self.merits:
+            m.write_into("Merit", root)
+
+        for f in self.flaws:
+            f.write_into("Flaw", root)
+
+        for r in self.rings:
+            f.write_into("RingDef", root)
+
+        for t in self.rings:
+            f.write_into("TraitDef", root)
+
+        try:
+            XML.ElementTree(root).write(self.path, pretty_print = True, encoding='UTF-8', xml_declaration=True)
+        except Exception as ex:
+            print('save failed', ex)
