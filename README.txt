@@ -23,7 +23,7 @@ manage your characters.
 
 Game data is provided through packages named "datapacks" that are downloadable
 from the project website:
-	http://sourceforge.net/projects/l5rcm/
+	https://code.google.com/p/l5rcm/downloads/list
 	
 Each datapack contains the game data equivalent of a L5R book with the exception
 of the "community data pack" that is a collection of game data that doesn't fit

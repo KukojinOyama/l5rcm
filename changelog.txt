@@ -4,12 +4,6 @@
 * [NEW] Dragon Alternate Paths
 * [NEW] Lion Alternate Paths
 
-=== L5RCM v3.9.4 ===
-* [FIX] Apply school outfit on character creation
-* [FIX] Fixed a bug in character advancement
-* [FIX] Brotherhood monks get 2 free kiho on school advancement
-* [NEW] Implemented new requirement rules to support core alternate paths
-
 === GREAT CLAN PACK 1.3 ===
 * [FIX] Issue #220, Kitsuki Debater alt-path not available ( due to bad requirements )
 
@@ -17,7 +11,7 @@
 * [FIX] Fix Seppun family trait ( was intelligence now is agility )
 
 === L5RCM v3.9.3 ===
-* [FIX] Glory is badly calculated with monks characters, Issue #
+* [FIX] Glory is badly calculated with monks characters
 * [NEW] Courier pdf sheet exported
 * [FIX] PDF export now works with non-ascii characters
 

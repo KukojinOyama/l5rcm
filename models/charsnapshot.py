@@ -45,21 +45,17 @@ class CharacterSnapshot(object):
 
         for k, v in [ (ring_name_from_id(i), pc.get_ring_rank(i)) for i in xrange(0, 5) ]:
             self.rings[k] = v
-
-        for k, v in [ (x.school_id, x.school_rank) for x in pc.get_rank_advancements() ]:
-            print('copy school {} rank {}'.format(k, v))
-            if k in self.schools:
-                self.schools[k] = max( v, self.schools[k] )
-            else:
-                self.schools[k] = v
-
+            
+        for k, v in [ (x.school_id, pc.get_school_rank(x)) for x in pc.schools ]:
+            self.schools[k] = v            
+            
         self.tags += pc.tags
         self.tags += pc.step_1.tags
         for s in pc.schools:
             self.tags += s.tags
-
-        #for s in pc.schools:
-        #    self.rules += s.tech_rules
+                        
+        for s in pc.schools:
+            self.rules += s.tech_rules
         self.rules += [ x.rule for x in pc.advans if hasattr(x,'rule') ]
 
         self.insight_rank = pc.get_insight_rank()
